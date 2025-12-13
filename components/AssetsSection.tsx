@@ -9,10 +9,41 @@ import {
   Button,
   IconButton,
   Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { useFormContext } from '../lib/FormContext';
+import { useFormContext, RealEstateOwner, OwnershipForm } from '../lib/FormContext';
+
+const OWNER_OPTIONS: RealEstateOwner[] = [
+  'Client',
+  'Spouse',
+  'Client and Spouse',
+  'Client and Other',
+  'Spouse and Other',
+  'Client, Spouse and Other',
+];
+
+const getOwnershipFormOptions = (owner: RealEstateOwner): OwnershipForm[] => {
+  const baseOptions: OwnershipForm[] = ['Life Estate', 'Lady Bird Deed', 'Trust', 'Other'];
+
+  switch (owner) {
+    case 'Client':
+    case 'Spouse':
+      return ['Sole', ...baseOptions];
+    case 'Client and Spouse':
+      return ['Tenants by Entirety', 'JTWROS', 'Tenants in Common', ...baseOptions];
+    case 'Client and Other':
+    case 'Spouse and Other':
+    case 'Client, Spouse and Other':
+      return ['JTWROS', 'Tenants in Common', ...baseOptions];
+    default:
+      return baseOptions;
+  }
+};
 
 const AssetsSection = () => {
   const { formData, updateFormData } = useFormContext();
@@ -21,7 +52,7 @@ const AssetsSection = () => {
   const addRealEstate = () => {
     const newRealEstate = [
       ...formData.realEstate,
-      { owner: '', street: '', city: '', state: '', zip: '', value: '', mortgageBalance: '', costBasis: '' },
+      { owner: '' as RealEstateOwner, ownershipForm: '' as OwnershipForm, street: '', city: '', state: '', zip: '', value: '', mortgageBalance: '', costBasis: '' },
     ];
     updateFormData({ realEstate: newRealEstate });
   };
@@ -101,16 +132,42 @@ const AssetsSection = () => {
             </Box>
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
-                <TextField
-                  fullWidth
-                  label="Owner"
-                  value={property.owner}
-                  onChange={(e) => updateRealEstate(index, 'owner', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                />
+                <FormControl fullWidth size="small">
+                  <InputLabel>Owner</InputLabel>
+                  <Select
+                    value={property.owner}
+                    label="Owner"
+                    onChange={(e) => {
+                      updateRealEstate(index, 'owner', e.target.value);
+                      // Reset ownership form when owner changes
+                      updateRealEstate(index, 'ownershipForm', '');
+                    }}
+                  >
+                    {OWNER_OPTIONS.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
-              <Grid item xs={12} md={9}>
+              <Grid item xs={12} md={3}>
+                <FormControl fullWidth size="small" disabled={!property.owner}>
+                  <InputLabel>Ownership Form</InputLabel>
+                  <Select
+                    value={property.ownershipForm}
+                    label="Ownership Form"
+                    onChange={(e) => updateRealEstate(index, 'ownershipForm', e.target.value)}
+                  >
+                    {getOwnershipFormOptions(property.owner).map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   label="Street Address"

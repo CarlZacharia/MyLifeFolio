@@ -18,26 +18,48 @@ import { FormProvider, useFormContext } from '../lib/FormContext';
 import PersonalDataSection from '../components/PersonalDataSection';
 import MaritalInfoSection from '../components/MaritalInfoSection';
 import ChildrenSection from '../components/ChildrenSection';
+import OtherBeneficiariesSection from '../components/OtherBeneficiariesSection';
 import DispositiveIntentionsSection from '../components/DispositiveIntentionsSection';
 import FiduciariesSection from '../components/FiduciariesSection';
 import AssetsSection from '../components/AssetsSection';
 import axios from 'axios';
+import { MaritalStatus } from '../lib/FormContext';
 
-const steps = [
-  'Personal Data',
-  'Marital Information',
-  'Children',
-  'Dispositive Intentions',
-  'Fiduciaries',
-  'Assets',
-  'Review & Submit',
-];
+const SHOW_MARITAL_INFO_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
+
+const getSteps = (showMaritalInfo: boolean) => {
+  if (showMaritalInfo) {
+    return [
+      'Personal Data',
+      'Marital Information',
+      'Children',
+      'Other Beneficiaries',
+      'Dispositive Intentions',
+      'Fiduciaries',
+      'Assets',
+      'Review & Submit',
+    ];
+  }
+  return [
+    'Personal Data',
+    'Children',
+    'Other Beneficiaries',
+    'Dispositive Intentions',
+    'Fiduciaries',
+    'Assets',
+    'Review & Submit',
+  ];
+};
 
 const QuestionnaireContent = () => {
   const { formData, currentStep, setCurrentStep } = useFormContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  const showMaritalInfo = SHOW_MARITAL_INFO_STATUSES.includes(formData.maritalStatus);
+  const steps = getSteps(showMaritalInfo);
+  const totalSteps = steps.length;
 
   const handleNext = () => {
     setCurrentStep(currentStep + 1);
@@ -79,20 +101,25 @@ const QuestionnaireContent = () => {
   };
 
   const renderStepContent = () => {
-    switch (currentStep) {
-      case 0:
+    // Map step index to component based on whether marital info is shown
+    const stepName = steps[currentStep];
+
+    switch (stepName) {
+      case 'Personal Data':
         return <PersonalDataSection />;
-      case 1:
+      case 'Marital Information':
         return <MaritalInfoSection />;
-      case 2:
+      case 'Children':
         return <ChildrenSection />;
-      case 3:
+      case 'Other Beneficiaries':
+        return <OtherBeneficiariesSection />;
+      case 'Dispositive Intentions':
         return <DispositiveIntentionsSection />;
-      case 4:
+      case 'Fiduciaries':
         return <FiduciariesSection />;
-      case 5:
+      case 'Assets':
         return <AssetsSection />;
-      case 6:
+      case 'Review & Submit':
         return (
           <Box>
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
@@ -102,7 +129,7 @@ const QuestionnaireContent = () => {
               Please review your information before submitting. You can go back to any section to make changes.
             </Alert>
             <Typography variant="body1" sx={{ mb: 2 }}>
-              Thank you for completing the Estate Planning Questionnaire. By clicking "Submit", 
+              Thank you for completing the Estate Planning Questionnaire. By clicking "Submit",
               your information will be securely sent to Zacharia Brown & Bratkovich for review.
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -110,30 +137,32 @@ const QuestionnaireContent = () => {
             </Typography>
           </Box>
         );
-      case 7:
-        return (
-          <Box sx={{ textAlign: 'center', py: 4 }}>
-            <Typography variant="h4" gutterBottom sx={{ color: '#1a237e' }}>
-              Thank You!
-            </Typography>
-            <Typography variant="h6" sx={{ mb: 3 }}>
-              Your estate planning questionnaire has been successfully submitted.
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Our team will review your information and contact you shortly.
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-              Zacharia Brown & Bratkovich
-              <br />
-              26811 South Bay Dr. Ste 260
-              <br />
-              Bonita Springs, Florida 34134
-              <br />
-              Tel: (239) 345-4545
-            </Typography>
-          </Box>
-        );
       default:
+        // Success page (after submit)
+        if (currentStep === totalSteps) {
+          return (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography variant="h4" gutterBottom sx={{ color: '#1a237e' }}>
+                Thank You!
+              </Typography>
+              <Typography variant="h6" sx={{ mb: 3 }}>
+                Your estate planning questionnaire has been successfully submitted.
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Our team will review your information and contact you shortly.
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                Zacharia Brown & Bratkovich
+                <br />
+                26811 South Bay Dr. Ste 260
+                <br />
+                Bonita Springs, Florida 34134
+                <br />
+                Tel: (239) 345-4545
+              </Typography>
+            </Box>
+          );
+        }
         return null;
     }
   };
@@ -155,11 +184,36 @@ const QuestionnaireContent = () => {
         </Box>
 
         {/* Stepper */}
-        {currentStep < 7 && (
+        {currentStep < totalSteps && (
           <Box sx={{ mb: 4 }}>
             <Stepper activeStep={currentStep} alternativeLabel>
-              {steps.map((label) => (
-                <Step key={label}>
+              {steps.map((label, index) => (
+                <Step
+                  key={label}
+                  onClick={() => {
+                    setCurrentStep(index);
+                    window.scrollTo(0, 0);
+                  }}
+                  sx={{
+                    cursor: 'pointer',
+                    '& .MuiStepLabel-root': {
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s ease-in-out',
+                    },
+                    '& .MuiStepLabel-label': {
+                      cursor: 'pointer',
+                    },
+                    '& .MuiStepIcon-root': {
+                      cursor: 'pointer',
+                    },
+                    '&:hover .MuiStepLabel-root': {
+                      transform: 'scale(1.1)',
+                    },
+                    '&:hover .MuiStepIcon-root': {
+                      color: '#1a237e',
+                    },
+                  }}
+                >
                   <StepLabel>{label}</StepLabel>
                 </Step>
               ))}
@@ -171,7 +225,7 @@ const QuestionnaireContent = () => {
         <Box sx={{ mb: 4 }}>{renderStepContent()}</Box>
 
         {/* Navigation Buttons */}
-        {currentStep < 7 && (
+        {currentStep < totalSteps && (
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
             <Button
               variant="outlined"
@@ -181,7 +235,7 @@ const QuestionnaireContent = () => {
               Back
             </Button>
             <Box>
-              {currentStep === steps.length - 1 ? (
+              {currentStep === totalSteps - 1 ? (
                 <Button
                   variant="contained"
                   onClick={handleSubmit}

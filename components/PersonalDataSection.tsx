@@ -1,25 +1,79 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   TextField,
   Typography,
   Grid,
   Divider,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import { useFormContext } from '../lib/FormContext';
+import { useFormContext, MaritalStatus, Sex } from '../lib/FormContext';
+
+const calculateAge = (birthDate: Date | null): string => {
+  if (!birthDate) return '';
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age >= 0 ? age.toString() : '';
+};
+
+const MARITAL_STATUS_OPTIONS: MaritalStatus[] = [
+  'Single',
+  'Married',
+  'Second Marriage',
+  'Divorced',
+  'Separated',
+  'Domestic Partnership',
+];
+
+const SEX_OPTIONS: Sex[] = ['Male', 'Female'];
+
+const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
 const PersonalDataSection = () => {
   const { formData, updateFormData } = useFormContext();
+  const [clientAge, setClientAge] = useState<string>('');
+  const [spouseAge, setSpouseAge] = useState<string>('');
+
+  const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
+
+  // Calculate ages when birth dates change
+  useEffect(() => {
+    setClientAge(calculateAge(formData.birthDate));
+  }, [formData.birthDate]);
+
+  useEffect(() => {
+    setSpouseAge(calculateAge(formData.spouseBirthDate));
+  }, [formData.spouseBirthDate]);
 
   const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     updateFormData({ [field]: event.target.value });
   };
 
+  const handleSelectChange = (field: string) => (event: SelectChangeEvent) => {
+    updateFormData({ [field]: event.target.value });
+  };
+
   const handleDateChange = (field: string) => (date: Date | null) => {
     updateFormData({ [field]: date });
+  };
+
+  const handleBirthDateBlur = () => {
+    setClientAge(calculateAge(formData.birthDate));
+  };
+
+  const handleSpouseBirthDateBlur = () => {
+    setSpouseAge(calculateAge(formData.spouseBirthDate));
   };
 
   return (
@@ -116,7 +170,7 @@ const PersonalDataSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
           <DatePicker
             label="Birth Date"
             value={formData.birthDate}
@@ -126,18 +180,70 @@ const PersonalDataSection = () => {
                 fullWidth: true,
                 variant: 'outlined',
                 required: true,
+                onBlur: handleBirthDateBlur,
               },
             }}
           />
         </Grid>
 
-        {/* Spouse Information */}
-        <Grid item xs={12}>
-          <Divider sx={{ my: 2 }} />
-          <Typography variant="h6" sx={{ mb: 2, mt: 2, fontWeight: 500 }}>
-            Spouse Information
-          </Typography>
+        <Grid item xs={12} md={2}>
+          <TextField
+            fullWidth
+            label="Age"
+            value={clientAge}
+            variant="outlined"
+            InputProps={{
+              readOnly: true,
+            }}
+            sx={{ backgroundColor: '#f5f5f5' }}
+          />
         </Grid>
+
+        <Grid item xs={12} md={4}>
+          <FormControl fullWidth variant="outlined" required>
+            <InputLabel id="marital-status-label">Marital Status</InputLabel>
+            <Select
+              labelId="marital-status-label"
+              value={formData.maritalStatus}
+              onChange={handleSelectChange('maritalStatus')}
+              label="Marital Status"
+            >
+              {MARITAL_STATUS_OPTIONS.map((status) => (
+                <MenuItem key={status} value={status}>
+                  {status}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={12} md={2}>
+          <FormControl fullWidth variant="outlined" required>
+            <InputLabel id="sex-label">Sex</InputLabel>
+            <Select
+              labelId="sex-label"
+              value={formData.sex}
+              onChange={handleSelectChange('sex')}
+              label="Sex"
+            >
+              {SEX_OPTIONS.map((sex) => (
+                <MenuItem key={sex} value={sex}>
+                  {sex}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        {/* Spouse Information - Only shown for Married, Second Marriage, or Domestic Partnership */}
+        {showSpouseInfo && (
+          <>
+            <Grid item xs={12}>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6" sx={{ mb: 2, mt: 2, fontWeight: 500 }}>
+                Spouse/Partner Information
+              </Typography>
+            </Grid>
 
         <Grid item xs={12} md={6}>
           <TextField
@@ -217,7 +323,7 @@ const PersonalDataSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
           <DatePicker
             label="Spouse Birth Date"
             value={formData.spouseBirthDate}
@@ -226,10 +332,44 @@ const PersonalDataSection = () => {
               textField: {
                 fullWidth: true,
                 variant: 'outlined',
+                onBlur: handleSpouseBirthDateBlur,
               },
             }}
           />
         </Grid>
+
+        <Grid item xs={12} md={2}>
+          <TextField
+            fullWidth
+            label="Age"
+            value={spouseAge}
+            variant="outlined"
+            InputProps={{
+              readOnly: true,
+            }}
+            sx={{ backgroundColor: '#f5f5f5' }}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={2}>
+          <FormControl fullWidth variant="outlined">
+            <InputLabel id="spouse-sex-label">Sex</InputLabel>
+            <Select
+              labelId="spouse-sex-label"
+              value={formData.spouseSex}
+              onChange={handleSelectChange('spouseSex')}
+              label="Sex"
+            >
+              {SEX_OPTIONS.map((sex) => (
+                <MenuItem key={sex} value={sex}>
+                  {sex}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+          </>
+        )}
       </Grid>
     </Box>
   );
