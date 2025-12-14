@@ -43,6 +43,8 @@ export interface FormData {
     address: string;
     birthDate: string;
     relationship: string;
+    disinherit: boolean;
+    comments: string;
   }>;
   allChildrenHealthy: boolean;
   childrenHealthExplanation: string;
@@ -93,53 +95,59 @@ export interface FormData {
 
   // Fiduciaries
   executorFirst: string;
+  executorFirstOther: string;
   executorAlternate: string;
+  executorAlternateOther: string;
   executorSecondAlternate: string;
+  executorSecondAlternateOther: string;
   spouseExecutorFirst: string;
+  spouseExecutorFirstOther: string;
   spouseExecutorAlternate: string;
+  spouseExecutorAlternateOther: string;
   spouseExecutorSecondAlternate: string;
+  spouseExecutorSecondAlternateOther: string;
 
   trusteeFirst: string;
+  trusteeFirstOther: string;
   trusteeAlternate: string;
+  trusteeAlternateOther: string;
   spouseTrusteeFirst: string;
+  spouseTrusteeFirstOther: string;
   spouseTrusteeAlternate: string;
+  spouseTrusteeAlternateOther: string;
 
   guardianFirst: string;
+  guardianFirstOther: string;
   guardianAlternate: string;
+  guardianAlternateOther: string;
   spouseGuardianFirst: string;
+  spouseGuardianFirstOther: string;
   spouseGuardianAlternate: string;
+  spouseGuardianAlternateOther: string;
 
   // Health Care
   healthCareAgentName: string;
-  healthCareAgentAddress: string;
-  healthCareAgentCityStateZip: string;
+  healthCareAgentNameOther: string;
   healthCareAlternateName: string;
-  healthCareAlternateAddress: string;
-  healthCareAlternateCityStateZip: string;
+  healthCareAlternateNameOther: string;
   withdrawArtificialFoodFluid: boolean;
 
   spouseHealthCareAgentName: string;
-  spouseHealthCareAgentAddress: string;
-  spouseHealthCareAgentCityStateZip: string;
+  spouseHealthCareAgentNameOther: string;
   spouseHealthCareAlternateName: string;
-  spouseHealthCareAlternateAddress: string;
-  spouseHealthCareAlternateCityStateZip: string;
+  spouseHealthCareAlternateNameOther: string;
   spouseWithdrawArtificialFoodFluid: boolean;
 
   // Financial Power of Attorney
   financialAgentName: string;
-  financialAgentAddress: string;
-  financialAgentCityStateZip: string;
+  financialAgentNameOther: string;
   financialAlternateName: string;
-  financialAlternateAddress: string;
-  financialAlternateCityStateZip: string;
+  financialAlternateNameOther: string;
 
   spouseFinancialAgentName: string;
-  spouseFinancialAgentAddress: string;
-  spouseFinancialAgentCityStateZip: string;
+  spouseFinancialAgentNameOther: string;
   spouseFinancialAlternateName: string;
-  spouseFinancialAlternateAddress: string;
-  spouseFinancialAlternateCityStateZip: string;
+  spouseFinancialAlternateNameOther: string;
 
   // Miscellaneous
   legalIssues: string;
@@ -173,10 +181,19 @@ export interface FormData {
     amount: string;
   }>;
 
-  stocksBonds: Array<{
+  nonQualifiedInvestments: Array<{
     owner: string;
+    institution: string;
     description: string;
-    amount: string;
+    value: string;
+  }>;
+
+  retirementAccounts: Array<{
+    owner: string;
+    institution: string;
+    accountType: string;
+    beneficiary: string;
+    value: string;
   }>;
 
   lifeInsurance: Array<{
@@ -188,15 +205,16 @@ export interface FormData {
     beneficiary: string;
   }>;
 
-  retirementBenefits: Array<{
+  vehicles: Array<{
     owner: string;
-    description: string;
-    beneficiary: string;
-    principalValue: string;
+    yearMakeModel: string;
+    value: string;
   }>;
 
-  businessInterests: Array<{
+  otherAssets: Array<{
+    owner: string;
     description: string;
+    value: string;
   }>;
 
   additionalComments: string;
@@ -270,45 +288,51 @@ const initialFormData: FormData = {
   charities: [],
   otherBeneficiaries: [],
   executorFirst: '',
+  executorFirstOther: '',
   executorAlternate: '',
+  executorAlternateOther: '',
   executorSecondAlternate: '',
+  executorSecondAlternateOther: '',
   spouseExecutorFirst: '',
+  spouseExecutorFirstOther: '',
   spouseExecutorAlternate: '',
+  spouseExecutorAlternateOther: '',
   spouseExecutorSecondAlternate: '',
+  spouseExecutorSecondAlternateOther: '',
   trusteeFirst: '',
+  trusteeFirstOther: '',
   trusteeAlternate: '',
+  trusteeAlternateOther: '',
   spouseTrusteeFirst: '',
+  spouseTrusteeFirstOther: '',
   spouseTrusteeAlternate: '',
+  spouseTrusteeAlternateOther: '',
   guardianFirst: '',
+  guardianFirstOther: '',
   guardianAlternate: '',
+  guardianAlternateOther: '',
   spouseGuardianFirst: '',
+  spouseGuardianFirstOther: '',
   spouseGuardianAlternate: '',
+  spouseGuardianAlternateOther: '',
   healthCareAgentName: '',
-  healthCareAgentAddress: '',
-  healthCareAgentCityStateZip: '',
+  healthCareAgentNameOther: '',
   healthCareAlternateName: '',
-  healthCareAlternateAddress: '',
-  healthCareAlternateCityStateZip: '',
+  healthCareAlternateNameOther: '',
   withdrawArtificialFoodFluid: false,
   spouseHealthCareAgentName: '',
-  spouseHealthCareAgentAddress: '',
-  spouseHealthCareAgentCityStateZip: '',
+  spouseHealthCareAgentNameOther: '',
   spouseHealthCareAlternateName: '',
-  spouseHealthCareAlternateAddress: '',
-  spouseHealthCareAlternateCityStateZip: '',
+  spouseHealthCareAlternateNameOther: '',
   spouseWithdrawArtificialFoodFluid: false,
   financialAgentName: '',
-  financialAgentAddress: '',
-  financialAgentCityStateZip: '',
+  financialAgentNameOther: '',
   financialAlternateName: '',
-  financialAlternateAddress: '',
-  financialAlternateCityStateZip: '',
+  financialAlternateNameOther: '',
   spouseFinancialAgentName: '',
-  spouseFinancialAgentAddress: '',
-  spouseFinancialAgentCityStateZip: '',
+  spouseFinancialAgentNameOther: '',
   spouseFinancialAlternateName: '',
-  spouseFinancialAlternateAddress: '',
-  spouseFinancialAlternateCityStateZip: '',
+  spouseFinancialAlternateNameOther: '',
   legalIssues: '',
   spouseLegalIssues: '',
   importantPapersLocation: '',
@@ -317,10 +341,11 @@ const initialFormData: FormData = {
   dependents: [],
   realEstate: [],
   bankAccounts: [],
-  stocksBonds: [],
+  nonQualifiedInvestments: [],
+  retirementAccounts: [],
   lifeInsurance: [],
-  retirementBenefits: [],
-  businessInterests: [],
+  vehicles: [],
+  otherAssets: [],
   additionalComments: '',
 };
 

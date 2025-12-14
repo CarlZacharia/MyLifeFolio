@@ -1,21 +1,157 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Box,
   TextField,
   Typography,
   Grid,
   Divider,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
-import { useFormContext } from '../lib/FormContext';
+import { useFormContext, FormData } from '../lib/FormContext';
+
+const OTHER_VALUE = '__OTHER__';
+
+interface BeneficiaryOption {
+  value: string;
+  label: string;
+}
+
+interface FiduciarySelectProps {
+  label: string;
+  value: string;
+  otherValue: string;
+  onChange: (value: string) => void;
+  onOtherChange: (value: string) => void;
+  options: BeneficiaryOption[];
+  excludeValues?: string[];
+}
+
+const FiduciarySelect: React.FC<FiduciarySelectProps> = ({
+  label,
+  value,
+  otherValue,
+  onChange,
+  onOtherChange,
+  options,
+  excludeValues = [],
+}) => {
+  const filteredOptions = options.filter(
+    (opt) => !excludeValues.includes(opt.value) || opt.value === value
+  );
+
+  return (
+    <>
+      <FormControl fullWidth>
+        <InputLabel>{label}</InputLabel>
+        <Select
+          value={value}
+          label={label}
+          onChange={(e) => {
+            onChange(e.target.value);
+            if (e.target.value !== OTHER_VALUE) {
+              onOtherChange('');
+            }
+          }}
+        >
+          {filteredOptions.map((opt) => (
+            <MenuItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </MenuItem>
+          ))}
+          <MenuItem value={OTHER_VALUE}>Other</MenuItem>
+        </Select>
+      </FormControl>
+      {value === OTHER_VALUE && (
+        <TextField
+          fullWidth
+          label={`${label} (specify)`}
+          value={otherValue}
+          onChange={(e) => onOtherChange(e.target.value)}
+          variant="outlined"
+          sx={{ mt: 1 }}
+        />
+      )}
+    </>
+  );
+};
 
 const FiduciariesSection = () => {
   const { formData, updateFormData } = useFormContext();
 
-  const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    updateFormData({ [field]: event.target.value });
+  const handleChange = (field: keyof FormData) => (value: string) => {
+    updateFormData({ [field]: value });
   };
+
+  // Build beneficiary options for Client (excludes client name, includes spouse)
+  const clientBeneficiaryOptions = useMemo((): BeneficiaryOption[] => {
+    const options: BeneficiaryOption[] = [];
+
+    // Add spouse if available
+    if (formData.spouseName) {
+      options.push({ value: `spouse:${formData.spouseName}`, label: formData.spouseName });
+    }
+
+    // Add all children
+    formData.children.forEach((child, index) => {
+      if (child.name) {
+        options.push({ value: `child:${index}:${child.name}`, label: child.name });
+      }
+    });
+
+    // Add all grandchildren
+    formData.grandchildren.forEach((grandchild, index) => {
+      if (grandchild.name) {
+        options.push({ value: `grandchild:${index}:${grandchild.name}`, label: grandchild.name });
+      }
+    });
+
+    // Add other beneficiaries
+    formData.otherBeneficiaries.forEach((beneficiary, index) => {
+      if (beneficiary.name) {
+        options.push({ value: `beneficiary:${index}:${beneficiary.name}`, label: beneficiary.name });
+      }
+    });
+
+    return options;
+  }, [formData.spouseName, formData.children, formData.grandchildren, formData.otherBeneficiaries]);
+
+  // Build beneficiary options for Spouse (excludes spouse name, includes client)
+  const spouseBeneficiaryOptions = useMemo((): BeneficiaryOption[] => {
+    const options: BeneficiaryOption[] = [];
+
+    // Add client if available
+    if (formData.name) {
+      options.push({ value: `client:${formData.name}`, label: formData.name });
+    }
+
+    // Add all children
+    formData.children.forEach((child, index) => {
+      if (child.name) {
+        options.push({ value: `child:${index}:${child.name}`, label: child.name });
+      }
+    });
+
+    // Add all grandchildren
+    formData.grandchildren.forEach((grandchild, index) => {
+      if (grandchild.name) {
+        options.push({ value: `grandchild:${index}:${grandchild.name}`, label: grandchild.name });
+      }
+    });
+
+    // Add other beneficiaries
+    formData.otherBeneficiaries.forEach((beneficiary, index) => {
+      if (beneficiary.name) {
+        options.push({ value: `beneficiary:${index}:${beneficiary.name}`, label: beneficiary.name });
+      }
+    });
+
+    return options;
+  }, [formData.name, formData.children, formData.grandchildren, formData.otherBeneficiaries]);
 
   return (
     <Box>
@@ -36,30 +172,35 @@ const FiduciariesSection = () => {
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Client</Typography>
         </Grid>
         <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="First Choice"
             value={formData.executorFirst}
+            otherValue={formData.executorFirstOther}
             onChange={handleChange('executorFirst')}
-            variant="outlined"
+            onOtherChange={handleChange('executorFirstOther')}
+            options={clientBeneficiaryOptions}
           />
         </Grid>
         <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="Alternate"
             value={formData.executorAlternate}
+            otherValue={formData.executorAlternateOther}
             onChange={handleChange('executorAlternate')}
-            variant="outlined"
+            onOtherChange={handleChange('executorAlternateOther')}
+            options={clientBeneficiaryOptions}
+            excludeValues={[formData.executorFirst]}
           />
         </Grid>
         <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="Second Alternate (Optional)"
             value={formData.executorSecondAlternate}
+            otherValue={formData.executorSecondAlternateOther}
             onChange={handleChange('executorSecondAlternate')}
-            variant="outlined"
+            onOtherChange={handleChange('executorSecondAlternateOther')}
+            options={clientBeneficiaryOptions}
+            excludeValues={[formData.executorFirst, formData.executorAlternate]}
           />
         </Grid>
 
@@ -68,30 +209,35 @@ const FiduciariesSection = () => {
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
         </Grid>
         <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="First Choice"
             value={formData.spouseExecutorFirst}
+            otherValue={formData.spouseExecutorFirstOther}
             onChange={handleChange('spouseExecutorFirst')}
-            variant="outlined"
+            onOtherChange={handleChange('spouseExecutorFirstOther')}
+            options={spouseBeneficiaryOptions}
           />
         </Grid>
         <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="Alternate"
             value={formData.spouseExecutorAlternate}
+            otherValue={formData.spouseExecutorAlternateOther}
             onChange={handleChange('spouseExecutorAlternate')}
-            variant="outlined"
+            onOtherChange={handleChange('spouseExecutorAlternateOther')}
+            options={spouseBeneficiaryOptions}
+            excludeValues={[formData.spouseExecutorFirst]}
           />
         </Grid>
         <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="Second Alternate (Optional)"
             value={formData.spouseExecutorSecondAlternate}
+            otherValue={formData.spouseExecutorSecondAlternateOther}
             onChange={handleChange('spouseExecutorSecondAlternate')}
-            variant="outlined"
+            onOtherChange={handleChange('spouseExecutorSecondAlternateOther')}
+            options={spouseBeneficiaryOptions}
+            excludeValues={[formData.spouseExecutorFirst, formData.spouseExecutorAlternate]}
           />
         </Grid>
       </Grid>
@@ -108,58 +254,25 @@ const FiduciariesSection = () => {
         <Grid item xs={12}>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Client</Typography>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+        <Grid item xs={12} md={6}>
+          <FiduciarySelect
             label="Agent Name"
             value={formData.financialAgentName}
+            otherValue={formData.financialAgentNameOther}
             onChange={handleChange('financialAgentName')}
-            variant="outlined"
+            onOtherChange={handleChange('financialAgentNameOther')}
+            options={clientBeneficiaryOptions}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Address"
-            value={formData.financialAgentAddress}
-            onChange={handleChange('financialAgentAddress')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="City, State, Zip"
-            value={formData.financialAgentCityStateZip}
-            onChange={handleChange('financialAgentCityStateZip')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+        <Grid item xs={12} md={6}>
+          <FiduciarySelect
             label="Alternate Agent Name"
             value={formData.financialAlternateName}
+            otherValue={formData.financialAlternateNameOther}
             onChange={handleChange('financialAlternateName')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Alternate Address"
-            value={formData.financialAlternateAddress}
-            onChange={handleChange('financialAlternateAddress')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Alternate City, State, Zip"
-            value={formData.financialAlternateCityStateZip}
-            onChange={handleChange('financialAlternateCityStateZip')}
-            variant="outlined"
+            onOtherChange={handleChange('financialAlternateNameOther')}
+            options={clientBeneficiaryOptions}
+            excludeValues={[formData.financialAgentName]}
           />
         </Grid>
 
@@ -167,58 +280,25 @@ const FiduciariesSection = () => {
           <Divider sx={{ my: 1 }} />
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+        <Grid item xs={12} md={6}>
+          <FiduciarySelect
             label="Agent Name"
             value={formData.spouseFinancialAgentName}
+            otherValue={formData.spouseFinancialAgentNameOther}
             onChange={handleChange('spouseFinancialAgentName')}
-            variant="outlined"
+            onOtherChange={handleChange('spouseFinancialAgentNameOther')}
+            options={spouseBeneficiaryOptions}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Address"
-            value={formData.spouseFinancialAgentAddress}
-            onChange={handleChange('spouseFinancialAgentAddress')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="City, State, Zip"
-            value={formData.spouseFinancialAgentCityStateZip}
-            onChange={handleChange('spouseFinancialAgentCityStateZip')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+        <Grid item xs={12} md={6}>
+          <FiduciarySelect
             label="Alternate Agent Name"
             value={formData.spouseFinancialAlternateName}
+            otherValue={formData.spouseFinancialAlternateNameOther}
             onChange={handleChange('spouseFinancialAlternateName')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Alternate Address"
-            value={formData.spouseFinancialAlternateAddress}
-            onChange={handleChange('spouseFinancialAlternateAddress')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Alternate City, State, Zip"
-            value={formData.spouseFinancialAlternateCityStateZip}
-            onChange={handleChange('spouseFinancialAlternateCityStateZip')}
-            variant="outlined"
+            onOtherChange={handleChange('spouseFinancialAlternateNameOther')}
+            options={spouseBeneficiaryOptions}
+            excludeValues={[formData.spouseFinancialAgentName]}
           />
         </Grid>
       </Grid>
@@ -235,58 +315,25 @@ const FiduciariesSection = () => {
         <Grid item xs={12}>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Client</Typography>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+        <Grid item xs={12} md={6}>
+          <FiduciarySelect
             label="Agent Name"
             value={formData.healthCareAgentName}
+            otherValue={formData.healthCareAgentNameOther}
             onChange={handleChange('healthCareAgentName')}
-            variant="outlined"
+            onOtherChange={handleChange('healthCareAgentNameOther')}
+            options={clientBeneficiaryOptions}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Address"
-            value={formData.healthCareAgentAddress}
-            onChange={handleChange('healthCareAgentAddress')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="City, State, Zip"
-            value={formData.healthCareAgentCityStateZip}
-            onChange={handleChange('healthCareAgentCityStateZip')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+        <Grid item xs={12} md={6}>
+          <FiduciarySelect
             label="Alternate Agent Name"
             value={formData.healthCareAlternateName}
+            otherValue={formData.healthCareAlternateNameOther}
             onChange={handleChange('healthCareAlternateName')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Alternate Address"
-            value={formData.healthCareAlternateAddress}
-            onChange={handleChange('healthCareAlternateAddress')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Alternate City, State, Zip"
-            value={formData.healthCareAlternateCityStateZip}
-            onChange={handleChange('healthCareAlternateCityStateZip')}
-            variant="outlined"
+            onOtherChange={handleChange('healthCareAlternateNameOther')}
+            options={clientBeneficiaryOptions}
+            excludeValues={[formData.healthCareAgentName]}
           />
         </Grid>
 
@@ -294,58 +341,25 @@ const FiduciariesSection = () => {
           <Divider sx={{ my: 1 }} />
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+        <Grid item xs={12} md={6}>
+          <FiduciarySelect
             label="Agent Name"
             value={formData.spouseHealthCareAgentName}
+            otherValue={formData.spouseHealthCareAgentNameOther}
             onChange={handleChange('spouseHealthCareAgentName')}
-            variant="outlined"
+            onOtherChange={handleChange('spouseHealthCareAgentNameOther')}
+            options={spouseBeneficiaryOptions}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Address"
-            value={formData.spouseHealthCareAgentAddress}
-            onChange={handleChange('spouseHealthCareAgentAddress')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="City, State, Zip"
-            value={formData.spouseHealthCareAgentCityStateZip}
-            onChange={handleChange('spouseHealthCareAgentCityStateZip')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
+        <Grid item xs={12} md={6}>
+          <FiduciarySelect
             label="Alternate Agent Name"
             value={formData.spouseHealthCareAlternateName}
+            otherValue={formData.spouseHealthCareAlternateNameOther}
             onChange={handleChange('spouseHealthCareAlternateName')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Alternate Address"
-            value={formData.spouseHealthCareAlternateAddress}
-            onChange={handleChange('spouseHealthCareAlternateAddress')}
-            variant="outlined"
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Alternate City, State, Zip"
-            value={formData.spouseHealthCareAlternateCityStateZip}
-            onChange={handleChange('spouseHealthCareAlternateCityStateZip')}
-            variant="outlined"
+            onOtherChange={handleChange('spouseHealthCareAlternateNameOther')}
+            options={spouseBeneficiaryOptions}
+            excludeValues={[formData.spouseHealthCareAgentName]}
           />
         </Grid>
       </Grid>
@@ -363,21 +377,24 @@ const FiduciariesSection = () => {
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Client</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="First Choice"
             value={formData.trusteeFirst}
+            otherValue={formData.trusteeFirstOther}
             onChange={handleChange('trusteeFirst')}
-            variant="outlined"
+            onOtherChange={handleChange('trusteeFirstOther')}
+            options={clientBeneficiaryOptions}
           />
         </Grid>
         <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="Alternate"
             value={formData.trusteeAlternate}
+            otherValue={formData.trusteeAlternateOther}
             onChange={handleChange('trusteeAlternate')}
-            variant="outlined"
+            onOtherChange={handleChange('trusteeAlternateOther')}
+            options={clientBeneficiaryOptions}
+            excludeValues={[formData.trusteeFirst]}
           />
         </Grid>
 
@@ -386,21 +403,24 @@ const FiduciariesSection = () => {
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="First Choice"
             value={formData.spouseTrusteeFirst}
+            otherValue={formData.spouseTrusteeFirstOther}
             onChange={handleChange('spouseTrusteeFirst')}
-            variant="outlined"
+            onOtherChange={handleChange('spouseTrusteeFirstOther')}
+            options={spouseBeneficiaryOptions}
           />
         </Grid>
         <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="Alternate"
             value={formData.spouseTrusteeAlternate}
+            otherValue={formData.spouseTrusteeAlternateOther}
             onChange={handleChange('spouseTrusteeAlternate')}
-            variant="outlined"
+            onOtherChange={handleChange('spouseTrusteeAlternateOther')}
+            options={spouseBeneficiaryOptions}
+            excludeValues={[formData.spouseTrusteeFirst]}
           />
         </Grid>
       </Grid>
@@ -418,21 +438,24 @@ const FiduciariesSection = () => {
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Client</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="First Choice"
             value={formData.guardianFirst}
+            otherValue={formData.guardianFirstOther}
             onChange={handleChange('guardianFirst')}
-            variant="outlined"
+            onOtherChange={handleChange('guardianFirstOther')}
+            options={clientBeneficiaryOptions}
           />
         </Grid>
         <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="Alternate"
             value={formData.guardianAlternate}
+            otherValue={formData.guardianAlternateOther}
             onChange={handleChange('guardianAlternate')}
-            variant="outlined"
+            onOtherChange={handleChange('guardianAlternateOther')}
+            options={clientBeneficiaryOptions}
+            excludeValues={[formData.guardianFirst]}
           />
         </Grid>
 
@@ -441,21 +464,24 @@ const FiduciariesSection = () => {
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
         </Grid>
         <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="First Choice"
             value={formData.spouseGuardianFirst}
+            otherValue={formData.spouseGuardianFirstOther}
             onChange={handleChange('spouseGuardianFirst')}
-            variant="outlined"
+            onOtherChange={handleChange('spouseGuardianFirstOther')}
+            options={spouseBeneficiaryOptions}
           />
         </Grid>
         <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
+          <FiduciarySelect
             label="Alternate"
             value={formData.spouseGuardianAlternate}
+            otherValue={formData.spouseGuardianAlternateOther}
             onChange={handleChange('spouseGuardianAlternate')}
-            variant="outlined"
+            onOtherChange={handleChange('spouseGuardianAlternateOther')}
+            options={spouseBeneficiaryOptions}
+            excludeValues={[formData.spouseGuardianFirst]}
           />
         </Grid>
       </Grid>

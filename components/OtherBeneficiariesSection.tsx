@@ -18,7 +18,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { useFormContext } from '../lib/FormContext';
 
-const RELATIONSHIP_OPTIONS = ['Grandchild', 'Parent', 'Sibling', 'Other'] as const;
+const RELATIONSHIP_OPTIONS = ['Parent', 'Sibling', 'Other'] as const;
 
 const OtherBeneficiariesSection = () => {
   const { formData, updateFormData } = useFormContext();
@@ -80,7 +80,7 @@ const OtherBeneficiariesSection = () => {
           </Button>
         </Box>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Include grandchildren, cousins, friends, or any other individuals you wish to name as beneficiaries.
+          Include cousins, friends, or any other individuals you wish to name as beneficiaries.
         </Typography>
 
         {formData.otherBeneficiaries.map((beneficiary, index) => (

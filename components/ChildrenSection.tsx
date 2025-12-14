@@ -14,6 +14,10 @@ import {
   Button,
   IconButton,
   Paper,
+  Select,
+  MenuItem,
+  InputLabel,
+  Checkbox,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -33,7 +37,7 @@ const ChildrenSection = () => {
   const addChild = () => {
     const newChildren = [
       ...formData.children,
-      { name: '', address: '', birthDate: '', relationship: '' },
+      { name: '', address: '', birthDate: '', relationship: '', disinherit: false, comments: '' },
     ];
     updateFormData({ children: newChildren });
   };
@@ -43,7 +47,7 @@ const ChildrenSection = () => {
     updateFormData({ children: newChildren });
   };
 
-  const updateChild = (index: number, field: string, value: string) => {
+  const updateChild = (index: number, field: string, value: string | boolean) => {
     const newChildren = [...formData.children];
     newChildren[index] = { ...newChildren[index], [field]: value };
     updateFormData({ children: newChildren });
@@ -109,15 +113,23 @@ const ChildrenSection = () => {
                 />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Relationship"
-                  value={child.relationship}
-                  onChange={(e) => updateChild(index, 'relationship', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  helperText="son/daughter"
-                />
+                <FormControl fullWidth size="small">
+                  <InputLabel>Relationship</InputLabel>
+                  <Select
+                    value={child.relationship}
+                    label="Relationship"
+                    onChange={(e) => updateChild(index, 'relationship', e.target.value)}
+                  >
+                    <MenuItem value="Son of Client">Son of Client</MenuItem>
+                    <MenuItem value="Daughter of Client">Daughter of Client</MenuItem>
+                    {formData.maritalStatus === 'Second Marriage' && [
+                      <MenuItem key="son-spouse" value="Son of Spouse">Son of Spouse</MenuItem>,
+                      <MenuItem key="daughter-spouse" value="Daughter of Spouse">Daughter of Spouse</MenuItem>,
+                      <MenuItem key="son-both" value="Son of Both">Son of Both</MenuItem>,
+                      <MenuItem key="daughter-both" value="Daughter of Both">Daughter of Both</MenuItem>,
+                    ]}
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -129,7 +141,7 @@ const ChildrenSection = () => {
                   size="small"
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
                   label="Date of Birth"
@@ -139,6 +151,29 @@ const ChildrenSection = () => {
                   size="small"
                   type="date"
                   InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={child.disinherit || false}
+                      onChange={(e) => updateChild(index, 'disinherit', e.target.checked)}
+                    />
+                  }
+                  label="Disinherit"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Comments"
+                  value={child.comments || ''}
+                  onChange={(e) => updateChild(index, 'comments', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                  multiline
+                  rows={2}
                 />
               </Grid>
             </Grid>

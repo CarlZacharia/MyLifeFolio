@@ -62,9 +62,9 @@ const AssetsSection = () => {
     updateFormData({ realEstate: newRealEstate });
   };
 
-  const updateRealEstate = (index: number, field: string, value: string) => {
+  const updateRealEstate = (index: number, field: string, value: string, additionalUpdates?: Record<string, string>) => {
     const newRealEstate = [...formData.realEstate];
-    newRealEstate[index] = { ...newRealEstate[index], [field]: value };
+    newRealEstate[index] = { ...newRealEstate[index], [field]: value, ...additionalUpdates };
     updateFormData({ realEstate: newRealEstate });
   };
 
@@ -83,6 +83,46 @@ const AssetsSection = () => {
     const newBankAccounts = [...formData.bankAccounts];
     newBankAccounts[index] = { ...newBankAccounts[index], [field]: value };
     updateFormData({ bankAccounts: newBankAccounts });
+  };
+
+  // Non-Qualified Investment Accounts handlers
+  const addNonQualifiedInvestment = () => {
+    const newInvestments = [
+      ...formData.nonQualifiedInvestments,
+      { owner: '', institution: '', description: '', value: '' },
+    ];
+    updateFormData({ nonQualifiedInvestments: newInvestments });
+  };
+
+  const removeNonQualifiedInvestment = (index: number) => {
+    const newInvestments = formData.nonQualifiedInvestments.filter((_, i) => i !== index);
+    updateFormData({ nonQualifiedInvestments: newInvestments });
+  };
+
+  const updateNonQualifiedInvestment = (index: number, field: string, value: string) => {
+    const newInvestments = [...formData.nonQualifiedInvestments];
+    newInvestments[index] = { ...newInvestments[index], [field]: value };
+    updateFormData({ nonQualifiedInvestments: newInvestments });
+  };
+
+  // IRAs and Retirement Accounts handlers
+  const addRetirementAccount = () => {
+    const newAccounts = [
+      ...formData.retirementAccounts,
+      { owner: '', institution: '', accountType: '', beneficiary: '', value: '' },
+    ];
+    updateFormData({ retirementAccounts: newAccounts });
+  };
+
+  const removeRetirementAccount = (index: number) => {
+    const newAccounts = formData.retirementAccounts.filter((_, i) => i !== index);
+    updateFormData({ retirementAccounts: newAccounts });
+  };
+
+  const updateRetirementAccount = (index: number, field: string, value: string) => {
+    const newAccounts = [...formData.retirementAccounts];
+    newAccounts[index] = { ...newAccounts[index], [field]: value };
+    updateFormData({ retirementAccounts: newAccounts });
   };
 
   // Life Insurance handlers
@@ -105,13 +145,53 @@ const AssetsSection = () => {
     updateFormData({ lifeInsurance: newLifeInsurance });
   };
 
+  // Vehicles handlers
+  const addVehicle = () => {
+    const newVehicles = [
+      ...formData.vehicles,
+      { owner: '', yearMakeModel: '', value: '' },
+    ];
+    updateFormData({ vehicles: newVehicles });
+  };
+
+  const removeVehicle = (index: number) => {
+    const newVehicles = formData.vehicles.filter((_, i) => i !== index);
+    updateFormData({ vehicles: newVehicles });
+  };
+
+  const updateVehicle = (index: number, field: string, value: string) => {
+    const newVehicles = [...formData.vehicles];
+    newVehicles[index] = { ...newVehicles[index], [field]: value };
+    updateFormData({ vehicles: newVehicles });
+  };
+
+  // Other Assets handlers
+  const addOtherAsset = () => {
+    const newAssets = [
+      ...formData.otherAssets,
+      { owner: '', description: '', value: '' },
+    ];
+    updateFormData({ otherAssets: newAssets });
+  };
+
+  const removeOtherAsset = (index: number) => {
+    const newAssets = formData.otherAssets.filter((_, i) => i !== index);
+    updateFormData({ otherAssets: newAssets });
+  };
+
+  const updateOtherAsset = (index: number, field: string, value: string) => {
+    const newAssets = [...formData.otherAssets];
+    newAssets[index] = { ...newAssets[index], [field]: value };
+    updateFormData({ otherAssets: newAssets });
+  };
+
   return (
     <Box>
       <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
         ASSETS
       </Typography>
 
-      {/* Real Estate */}
+      {/* 1. Real Estate */}
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 500 }}>
@@ -138,9 +218,7 @@ const AssetsSection = () => {
                     value={property.owner}
                     label="Owner"
                     onChange={(e) => {
-                      updateRealEstate(index, 'owner', e.target.value);
-                      // Reset ownership form when owner changes
-                      updateRealEstate(index, 'ownershipForm', '');
+                      updateRealEstate(index, 'owner', e.target.value, { ownershipForm: '' });
                     }}
                   >
                     {OWNER_OPTIONS.map((option) => (
@@ -242,7 +320,7 @@ const AssetsSection = () => {
         ))}
       </Box>
 
-      {/* Bank Accounts */}
+      {/* 2. Bank Accounts */}
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 500 }}>
@@ -297,11 +375,153 @@ const AssetsSection = () => {
         ))}
       </Box>
 
-      {/* Life Insurance */}
+      {/* 3. Non-Qualified Investment Accounts */}
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 500 }}>
-            4. Life Insurance
+            3. Non-Qualified Investment Accounts
+          </Typography>
+          <Button variant="outlined" startIcon={<AddIcon />} onClick={addNonQualifiedInvestment}>
+            Add Account
+          </Button>
+        </Box>
+
+        {formData.nonQualifiedInvestments.map((investment, index) => (
+          <Paper key={index} sx={{ p: 2, mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Typography variant="subtitle2">Account #{index + 1}</Typography>
+              <IconButton size="small" onClick={() => removeNonQualifiedInvestment(index)} color="error">
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={3}>
+                <TextField
+                  fullWidth
+                  label="Owner"
+                  value={investment.owner}
+                  onChange={(e) => updateNonQualifiedInvestment(index, 'owner', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <TextField
+                  fullWidth
+                  label="Institution"
+                  value={investment.institution}
+                  onChange={(e) => updateNonQualifiedInvestment(index, 'institution', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Description"
+                  value={investment.description}
+                  onChange={(e) => updateNonQualifiedInvestment(index, 'description', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                  placeholder="e.g., Brokerage, Stocks, Bonds, Mutual Funds"
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <TextField
+                  fullWidth
+                  label="Value"
+                  value={investment.value}
+                  onChange={(e) => updateNonQualifiedInvestment(index, 'value', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+            </Grid>
+          </Paper>
+        ))}
+      </Box>
+
+      {/* 4. IRAs and Retirement Accounts */}
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 500 }}>
+            4. IRAs and Retirement Accounts
+          </Typography>
+          <Button variant="outlined" startIcon={<AddIcon />} onClick={addRetirementAccount}>
+            Add Account
+          </Button>
+        </Box>
+
+        {formData.retirementAccounts.map((account, index) => (
+          <Paper key={index} sx={{ p: 2, mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Typography variant="subtitle2">Account #{index + 1}</Typography>
+              <IconButton size="small" onClick={() => removeRetirementAccount(index)} color="error">
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={3}>
+                <TextField
+                  fullWidth
+                  label="Owner"
+                  value={account.owner}
+                  onChange={(e) => updateRetirementAccount(index, 'owner', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <TextField
+                  fullWidth
+                  label="Institution"
+                  value={account.institution}
+                  onChange={(e) => updateRetirementAccount(index, 'institution', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <TextField
+                  fullWidth
+                  label="Account Type"
+                  value={account.accountType}
+                  onChange={(e) => updateRetirementAccount(index, 'accountType', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                  placeholder="e.g., IRA, 401k, Pension"
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <TextField
+                  fullWidth
+                  label="Beneficiary"
+                  value={account.beneficiary}
+                  onChange={(e) => updateRetirementAccount(index, 'beneficiary', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <TextField
+                  fullWidth
+                  label="Value"
+                  value={account.value}
+                  onChange={(e) => updateRetirementAccount(index, 'value', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+            </Grid>
+          </Paper>
+        ))}
+      </Box>
+
+      {/* 5. Life Insurance */}
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 500 }}>
+            5. Life Insurance
           </Typography>
           <Button variant="outlined" startIcon={<AddIcon />} onClick={addLifeInsurance}>
             Add Policy
@@ -373,6 +593,118 @@ const AssetsSection = () => {
                   label="Beneficiary"
                   value={policy.beneficiary}
                   onChange={(e) => updateLifeInsurance(index, 'beneficiary', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+            </Grid>
+          </Paper>
+        ))}
+      </Box>
+
+      {/* 6. Vehicles */}
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 500 }}>
+            6. Vehicles
+          </Typography>
+          <Button variant="outlined" startIcon={<AddIcon />} onClick={addVehicle}>
+            Add Vehicle
+          </Button>
+        </Box>
+
+        {formData.vehicles.map((vehicle, index) => (
+          <Paper key={index} sx={{ p: 2, mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Typography variant="subtitle2">Vehicle #{index + 1}</Typography>
+              <IconButton size="small" onClick={() => removeVehicle(index)} color="error">
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={3}>
+                <TextField
+                  fullWidth
+                  label="Owner"
+                  value={vehicle.owner}
+                  onChange={(e) => updateVehicle(index, 'owner', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Year, Make, Model"
+                  value={vehicle.yearMakeModel}
+                  onChange={(e) => updateVehicle(index, 'yearMakeModel', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                  placeholder="e.g., 2020 Toyota Camry"
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <TextField
+                  fullWidth
+                  label="Value"
+                  value={vehicle.value}
+                  onChange={(e) => updateVehicle(index, 'value', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+            </Grid>
+          </Paper>
+        ))}
+      </Box>
+
+      {/* 7. Other Assets */}
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 500 }}>
+            7. Other Assets
+          </Typography>
+          <Button variant="outlined" startIcon={<AddIcon />} onClick={addOtherAsset}>
+            Add Asset
+          </Button>
+        </Box>
+
+        {formData.otherAssets.map((asset, index) => (
+          <Paper key={index} sx={{ p: 2, mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Typography variant="subtitle2">Asset #{index + 1}</Typography>
+              <IconButton size="small" onClick={() => removeOtherAsset(index)} color="error">
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={3}>
+                <TextField
+                  fullWidth
+                  label="Owner"
+                  value={asset.owner}
+                  onChange={(e) => updateOtherAsset(index, 'owner', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Description"
+                  value={asset.description}
+                  onChange={(e) => updateOtherAsset(index, 'description', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                  placeholder="e.g., Business interest, collectibles, jewelry"
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <TextField
+                  fullWidth
+                  label="Value"
+                  value={asset.value}
+                  onChange={(e) => updateOtherAsset(index, 'value', e.target.value)}
                   variant="outlined"
                   size="small"
                 />
