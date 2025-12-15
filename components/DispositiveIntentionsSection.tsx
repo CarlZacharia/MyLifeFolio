@@ -52,7 +52,7 @@ const DispositiveIntentionsSection = () => {
   const addOtherBeneficiary = () => {
     const newBeneficiaries = [
       ...formData.otherBeneficiaries,
-      { name: '', address: '', relationship: '', amount: '' },
+      { name: '', address: '', relationship: '', relationshipOther: '', amount: '', notes: '' },
     ];
     updateFormData({ otherBeneficiaries: newBeneficiaries });
   };

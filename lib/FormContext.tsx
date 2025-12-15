@@ -166,6 +166,10 @@ export interface FormData {
   realEstate: Array<{
     owner: RealEstateOwner;
     ownershipForm: OwnershipForm;
+    jointOwnerType: 'beneficiary' | 'other' | '';
+    jointOwnerBeneficiaries: string[];
+    jointOwnerOther: string;
+    hasBeneficiaries: boolean;
     street: string;
     city: string;
     state: string;
@@ -173,12 +177,17 @@ export interface FormData {
     value: string;
     mortgageBalance: string;
     costBasis: string;
+    primaryBeneficiaries: string[];
+    secondaryBeneficiaries: string[];
   }>;
 
   bankAccounts: Array<{
     owner: string;
     institution: string;
     amount: string;
+    hasBeneficiaries: boolean;
+    primaryBeneficiaries: string[];
+    secondaryBeneficiaries: string[];
   }>;
 
   nonQualifiedInvestments: Array<{
@@ -186,14 +195,19 @@ export interface FormData {
     institution: string;
     description: string;
     value: string;
+    hasBeneficiaries: boolean;
+    primaryBeneficiaries: string[];
+    secondaryBeneficiaries: string[];
   }>;
 
   retirementAccounts: Array<{
     owner: string;
     institution: string;
     accountType: string;
-    beneficiary: string;
     value: string;
+    hasBeneficiaries: boolean;
+    primaryBeneficiaries: string[];
+    secondaryBeneficiaries: string[];
   }>;
 
   lifeInsurance: Array<{
@@ -202,19 +216,27 @@ export interface FormData {
     faceAmount: string;
     cashValue: string;
     insured: string;
-    beneficiary: string;
+    hasBeneficiaries: boolean;
+    primaryBeneficiaries: string[];
+    secondaryBeneficiaries: string[];
   }>;
 
   vehicles: Array<{
     owner: string;
     yearMakeModel: string;
     value: string;
+    hasBeneficiaries: boolean;
+    primaryBeneficiaries: string[];
+    secondaryBeneficiaries: string[];
   }>;
 
   otherAssets: Array<{
     owner: string;
     description: string;
     value: string;
+    hasBeneficiaries: boolean;
+    primaryBeneficiaries: string[];
+    secondaryBeneficiaries: string[];
   }>;
 
   additionalComments: string;

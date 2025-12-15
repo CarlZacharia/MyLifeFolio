@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Box,
   TextField,
@@ -13,6 +13,11 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  FormControlLabel,
+  Checkbox,
+  FormGroup,
+  FormLabel,
+  Autocomplete,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -26,6 +31,14 @@ const OWNER_OPTIONS: RealEstateOwner[] = [
   'Spouse and Other',
   'Client, Spouse and Other',
 ];
+
+const OWNERS_WITH_OTHER: RealEstateOwner[] = [
+  'Client and Other',
+  'Spouse and Other',
+  'Client, Spouse and Other',
+];
+
+const INDIVIDUAL_OWNER_OPTIONS = ['Client', 'Spouse'] as const;
 
 const getOwnershipFormOptions = (owner: RealEstateOwner): OwnershipForm[] => {
   const baseOptions: OwnershipForm[] = ['Life Estate', 'Lady Bird Deed', 'Trust', 'Other'];
@@ -45,14 +58,209 @@ const getOwnershipFormOptions = (owner: RealEstateOwner): OwnershipForm[] => {
   }
 };
 
+interface BeneficiaryOption {
+  value: string;
+  label: string;
+}
+
+interface BeneficiarySelectorProps {
+  label: string;
+  selectedBeneficiaries: string[];
+  options: BeneficiaryOption[];
+  onChange: (selected: string[]) => void;
+}
+
+const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
+  label,
+  selectedBeneficiaries,
+  options,
+  onChange,
+}) => {
+  return (
+    <Autocomplete
+      multiple
+      size="small"
+      options={options}
+      getOptionLabel={(option) => option.label}
+      value={options.filter((opt) => selectedBeneficiaries.includes(opt.value))}
+      onChange={(_, newValue) => {
+        onChange(newValue.map((v) => v.value));
+      }}
+      renderInput={(params) => (
+        <TextField {...params} label={label} variant="outlined" />
+      )}
+      isOptionEqualToValue={(option, value) => option.value === value.value}
+    />
+  );
+};
+
+interface JointOwnerSelectorProps {
+  jointOwnerType: 'beneficiary' | 'other' | '';
+  jointOwnerBeneficiaries: string[];
+  jointOwnerOther: string;
+  beneficiaryOptions: BeneficiaryOption[];
+  onChange: (updates: {
+    jointOwnerType?: 'beneficiary' | 'other' | '';
+    jointOwnerBeneficiaries?: string[];
+    jointOwnerOther?: string;
+  }) => void;
+}
+
+const JointOwnerSelector: React.FC<JointOwnerSelectorProps> = ({
+  jointOwnerType,
+  jointOwnerBeneficiaries,
+  jointOwnerOther,
+  beneficiaryOptions,
+  onChange,
+}) => {
+  const handleBeneficiaryTypeChange = (checked: boolean) => {
+    if (checked) {
+      onChange({ jointOwnerType: 'beneficiary', jointOwnerOther: '' });
+    } else if (jointOwnerType === 'beneficiary') {
+      onChange({ jointOwnerType: '', jointOwnerBeneficiaries: [] });
+    }
+  };
+
+  const handleOtherTypeChange = (checked: boolean) => {
+    if (checked) {
+      onChange({ jointOwnerType: 'other', jointOwnerBeneficiaries: [] });
+    } else if (jointOwnerType === 'other') {
+      onChange({ jointOwnerType: '', jointOwnerOther: '' });
+    }
+  };
+
+  return (
+    <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+      <FormLabel component="legend" sx={{ mb: 1, fontWeight: 500 }}>
+        Who is the &quot;Other&quot; owner?
+      </FormLabel>
+      <FormGroup row>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={jointOwnerType === 'beneficiary'}
+              onChange={(e) => handleBeneficiaryTypeChange(e.target.checked)}
+            />
+          }
+          label="Current Beneficiaries"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={jointOwnerType === 'other'}
+              onChange={(e) => handleOtherTypeChange(e.target.checked)}
+            />
+          }
+          label="Non-Beneficiary"
+        />
+      </FormGroup>
+
+      {jointOwnerType === 'beneficiary' && (
+        <Box sx={{ mt: 2 }}>
+          <FormGroup>
+            {beneficiaryOptions.map((option) => (
+              <FormControlLabel
+                key={option.value}
+                control={
+                  <Checkbox
+                    checked={jointOwnerBeneficiaries.includes(option.value)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        onChange({ jointOwnerBeneficiaries: [...jointOwnerBeneficiaries, option.value] });
+                      } else {
+                        onChange({
+                          jointOwnerBeneficiaries: jointOwnerBeneficiaries.filter((b) => b !== option.value)
+                        });
+                      }
+                    }}
+                  />
+                }
+                label={option.label}
+              />
+            ))}
+          </FormGroup>
+        </Box>
+      )}
+
+      {jointOwnerType === 'other' && (
+        <Box sx={{ mt: 2 }}>
+          <TextField
+            fullWidth
+            size="small"
+            label="Name of Other Owner(s)"
+            value={jointOwnerOther}
+            onChange={(e) => onChange({ jointOwnerOther: e.target.value })}
+            variant="outlined"
+            placeholder="Enter name(s) of other owner(s)"
+          />
+        </Box>
+      )}
+    </Box>
+  );
+};
+
 const AssetsSection = () => {
   const { formData, updateFormData } = useFormContext();
+
+  // Build beneficiary options from all sources
+  const beneficiaryOptions = useMemo((): BeneficiaryOption[] => {
+    const options: BeneficiaryOption[] = [];
+
+    // Add spouse if available
+    if (formData.spouseName) {
+      options.push({ value: `spouse:${formData.spouseName}`, label: `${formData.spouseName} (Spouse)` });
+    }
+
+    // Add client if available
+    if (formData.name) {
+      options.push({ value: `client:${formData.name}`, label: `${formData.name} (Client)` });
+    }
+
+    // Add all children
+    formData.children.forEach((child, index) => {
+      if (child.name) {
+        options.push({ value: `child:${index}:${child.name}`, label: `${child.name} (Child)` });
+      }
+    });
+
+    // Add all grandchildren
+    formData.grandchildren.forEach((grandchild, index) => {
+      if (grandchild.name) {
+        options.push({ value: `grandchild:${index}:${grandchild.name}`, label: `${grandchild.name} (Grandchild)` });
+      }
+    });
+
+    // Add other beneficiaries
+    formData.otherBeneficiaries.forEach((beneficiary, index) => {
+      if (beneficiary.name) {
+        options.push({ value: `beneficiary:${index}:${beneficiary.name}`, label: `${beneficiary.name} (Other)` });
+      }
+    });
+
+    return options;
+  }, [formData.spouseName, formData.name, formData.children, formData.grandchildren, formData.otherBeneficiaries]);
 
   // Real Estate handlers
   const addRealEstate = () => {
     const newRealEstate = [
       ...formData.realEstate,
-      { owner: '' as RealEstateOwner, ownershipForm: '' as OwnershipForm, street: '', city: '', state: '', zip: '', value: '', mortgageBalance: '', costBasis: '' },
+      {
+        owner: '' as RealEstateOwner,
+        ownershipForm: '' as OwnershipForm,
+        jointOwnerType: '' as const,
+        jointOwnerBeneficiaries: [],
+        jointOwnerOther: '',
+        hasBeneficiaries: false,
+        street: '',
+        city: '',
+        state: '',
+        zip: '',
+        value: '',
+        mortgageBalance: '',
+        costBasis: '',
+        primaryBeneficiaries: [],
+        secondaryBeneficiaries: [],
+      },
     ];
     updateFormData({ realEstate: newRealEstate });
   };
@@ -62,15 +270,18 @@ const AssetsSection = () => {
     updateFormData({ realEstate: newRealEstate });
   };
 
-  const updateRealEstate = (index: number, field: string, value: string, additionalUpdates?: Record<string, string>) => {
+  const updateRealEstate = (index: number, updates: Record<string, unknown>) => {
     const newRealEstate = [...formData.realEstate];
-    newRealEstate[index] = { ...newRealEstate[index], [field]: value, ...additionalUpdates };
+    newRealEstate[index] = { ...newRealEstate[index], ...updates };
     updateFormData({ realEstate: newRealEstate });
   };
 
   // Bank Accounts handlers
   const addBankAccount = () => {
-    const newBankAccounts = [...formData.bankAccounts, { owner: '', institution: '', amount: '' }];
+    const newBankAccounts = [
+      ...formData.bankAccounts,
+      { owner: '', institution: '', amount: '', hasBeneficiaries: false, primaryBeneficiaries: [], secondaryBeneficiaries: [] },
+    ];
     updateFormData({ bankAccounts: newBankAccounts });
   };
 
@@ -79,9 +290,9 @@ const AssetsSection = () => {
     updateFormData({ bankAccounts: newBankAccounts });
   };
 
-  const updateBankAccount = (index: number, field: string, value: string) => {
+  const updateBankAccount = (index: number, updates: Record<string, unknown>) => {
     const newBankAccounts = [...formData.bankAccounts];
-    newBankAccounts[index] = { ...newBankAccounts[index], [field]: value };
+    newBankAccounts[index] = { ...newBankAccounts[index], ...updates };
     updateFormData({ bankAccounts: newBankAccounts });
   };
 
@@ -89,7 +300,7 @@ const AssetsSection = () => {
   const addNonQualifiedInvestment = () => {
     const newInvestments = [
       ...formData.nonQualifiedInvestments,
-      { owner: '', institution: '', description: '', value: '' },
+      { owner: '', institution: '', description: '', value: '', hasBeneficiaries: false, primaryBeneficiaries: [], secondaryBeneficiaries: [] },
     ];
     updateFormData({ nonQualifiedInvestments: newInvestments });
   };
@@ -99,9 +310,9 @@ const AssetsSection = () => {
     updateFormData({ nonQualifiedInvestments: newInvestments });
   };
 
-  const updateNonQualifiedInvestment = (index: number, field: string, value: string) => {
+  const updateNonQualifiedInvestment = (index: number, updates: Record<string, unknown>) => {
     const newInvestments = [...formData.nonQualifiedInvestments];
-    newInvestments[index] = { ...newInvestments[index], [field]: value };
+    newInvestments[index] = { ...newInvestments[index], ...updates };
     updateFormData({ nonQualifiedInvestments: newInvestments });
   };
 
@@ -109,7 +320,7 @@ const AssetsSection = () => {
   const addRetirementAccount = () => {
     const newAccounts = [
       ...formData.retirementAccounts,
-      { owner: '', institution: '', accountType: '', beneficiary: '', value: '' },
+      { owner: '', institution: '', accountType: '', value: '', hasBeneficiaries: false, primaryBeneficiaries: [], secondaryBeneficiaries: [] },
     ];
     updateFormData({ retirementAccounts: newAccounts });
   };
@@ -119,9 +330,9 @@ const AssetsSection = () => {
     updateFormData({ retirementAccounts: newAccounts });
   };
 
-  const updateRetirementAccount = (index: number, field: string, value: string) => {
+  const updateRetirementAccount = (index: number, updates: Record<string, unknown>) => {
     const newAccounts = [...formData.retirementAccounts];
-    newAccounts[index] = { ...newAccounts[index], [field]: value };
+    newAccounts[index] = { ...newAccounts[index], ...updates };
     updateFormData({ retirementAccounts: newAccounts });
   };
 
@@ -129,7 +340,7 @@ const AssetsSection = () => {
   const addLifeInsurance = () => {
     const newLifeInsurance = [
       ...formData.lifeInsurance,
-      { owner: '', company: '', faceAmount: '', cashValue: '', insured: '', beneficiary: '' },
+      { owner: '', company: '', faceAmount: '', cashValue: '', insured: '', hasBeneficiaries: false, primaryBeneficiaries: [], secondaryBeneficiaries: [] },
     ];
     updateFormData({ lifeInsurance: newLifeInsurance });
   };
@@ -139,9 +350,9 @@ const AssetsSection = () => {
     updateFormData({ lifeInsurance: newLifeInsurance });
   };
 
-  const updateLifeInsurance = (index: number, field: string, value: string) => {
+  const updateLifeInsurance = (index: number, updates: Record<string, unknown>) => {
     const newLifeInsurance = [...formData.lifeInsurance];
-    newLifeInsurance[index] = { ...newLifeInsurance[index], [field]: value };
+    newLifeInsurance[index] = { ...newLifeInsurance[index], ...updates };
     updateFormData({ lifeInsurance: newLifeInsurance });
   };
 
@@ -149,7 +360,7 @@ const AssetsSection = () => {
   const addVehicle = () => {
     const newVehicles = [
       ...formData.vehicles,
-      { owner: '', yearMakeModel: '', value: '' },
+      { owner: '', yearMakeModel: '', value: '', hasBeneficiaries: false, primaryBeneficiaries: [], secondaryBeneficiaries: [] },
     ];
     updateFormData({ vehicles: newVehicles });
   };
@@ -159,9 +370,9 @@ const AssetsSection = () => {
     updateFormData({ vehicles: newVehicles });
   };
 
-  const updateVehicle = (index: number, field: string, value: string) => {
+  const updateVehicle = (index: number, updates: Record<string, unknown>) => {
     const newVehicles = [...formData.vehicles];
-    newVehicles[index] = { ...newVehicles[index], [field]: value };
+    newVehicles[index] = { ...newVehicles[index], ...updates };
     updateFormData({ vehicles: newVehicles });
   };
 
@@ -169,7 +380,7 @@ const AssetsSection = () => {
   const addOtherAsset = () => {
     const newAssets = [
       ...formData.otherAssets,
-      { owner: '', description: '', value: '' },
+      { owner: '', description: '', value: '', hasBeneficiaries: false, primaryBeneficiaries: [], secondaryBeneficiaries: [] },
     ];
     updateFormData({ otherAssets: newAssets });
   };
@@ -179,9 +390,9 @@ const AssetsSection = () => {
     updateFormData({ otherAssets: newAssets });
   };
 
-  const updateOtherAsset = (index: number, field: string, value: string) => {
+  const updateOtherAsset = (index: number, updates: Record<string, unknown>) => {
     const newAssets = [...formData.otherAssets];
-    newAssets[index] = { ...newAssets[index], [field]: value };
+    newAssets[index] = { ...newAssets[index], ...updates };
     updateFormData({ otherAssets: newAssets });
   };
 
@@ -218,7 +429,18 @@ const AssetsSection = () => {
                     value={property.owner}
                     label="Owner"
                     onChange={(e) => {
-                      updateRealEstate(index, 'owner', e.target.value, { ownershipForm: '' });
+                      const newOwner = e.target.value as RealEstateOwner;
+                      const updates: Record<string, unknown> = {
+                        owner: newOwner,
+                        ownershipForm: '',
+                      };
+                      // Reset joint owner fields if not an "Other" type
+                      if (!OWNERS_WITH_OTHER.includes(newOwner)) {
+                        updates.jointOwnerType = '';
+                        updates.jointOwnerBeneficiaries = [];
+                        updates.jointOwnerOther = '';
+                      }
+                      updateRealEstate(index, updates);
                     }}
                   >
                     {OWNER_OPTIONS.map((option) => (
@@ -235,7 +457,7 @@ const AssetsSection = () => {
                   <Select
                     value={property.ownershipForm}
                     label="Ownership Form"
-                    onChange={(e) => updateRealEstate(index, 'ownershipForm', e.target.value)}
+                    onChange={(e) => updateRealEstate(index, { ownershipForm: e.target.value })}
                   >
                     {getOwnershipFormOptions(property.owner).map((option) => (
                       <MenuItem key={option} value={option}>
@@ -246,11 +468,36 @@ const AssetsSection = () => {
                 </FormControl>
               </Grid>
               <Grid item xs={12} md={6}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={property.hasBeneficiaries || false}
+                      onChange={(e) => updateRealEstate(index, { hasBeneficiaries: e.target.checked })}
+                    />
+                  }
+                  label="Has Beneficiaries?"
+                />
+              </Grid>
+
+              {/* Joint Owner Selection - shows when owner includes "Other" */}
+              {OWNERS_WITH_OTHER.includes(property.owner) && (
+                <Grid item xs={12}>
+                  <JointOwnerSelector
+                    jointOwnerType={property.jointOwnerType}
+                    jointOwnerBeneficiaries={property.jointOwnerBeneficiaries}
+                    jointOwnerOther={property.jointOwnerOther}
+                    beneficiaryOptions={beneficiaryOptions}
+                    onChange={(updates) => updateRealEstate(index, updates)}
+                  />
+                </Grid>
+              )}
+
+              <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Street Address"
+                  label="Address"
                   value={property.street}
-                  onChange={(e) => updateRealEstate(index, 'street', e.target.value)}
+                  onChange={(e) => updateRealEstate(index, { street: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
@@ -260,7 +507,7 @@ const AssetsSection = () => {
                   fullWidth
                   label="City"
                   value={property.city}
-                  onChange={(e) => updateRealEstate(index, 'city', e.target.value)}
+                  onChange={(e) => updateRealEstate(index, { city: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
@@ -270,7 +517,7 @@ const AssetsSection = () => {
                   fullWidth
                   label="State"
                   value={property.state}
-                  onChange={(e) => updateRealEstate(index, 'state', e.target.value)}
+                  onChange={(e) => updateRealEstate(index, { state: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
@@ -280,7 +527,7 @@ const AssetsSection = () => {
                   fullWidth
                   label="Zip Code"
                   value={property.zip}
-                  onChange={(e) => updateRealEstate(index, 'zip', e.target.value)}
+                  onChange={(e) => updateRealEstate(index, { zip: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
@@ -290,7 +537,7 @@ const AssetsSection = () => {
                   fullWidth
                   label="Estimated Value"
                   value={property.value}
-                  onChange={(e) => updateRealEstate(index, 'value', e.target.value)}
+                  onChange={(e) => updateRealEstate(index, { value: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
@@ -300,7 +547,7 @@ const AssetsSection = () => {
                   fullWidth
                   label="Mortgage Balance"
                   value={property.mortgageBalance}
-                  onChange={(e) => updateRealEstate(index, 'mortgageBalance', e.target.value)}
+                  onChange={(e) => updateRealEstate(index, { mortgageBalance: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
@@ -310,11 +557,31 @@ const AssetsSection = () => {
                   fullWidth
                   label="Cost Basis"
                   value={property.costBasis}
-                  onChange={(e) => updateRealEstate(index, 'costBasis', e.target.value)}
+                  onChange={(e) => updateRealEstate(index, { costBasis: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
               </Grid>
+              {property.hasBeneficiaries && (
+                <>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Primary Beneficiaries"
+                      selectedBeneficiaries={property.primaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateRealEstate(index, { primaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Secondary Beneficiaries"
+                      selectedBeneficiaries={property.secondaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateRealEstate(index, { secondaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                </>
+              )}
             </Grid>
           </Paper>
         ))}
@@ -341,35 +608,72 @@ const AssetsSection = () => {
             </Box>
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
-                <TextField
-                  fullWidth
-                  label="Owner"
-                  value={account.owner}
-                  onChange={(e) => updateBankAccount(index, 'owner', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                />
+                <FormControl fullWidth size="small">
+                  <InputLabel>Owner</InputLabel>
+                  <Select
+                    value={account.owner}
+                    label="Owner"
+                    onChange={(e) => updateBankAccount(index, { owner: e.target.value })}
+                  >
+                    {OWNER_OPTIONS.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item xs={12} md={5}>
                 <TextField
                   fullWidth
                   label="Name of Financial Institution"
                   value={account.institution}
-                  onChange={(e) => updateBankAccount(index, 'institution', e.target.value)}
+                  onChange={(e) => updateBankAccount(index, { institution: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={2}>
                 <TextField
                   fullWidth
                   label="Amount"
                   value={account.amount}
-                  onChange={(e) => updateBankAccount(index, 'amount', e.target.value)}
+                  onChange={(e) => updateBankAccount(index, { amount: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
               </Grid>
+              <Grid item xs={12} md={2}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={account.hasBeneficiaries || false}
+                      onChange={(e) => updateBankAccount(index, { hasBeneficiaries: e.target.checked })}
+                    />
+                  }
+                  label="Has Beneficiaries?"
+                />
+              </Grid>
+              {account.hasBeneficiaries && (
+                <>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Primary Beneficiaries"
+                      selectedBeneficiaries={account.primaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateBankAccount(index, { primaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Secondary Beneficiaries"
+                      selectedBeneficiaries={account.secondaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateBankAccount(index, { secondaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                </>
+              )}
             </Grid>
           </Paper>
         ))}
@@ -396,21 +700,27 @@ const AssetsSection = () => {
             </Box>
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
-                <TextField
-                  fullWidth
-                  label="Owner"
-                  value={investment.owner}
-                  onChange={(e) => updateNonQualifiedInvestment(index, 'owner', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                />
+                <FormControl fullWidth size="small">
+                  <InputLabel>Owner</InputLabel>
+                  <Select
+                    value={investment.owner}
+                    label="Owner"
+                    onChange={(e) => updateNonQualifiedInvestment(index, { owner: e.target.value })}
+                  >
+                    {OWNER_OPTIONS.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item xs={12} md={3}>
                 <TextField
                   fullWidth
                   label="Institution"
                   value={investment.institution}
-                  onChange={(e) => updateNonQualifiedInvestment(index, 'institution', e.target.value)}
+                  onChange={(e) => updateNonQualifiedInvestment(index, { institution: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
@@ -420,7 +730,7 @@ const AssetsSection = () => {
                   fullWidth
                   label="Description"
                   value={investment.description}
-                  onChange={(e) => updateNonQualifiedInvestment(index, 'description', e.target.value)}
+                  onChange={(e) => updateNonQualifiedInvestment(index, { description: e.target.value })}
                   variant="outlined"
                   size="small"
                   placeholder="e.g., Brokerage, Stocks, Bonds, Mutual Funds"
@@ -431,11 +741,42 @@ const AssetsSection = () => {
                   fullWidth
                   label="Value"
                   value={investment.value}
-                  onChange={(e) => updateNonQualifiedInvestment(index, 'value', e.target.value)}
+                  onChange={(e) => updateNonQualifiedInvestment(index, { value: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
               </Grid>
+              <Grid item xs={12} md={2}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={investment.hasBeneficiaries || false}
+                      onChange={(e) => updateNonQualifiedInvestment(index, { hasBeneficiaries: e.target.checked })}
+                    />
+                  }
+                  label="Has Beneficiaries?"
+                />
+              </Grid>
+              {investment.hasBeneficiaries && (
+                <>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Primary Beneficiaries"
+                      selectedBeneficiaries={investment.primaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateNonQualifiedInvestment(index, { primaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Secondary Beneficiaries"
+                      selectedBeneficiaries={investment.secondaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateNonQualifiedInvestment(index, { secondaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                </>
+              )}
             </Grid>
           </Paper>
         ))}
@@ -462,11 +803,27 @@ const AssetsSection = () => {
             </Box>
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Owner</InputLabel>
+                  <Select
+                    value={account.owner}
+                    label="Owner"
+                    onChange={(e) => updateRetirementAccount(index, { owner: e.target.value })}
+                  >
+                    {INDIVIDUAL_OWNER_OPTIONS.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={3}>
                 <TextField
                   fullWidth
-                  label="Owner"
-                  value={account.owner}
-                  onChange={(e) => updateRetirementAccount(index, 'owner', e.target.value)}
+                  label="Institution"
+                  value={account.institution}
+                  onChange={(e) => updateRetirementAccount(index, { institution: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
@@ -474,19 +831,9 @@ const AssetsSection = () => {
               <Grid item xs={12} md={3}>
                 <TextField
                   fullWidth
-                  label="Institution"
-                  value={account.institution}
-                  onChange={(e) => updateRetirementAccount(index, 'institution', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField
-                  fullWidth
                   label="Account Type"
                   value={account.accountType}
-                  onChange={(e) => updateRetirementAccount(index, 'accountType', e.target.value)}
+                  onChange={(e) => updateRetirementAccount(index, { accountType: e.target.value })}
                   variant="outlined"
                   size="small"
                   placeholder="e.g., IRA, 401k, Pension"
@@ -495,23 +842,44 @@ const AssetsSection = () => {
               <Grid item xs={12} md={2}>
                 <TextField
                   fullWidth
-                  label="Beneficiary"
-                  value={account.beneficiary}
-                  onChange={(e) => updateRetirementAccount(index, 'beneficiary', e.target.value)}
+                  label="Value"
+                  value={account.value}
+                  onChange={(e) => updateRetirementAccount(index, { value: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
               </Grid>
               <Grid item xs={12} md={2}>
-                <TextField
-                  fullWidth
-                  label="Value"
-                  value={account.value}
-                  onChange={(e) => updateRetirementAccount(index, 'value', e.target.value)}
-                  variant="outlined"
-                  size="small"
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={account.hasBeneficiaries || false}
+                      onChange={(e) => updateRetirementAccount(index, { hasBeneficiaries: e.target.checked })}
+                    />
+                  }
+                  label="Has Beneficiaries?"
                 />
               </Grid>
+              {account.hasBeneficiaries && (
+                <>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Primary Beneficiaries"
+                      selectedBeneficiaries={account.primaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateRetirementAccount(index, { primaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Secondary Beneficiaries"
+                      selectedBeneficiaries={account.secondaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateRetirementAccount(index, { secondaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                </>
+              )}
             </Grid>
           </Paper>
         ))}
@@ -538,21 +906,27 @@ const AssetsSection = () => {
             </Box>
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
-                <TextField
-                  fullWidth
-                  label="Owner"
-                  value={policy.owner}
-                  onChange={(e) => updateLifeInsurance(index, 'owner', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                />
+                <FormControl fullWidth size="small">
+                  <InputLabel>Owner</InputLabel>
+                  <Select
+                    value={policy.owner}
+                    label="Owner"
+                    onChange={(e) => updateLifeInsurance(index, { owner: e.target.value })}
+                  >
+                    {INDIVIDUAL_OWNER_OPTIONS.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item xs={12} md={3}>
                 <TextField
                   fullWidth
                   label="Company"
                   value={policy.company}
-                  onChange={(e) => updateLifeInsurance(index, 'company', e.target.value)}
+                  onChange={(e) => updateLifeInsurance(index, { company: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
@@ -562,7 +936,7 @@ const AssetsSection = () => {
                   fullWidth
                   label="Face Amount"
                   value={policy.faceAmount}
-                  onChange={(e) => updateLifeInsurance(index, 'faceAmount', e.target.value)}
+                  onChange={(e) => updateLifeInsurance(index, { faceAmount: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
@@ -572,31 +946,52 @@ const AssetsSection = () => {
                   fullWidth
                   label="Cash Value"
                   value={policy.cashValue}
-                  onChange={(e) => updateLifeInsurance(index, 'cashValue', e.target.value)}
+                  onChange={(e) => updateLifeInsurance(index, { cashValue: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={2}>
                 <TextField
                   fullWidth
                   label="Insured"
                   value={policy.insured}
-                  onChange={(e) => updateLifeInsurance(index, 'insured', e.target.value)}
+                  onChange={(e) => updateLifeInsurance(index, { insured: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Beneficiary"
-                  value={policy.beneficiary}
-                  onChange={(e) => updateLifeInsurance(index, 'beneficiary', e.target.value)}
-                  variant="outlined"
-                  size="small"
+              <Grid item xs={12} md={2}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={policy.hasBeneficiaries || false}
+                      onChange={(e) => updateLifeInsurance(index, { hasBeneficiaries: e.target.checked })}
+                    />
+                  }
+                  label="Has Beneficiaries?"
                 />
               </Grid>
+              {policy.hasBeneficiaries && (
+                <>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Primary Beneficiaries"
+                      selectedBeneficiaries={policy.primaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateLifeInsurance(index, { primaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Secondary Beneficiaries"
+                      selectedBeneficiaries={policy.secondaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateLifeInsurance(index, { secondaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                </>
+              )}
             </Grid>
           </Paper>
         ))}
@@ -623,36 +1018,73 @@ const AssetsSection = () => {
             </Box>
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
-                <TextField
-                  fullWidth
-                  label="Owner"
-                  value={vehicle.owner}
-                  onChange={(e) => updateVehicle(index, 'owner', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                />
+                <FormControl fullWidth size="small">
+                  <InputLabel>Owner</InputLabel>
+                  <Select
+                    value={vehicle.owner}
+                    label="Owner"
+                    onChange={(e) => updateVehicle(index, { owner: e.target.value })}
+                  >
+                    {OWNER_OPTIONS.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   label="Year, Make, Model"
                   value={vehicle.yearMakeModel}
-                  onChange={(e) => updateVehicle(index, 'yearMakeModel', e.target.value)}
+                  onChange={(e) => updateVehicle(index, { yearMakeModel: e.target.value })}
                   variant="outlined"
                   size="small"
                   placeholder="e.g., 2020 Toyota Camry"
                 />
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid item xs={12} md={2}>
                 <TextField
                   fullWidth
                   label="Value"
                   value={vehicle.value}
-                  onChange={(e) => updateVehicle(index, 'value', e.target.value)}
+                  onChange={(e) => updateVehicle(index, { value: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
               </Grid>
+              <Grid item xs={12} md={2}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={vehicle.hasBeneficiaries || false}
+                      onChange={(e) => updateVehicle(index, { hasBeneficiaries: e.target.checked })}
+                    />
+                  }
+                  label="Has Beneficiaries?"
+                />
+              </Grid>
+              {vehicle.hasBeneficiaries && (
+                <>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Primary Beneficiaries"
+                      selectedBeneficiaries={vehicle.primaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateVehicle(index, { primaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Secondary Beneficiaries"
+                      selectedBeneficiaries={vehicle.secondaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateVehicle(index, { secondaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                </>
+              )}
             </Grid>
           </Paper>
         ))}
@@ -679,36 +1111,73 @@ const AssetsSection = () => {
             </Box>
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
-                <TextField
-                  fullWidth
-                  label="Owner"
-                  value={asset.owner}
-                  onChange={(e) => updateOtherAsset(index, 'owner', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                />
+                <FormControl fullWidth size="small">
+                  <InputLabel>Owner</InputLabel>
+                  <Select
+                    value={asset.owner}
+                    label="Owner"
+                    onChange={(e) => updateOtherAsset(index, { owner: e.target.value })}
+                  >
+                    {OWNER_OPTIONS.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   label="Description"
                   value={asset.description}
-                  onChange={(e) => updateOtherAsset(index, 'description', e.target.value)}
+                  onChange={(e) => updateOtherAsset(index, { description: e.target.value })}
                   variant="outlined"
                   size="small"
                   placeholder="e.g., Business interest, collectibles, jewelry"
                 />
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid item xs={12} md={2}>
                 <TextField
                   fullWidth
                   label="Value"
                   value={asset.value}
-                  onChange={(e) => updateOtherAsset(index, 'value', e.target.value)}
+                  onChange={(e) => updateOtherAsset(index, { value: e.target.value })}
                   variant="outlined"
                   size="small"
                 />
               </Grid>
+              <Grid item xs={12} md={2}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={asset.hasBeneficiaries || false}
+                      onChange={(e) => updateOtherAsset(index, { hasBeneficiaries: e.target.checked })}
+                    />
+                  }
+                  label="Has Beneficiaries?"
+                />
+              </Grid>
+              {asset.hasBeneficiaries && (
+                <>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Primary Beneficiaries"
+                      selectedBeneficiaries={asset.primaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateOtherAsset(index, { primaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <BeneficiarySelector
+                      label="Secondary Beneficiaries"
+                      selectedBeneficiaries={asset.secondaryBeneficiaries}
+                      options={beneficiaryOptions}
+                      onChange={(selected) => updateOtherAsset(index, { secondaryBeneficiaries: selected })}
+                    />
+                  </Grid>
+                </>
+              )}
             </Grid>
           </Paper>
         ))}
