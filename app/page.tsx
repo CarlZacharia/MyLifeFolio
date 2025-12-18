@@ -21,6 +21,7 @@ import OtherBeneficiariesSection from '../components/OtherBeneficiariesSection';
 import DispositiveIntentionsSection from '../components/DispositiveIntentionsSection';
 import FiduciariesSection from '../components/FiduciariesSection';
 import AssetsSection from '../components/AssetsSection';
+import SummarySection from '../components/SummarySection';
 import axios from 'axios';
 import { MaritalStatus } from '../lib/FormContext';
 
@@ -33,6 +34,7 @@ const ALL_STEPS = [
   'Dispositive Intentions',
   'Fiduciaries',
   'Assets',
+  'Summary',
   'Review & Submit'
 ];
 
@@ -122,6 +124,8 @@ const QuestionnaireContent = () => {
         return <FiduciariesSection />;
       case 'Assets':
         return <AssetsSection />;
+      case 'Summary':
+        return <SummarySection />;
       case 'Review & Submit':
         return (
           <Box>
