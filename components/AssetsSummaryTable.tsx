@@ -118,8 +118,90 @@ const AssetCategory: React.FC<AssetCategoryProps> = ({
   );
 };
 
+interface RealEstateRow {
+  id: number;
+  description: string;
+  owner: string;
+  ownershipForm: string;
+  value: number;
+}
+
+interface RealEstateCategoryProps {
+  rows: RealEstateRow[];
+  onRowClick: (index: number) => void;
+  onAddClick: () => void;
+}
+
+const RealEstateCategory: React.FC<RealEstateCategoryProps> = ({
+  rows,
+  onRowClick,
+  onAddClick,
+}) => {
+  const categoryTotal = rows.reduce((sum, row) => sum + row.value, 0);
+
+  return (
+    <Box sx={{ mb: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 500 }}>
+          1. Real Estate
+        </Typography>
+        <Button variant="outlined" startIcon={<AddIcon />} onClick={onAddClick} size="small">
+          Add Property
+        </Button>
+      </Box>
+
+      <TableContainer component={Paper} variant="outlined">
+        <Table size="small">
+          <TableHead>
+            <TableRow sx={{ bgcolor: 'grey.100' }}>
+              <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Owner</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Form</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 600 }}>Value</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                  No items added yet. Click &quot;Add Property&quot; to add one.
+                </TableCell>
+              </TableRow>
+            ) : (
+              <>
+                {rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    hover
+                    onClick={() => onRowClick(row.id)}
+                    sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+                  >
+                    <TableCell>{row.description || '(No description)'}</TableCell>
+                    <TableCell>{row.owner || '(No owner)'}</TableCell>
+                    <TableCell>{row.ownershipForm || '-'}</TableCell>
+                    <TableCell align="right">{row.value > 0 ? formatCurrency(row.value) : '-'}</TableCell>
+                  </TableRow>
+                ))}
+                <TableRow sx={{ bgcolor: 'grey.50' }}>
+                  <TableCell colSpan={3} sx={{ fontWeight: 600 }}>
+                    Subtotal - Real Estate
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 600 }}>
+                    {formatCurrency(categoryTotal)}
+                  </TableCell>
+                </TableRow>
+              </>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
+};
+
 interface RealEstateItem {
   owner: string;
+  ownershipForm: string;
   street: string;
   city: string;
   state: string;
@@ -213,12 +295,13 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
   onAddOtherAsset,
 }) => {
   // Transform data for each category
-  const realEstateRows: AssetRow[] = realEstate.map((item, index) => ({
+  const realEstateRows: RealEstateRow[] = realEstate.map((item, index) => ({
     id: index,
     description: item.street
       ? `${item.street}${item.city ? `, ${item.city}` : ''}${item.state ? `, ${item.state}` : ''}`
       : 'Property',
     owner: item.owner,
+    ownershipForm: item.ownershipForm,
     value: parseValue(item.value),
   }));
 
@@ -280,13 +363,10 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
         ASSETS
       </Typography>
 
-      <AssetCategory
-        title="Real Estate"
-        categoryNumber={1}
+      <RealEstateCategory
         rows={realEstateRows}
         onRowClick={onEditRealEstate}
         onAddClick={onAddRealEstate}
-        addButtonLabel="Add Property"
       />
 
       <AssetCategory

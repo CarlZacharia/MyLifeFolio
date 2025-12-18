@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 export type MaritalStatus = 'Single' | 'Married' | 'Second Marriage' | 'Divorced' | 'Separated' | 'Domestic Partnership' | '';
 export type Sex = 'Male' | 'Female' | 'Other' | '';
 export type RealEstateOwner = 'Client' | 'Spouse' | 'Client and Spouse' | 'Client and Other' | 'Spouse and Other' | 'Client, Spouse and Other' | '';
-export type OwnershipForm = 'Sole' | 'Tenants by Entirety' | 'JTWROS' | 'Tenants in Common' | 'Life Estate' | 'Lady Bird Deed' | 'Trust' | 'Other' | '';
+export type OwnershipForm = 'Sole' | 'Tenants by Entirety' | 'JTWROS' | 'Tenants in Common' | 'Life Estate' | 'Lady Bird Deed' | 'Living Trust' | 'Irrevocable Trust' | 'Other' | '';
 
 export interface FormData {
   // Personal Data
@@ -36,6 +36,20 @@ export interface FormData {
   childrenTogether: number;
   spouseHasChildrenFromPrior: boolean;
   spouseChildrenFromPrior: number;
+
+  // Existing Trusts
+  clientHasLivingTrust: boolean;
+  clientLivingTrustName: string;
+  clientLivingTrustDate: Date | null;
+  clientHasIrrevocableTrust: boolean;
+  clientIrrevocableTrustName: string;
+  clientIrrevocableTrustDate: Date | null;
+  spouseHasLivingTrust: boolean;
+  spouseHasIrrevocableTrust: boolean;
+  spouseLivingTrustName: string;
+  spouseLivingTrustDate: Date | null;
+  spouseIrrevocableTrustName: string;
+  spouseIrrevocableTrustDate: Date | null;
 
   // Marital Information
   dateMarried: Date | null;
@@ -181,7 +195,6 @@ export interface FormData {
     showOther: boolean;
     jointOwnerBeneficiaries: string[];
     jointOwnerOther: string;
-    hasBeneficiaries: boolean;
     street: string;
     city: string;
     state: string;
@@ -189,8 +202,8 @@ export interface FormData {
     value: string;
     mortgageBalance: string;
     costBasis: string;
-    primaryBeneficiaries: string[];
-    secondaryBeneficiaries: string[];
+    primaryBeneficiaries: string[]; // Used for Remainder Interest when Life Estate or Lady Bird Deed
+    remainderInterestOther: string; // Name of non-beneficiary remainder interest holder
     notes: string;
   }>;
 
@@ -306,6 +319,18 @@ const initialFormData: FormData = {
   childrenTogether: 0,
   spouseHasChildrenFromPrior: false,
   spouseChildrenFromPrior: 0,
+  clientHasLivingTrust: false,
+  clientLivingTrustName: '',
+  clientLivingTrustDate: null,
+  clientHasIrrevocableTrust: false,
+  clientIrrevocableTrustName: '',
+  clientIrrevocableTrustDate: null,
+  spouseHasLivingTrust: false,
+  spouseLivingTrustName: '',
+  spouseLivingTrustDate: null,
+  spouseHasIrrevocableTrust: false,
+  spouseIrrevocableTrustName: '',
+  spouseIrrevocableTrustDate: null,
   dateMarried: null,
   placeOfMarriage: '',
   priorMarriage: false,

@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useFormContext, MaritalStatus, Sex } from '../lib/FormContext';
+import PhoneInput from './PhoneInput';
 
 const calculateAge = (birthDate: Date | null): string => {
   if (!birthDate) return '';
@@ -130,35 +131,35 @@ const PersonalDataSection = () => {
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <TextField
+          <PhoneInput
             fullWidth
             label="Cell Phone"
             value={formData.cellPhone}
             onChange={handleChange('cellPhone')}
             variant="outlined"
-            type="tel"
+            name="cellPhone"
           />
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <TextField
+          <PhoneInput
             fullWidth
             label="Home Phone"
             value={formData.homePhone}
             onChange={handleChange('homePhone')}
             variant="outlined"
-            type="tel"
+            name="homePhone"
           />
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <TextField
+          <PhoneInput
             fullWidth
             label="Work Phone"
             value={formData.workPhone}
             onChange={handleChange('workPhone')}
             variant="outlined"
-            type="tel"
+            name="workPhone"
           />
         </Grid>
 
@@ -287,14 +288,128 @@ const PersonalDataSection = () => {
                   value={formData.clientChildrenFromPrior}
                   onChange={(e) => {
                     const value = parseInt(e.target.value, 10);
-                    updateFormData({ clientChildrenFromPrior: isNaN(value) ? 0 : value });
+                    const maxAllowed = formData.numberOfChildren - formData.childrenTogether;
+                    const clampedValue = isNaN(value) ? 0 : Math.min(Math.max(1, value), Math.max(1, maxAllowed));
+                    updateFormData({ clientChildrenFromPrior: clampedValue });
                   }}
                   variant="outlined"
                   type="number"
-                  inputProps={{ min: 1, style: { textAlign: 'center' } }}
+                  inputProps={{ min: 1, max: formData.numberOfChildren - formData.childrenTogether, style: { textAlign: 'center' } }}
+                  error={formData.clientChildrenFromPrior > formData.numberOfChildren - formData.childrenTogether}
+                  helperText={formData.numberOfChildren > 0 ? `Max: ${Math.max(1, formData.numberOfChildren - formData.childrenTogether)}` : ''}
                 />
               </Grid>
             )}
+          </>
+        )}
+
+        {/* Client's Existing Trusts */}
+        <Grid item xs={12}>
+          <Divider sx={{ my: 2 }} />
+          <Typography variant="h6" sx={{ mb: 2, mt: 2, fontWeight: 500 }}>
+            Existing Trusts
+          </Typography>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
+              Do you have an existing Living Trust?
+            </FormLabel>
+            <RadioGroup
+              row
+              value={formData.clientHasLivingTrust ? 'yes' : 'no'}
+              onChange={(e) => {
+                const hasLivingTrust = e.target.value === 'yes';
+                updateFormData({
+                  clientHasLivingTrust: hasLivingTrust,
+                  clientLivingTrustName: hasLivingTrust ? formData.clientLivingTrustName : '',
+                  clientLivingTrustDate: hasLivingTrust ? formData.clientLivingTrustDate : null,
+                });
+              }}
+            >
+              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
+              Do you have an existing Irrevocable Trust?
+            </FormLabel>
+            <RadioGroup
+              row
+              value={formData.clientHasIrrevocableTrust ? 'yes' : 'no'}
+              onChange={(e) => {
+                const hasIrrevocableTrust = e.target.value === 'yes';
+                updateFormData({
+                  clientHasIrrevocableTrust: hasIrrevocableTrust,
+                  clientIrrevocableTrustName: hasIrrevocableTrust ? formData.clientIrrevocableTrustName : '',
+                  clientIrrevocableTrustDate: hasIrrevocableTrust ? formData.clientIrrevocableTrustDate : null,
+                });
+              }}
+            >
+              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+
+        {formData.clientHasLivingTrust && (
+          <>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Living Trust Name"
+                value={formData.clientLivingTrustName}
+                onChange={handleChange('clientLivingTrustName')}
+                variant="outlined"
+                placeholder="e.g., The John Smith Revocable Living Trust"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <DatePicker
+                label="Living Trust Date"
+                value={formData.clientLivingTrustDate}
+                onChange={handleDateChange('clientLivingTrustDate')}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    variant: 'outlined',
+                  },
+                }}
+              />
+            </Grid>
+          </>
+        )}
+
+        {formData.clientHasIrrevocableTrust && (
+          <>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Irrevocable Trust Name"
+                value={formData.clientIrrevocableTrustName}
+                onChange={handleChange('clientIrrevocableTrustName')}
+                variant="outlined"
+                placeholder="e.g., The Smith Irrevocable Trust"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <DatePicker
+                label="Irrevocable Trust Date"
+                value={formData.clientIrrevocableTrustDate}
+                onChange={handleDateChange('clientIrrevocableTrustDate')}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    variant: 'outlined',
+                  },
+                }}
+              />
+            </Grid>
           </>
         )}
 
@@ -343,35 +458,35 @@ const PersonalDataSection = () => {
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <TextField
+          <PhoneInput
             fullWidth
             label="Spouse Cell Phone"
             value={formData.spouseCellPhone}
             onChange={handleChange('spouseCellPhone')}
             variant="outlined"
-            type="tel"
+            name="spouseCellPhone"
           />
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <TextField
+          <PhoneInput
             fullWidth
             label="Spouse Home Phone"
             value={formData.spouseHomePhone}
             onChange={handleChange('spouseHomePhone')}
             variant="outlined"
-            type="tel"
+            name="spouseHomePhone"
           />
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <TextField
+          <PhoneInput
             fullWidth
             label="Spouse Work Phone"
             value={formData.spouseWorkPhone}
             onChange={handleChange('spouseWorkPhone')}
             variant="outlined"
-            type="tel"
+            name="spouseWorkPhone"
           />
         </Grid>
 
@@ -457,11 +572,15 @@ const PersonalDataSection = () => {
             value={formData.childrenTogether}
             onChange={(e) => {
               const value = parseInt(e.target.value, 10);
-              updateFormData({ childrenTogether: isNaN(value) ? 0 : value });
+              const maxAllowed = formData.numberOfChildren - formData.clientChildrenFromPrior;
+              const clampedValue = isNaN(value) ? 0 : Math.min(Math.max(0, value), Math.max(0, maxAllowed));
+              updateFormData({ childrenTogether: clampedValue });
             }}
             variant="outlined"
             type="number"
-            inputProps={{ min: 0, style: { textAlign: 'center' } }}
+            inputProps={{ min: 0, max: formData.numberOfChildren - formData.clientChildrenFromPrior, style: { textAlign: 'center' } }}
+            error={formData.childrenTogether > formData.numberOfChildren - formData.clientChildrenFromPrior}
+            helperText={formData.numberOfChildren > 0 ? `Max: ${Math.max(0, formData.numberOfChildren - formData.clientChildrenFromPrior)}` : ''}
           />
         </Grid>
 
@@ -501,6 +620,116 @@ const PersonalDataSection = () => {
               inputProps={{ min: 1, style: { textAlign: 'center' } }}
             />
           </Grid>
+        )}
+
+        {/* Spouse's Existing Trusts */}
+        <Grid item xs={12}>
+          <Divider sx={{ my: 2 }} />
+          <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
+            Spouse&apos;s Existing Trusts
+          </Typography>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
+              Does your spouse have an existing Living Trust?
+            </FormLabel>
+            <RadioGroup
+              row
+              value={formData.spouseHasLivingTrust ? 'yes' : 'no'}
+              onChange={(e) => {
+                const hasLivingTrust = e.target.value === 'yes';
+                updateFormData({
+                  spouseHasLivingTrust: hasLivingTrust,
+                  spouseLivingTrustName: hasLivingTrust ? formData.spouseLivingTrustName : '',
+                  spouseLivingTrustDate: hasLivingTrust ? formData.spouseLivingTrustDate : null,
+                });
+              }}
+            >
+              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
+              Does your spouse have an existing Irrevocable Trust?
+            </FormLabel>
+            <RadioGroup
+              row
+              value={formData.spouseHasIrrevocableTrust ? 'yes' : 'no'}
+              onChange={(e) => {
+                const hasIrrevocableTrust = e.target.value === 'yes';
+                updateFormData({
+                  spouseHasIrrevocableTrust: hasIrrevocableTrust,
+                  spouseIrrevocableTrustName: hasIrrevocableTrust ? formData.spouseIrrevocableTrustName : '',
+                  spouseIrrevocableTrustDate: hasIrrevocableTrust ? formData.spouseIrrevocableTrustDate : null,
+                });
+              }}
+            >
+              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+
+        {formData.spouseHasLivingTrust && (
+          <>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Spouse Living Trust Name"
+                value={formData.spouseLivingTrustName}
+                onChange={handleChange('spouseLivingTrustName')}
+                variant="outlined"
+                placeholder="e.g., The Jane Smith Revocable Living Trust"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <DatePicker
+                label="Spouse Living Trust Date"
+                value={formData.spouseLivingTrustDate}
+                onChange={handleDateChange('spouseLivingTrustDate')}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    variant: 'outlined',
+                  },
+                }}
+              />
+            </Grid>
+          </>
+        )}
+
+        {formData.spouseHasIrrevocableTrust && (
+          <>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Spouse Irrevocable Trust Name"
+                value={formData.spouseIrrevocableTrustName}
+                onChange={handleChange('spouseIrrevocableTrustName')}
+                variant="outlined"
+                placeholder="e.g., The Smith Irrevocable Trust"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <DatePicker
+                label="Spouse Irrevocable Trust Date"
+                value={formData.spouseIrrevocableTrustDate}
+                onChange={handleDateChange('spouseIrrevocableTrustDate')}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    variant: 'outlined',
+                  },
+                }}
+              />
+            </Grid>
+          </>
         )}
           </>
         )}

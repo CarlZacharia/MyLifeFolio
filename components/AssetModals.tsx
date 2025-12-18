@@ -56,8 +56,39 @@ const getOwnerOptions = (showSpouse: boolean): RealEstateOwner[] =>
 const getIndividualOwnerOptions = (showSpouse: boolean) =>
   showSpouse ? ALL_INDIVIDUAL_OWNER_OPTIONS : CLIENT_ONLY_INDIVIDUAL_OPTIONS;
 
-const getOwnershipFormOptions = (owner: RealEstateOwner): OwnershipForm[] => {
-  const baseOptions: OwnershipForm[] = ['Life Estate', 'Lady Bird Deed', 'Trust', 'Other'];
+export interface TrustFlags {
+  clientHasLivingTrust: boolean;
+  clientHasIrrevocableTrust: boolean;
+  spouseHasLivingTrust: boolean;
+  spouseHasIrrevocableTrust: boolean;
+}
+
+const getOwnershipFormOptions = (owner: RealEstateOwner, trustFlags?: TrustFlags): OwnershipForm[] => {
+  // Build trust options based on owner and trust flags
+  const trustOptions: OwnershipForm[] = [];
+
+  if (trustFlags) {
+    // Determine which trust options to show based on owner
+    const showClientTrusts = owner === 'Client' || owner === 'Client and Spouse' ||
+      owner === 'Client and Other' || owner === 'Client, Spouse and Other';
+    const showSpouseTrusts = owner === 'Spouse' || owner === 'Client and Spouse' ||
+      owner === 'Spouse and Other' || owner === 'Client, Spouse and Other';
+
+    if (showClientTrusts && trustFlags.clientHasLivingTrust) {
+      trustOptions.push('Living Trust');
+    }
+    if (showSpouseTrusts && trustFlags.spouseHasLivingTrust && !trustOptions.includes('Living Trust')) {
+      trustOptions.push('Living Trust');
+    }
+    if (showClientTrusts && trustFlags.clientHasIrrevocableTrust) {
+      trustOptions.push('Irrevocable Trust');
+    }
+    if (showSpouseTrusts && trustFlags.spouseHasIrrevocableTrust && !trustOptions.includes('Irrevocable Trust')) {
+      trustOptions.push('Irrevocable Trust');
+    }
+  }
+
+  const baseOptions: OwnershipForm[] = ['Life Estate', 'Lady Bird Deed', ...trustOptions, 'Other'];
 
   switch (owner) {
     case 'Client':
@@ -224,7 +255,6 @@ export interface RealEstateData {
   showOther: boolean;
   jointOwnerBeneficiaries: string[];
   jointOwnerOther: string;
-  hasBeneficiaries: boolean;
   street: string;
   city: string;
   state: string;
@@ -232,8 +262,8 @@ export interface RealEstateData {
   value: string;
   mortgageBalance: string;
   costBasis: string;
-  primaryBeneficiaries: string[];
-  secondaryBeneficiaries: string[];
+  primaryBeneficiaries: string[]; // Used for Remainder Interest when Life Estate or Lady Bird Deed
+  remainderInterestOther: string; // Name of non-beneficiary remainder interest holder
   notes: string;
 }
 
@@ -244,7 +274,6 @@ const emptyRealEstate: RealEstateData = {
   showOther: false,
   jointOwnerBeneficiaries: [],
   jointOwnerOther: '',
-  hasBeneficiaries: false,
   street: '',
   city: '',
   state: '',
@@ -253,7 +282,7 @@ const emptyRealEstate: RealEstateData = {
   mortgageBalance: '',
   costBasis: '',
   primaryBeneficiaries: [],
-  secondaryBeneficiaries: [],
+  remainderInterestOther: '',
   notes: '',
 };
 
@@ -266,6 +295,7 @@ interface RealEstateModalProps {
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
   showSpouse?: boolean;
+  trustFlags?: TrustFlags;
 }
 
 export const RealEstateModal: React.FC<RealEstateModalProps> = ({
@@ -277,6 +307,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
   beneficiaryOptions,
   isEdit = false,
   showSpouse = true,
+  trustFlags,
 }) => {
   const ownerOptions = getOwnerOptions(showSpouse);
   const [data, setData] = useState<RealEstateData>(initialData || emptyRealEstate);
@@ -339,7 +370,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
                 label="Ownership Form"
                 onChange={(e) => handleChange({ ownershipForm: e.target.value as OwnershipForm })}
               >
-                {getOwnershipFormOptions(data.owner).map((option) => (
+                {getOwnershipFormOptions(data.owner, trustFlags).map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -432,34 +463,25 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
             />
           </Grid>
 
-          <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={data.hasBeneficiaries || false}
-                  onChange={(e) => handleChange({ hasBeneficiaries: e.target.checked })}
-                />
-              }
-              label="Has Beneficiaries?"
-            />
-          </Grid>
-
-          {data.hasBeneficiaries && (
+          {(data.ownershipForm === 'Life Estate' || data.ownershipForm === 'Lady Bird Deed') && (
             <>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
                 <BeneficiarySelector
-                  label="Primary Beneficiaries"
+                  label="Remainder Interest"
                   selectedBeneficiaries={data.primaryBeneficiaries}
                   options={beneficiaryOptions}
                   onChange={(selected) => handleChange({ primaryBeneficiaries: selected })}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
-                <BeneficiarySelector
-                  label="Secondary Beneficiaries"
-                  selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ secondaryBeneficiaries: selected })}
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Other Remainder Interest Holder (non-beneficiary)"
+                  value={data.remainderInterestOther || ''}
+                  onChange={(e) => handleChange({ remainderInterestOther: e.target.value })}
+                  variant="outlined"
+                  placeholder="Enter name if not listed above"
                 />
               </Grid>
             </>

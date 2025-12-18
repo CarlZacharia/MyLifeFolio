@@ -25,7 +25,7 @@ const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
   </Typography>
 );
 
-const InfoRow: React.FC<{ label: string; value: string | number | boolean | null | undefined }> = ({ label, value }) => {
+const InfoRow: React.FC<{ label: string; value: string | number | boolean | Date | null | undefined }> = ({ label, value }) => {
   if (value === null || value === undefined || value === '') return null;
 
   let displayValue: string;
@@ -95,6 +95,22 @@ const SummarySection = () => {
     const num = parseFloat(value.replace(/[^0-9.-]/g, ''));
     if (isNaN(num)) return value;
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+  };
+
+  // Helper to format fiduciary names - handles dropdown values and "Other" fields
+  const formatFiduciaryName = (dropdownValue: string, otherValue: string): string | null => {
+    // If "Other" was selected, use the other field value
+    if (dropdownValue === '__OTHER__') {
+      return otherValue || null;
+    }
+    // If dropdown has a value with prefix (e.g., "child:1:Betty", "spouse:Name", "client:Name", "beneficiary:0:Name")
+    if (dropdownValue && dropdownValue.includes(':')) {
+      const parts = dropdownValue.split(':');
+      // The name is always the last part
+      return parts[parts.length - 1] || null;
+    }
+    // Return dropdown value as-is if it exists
+    return dropdownValue || null;
   };
 
   return (
@@ -190,7 +206,7 @@ const SummarySection = () => {
                     <TableCell>{child.relationship}</TableCell>
                     <TableCell>{child.birthDate || '-'}</TableCell>
                     <TableCell>{child.maritalStatus || '-'}</TableCell>
-                    <TableCell>{child.hasChildren ? `Yes (${child.numberOfChildren})` : 'No'}</TableCell>
+                    <TableCell>{child.hasChildren && child.numberOfChildren > 0 ? `Yes (${child.numberOfChildren})` : 'No'}</TableCell>
                     <TableCell>{child.distributionType || '-'}</TableCell>
                     <TableCell>
                       {child.disinherit ? (
@@ -332,9 +348,10 @@ const SummarySection = () => {
 
         {/* Executors (Client) */}
         {(() => {
-          const hasFirst = !!(formData.executorFirst || formData.executorFirstOther);
-          const hasAlternate = !!(formData.executorAlternate || formData.executorAlternateOther);
-          const isIncomplete = !hasFirst || !hasAlternate;
+          const firstChoice = formatFiduciaryName(formData.executorFirst, formData.executorFirstOther);
+          const alternate = formatFiduciaryName(formData.executorAlternate, formData.executorAlternateOther);
+          const secondAlternate = formatFiduciaryName(formData.executorSecondAlternate, formData.executorSecondAlternateOther);
+          const isIncomplete = !firstChoice || !alternate;
           return (
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -348,18 +365,19 @@ const SummarySection = () => {
                 )}
               </Box>
               <Grid container spacing={1}>
-                <InfoRow label="First Choice" value={formData.executorFirst || formData.executorFirstOther} />
-                <InfoRow label="Alternate" value={formData.executorAlternate || formData.executorAlternateOther} />
-                <InfoRow label="Second Alternate" value={formData.executorSecondAlternate || formData.executorSecondAlternateOther} />
+                <InfoRow label="First Choice" value={firstChoice} />
+                <InfoRow label="Alternate" value={alternate} />
+                <InfoRow label="Second Alternate" value={secondAlternate} />
               </Grid>
             </>
           );
         })()}
 
         {showSpouseInfo && (() => {
-          const hasFirst = !!(formData.spouseExecutorFirst || formData.spouseExecutorFirstOther);
-          const hasAlternate = !!(formData.spouseExecutorAlternate || formData.spouseExecutorAlternateOther);
-          const isIncomplete = !hasFirst || !hasAlternate;
+          const firstChoice = formatFiduciaryName(formData.spouseExecutorFirst, formData.spouseExecutorFirstOther);
+          const alternate = formatFiduciaryName(formData.spouseExecutorAlternate, formData.spouseExecutorAlternateOther);
+          const secondAlternate = formatFiduciaryName(formData.spouseExecutorSecondAlternate, formData.spouseExecutorSecondAlternateOther);
+          const isIncomplete = !firstChoice || !alternate;
           return (
             <>
               <Divider sx={{ my: 2 }} />
@@ -374,9 +392,9 @@ const SummarySection = () => {
                 )}
               </Box>
               <Grid container spacing={1}>
-                <InfoRow label="First Choice" value={formData.spouseExecutorFirst || formData.spouseExecutorFirstOther} />
-                <InfoRow label="Alternate" value={formData.spouseExecutorAlternate || formData.spouseExecutorAlternateOther} />
-                <InfoRow label="Second Alternate" value={formData.spouseExecutorSecondAlternate || formData.spouseExecutorSecondAlternateOther} />
+                <InfoRow label="First Choice" value={firstChoice} />
+                <InfoRow label="Alternate" value={alternate} />
+                <InfoRow label="Second Alternate" value={secondAlternate} />
               </Grid>
             </>
           );
@@ -385,9 +403,9 @@ const SummarySection = () => {
         {/* Trustees (Client) */}
         <Divider sx={{ my: 2 }} />
         {(() => {
-          const hasFirst = !!(formData.trusteeFirst || formData.trusteeFirstOther);
-          const hasAlternate = !!(formData.trusteeAlternate || formData.trusteeAlternateOther);
-          const isIncomplete = !hasFirst || !hasAlternate;
+          const firstChoice = formatFiduciaryName(formData.trusteeFirst, formData.trusteeFirstOther);
+          const alternate = formatFiduciaryName(formData.trusteeAlternate, formData.trusteeAlternateOther);
+          const isIncomplete = !firstChoice || !alternate;
           return (
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -401,17 +419,17 @@ const SummarySection = () => {
                 )}
               </Box>
               <Grid container spacing={1}>
-                <InfoRow label="First Choice" value={formData.trusteeFirst || formData.trusteeFirstOther} />
-                <InfoRow label="Alternate" value={formData.trusteeAlternate || formData.trusteeAlternateOther} />
+                <InfoRow label="First Choice" value={firstChoice} />
+                <InfoRow label="Alternate" value={alternate} />
               </Grid>
             </>
           );
         })()}
 
         {showSpouseInfo && (() => {
-          const hasFirst = !!(formData.spouseTrusteeFirst || formData.spouseTrusteeFirstOther);
-          const hasAlternate = !!(formData.spouseTrusteeAlternate || formData.spouseTrusteeAlternateOther);
-          const isIncomplete = !hasFirst || !hasAlternate;
+          const firstChoice = formatFiduciaryName(formData.spouseTrusteeFirst, formData.spouseTrusteeFirstOther);
+          const alternate = formatFiduciaryName(formData.spouseTrusteeAlternate, formData.spouseTrusteeAlternateOther);
+          const isIncomplete = !firstChoice || !alternate;
           return (
             <>
               <Divider sx={{ my: 2 }} />
@@ -426,8 +444,8 @@ const SummarySection = () => {
                 )}
               </Box>
               <Grid container spacing={1}>
-                <InfoRow label="First Choice" value={formData.spouseTrusteeFirst || formData.spouseTrusteeFirstOther} />
-                <InfoRow label="Alternate" value={formData.spouseTrusteeAlternate || formData.spouseTrusteeAlternateOther} />
+                <InfoRow label="First Choice" value={firstChoice} />
+                <InfoRow label="Alternate" value={alternate} />
               </Grid>
             </>
           );
@@ -438,9 +456,9 @@ const SummarySection = () => {
           <>
             <Divider sx={{ my: 2 }} />
             {(() => {
-              const hasFirst = !!(formData.guardianFirst || formData.guardianFirstOther);
-              const hasAlternate = !!(formData.guardianAlternate || formData.guardianAlternateOther);
-              const isIncomplete = !hasFirst || !hasAlternate;
+              const firstChoice = formatFiduciaryName(formData.guardianFirst, formData.guardianFirstOther);
+              const alternate = formatFiduciaryName(formData.guardianAlternate, formData.guardianAlternateOther);
+              const isIncomplete = !firstChoice || !alternate;
               return (
                 <>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -454,17 +472,17 @@ const SummarySection = () => {
                     )}
                   </Box>
                   <Grid container spacing={1}>
-                    <InfoRow label="First Choice" value={formData.guardianFirst || formData.guardianFirstOther} />
-                    <InfoRow label="Alternate" value={formData.guardianAlternate || formData.guardianAlternateOther} />
+                    <InfoRow label="First Choice" value={firstChoice} />
+                    <InfoRow label="Alternate" value={alternate} />
                   </Grid>
                 </>
               );
             })()}
 
             {showSpouseInfo && (() => {
-              const hasFirst = !!(formData.spouseGuardianFirst || formData.spouseGuardianFirstOther);
-              const hasAlternate = !!(formData.spouseGuardianAlternate || formData.spouseGuardianAlternateOther);
-              const isIncomplete = !hasFirst || !hasAlternate;
+              const firstChoice = formatFiduciaryName(formData.spouseGuardianFirst, formData.spouseGuardianFirstOther);
+              const alternate = formatFiduciaryName(formData.spouseGuardianAlternate, formData.spouseGuardianAlternateOther);
+              const isIncomplete = !firstChoice || !alternate;
               return (
                 <>
                   <Divider sx={{ my: 2 }} />
@@ -479,8 +497,8 @@ const SummarySection = () => {
                     )}
                   </Box>
                   <Grid container spacing={1}>
-                    <InfoRow label="First Choice" value={formData.spouseGuardianFirst || formData.spouseGuardianFirstOther} />
-                    <InfoRow label="Alternate" value={formData.spouseGuardianAlternate || formData.spouseGuardianAlternateOther} />
+                    <InfoRow label="First Choice" value={firstChoice} />
+                    <InfoRow label="Alternate" value={alternate} />
                   </Grid>
                 </>
               );
@@ -491,9 +509,9 @@ const SummarySection = () => {
         {/* Health Care Agents (Client) */}
         <Divider sx={{ my: 2 }} />
         {(() => {
-          const hasFirst = !!(formData.healthCareAgentName || formData.healthCareAgentNameOther);
-          const hasAlternate = !!(formData.healthCareAlternateName || formData.healthCareAlternateNameOther);
-          const isIncomplete = !hasFirst || !hasAlternate;
+          const primaryAgent = formatFiduciaryName(formData.healthCareAgentName, formData.healthCareAgentNameOther);
+          const alternateAgent = formatFiduciaryName(formData.healthCareAlternateName, formData.healthCareAlternateNameOther);
+          const isIncomplete = !primaryAgent || !alternateAgent;
           return (
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -507,8 +525,8 @@ const SummarySection = () => {
                 )}
               </Box>
               <Grid container spacing={1}>
-                <InfoRow label="Primary Agent" value={formData.healthCareAgentName || formData.healthCareAgentNameOther} />
-                <InfoRow label="Alternate Agent" value={formData.healthCareAlternateName || formData.healthCareAlternateNameOther} />
+                <InfoRow label="Primary Agent" value={primaryAgent} />
+                <InfoRow label="Alternate Agent" value={alternateAgent} />
                 <InfoRow label="Withdraw Artificial Food/Fluid" value={formData.withdrawArtificialFoodFluid} />
               </Grid>
             </>
@@ -516,9 +534,9 @@ const SummarySection = () => {
         })()}
 
         {showSpouseInfo && (() => {
-          const hasFirst = !!(formData.spouseHealthCareAgentName || formData.spouseHealthCareAgentNameOther);
-          const hasAlternate = !!(formData.spouseHealthCareAlternateName || formData.spouseHealthCareAlternateNameOther);
-          const isIncomplete = !hasFirst || !hasAlternate;
+          const primaryAgent = formatFiduciaryName(formData.spouseHealthCareAgentName, formData.spouseHealthCareAgentNameOther);
+          const alternateAgent = formatFiduciaryName(formData.spouseHealthCareAlternateName, formData.spouseHealthCareAlternateNameOther);
+          const isIncomplete = !primaryAgent || !alternateAgent;
           return (
             <>
               <Divider sx={{ my: 2 }} />
@@ -533,8 +551,8 @@ const SummarySection = () => {
                 )}
               </Box>
               <Grid container spacing={1}>
-                <InfoRow label="Primary Agent" value={formData.spouseHealthCareAgentName || formData.spouseHealthCareAgentNameOther} />
-                <InfoRow label="Alternate Agent" value={formData.spouseHealthCareAlternateName || formData.spouseHealthCareAlternateNameOther} />
+                <InfoRow label="Primary Agent" value={primaryAgent} />
+                <InfoRow label="Alternate Agent" value={alternateAgent} />
                 <InfoRow label="Withdraw Artificial Food/Fluid" value={formData.spouseWithdrawArtificialFoodFluid} />
               </Grid>
             </>
@@ -544,9 +562,9 @@ const SummarySection = () => {
         {/* Financial POA (Client) */}
         <Divider sx={{ my: 2 }} />
         {(() => {
-          const hasFirst = !!(formData.financialAgentName || formData.financialAgentNameOther);
-          const hasAlternate = !!(formData.financialAlternateName || formData.financialAlternateNameOther);
-          const isIncomplete = !hasFirst || !hasAlternate;
+          const primaryAgent = formatFiduciaryName(formData.financialAgentName, formData.financialAgentNameOther);
+          const alternateAgent = formatFiduciaryName(formData.financialAlternateName, formData.financialAlternateNameOther);
+          const isIncomplete = !primaryAgent || !alternateAgent;
           return (
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -560,17 +578,17 @@ const SummarySection = () => {
                 )}
               </Box>
               <Grid container spacing={1}>
-                <InfoRow label="Primary Agent" value={formData.financialAgentName || formData.financialAgentNameOther} />
-                <InfoRow label="Alternate Agent" value={formData.financialAlternateName || formData.financialAlternateNameOther} />
+                <InfoRow label="Primary Agent" value={primaryAgent} />
+                <InfoRow label="Alternate Agent" value={alternateAgent} />
               </Grid>
             </>
           );
         })()}
 
         {showSpouseInfo && (() => {
-          const hasFirst = !!(formData.spouseFinancialAgentName || formData.spouseFinancialAgentNameOther);
-          const hasAlternate = !!(formData.spouseFinancialAlternateName || formData.spouseFinancialAlternateNameOther);
-          const isIncomplete = !hasFirst || !hasAlternate;
+          const primaryAgent = formatFiduciaryName(formData.spouseFinancialAgentName, formData.spouseFinancialAgentNameOther);
+          const alternateAgent = formatFiduciaryName(formData.spouseFinancialAlternateName, formData.spouseFinancialAlternateNameOther);
+          const isIncomplete = !primaryAgent || !alternateAgent;
           return (
             <>
               <Divider sx={{ my: 2 }} />
@@ -585,8 +603,8 @@ const SummarySection = () => {
                 )}
               </Box>
               <Grid container spacing={1}>
-                <InfoRow label="Primary Agent" value={formData.spouseFinancialAgentName || formData.spouseFinancialAgentNameOther} />
-                <InfoRow label="Alternate Agent" value={formData.spouseFinancialAlternateName || formData.spouseFinancialAlternateNameOther} />
+                <InfoRow label="Primary Agent" value={primaryAgent} />
+                <InfoRow label="Alternate Agent" value={alternateAgent} />
               </Grid>
             </>
           );
@@ -614,8 +632,10 @@ const SummarySection = () => {
                     <TableRow sx={{ bgcolor: '#f5f5f5' }}>
                       <TableCell sx={{ fontWeight: 600 }}>Address</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Owner</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Ownership</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Value</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Mortgage</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Remainder Interest</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -625,8 +645,28 @@ const SummarySection = () => {
                           {property.street}, {property.city}, {property.state} {property.zip}
                         </TableCell>
                         <TableCell>{property.owner}</TableCell>
+                        <TableCell>{property.ownershipForm}</TableCell>
                         <TableCell>{formatCurrency(property.value)}</TableCell>
                         <TableCell>{formatCurrency(property.mortgageBalance)}</TableCell>
+                        <TableCell>
+                          {(property.ownershipForm === 'Life Estate' || property.ownershipForm === 'Lady Bird Deed')
+                            ? (() => {
+                                const beneficiaryNames = (property.primaryBeneficiaries || []).map(b => {
+                                  // Parse beneficiary value to get display name
+                                  if (b.includes(':')) {
+                                    const parts = b.split(':');
+                                    return parts[parts.length - 1];
+                                  }
+                                  return b;
+                                });
+                                // Add "Other" name if specified
+                                if (property.remainderInterestOther) {
+                                  beneficiaryNames.push(property.remainderInterestOther);
+                                }
+                                return beneficiaryNames.length > 0 ? beneficiaryNames.join(', ') : '-';
+                              })()
+                            : '-'}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

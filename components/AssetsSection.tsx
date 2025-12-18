@@ -21,6 +21,7 @@ import {
   VehicleData,
   OtherAssetData,
   BeneficiaryOption,
+  TrustFlags,
 } from './AssetModals';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
@@ -45,6 +46,19 @@ const AssetsSection = () => {
   const { formData, updateFormData } = useFormContext();
 
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
+
+  // Build trust flags for conditional ownership form options
+  const trustFlags: TrustFlags = useMemo(() => ({
+    clientHasLivingTrust: formData.clientHasLivingTrust,
+    clientHasIrrevocableTrust: formData.clientHasIrrevocableTrust,
+    spouseHasLivingTrust: formData.spouseHasLivingTrust,
+    spouseHasIrrevocableTrust: formData.spouseHasIrrevocableTrust,
+  }), [
+    formData.clientHasLivingTrust,
+    formData.clientHasIrrevocableTrust,
+    formData.spouseHasLivingTrust,
+    formData.spouseHasIrrevocableTrust,
+  ]);
 
   // Modal state management
   const [modalState, setModalState] = useState<ModalState>({
@@ -293,6 +307,7 @@ const AssetsSection = () => {
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
         showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
       />
 
       {/* Bank Account Modal */}

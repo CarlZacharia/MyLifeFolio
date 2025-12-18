@@ -31,9 +31,9 @@ const ALL_STEPS = [
   'Personal Data',
   'Children',
   'Other Beneficiaries',
-  'Dispositive Intentions',
-  'Fiduciaries',
   'Assets',
+  'Fiduciaries',
+  'Dispositive Intentions',
   'Summary',
   'Review & Submit'
 ];
