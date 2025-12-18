@@ -312,106 +312,100 @@ const PersonalDataSection = () => {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
-              Do you have an existing Living Trust?
-            </FormLabel>
-            <RadioGroup
-              row
-              value={formData.clientHasLivingTrust ? 'yes' : 'no'}
-              onChange={(e) => {
-                const hasLivingTrust = e.target.value === 'yes';
-                updateFormData({
-                  clientHasLivingTrust: hasLivingTrust,
-                  clientLivingTrustName: hasLivingTrust ? formData.clientLivingTrustName : '',
-                  clientLivingTrustDate: hasLivingTrust ? formData.clientLivingTrustDate : null,
-                });
-              }}
-            >
-              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-            </RadioGroup>
-          </FormControl>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
+                Do you have an existing Living Trust?
+              </FormLabel>
+              <RadioGroup
+                row
+                value={formData.clientHasLivingTrust ? 'yes' : 'no'}
+                onChange={(e) => {
+                  const hasLivingTrust = e.target.value === 'yes';
+                  updateFormData({
+                    clientHasLivingTrust: hasLivingTrust,
+                    clientLivingTrustName: hasLivingTrust ? formData.clientLivingTrustName : '',
+                    clientLivingTrustDate: hasLivingTrust ? formData.clientLivingTrustDate : null,
+                  });
+                }}
+              >
+                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+              </RadioGroup>
+            </FormControl>
+            {formData.clientHasLivingTrust && (
+              <>
+                <TextField
+                  fullWidth
+                  label="Living Trust Name"
+                  value={formData.clientLivingTrustName}
+                  onChange={handleChange('clientLivingTrustName')}
+                  variant="outlined"
+                  placeholder="e.g., The John Smith Revocable Living Trust"
+                />
+                <DatePicker
+                  label="Living Trust Date"
+                  value={formData.clientLivingTrustDate}
+                  onChange={handleDateChange('clientLivingTrustDate')}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      variant: 'outlined',
+                    },
+                  }}
+                />
+              </>
+            )}
+          </Box>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
-              Do you have an existing Irrevocable Trust?
-            </FormLabel>
-            <RadioGroup
-              row
-              value={formData.clientHasIrrevocableTrust ? 'yes' : 'no'}
-              onChange={(e) => {
-                const hasIrrevocableTrust = e.target.value === 'yes';
-                updateFormData({
-                  clientHasIrrevocableTrust: hasIrrevocableTrust,
-                  clientIrrevocableTrustName: hasIrrevocableTrust ? formData.clientIrrevocableTrustName : '',
-                  clientIrrevocableTrustDate: hasIrrevocableTrust ? formData.clientIrrevocableTrustDate : null,
-                });
-              }}
-            >
-              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-            </RadioGroup>
-          </FormControl>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
+                Do you have an existing Irrevocable Trust?
+              </FormLabel>
+              <RadioGroup
+                row
+                value={formData.clientHasIrrevocableTrust ? 'yes' : 'no'}
+                onChange={(e) => {
+                  const hasIrrevocableTrust = e.target.value === 'yes';
+                  updateFormData({
+                    clientHasIrrevocableTrust: hasIrrevocableTrust,
+                    clientIrrevocableTrustName: hasIrrevocableTrust ? formData.clientIrrevocableTrustName : '',
+                    clientIrrevocableTrustDate: hasIrrevocableTrust ? formData.clientIrrevocableTrustDate : null,
+                  });
+                }}
+              >
+                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+              </RadioGroup>
+            </FormControl>
+            {formData.clientHasIrrevocableTrust && (
+              <>
+                <TextField
+                  fullWidth
+                  label="Irrevocable Trust Name"
+                  value={formData.clientIrrevocableTrustName}
+                  onChange={handleChange('clientIrrevocableTrustName')}
+                  variant="outlined"
+                  placeholder="e.g., The Smith Irrevocable Trust"
+                />
+                <DatePicker
+                  label="Irrevocable Trust Date"
+                  value={formData.clientIrrevocableTrustDate}
+                  onChange={handleDateChange('clientIrrevocableTrustDate')}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      variant: 'outlined',
+                    },
+                  }}
+                />
+              </>
+            )}
+          </Box>
         </Grid>
-
-        {formData.clientHasLivingTrust && (
-          <>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Living Trust Name"
-                value={formData.clientLivingTrustName}
-                onChange={handleChange('clientLivingTrustName')}
-                variant="outlined"
-                placeholder="e.g., The John Smith Revocable Living Trust"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <DatePicker
-                label="Living Trust Date"
-                value={formData.clientLivingTrustDate}
-                onChange={handleDateChange('clientLivingTrustDate')}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    variant: 'outlined',
-                  },
-                }}
-              />
-            </Grid>
-          </>
-        )}
-
-        {formData.clientHasIrrevocableTrust && (
-          <>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Irrevocable Trust Name"
-                value={formData.clientIrrevocableTrustName}
-                onChange={handleChange('clientIrrevocableTrustName')}
-                variant="outlined"
-                placeholder="e.g., The Smith Irrevocable Trust"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <DatePicker
-                label="Irrevocable Trust Date"
-                value={formData.clientIrrevocableTrustDate}
-                onChange={handleDateChange('clientIrrevocableTrustDate')}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    variant: 'outlined',
-                  },
-                }}
-              />
-            </Grid>
-          </>
-        )}
 
         {/* Spouse Information - Only shown for Married, Second Marriage, or Domestic Partnership */}
         {showSpouseInfo && (
@@ -631,106 +625,100 @@ const PersonalDataSection = () => {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
-              Does your spouse have an existing Living Trust?
-            </FormLabel>
-            <RadioGroup
-              row
-              value={formData.spouseHasLivingTrust ? 'yes' : 'no'}
-              onChange={(e) => {
-                const hasLivingTrust = e.target.value === 'yes';
-                updateFormData({
-                  spouseHasLivingTrust: hasLivingTrust,
-                  spouseLivingTrustName: hasLivingTrust ? formData.spouseLivingTrustName : '',
-                  spouseLivingTrustDate: hasLivingTrust ? formData.spouseLivingTrustDate : null,
-                });
-              }}
-            >
-              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-            </RadioGroup>
-          </FormControl>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
+                Does your spouse have an existing Living Trust?
+              </FormLabel>
+              <RadioGroup
+                row
+                value={formData.spouseHasLivingTrust ? 'yes' : 'no'}
+                onChange={(e) => {
+                  const hasLivingTrust = e.target.value === 'yes';
+                  updateFormData({
+                    spouseHasLivingTrust: hasLivingTrust,
+                    spouseLivingTrustName: hasLivingTrust ? formData.spouseLivingTrustName : '',
+                    spouseLivingTrustDate: hasLivingTrust ? formData.spouseLivingTrustDate : null,
+                  });
+                }}
+              >
+                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+              </RadioGroup>
+            </FormControl>
+            {formData.spouseHasLivingTrust && (
+              <>
+                <TextField
+                  fullWidth
+                  label="Spouse Living Trust Name"
+                  value={formData.spouseLivingTrustName}
+                  onChange={handleChange('spouseLivingTrustName')}
+                  variant="outlined"
+                  placeholder="e.g., The Jane Smith Revocable Living Trust"
+                />
+                <DatePicker
+                  label="Spouse Living Trust Date"
+                  value={formData.spouseLivingTrustDate}
+                  onChange={handleDateChange('spouseLivingTrustDate')}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      variant: 'outlined',
+                    },
+                  }}
+                />
+              </>
+            )}
+          </Box>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
-              Does your spouse have an existing Irrevocable Trust?
-            </FormLabel>
-            <RadioGroup
-              row
-              value={formData.spouseHasIrrevocableTrust ? 'yes' : 'no'}
-              onChange={(e) => {
-                const hasIrrevocableTrust = e.target.value === 'yes';
-                updateFormData({
-                  spouseHasIrrevocableTrust: hasIrrevocableTrust,
-                  spouseIrrevocableTrustName: hasIrrevocableTrust ? formData.spouseIrrevocableTrustName : '',
-                  spouseIrrevocableTrustDate: hasIrrevocableTrust ? formData.spouseIrrevocableTrustDate : null,
-                });
-              }}
-            >
-              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-            </RadioGroup>
-          </FormControl>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
+                Does your spouse have an existing Irrevocable Trust?
+              </FormLabel>
+              <RadioGroup
+                row
+                value={formData.spouseHasIrrevocableTrust ? 'yes' : 'no'}
+                onChange={(e) => {
+                  const hasIrrevocableTrust = e.target.value === 'yes';
+                  updateFormData({
+                    spouseHasIrrevocableTrust: hasIrrevocableTrust,
+                    spouseIrrevocableTrustName: hasIrrevocableTrust ? formData.spouseIrrevocableTrustName : '',
+                    spouseIrrevocableTrustDate: hasIrrevocableTrust ? formData.spouseIrrevocableTrustDate : null,
+                  });
+                }}
+              >
+                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+              </RadioGroup>
+            </FormControl>
+            {formData.spouseHasIrrevocableTrust && (
+              <>
+                <TextField
+                  fullWidth
+                  label="Spouse Irrevocable Trust Name"
+                  value={formData.spouseIrrevocableTrustName}
+                  onChange={handleChange('spouseIrrevocableTrustName')}
+                  variant="outlined"
+                  placeholder="e.g., The Smith Irrevocable Trust"
+                />
+                <DatePicker
+                  label="Spouse Irrevocable Trust Date"
+                  value={formData.spouseIrrevocableTrustDate}
+                  onChange={handleDateChange('spouseIrrevocableTrustDate')}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      variant: 'outlined',
+                    },
+                  }}
+                />
+              </>
+            )}
+          </Box>
         </Grid>
-
-        {formData.spouseHasLivingTrust && (
-          <>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Spouse Living Trust Name"
-                value={formData.spouseLivingTrustName}
-                onChange={handleChange('spouseLivingTrustName')}
-                variant="outlined"
-                placeholder="e.g., The Jane Smith Revocable Living Trust"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <DatePicker
-                label="Spouse Living Trust Date"
-                value={formData.spouseLivingTrustDate}
-                onChange={handleDateChange('spouseLivingTrustDate')}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    variant: 'outlined',
-                  },
-                }}
-              />
-            </Grid>
-          </>
-        )}
-
-        {formData.spouseHasIrrevocableTrust && (
-          <>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Spouse Irrevocable Trust Name"
-                value={formData.spouseIrrevocableTrustName}
-                onChange={handleChange('spouseIrrevocableTrustName')}
-                variant="outlined"
-                placeholder="e.g., The Smith Irrevocable Trust"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <DatePicker
-                label="Spouse Irrevocable Trust Date"
-                value={formData.spouseIrrevocableTrustDate}
-                onChange={handleDateChange('spouseIrrevocableTrustDate')}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    variant: 'outlined',
-                  },
-                }}
-              />
-            </Grid>
-          </>
-        )}
           </>
         )}
       </Grid>

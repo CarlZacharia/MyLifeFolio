@@ -49,20 +49,15 @@ const theme = createTheme({
               borderWidth: 2,
             },
           },
-          // Filled state - light gray background with green left accent
-          '&:not(.Mui-focused)': {
-            '& .MuiOutlinedInput-input:not(:placeholder-shown)': {
-              fontWeight: 500,
-            },
-          },
         },
         input: {
-          // When input has value, show visual indicator
+          // When text input has value, show visual indicator
           '&:not(:placeholder-shown)': {
             backgroundColor: '#f8f9fa',
             borderLeft: '3px solid #4caf50',
             marginLeft: -1,
             paddingLeft: 'calc(14px - 2px)',
+            fontWeight: 500,
           },
         },
         notchedOutline: {
@@ -70,18 +65,20 @@ const theme = createTheme({
         },
       },
     },
-    // Select styling
+    // Select styling - style the entire OutlinedInput when Select has value
     MuiSelect: {
       styleOverrides: {
         select: {
           transition: 'all 0.2s ease-in-out',
-          // When select has a value
-          '&[aria-expanded="false"]:not([data-value=""])': {
-            backgroundColor: '#f8f9fa',
-            borderLeft: '3px solid #4caf50',
-            marginLeft: -1,
-            paddingLeft: 'calc(14px - 2px)',
-            fontWeight: 500,
+          // When select is closed and has a non-empty value
+          '&.MuiSelect-outlined.MuiInputBase-input': {
+            '&:not(:empty)': {
+              backgroundColor: '#f8f9fa',
+              borderLeft: '3px solid #4caf50',
+              marginLeft: -1,
+              paddingLeft: 'calc(14px - 2px)',
+              fontWeight: 500,
+            },
           },
         },
       },

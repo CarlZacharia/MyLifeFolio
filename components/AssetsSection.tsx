@@ -13,6 +13,8 @@ import {
   LifeInsuranceModal,
   VehicleModal,
   OtherAssetModal,
+  BusinessInterestModal,
+  DigitalAssetModal,
   RealEstateData,
   BankAccountData,
   NonQualifiedInvestmentData,
@@ -20,6 +22,8 @@ import {
   LifeInsuranceData,
   VehicleData,
   OtherAssetData,
+  BusinessInterestData,
+  DigitalAssetData,
   BeneficiaryOption,
   TrustFlags,
 } from './AssetModals';
@@ -34,6 +38,8 @@ type ModalType =
   | 'lifeInsurance'
   | 'vehicle'
   | 'otherAsset'
+  | 'businessInterest'
+  | 'digitalAsset'
   | null;
 
 interface ModalState {
@@ -247,6 +253,44 @@ const AssetsSection = () => {
     }
   };
 
+  // Business Interest handlers
+  const handleSaveBusinessInterest = (data: BusinessInterestData) => {
+    if (modalState.isEdit && modalState.editIndex !== null) {
+      const newInterests = [...formData.businessInterests];
+      newInterests[modalState.editIndex] = data;
+      updateFormData({ businessInterests: newInterests });
+    } else {
+      updateFormData({ businessInterests: [...formData.businessInterests, data] });
+    }
+  };
+
+  const handleDeleteBusinessInterest = () => {
+    if (modalState.editIndex !== null) {
+      const newInterests = formData.businessInterests.filter((_, i) => i !== modalState.editIndex);
+      updateFormData({ businessInterests: newInterests });
+      closeModal();
+    }
+  };
+
+  // Digital Asset handlers
+  const handleSaveDigitalAsset = (data: DigitalAssetData) => {
+    if (modalState.isEdit && modalState.editIndex !== null) {
+      const newAssets = [...formData.digitalAssets];
+      newAssets[modalState.editIndex] = data;
+      updateFormData({ digitalAssets: newAssets });
+    } else {
+      updateFormData({ digitalAssets: [...formData.digitalAssets, data] });
+    }
+  };
+
+  const handleDeleteDigitalAsset = () => {
+    if (modalState.editIndex !== null) {
+      const newAssets = formData.digitalAssets.filter((_, i) => i !== modalState.editIndex);
+      updateFormData({ digitalAssets: newAssets });
+      closeModal();
+    }
+  };
+
   // Get initial data for edit modals
   const getEditData = () => {
     if (!modalState.isEdit || modalState.editIndex === null) return undefined;
@@ -266,6 +310,10 @@ const AssetsSection = () => {
         return formData.vehicles[modalState.editIndex];
       case 'otherAsset':
         return formData.otherAssets[modalState.editIndex];
+      case 'businessInterest':
+        return formData.businessInterests[modalState.editIndex];
+      case 'digitalAsset':
+        return formData.digitalAssets[modalState.editIndex];
       default:
         return undefined;
     }
@@ -281,6 +329,8 @@ const AssetsSection = () => {
         lifeInsurance={formData.lifeInsurance}
         vehicles={formData.vehicles}
         otherAssets={formData.otherAssets}
+        businessInterests={formData.businessInterests}
+        digitalAssets={formData.digitalAssets}
         onEditRealEstate={(index) => openEditModal('realEstate', index)}
         onEditBankAccount={(index) => openEditModal('bankAccount', index)}
         onEditNonQualifiedInvestment={(index) => openEditModal('nonQualifiedInvestment', index)}
@@ -288,6 +338,8 @@ const AssetsSection = () => {
         onEditLifeInsurance={(index) => openEditModal('lifeInsurance', index)}
         onEditVehicle={(index) => openEditModal('vehicle', index)}
         onEditOtherAsset={(index) => openEditModal('otherAsset', index)}
+        onEditBusinessInterest={(index) => openEditModal('businessInterest', index)}
+        onEditDigitalAsset={(index) => openEditModal('digitalAsset', index)}
         onAddRealEstate={() => openAddModal('realEstate')}
         onAddBankAccount={() => openAddModal('bankAccount')}
         onAddNonQualifiedInvestment={() => openAddModal('nonQualifiedInvestment')}
@@ -295,6 +347,8 @@ const AssetsSection = () => {
         onAddLifeInsurance={() => openAddModal('lifeInsurance')}
         onAddVehicle={() => openAddModal('vehicle')}
         onAddOtherAsset={() => openAddModal('otherAsset')}
+        onAddBusinessInterest={() => openAddModal('businessInterest')}
+        onAddDigitalAsset={() => openAddModal('digitalAsset')}
       />
 
       {/* Real Estate Modal */}
@@ -378,6 +432,28 @@ const AssetsSection = () => {
         onDelete={modalState.isEdit ? handleDeleteOtherAsset : undefined}
         initialData={getEditData() as OtherAssetData | undefined}
         beneficiaryOptions={beneficiaryOptions}
+        isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
+      />
+
+      {/* Business Interest Modal */}
+      <BusinessInterestModal
+        open={modalState.type === 'businessInterest'}
+        onClose={closeModal}
+        onSave={handleSaveBusinessInterest}
+        onDelete={modalState.isEdit ? handleDeleteBusinessInterest : undefined}
+        initialData={getEditData() as BusinessInterestData | undefined}
+        isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
+      />
+
+      {/* Digital Asset Modal */}
+      <DigitalAssetModal
+        open={modalState.type === 'digitalAsset'}
+        onClose={closeModal}
+        onSave={handleSaveDigitalAsset}
+        onDelete={modalState.isEdit ? handleDeleteDigitalAsset : undefined}
+        initialData={getEditData() as DigitalAssetData | undefined}
         isEdit={modalState.isEdit}
         showSpouse={showSpouseInfo}
       />

@@ -24,6 +24,7 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { RealEstateOwner, OwnershipForm } from '../lib/FormContext';
+import CurrencyInput from './CurrencyInput';
 
 // Constants
 const ALL_OWNER_OPTIONS: RealEstateOwner[] = [
@@ -433,33 +434,36 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
             />
           </Grid>
           <Grid item xs={12} md={4}>
-            <TextField
+            <CurrencyInput
               fullWidth
               label="Estimated Value"
               value={data.value}
               onChange={(e) => handleChange({ value: e.target.value })}
               variant="outlined"
               size="small"
+              name="realEstateValue"
             />
           </Grid>
           <Grid item xs={12} md={4}>
-            <TextField
+            <CurrencyInput
               fullWidth
               label="Mortgage Balance"
               value={data.mortgageBalance}
               onChange={(e) => handleChange({ mortgageBalance: e.target.value })}
               variant="outlined"
               size="small"
+              name="mortgageBalance"
             />
           </Grid>
           <Grid item xs={12} md={4}>
-            <TextField
+            <CurrencyInput
               fullWidth
               label="Cost Basis"
               value={data.costBasis}
               onChange={(e) => handleChange({ costBasis: e.target.value })}
               variant="outlined"
               size="small"
+              name="costBasis"
             />
           </Grid>
 
@@ -612,13 +616,14 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
+            <CurrencyInput
               fullWidth
               label="Amount"
               value={data.amount}
               onChange={(e) => handleChange({ amount: e.target.value })}
               variant="outlined"
               size="small"
+              name="bankAmount"
             />
           </Grid>
           <Grid item xs={12}>
@@ -791,13 +796,14 @@ export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalPr
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
+            <CurrencyInput
               fullWidth
               label="Value"
               value={data.value}
               onChange={(e) => handleChange({ value: e.target.value })}
               variant="outlined"
               size="small"
+              name="investmentValue"
             />
           </Grid>
           <Grid item xs={12}>
@@ -970,13 +976,14 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
+            <CurrencyInput
               fullWidth
               label="Value"
               value={data.value}
               onChange={(e) => handleChange({ value: e.target.value })}
               variant="outlined"
               size="small"
+              name="retirementValue"
             />
           </Grid>
           <Grid item xs={12}>
@@ -1045,10 +1052,22 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
 };
 
 // Life Insurance Types
+export type LifeInsurancePolicyType = 'Term Life' | 'Group Life' | 'Whole Life' | 'Universal' | 'Other' | '';
+
+const LIFE_INSURANCE_POLICY_TYPES: LifeInsurancePolicyType[] = [
+  'Term Life',
+  'Group Life',
+  'Whole Life',
+  'Universal',
+  'Other',
+];
+
 export interface LifeInsuranceData {
   owner: string;
   company: string;
+  policyType: LifeInsurancePolicyType;
   faceAmount: string;
+  deathBenefit: string;
   cashValue: string;
   insured: string;
   hasBeneficiaries: boolean;
@@ -1060,7 +1079,9 @@ export interface LifeInsuranceData {
 const emptyLifeInsurance: LifeInsuranceData = {
   owner: '',
   company: '',
+  policyType: '',
   faceAmount: '',
+  deathBenefit: '',
   cashValue: '',
   insured: '',
   hasBeneficiaries: false,
@@ -1091,20 +1112,34 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
   showSpouse = true,
 }) => {
   const individualOwnerOptions = getIndividualOwnerOptions(showSpouse);
-  const [data, setData] = useState<LifeInsuranceData>(initialData || emptyLifeInsurance);
+  const insuredOptions = getIndividualOwnerOptions(showSpouse);
+
+  // For single clients, default insured to 'Client'
+  const getInitialData = (): LifeInsuranceData => {
+    const base = initialData || emptyLifeInsurance;
+    if (!showSpouse && !base.insured) {
+      return { ...base, insured: 'Client' };
+    }
+    return base;
+  };
+
+  const [data, setData] = useState<LifeInsuranceData>(getInitialData());
 
   useEffect(() => {
     if (open) {
-      setData(initialData || emptyLifeInsurance);
+      setData(getInitialData());
     }
-  }, [open, initialData]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialData, showSpouse]);
 
   const handleChange = (updates: Partial<LifeInsuranceData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
   const handleSave = () => {
-    onSave(data);
+    // Ensure insured is set to 'Client' for single clients
+    const saveData = !showSpouse ? { ...data, insured: 'Client' } : data;
+    onSave(saveData);
     onClose();
   };
 
@@ -1113,7 +1148,7 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
       <DialogTitle>{isEdit ? 'Edit Life Insurance Policy' : 'Add Life Insurance Policy'}</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={showSpouse ? 6 : 12}>
             <FormControl fullWidth size="small">
               <InputLabel>Owner</InputLabel>
               <Select
@@ -1129,17 +1164,25 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
               </Select>
             </FormControl>
           </Grid>
+          {showSpouse && (
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Insured</InputLabel>
+                <Select
+                  value={data.insured}
+                  label="Insured"
+                  onChange={(e) => handleChange({ insured: e.target.value })}
+                >
+                  {insuredOptions.map((option) => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          )}
           <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              label="Insured"
-              value={data.insured}
-              onChange={(e) => handleChange({ insured: e.target.value })}
-              variant="outlined"
-              size="small"
-            />
-          </Grid>
-          <Grid item xs={12}>
             <TextField
               fullWidth
               label="Company"
@@ -1150,25 +1193,56 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <TextField
+            <FormControl fullWidth size="small">
+              <InputLabel>Policy Type</InputLabel>
+              <Select
+                value={data.policyType}
+                label="Policy Type"
+                onChange={(e) => handleChange({ policyType: e.target.value as LifeInsurancePolicyType })}
+              >
+                {LIFE_INSURANCE_POLICY_TYPES.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={data.policyType === 'Term Life' || data.policyType === 'Group Life' ? 6 : 4}>
+            <CurrencyInput
               fullWidth
               label="Face Amount"
               value={data.faceAmount}
               onChange={(e) => handleChange({ faceAmount: e.target.value })}
               variant="outlined"
               size="small"
+              name="faceAmount"
             />
           </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
+          <Grid item xs={12} md={data.policyType === 'Term Life' || data.policyType === 'Group Life' ? 6 : 4}>
+            <CurrencyInput
               fullWidth
-              label="Cash Value"
-              value={data.cashValue}
-              onChange={(e) => handleChange({ cashValue: e.target.value })}
+              label="Death Benefit"
+              value={data.deathBenefit}
+              onChange={(e) => handleChange({ deathBenefit: e.target.value })}
               variant="outlined"
               size="small"
+              name="deathBenefit"
             />
           </Grid>
+          {data.policyType !== 'Term Life' && data.policyType !== 'Group Life' && (
+            <Grid item xs={12} md={4}>
+              <CurrencyInput
+                fullWidth
+                label="Cash Value"
+                value={data.cashValue}
+                onChange={(e) => handleChange({ cashValue: e.target.value })}
+                variant="outlined"
+                size="small"
+                name="cashValue"
+              />
+            </Grid>
+          )}
           <Grid item xs={12}>
             <FormControlLabel
               control={
@@ -1327,13 +1401,14 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
+            <CurrencyInput
               fullWidth
               label="Value"
               value={data.value}
               onChange={(e) => handleChange({ value: e.target.value })}
               variant="outlined"
               size="small"
+              name="vehicleValue"
             />
           </Grid>
           <Grid item xs={12}>
@@ -1494,13 +1569,14 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
+            <CurrencyInput
               fullWidth
               label="Value"
               value={data.value}
               onChange={(e) => handleChange({ value: e.target.value })}
               variant="outlined"
               size="small"
+              name="otherAssetValue"
             />
           </Grid>
           <Grid item xs={12}>
@@ -1545,6 +1621,373 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
               multiline
               rows={4}
               placeholder="Enter any additional notes about this asset..."
+            />
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+        <Box>
+          {isEdit && onDelete && (
+            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
+              Delete
+            </Button>
+          )}
+        </Box>
+        <Box>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
+            {isEdit ? 'Save Changes' : 'Add Asset'}
+          </Button>
+        </Box>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Business Interest Types
+export type BusinessEntityType = 'Sole Proprietorship' | 'LLC' | 'Partnership' | 'S-Corporation' | 'C-Corporation' | 'Professional Practice' | 'Other' | '';
+
+const BUSINESS_ENTITY_TYPES: BusinessEntityType[] = [
+  'Sole Proprietorship',
+  'LLC',
+  'Partnership',
+  'S-Corporation',
+  'C-Corporation',
+  'Professional Practice',
+  'Other',
+];
+
+export interface BusinessInterestData {
+  owner: string;
+  businessName: string;
+  entityType: BusinessEntityType;
+  ownershipPercentage: string;
+  value: string;
+  coOwners: string;
+  hasBuySellAgreement: boolean;
+  notes: string;
+}
+
+const emptyBusinessInterest: BusinessInterestData = {
+  owner: '',
+  businessName: '',
+  entityType: '',
+  ownershipPercentage: '',
+  value: '',
+  coOwners: '',
+  hasBuySellAgreement: false,
+  notes: '',
+};
+
+interface BusinessInterestModalProps {
+  open: boolean;
+  onClose: () => void;
+  onSave: (data: BusinessInterestData) => void;
+  onDelete?: () => void;
+  initialData?: BusinessInterestData;
+  isEdit?: boolean;
+  showSpouse?: boolean;
+}
+
+export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
+  open,
+  onClose,
+  onSave,
+  onDelete,
+  initialData,
+  isEdit = false,
+  showSpouse = true,
+}) => {
+  const individualOwnerOptions = getIndividualOwnerOptions(showSpouse);
+  const [data, setData] = useState<BusinessInterestData>(initialData || emptyBusinessInterest);
+
+  useEffect(() => {
+    if (open) {
+      setData(initialData || emptyBusinessInterest);
+    }
+  }, [open, initialData]);
+
+  const handleChange = (updates: Partial<BusinessInterestData>) => {
+    setData((prev) => ({ ...prev, ...updates }));
+  };
+
+  const handleSave = () => {
+    onSave(data);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>{isEdit ? 'Edit Business Interest' : 'Add Business Interest'}</DialogTitle>
+      <DialogContent>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Owner</InputLabel>
+              <Select
+                value={data.owner}
+                label="Owner"
+                onChange={(e) => handleChange({ owner: e.target.value })}
+              >
+                {individualOwnerOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Entity Type</InputLabel>
+              <Select
+                value={data.entityType}
+                label="Entity Type"
+                onChange={(e) => handleChange({ entityType: e.target.value as BusinessEntityType })}
+              >
+                {BUSINESS_ENTITY_TYPES.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Business Name"
+              value={data.businessName}
+              onChange={(e) => handleChange({ businessName: e.target.value })}
+              variant="outlined"
+              size="small"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Ownership Percentage"
+              value={data.ownershipPercentage}
+              onChange={(e) => handleChange({ ownershipPercentage: e.target.value })}
+              variant="outlined"
+              size="small"
+              placeholder="e.g., 50%"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <CurrencyInput
+              fullWidth
+              label="Estimated Value"
+              value={data.value}
+              onChange={(e) => handleChange({ value: e.target.value })}
+              variant="outlined"
+              size="small"
+              name="businessValue"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Co-Owners (if any)"
+              value={data.coOwners}
+              onChange={(e) => handleChange({ coOwners: e.target.value })}
+              variant="outlined"
+              size="small"
+              placeholder="Names of other owners"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={data.hasBuySellAgreement || false}
+                  onChange={(e) => handleChange({ hasBuySellAgreement: e.target.checked })}
+                />
+              }
+              label="Has Buy-Sell Agreement?"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Notes"
+              value={data.notes || ''}
+              onChange={(e) => handleChange({ notes: e.target.value })}
+              variant="outlined"
+              multiline
+              rows={4}
+              placeholder="Enter any additional notes about this business interest..."
+            />
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+        <Box>
+          {isEdit && onDelete && (
+            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
+              Delete
+            </Button>
+          )}
+        </Box>
+        <Box>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
+            {isEdit ? 'Save Changes' : 'Add Business'}
+          </Button>
+        </Box>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Digital Asset Types
+export type DigitalAssetType = 'Cryptocurrency' | 'Domain Names' | 'Digital Storefront' | 'NFTs' | 'Digital Content' | 'Online Accounts' | 'Other' | '';
+
+const DIGITAL_ASSET_TYPES: DigitalAssetType[] = [
+  'Cryptocurrency',
+  'Domain Names',
+  'Digital Storefront',
+  'NFTs',
+  'Digital Content',
+  'Online Accounts',
+  'Other',
+];
+
+export interface DigitalAssetData {
+  owner: string;
+  assetType: DigitalAssetType;
+  platform: string;
+  description: string;
+  value: string;
+  notes: string;
+}
+
+const emptyDigitalAsset: DigitalAssetData = {
+  owner: '',
+  assetType: '',
+  platform: '',
+  description: '',
+  value: '',
+  notes: '',
+};
+
+interface DigitalAssetModalProps {
+  open: boolean;
+  onClose: () => void;
+  onSave: (data: DigitalAssetData) => void;
+  onDelete?: () => void;
+  initialData?: DigitalAssetData;
+  isEdit?: boolean;
+  showSpouse?: boolean;
+}
+
+export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
+  open,
+  onClose,
+  onSave,
+  onDelete,
+  initialData,
+  isEdit = false,
+  showSpouse = true,
+}) => {
+  const individualOwnerOptions = getIndividualOwnerOptions(showSpouse);
+  const [data, setData] = useState<DigitalAssetData>(initialData || emptyDigitalAsset);
+
+  useEffect(() => {
+    if (open) {
+      setData(initialData || emptyDigitalAsset);
+    }
+  }, [open, initialData]);
+
+  const handleChange = (updates: Partial<DigitalAssetData>) => {
+    setData((prev) => ({ ...prev, ...updates }));
+  };
+
+  const handleSave = () => {
+    onSave(data);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>{isEdit ? 'Edit Digital Asset' : 'Add Digital Asset'}</DialogTitle>
+      <DialogContent>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Owner</InputLabel>
+              <Select
+                value={data.owner}
+                label="Owner"
+                onChange={(e) => handleChange({ owner: e.target.value })}
+              >
+                {individualOwnerOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Asset Type</InputLabel>
+              <Select
+                value={data.assetType}
+                label="Asset Type"
+                onChange={(e) => handleChange({ assetType: e.target.value as DigitalAssetType })}
+              >
+                {DIGITAL_ASSET_TYPES.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Platform/Exchange"
+              value={data.platform}
+              onChange={(e) => handleChange({ platform: e.target.value })}
+              variant="outlined"
+              size="small"
+              placeholder="e.g., Coinbase, GoDaddy, Etsy"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <CurrencyInput
+              fullWidth
+              label="Estimated Value"
+              value={data.value}
+              onChange={(e) => handleChange({ value: e.target.value })}
+              variant="outlined"
+              size="small"
+              name="digitalAssetValue"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Description"
+              value={data.description}
+              onChange={(e) => handleChange({ description: e.target.value })}
+              variant="outlined"
+              size="small"
+              placeholder="e.g., Bitcoin holdings, domain portfolio, Etsy store"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Notes"
+              value={data.notes || ''}
+              onChange={(e) => handleChange({ notes: e.target.value })}
+              variant="outlined"
+              multiline
+              rows={4}
+              placeholder="Enter any additional notes about this digital asset..."
             />
           </Grid>
         </Grid>

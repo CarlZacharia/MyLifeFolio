@@ -242,7 +242,9 @@ export interface FormData {
   lifeInsurance: Array<{
     owner: string;
     company: string;
+    policyType: string;
     faceAmount: string;
+    deathBenefit: string;
     cashValue: string;
     insured: string;
     hasBeneficiaries: boolean;
@@ -268,6 +270,26 @@ export interface FormData {
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
     secondaryBeneficiaries: string[];
+    notes: string;
+  }>;
+
+  businessInterests: Array<{
+    owner: string;
+    businessName: string;
+    entityType: string;
+    ownershipPercentage: string;
+    value: string;
+    coOwners: string;
+    hasBuySellAgreement: boolean;
+    notes: string;
+  }>;
+
+  digitalAssets: Array<{
+    owner: string;
+    assetType: string;
+    platform: string;
+    description: string;
+    value: string;
     notes: string;
   }>;
 
@@ -424,6 +446,8 @@ const initialFormData: FormData = {
   lifeInsurance: [],
   vehicles: [],
   otherAssets: [],
+  businessInterests: [],
+  digitalAssets: [],
   additionalComments: '',
 };
 
