@@ -49,25 +49,25 @@ export interface FormData {
     address: string;
     birthDate: string;
     relationship: string;
+    maritalStatus: 'Single' | 'Married' | 'Divorced' | 'Widowed' | '';
+    hasChildren: boolean;
+    numberOfChildren: number;
+    hasMinorChildren: boolean;
+    distributionType: 'Per Stirpes' | 'Per Capita' | '';
     disinherit: boolean;
     comments: string;
   }>;
   allChildrenHealthy: boolean;
   childrenHealthExplanation: string;
-  anyChildrenBlind: boolean;
+  anyChildrenMinors: boolean;
   anyChildrenDisabled: boolean;
   allChildrenEducated: boolean;
+  anyChildrenMaritalProblems: boolean;
   anyChildrenReceivingSSI: boolean;
   drugAddiction: boolean;
   alcoholism: boolean;
   spendthrift: boolean;
-
-  // Grandchildren
-  grandchildren: Array<{
-    name: string;
-    address: string;
-    age: string;
-  }>;
+  childrenOtherConcerns: string;
 
   // Dispositive Intentions
   provideForSpouseThenChildren: boolean;
@@ -80,6 +80,11 @@ export interface FormData {
   grandchildrenEqualityExplanation: string;
   grandchildrenAmount: string;
   grandchildrenDistributionAge: string;
+  hasSpecificDevises: boolean;
+  specificDevisesDescription: string;
+  hasGeneralBequests: boolean;
+  generalBequestsDescription: string;
+  dispositiveIntentionsComments: string;
 
   // Charities
   leaveToCharity: boolean;
@@ -95,7 +100,7 @@ export interface FormData {
     address: string;
     relationship: string;
     relationshipOther: string;
-    amount: string;
+    distributionType: 'Per Stirpes' | 'Per Capita' | '';
     notes: string;
   }>;
 
@@ -308,14 +313,15 @@ const initialFormData: FormData = {
   children: [],
   allChildrenHealthy: true,
   childrenHealthExplanation: '',
-  anyChildrenBlind: false,
+  anyChildrenMinors: false,
   anyChildrenDisabled: false,
   allChildrenEducated: true,
+  anyChildrenMaritalProblems: false,
   anyChildrenReceivingSSI: false,
   drugAddiction: false,
   alcoholism: false,
   spendthrift: false,
-  grandchildren: [],
+  childrenOtherConcerns: '',
   provideForSpouseThenChildren: true,
   treatAllChildrenEqually: true,
   childrenEqualityExplanation: '',
@@ -326,6 +332,11 @@ const initialFormData: FormData = {
   grandchildrenEqualityExplanation: '',
   grandchildrenAmount: '',
   grandchildrenDistributionAge: '',
+  hasSpecificDevises: false,
+  specificDevisesDescription: '',
+  hasGeneralBequests: false,
+  generalBequestsDescription: '',
+  dispositiveIntentionsComments: '',
   leaveToCharity: false,
   charities: [],
   otherBeneficiaries: [],

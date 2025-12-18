@@ -107,14 +107,7 @@ const FiduciariesSection = () => {
       }
     });
 
-    // Add all grandchildren
-    formData.grandchildren.forEach((grandchild, index) => {
-      if (grandchild.name) {
-        options.push({ value: `grandchild:${index}:${grandchild.name}`, label: grandchild.name });
-      }
-    });
-
-    // Add other beneficiaries
+    // Add other beneficiaries (includes grandchildren)
     formData.otherBeneficiaries.forEach((beneficiary, index) => {
       if (beneficiary.name) {
         options.push({ value: `beneficiary:${index}:${beneficiary.name}`, label: beneficiary.name });
@@ -122,7 +115,7 @@ const FiduciariesSection = () => {
     });
 
     return options;
-  }, [showSpouseInfo, formData.spouseName, formData.children, formData.grandchildren, formData.otherBeneficiaries]);
+  }, [showSpouseInfo, formData.spouseName, formData.children, formData.otherBeneficiaries]);
 
   // Build beneficiary options for Spouse (excludes spouse name, includes client)
   const spouseBeneficiaryOptions = useMemo((): BeneficiaryOption[] => {
@@ -140,13 +133,6 @@ const FiduciariesSection = () => {
       }
     });
 
-    // Add all grandchildren
-    formData.grandchildren.forEach((grandchild, index) => {
-      if (grandchild.name) {
-        options.push({ value: `grandchild:${index}:${grandchild.name}`, label: grandchild.name });
-      }
-    });
-
     // Add other beneficiaries
     formData.otherBeneficiaries.forEach((beneficiary, index) => {
       if (beneficiary.name) {
@@ -155,7 +141,7 @@ const FiduciariesSection = () => {
     });
 
     return options;
-  }, [formData.name, formData.children, formData.grandchildren, formData.otherBeneficiaries]);
+  }, [formData.name, formData.children, formData.otherBeneficiaries]);
 
   return (
     <Box>

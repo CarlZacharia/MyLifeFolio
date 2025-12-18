@@ -26,23 +26,15 @@ import { MaritalStatus } from '../lib/FormContext';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
-const getSteps = (showChildren: boolean) => {
-  const steps: string[] = ['Personal Data'];
-
-  if (showChildren) {
-    steps.push('Children');
-  }
-
-  steps.push(
-    'Other Beneficiaries',
-    'Dispositive Intentions',
-    'Fiduciaries',
-    'Assets',
-    'Review & Submit'
-  );
-
-  return steps;
-};
+const ALL_STEPS = [
+  'Personal Data',
+  'Children',
+  'Other Beneficiaries',
+  'Dispositive Intentions',
+  'Fiduciaries',
+  'Assets',
+  'Review & Submit'
+];
 
 const QuestionnaireContent = () => {
   const { formData, currentStep, setCurrentStep } = useFormContext();
@@ -55,17 +47,32 @@ const QuestionnaireContent = () => {
   const totalChildren = showSpouseInfo
     ? formData.numberOfChildren + formData.clientChildrenFromPrior + formData.childrenTogether + formData.spouseChildrenFromPrior
     : formData.numberOfChildren;
-  const showChildren = totalChildren > 0;
-  const steps = getSteps(showChildren);
+  const hasChildren = totalChildren > 0;
+  const steps = ALL_STEPS;
   const totalSteps = steps.length;
 
+  // Children step is disabled when there are no children
+  const isStepDisabled = (stepName: string) => {
+    return stepName === 'Children' && !hasChildren;
+  };
+
   const handleNext = () => {
-    setCurrentStep(currentStep + 1);
+    let nextStep = currentStep + 1;
+    // Skip disabled steps
+    while (nextStep < totalSteps && isStepDisabled(steps[nextStep])) {
+      nextStep++;
+    }
+    setCurrentStep(nextStep);
     window.scrollTo(0, 0);
   };
 
   const handleBack = () => {
-    setCurrentStep(currentStep - 1);
+    let prevStep = currentStep - 1;
+    // Skip disabled steps
+    while (prevStep >= 0 && isStepDisabled(steps[prevStep])) {
+      prevStep--;
+    }
+    setCurrentStep(prevStep);
     window.scrollTo(0, 0);
   };
 
@@ -183,36 +190,44 @@ const QuestionnaireContent = () => {
         {currentStep < totalSteps && (
           <Box sx={{ mb: 4 }}>
             <Stepper activeStep={currentStep} alternativeLabel>
-              {steps.map((label, index) => (
-                <Step
-                  key={label}
-                  onClick={() => {
-                    setCurrentStep(index);
-                    window.scrollTo(0, 0);
-                  }}
-                  sx={{
-                    cursor: 'pointer',
-                    '& .MuiStepLabel-root': {
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s ease-in-out',
-                    },
-                    '& .MuiStepLabel-label': {
-                      cursor: 'pointer',
-                    },
-                    '& .MuiStepIcon-root': {
-                      cursor: 'pointer',
-                    },
-                    '&:hover .MuiStepLabel-root': {
-                      transform: 'scale(1.1)',
-                    },
-                    '&:hover .MuiStepIcon-root': {
-                      color: '#1a237e',
-                    },
-                  }}
-                >
-                  <StepLabel>{label}</StepLabel>
-                </Step>
-              ))}
+              {steps.map((label, index) => {
+                const disabled = isStepDisabled(label);
+                return (
+                  <Step
+                    key={label}
+                    disabled={disabled}
+                    onClick={() => {
+                      if (!disabled) {
+                        setCurrentStep(index);
+                        window.scrollTo(0, 0);
+                      }
+                    }}
+                    sx={{
+                      cursor: disabled ? 'not-allowed' : 'pointer',
+                      opacity: disabled ? 0.5 : 1,
+                      '& .MuiStepLabel-root': {
+                        cursor: disabled ? 'not-allowed' : 'pointer',
+                        transition: 'transform 0.2s ease-in-out',
+                      },
+                      '& .MuiStepLabel-label': {
+                        cursor: disabled ? 'not-allowed' : 'pointer',
+                        color: disabled ? 'text.disabled' : undefined,
+                      },
+                      '& .MuiStepIcon-root': {
+                        cursor: disabled ? 'not-allowed' : 'pointer',
+                      },
+                      '&:hover .MuiStepLabel-root': {
+                        transform: disabled ? 'none' : 'scale(1.1)',
+                      },
+                      '&:hover .MuiStepIcon-root': {
+                        color: disabled ? undefined : '#1a237e',
+                      },
+                    }}
+                  >
+                    <StepLabel>{label}</StepLabel>
+                  </Step>
+                );
+              })}
             </Stepper>
           </Box>
         )}

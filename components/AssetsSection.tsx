@@ -74,22 +74,18 @@ const AssetsSection = () => {
       }
     });
 
-    // Add all grandchildren
-    formData.grandchildren.forEach((grandchild, index) => {
-      if (grandchild.name) {
-        options.push({ value: `grandchild:${index}:${grandchild.name}`, label: `${grandchild.name} (Grandchild)` });
-      }
-    });
-
-    // Add other beneficiaries
+    // Add other beneficiaries (includes grandchildren)
     formData.otherBeneficiaries.forEach((beneficiary, index) => {
       if (beneficiary.name) {
-        options.push({ value: `beneficiary:${index}:${beneficiary.name}`, label: `${beneficiary.name} (Other)` });
+        const label = beneficiary.relationship === 'Grandchild'
+          ? `${beneficiary.name} (Grandchild)`
+          : `${beneficiary.name} (${beneficiary.relationship || 'Other'})`;
+        options.push({ value: `beneficiary:${index}:${beneficiary.name}`, label });
       }
     });
 
     return options;
-  }, [showSpouseInfo, formData.spouseName, formData.name, formData.children, formData.grandchildren, formData.otherBeneficiaries]);
+  }, [showSpouseInfo, formData.spouseName, formData.name, formData.children, formData.otherBeneficiaries]);
 
   // Modal open handlers
   const openAddModal = (type: ModalType) => {
