@@ -2,8 +2,9 @@
 
 import React, { useMemo, useState } from 'react';
 import { Box } from '@mui/material';
-import { useFormContext } from '../lib/FormContext';
+import { useFormContext, MaritalStatus } from '../lib/FormContext';
 import AssetsSummaryTable from './AssetsSummaryTable';
+
 import {
   RealEstateModal,
   BankAccountModal,
@@ -21,6 +22,8 @@ import {
   OtherAssetData,
   BeneficiaryOption,
 } from './AssetModals';
+
+const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
 type ModalType =
   | 'realEstate'
@@ -41,6 +44,8 @@ interface ModalState {
 const AssetsSection = () => {
   const { formData, updateFormData } = useFormContext();
 
+  const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
+
   // Modal state management
   const [modalState, setModalState] = useState<ModalState>({
     type: null,
@@ -52,8 +57,8 @@ const AssetsSection = () => {
   const beneficiaryOptions = useMemo((): BeneficiaryOption[] => {
     const options: BeneficiaryOption[] = [];
 
-    // Add spouse if available
-    if (formData.spouseName) {
+    // Add spouse if available and married
+    if (showSpouseInfo && formData.spouseName) {
       options.push({ value: `spouse:${formData.spouseName}`, label: `${formData.spouseName} (Spouse)` });
     }
 
@@ -84,7 +89,7 @@ const AssetsSection = () => {
     });
 
     return options;
-  }, [formData.spouseName, formData.name, formData.children, formData.grandchildren, formData.otherBeneficiaries]);
+  }, [showSpouseInfo, formData.spouseName, formData.name, formData.children, formData.grandchildren, formData.otherBeneficiaries]);
 
   // Modal open handlers
   const openAddModal = (type: ModalType) => {
@@ -291,6 +296,7 @@ const AssetsSection = () => {
         initialData={getEditData() as RealEstateData | undefined}
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
       />
 
       {/* Bank Account Modal */}
@@ -302,6 +308,7 @@ const AssetsSection = () => {
         initialData={getEditData() as BankAccountData | undefined}
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
       />
 
       {/* Non-Qualified Investment Modal */}
@@ -313,6 +320,7 @@ const AssetsSection = () => {
         initialData={getEditData() as NonQualifiedInvestmentData | undefined}
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
       />
 
       {/* Retirement Account Modal */}
@@ -324,6 +332,7 @@ const AssetsSection = () => {
         initialData={getEditData() as RetirementAccountData | undefined}
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
       />
 
       {/* Life Insurance Modal */}
@@ -335,6 +344,7 @@ const AssetsSection = () => {
         initialData={getEditData() as LifeInsuranceData | undefined}
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
       />
 
       {/* Vehicle Modal */}
@@ -346,6 +356,7 @@ const AssetsSection = () => {
         initialData={getEditData() as VehicleData | undefined}
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
       />
 
       {/* Other Asset Modal */}
@@ -357,6 +368,7 @@ const AssetsSection = () => {
         initialData={getEditData() as OtherAssetData | undefined}
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
       />
     </Box>
   );

@@ -17,10 +17,14 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { useFormContext } from '../lib/FormContext';
+import { useFormContext, MaritalStatus } from '../lib/FormContext';
+
+const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
 const DispositiveIntentionsSection = () => {
   const { formData, updateFormData } = useFormContext();
+
+  const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
   const handleRadioChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     updateFormData({ [field]: event.target.value === 'yes' });
@@ -76,25 +80,27 @@ const DispositiveIntentionsSection = () => {
 
       {/* Spouse and Children */}
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-        1. Spouse and Children
+        1. {showSpouseInfo ? 'Spouse and Children' : 'Children'}
       </Typography>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend">
-              Do you wish to provide primarily for your spouse and secondarily for your children?
-            </FormLabel>
-            <RadioGroup
-              row
-              value={formData.provideForSpouseThenChildren ? 'yes' : 'no'}
-              onChange={handleRadioChange('provideForSpouseThenChildren')}
-            >
-              <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio />} label="No" />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
+        {showSpouseInfo && (
+          <Grid item xs={12}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">
+                Do you wish to provide primarily for your spouse and secondarily for your children?
+              </FormLabel>
+              <RadioGroup
+                row
+                value={formData.provideForSpouseThenChildren ? 'yes' : 'no'}
+                onChange={handleRadioChange('provideForSpouseThenChildren')}
+              >
+                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio />} label="No" />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+        )}
 
         <Grid item xs={12}>
           <FormControl component="fieldset">
@@ -129,7 +135,9 @@ const DispositiveIntentionsSection = () => {
         <Grid item xs={12}>
           <TextField
             fullWidth
-            label="After your spouse's death, at what age do you want to distribute to your children?"
+            label={showSpouseInfo
+              ? "After your spouse's death, at what age do you want to distribute to your children?"
+              : "At what age do you want to distribute to your children?"}
             value={formData.distributionAge}
             onChange={handleChange('distributionAge')}
             variant="outlined"

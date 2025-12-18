@@ -12,9 +12,11 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { useFormContext, FormData } from '../lib/FormContext';
+import { useFormContext, FormData, MaritalStatus } from '../lib/FormContext';
 
 const OTHER_VALUE = '__OTHER__';
+
+const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
 interface BeneficiaryOption {
   value: string;
@@ -83,16 +85,18 @@ const FiduciarySelect: React.FC<FiduciarySelectProps> = ({
 const FiduciariesSection = () => {
   const { formData, updateFormData } = useFormContext();
 
+  const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
+
   const handleChange = (field: keyof FormData) => (value: string) => {
     updateFormData({ [field]: value });
   };
 
-  // Build beneficiary options for Client (excludes client name, includes spouse)
+  // Build beneficiary options for Client (excludes client name, includes spouse if married)
   const clientBeneficiaryOptions = useMemo((): BeneficiaryOption[] => {
     const options: BeneficiaryOption[] = [];
 
-    // Add spouse if available
-    if (formData.spouseName) {
+    // Add spouse if available and married
+    if (showSpouseInfo && formData.spouseName) {
       options.push({ value: `spouse:${formData.spouseName}`, label: formData.spouseName });
     }
 
@@ -118,7 +122,7 @@ const FiduciariesSection = () => {
     });
 
     return options;
-  }, [formData.spouseName, formData.children, formData.grandchildren, formData.otherBeneficiaries]);
+  }, [showSpouseInfo, formData.spouseName, formData.children, formData.grandchildren, formData.otherBeneficiaries]);
 
   // Build beneficiary options for Spouse (excludes spouse name, includes client)
   const spouseBeneficiaryOptions = useMemo((): BeneficiaryOption[] => {
@@ -204,42 +208,46 @@ const FiduciariesSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12}>
-          <Divider sx={{ my: 1 }} />
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <FiduciarySelect
-            label="First Choice"
-            value={formData.spouseExecutorFirst}
-            otherValue={formData.spouseExecutorFirstOther}
-            onChange={handleChange('spouseExecutorFirst')}
-            onOtherChange={handleChange('spouseExecutorFirstOther')}
-            options={spouseBeneficiaryOptions}
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <FiduciarySelect
-            label="Alternate"
-            value={formData.spouseExecutorAlternate}
-            otherValue={formData.spouseExecutorAlternateOther}
-            onChange={handleChange('spouseExecutorAlternate')}
-            onOtherChange={handleChange('spouseExecutorAlternateOther')}
-            options={spouseBeneficiaryOptions}
-            excludeValues={[formData.spouseExecutorFirst]}
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <FiduciarySelect
-            label="Second Alternate (Optional)"
-            value={formData.spouseExecutorSecondAlternate}
-            otherValue={formData.spouseExecutorSecondAlternateOther}
-            onChange={handleChange('spouseExecutorSecondAlternate')}
-            onOtherChange={handleChange('spouseExecutorSecondAlternateOther')}
-            options={spouseBeneficiaryOptions}
-            excludeValues={[formData.spouseExecutorFirst, formData.spouseExecutorAlternate]}
-          />
-        </Grid>
+        {showSpouseInfo && (
+          <>
+            <Grid item xs={12}>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <FiduciarySelect
+                label="First Choice"
+                value={formData.spouseExecutorFirst}
+                otherValue={formData.spouseExecutorFirstOther}
+                onChange={handleChange('spouseExecutorFirst')}
+                onOtherChange={handleChange('spouseExecutorFirstOther')}
+                options={spouseBeneficiaryOptions}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <FiduciarySelect
+                label="Alternate"
+                value={formData.spouseExecutorAlternate}
+                otherValue={formData.spouseExecutorAlternateOther}
+                onChange={handleChange('spouseExecutorAlternate')}
+                onOtherChange={handleChange('spouseExecutorAlternateOther')}
+                options={spouseBeneficiaryOptions}
+                excludeValues={[formData.spouseExecutorFirst]}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <FiduciarySelect
+                label="Second Alternate (Optional)"
+                value={formData.spouseExecutorSecondAlternate}
+                otherValue={formData.spouseExecutorSecondAlternateOther}
+                onChange={handleChange('spouseExecutorSecondAlternate')}
+                onOtherChange={handleChange('spouseExecutorSecondAlternateOther')}
+                options={spouseBeneficiaryOptions}
+                excludeValues={[formData.spouseExecutorFirst, formData.spouseExecutorAlternate]}
+              />
+            </Grid>
+          </>
+        )}
       </Grid>
 
       {/* Financial Power of Attorney */}
@@ -276,31 +284,35 @@ const FiduciariesSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12}>
-          <Divider sx={{ my: 1 }} />
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <FiduciarySelect
-            label="Agent Name"
-            value={formData.spouseFinancialAgentName}
-            otherValue={formData.spouseFinancialAgentNameOther}
-            onChange={handleChange('spouseFinancialAgentName')}
-            onOtherChange={handleChange('spouseFinancialAgentNameOther')}
-            options={spouseBeneficiaryOptions}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <FiduciarySelect
-            label="Alternate Agent Name"
-            value={formData.spouseFinancialAlternateName}
-            otherValue={formData.spouseFinancialAlternateNameOther}
-            onChange={handleChange('spouseFinancialAlternateName')}
-            onOtherChange={handleChange('spouseFinancialAlternateNameOther')}
-            options={spouseBeneficiaryOptions}
-            excludeValues={[formData.spouseFinancialAgentName]}
-          />
-        </Grid>
+        {showSpouseInfo && (
+          <>
+            <Grid item xs={12}>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FiduciarySelect
+                label="Agent Name"
+                value={formData.spouseFinancialAgentName}
+                otherValue={formData.spouseFinancialAgentNameOther}
+                onChange={handleChange('spouseFinancialAgentName')}
+                onOtherChange={handleChange('spouseFinancialAgentNameOther')}
+                options={spouseBeneficiaryOptions}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FiduciarySelect
+                label="Alternate Agent Name"
+                value={formData.spouseFinancialAlternateName}
+                otherValue={formData.spouseFinancialAlternateNameOther}
+                onChange={handleChange('spouseFinancialAlternateName')}
+                onOtherChange={handleChange('spouseFinancialAlternateNameOther')}
+                options={spouseBeneficiaryOptions}
+                excludeValues={[formData.spouseFinancialAgentName]}
+              />
+            </Grid>
+          </>
+        )}
       </Grid>
 
       {/* Health Care Agent */}
@@ -337,31 +349,35 @@ const FiduciariesSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12}>
-          <Divider sx={{ my: 1 }} />
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <FiduciarySelect
-            label="Agent Name"
-            value={formData.spouseHealthCareAgentName}
-            otherValue={formData.spouseHealthCareAgentNameOther}
-            onChange={handleChange('spouseHealthCareAgentName')}
-            onOtherChange={handleChange('spouseHealthCareAgentNameOther')}
-            options={spouseBeneficiaryOptions}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <FiduciarySelect
-            label="Alternate Agent Name"
-            value={formData.spouseHealthCareAlternateName}
-            otherValue={formData.spouseHealthCareAlternateNameOther}
-            onChange={handleChange('spouseHealthCareAlternateName')}
-            onOtherChange={handleChange('spouseHealthCareAlternateNameOther')}
-            options={spouseBeneficiaryOptions}
-            excludeValues={[formData.spouseHealthCareAgentName]}
-          />
-        </Grid>
+        {showSpouseInfo && (
+          <>
+            <Grid item xs={12}>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FiduciarySelect
+                label="Agent Name"
+                value={formData.spouseHealthCareAgentName}
+                otherValue={formData.spouseHealthCareAgentNameOther}
+                onChange={handleChange('spouseHealthCareAgentName')}
+                onOtherChange={handleChange('spouseHealthCareAgentNameOther')}
+                options={spouseBeneficiaryOptions}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FiduciarySelect
+                label="Alternate Agent Name"
+                value={formData.spouseHealthCareAlternateName}
+                otherValue={formData.spouseHealthCareAlternateNameOther}
+                onChange={handleChange('spouseHealthCareAlternateName')}
+                onOtherChange={handleChange('spouseHealthCareAlternateNameOther')}
+                options={spouseBeneficiaryOptions}
+                excludeValues={[formData.spouseHealthCareAgentName]}
+              />
+            </Grid>
+          </>
+        )}
       </Grid>
 
       {/* Trustee */}
@@ -398,31 +414,35 @@ const FiduciariesSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12}>
-          <Divider sx={{ my: 1 }} />
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <FiduciarySelect
-            label="First Choice"
-            value={formData.spouseTrusteeFirst}
-            otherValue={formData.spouseTrusteeFirstOther}
-            onChange={handleChange('spouseTrusteeFirst')}
-            onOtherChange={handleChange('spouseTrusteeFirstOther')}
-            options={spouseBeneficiaryOptions}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <FiduciarySelect
-            label="Alternate"
-            value={formData.spouseTrusteeAlternate}
-            otherValue={formData.spouseTrusteeAlternateOther}
-            onChange={handleChange('spouseTrusteeAlternate')}
-            onOtherChange={handleChange('spouseTrusteeAlternateOther')}
-            options={spouseBeneficiaryOptions}
-            excludeValues={[formData.spouseTrusteeFirst]}
-          />
-        </Grid>
+        {showSpouseInfo && (
+          <>
+            <Grid item xs={12}>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FiduciarySelect
+                label="First Choice"
+                value={formData.spouseTrusteeFirst}
+                otherValue={formData.spouseTrusteeFirstOther}
+                onChange={handleChange('spouseTrusteeFirst')}
+                onOtherChange={handleChange('spouseTrusteeFirstOther')}
+                options={spouseBeneficiaryOptions}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FiduciarySelect
+                label="Alternate"
+                value={formData.spouseTrusteeAlternate}
+                otherValue={formData.spouseTrusteeAlternateOther}
+                onChange={handleChange('spouseTrusteeAlternate')}
+                onOtherChange={handleChange('spouseTrusteeAlternateOther')}
+                options={spouseBeneficiaryOptions}
+                excludeValues={[formData.spouseTrusteeFirst]}
+              />
+            </Grid>
+          </>
+        )}
       </Grid>
 
       {/* Guardian */}
@@ -459,31 +479,35 @@ const FiduciariesSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12}>
-          <Divider sx={{ my: 1 }} />
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <FiduciarySelect
-            label="First Choice"
-            value={formData.spouseGuardianFirst}
-            otherValue={formData.spouseGuardianFirstOther}
-            onChange={handleChange('spouseGuardianFirst')}
-            onOtherChange={handleChange('spouseGuardianFirstOther')}
-            options={spouseBeneficiaryOptions}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <FiduciarySelect
-            label="Alternate"
-            value={formData.spouseGuardianAlternate}
-            otherValue={formData.spouseGuardianAlternateOther}
-            onChange={handleChange('spouseGuardianAlternate')}
-            onOtherChange={handleChange('spouseGuardianAlternateOther')}
-            options={spouseBeneficiaryOptions}
-            excludeValues={[formData.spouseGuardianFirst]}
-          />
-        </Grid>
+        {showSpouseInfo && (
+          <>
+            <Grid item xs={12}>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FiduciarySelect
+                label="First Choice"
+                value={formData.spouseGuardianFirst}
+                otherValue={formData.spouseGuardianFirstOther}
+                onChange={handleChange('spouseGuardianFirst')}
+                onOtherChange={handleChange('spouseGuardianFirstOther')}
+                options={spouseBeneficiaryOptions}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FiduciarySelect
+                label="Alternate"
+                value={formData.spouseGuardianAlternate}
+                otherValue={formData.spouseGuardianAlternateOther}
+                onChange={handleChange('spouseGuardianAlternate')}
+                onOtherChange={handleChange('spouseGuardianAlternateOther')}
+                options={spouseBeneficiaryOptions}
+                excludeValues={[formData.spouseGuardianFirst]}
+              />
+            </Grid>
+          </>
+        )}
       </Grid>
     </Box>
   );

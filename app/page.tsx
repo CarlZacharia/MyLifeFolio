@@ -16,7 +16,6 @@ import {
 } from '@mui/material';
 import { FormProvider, useFormContext } from '../lib/FormContext';
 import PersonalDataSection from '../components/PersonalDataSection';
-import MaritalInfoSection from '../components/MaritalInfoSection';
 import ChildrenSection from '../components/ChildrenSection';
 import OtherBeneficiariesSection from '../components/OtherBeneficiariesSection';
 import DispositiveIntentionsSection from '../components/DispositiveIntentionsSection';
@@ -25,30 +24,24 @@ import AssetsSection from '../components/AssetsSection';
 import axios from 'axios';
 import { MaritalStatus } from '../lib/FormContext';
 
-const SHOW_MARITAL_INFO_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
+const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
-const getSteps = (showMaritalInfo: boolean) => {
-  if (showMaritalInfo) {
-    return [
-      'Personal Data',
-      'Marital Information',
-      'Children',
-      'Other Beneficiaries',
-      'Dispositive Intentions',
-      'Fiduciaries',
-      'Assets',
-      'Review & Submit',
-    ];
+const getSteps = (showChildren: boolean) => {
+  const steps: string[] = ['Personal Data'];
+
+  if (showChildren) {
+    steps.push('Children');
   }
-  return [
-    'Personal Data',
-    'Children',
+
+  steps.push(
     'Other Beneficiaries',
     'Dispositive Intentions',
     'Fiduciaries',
     'Assets',
-    'Review & Submit',
-  ];
+    'Review & Submit'
+  );
+
+  return steps;
 };
 
 const QuestionnaireContent = () => {
@@ -57,8 +50,13 @@ const QuestionnaireContent = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
-  const showMaritalInfo = SHOW_MARITAL_INFO_STATUSES.includes(formData.maritalStatus);
-  const steps = getSteps(showMaritalInfo);
+  const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
+  // For single clients, use numberOfChildren only; for married clients, add children together + prior children
+  const totalChildren = showSpouseInfo
+    ? formData.numberOfChildren + formData.clientChildrenFromPrior + formData.childrenTogether + formData.spouseChildrenFromPrior
+    : formData.numberOfChildren;
+  const showChildren = totalChildren > 0;
+  const steps = getSteps(showChildren);
   const totalSteps = steps.length;
 
   const handleNext = () => {
@@ -107,8 +105,6 @@ const QuestionnaireContent = () => {
     switch (stepName) {
       case 'Personal Data':
         return <PersonalDataSection />;
-      case 'Marital Information':
-        return <MaritalInfoSection />;
       case 'Children':
         return <ChildrenSection />;
       case 'Other Beneficiaries':

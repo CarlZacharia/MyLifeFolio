@@ -15,6 +15,9 @@ const theme = createTheme({
     secondary: {
       main: '#c5cae9',
     },
+    background: {
+      default: '#e8eaf6', // Light indigo background for contrast
+    },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',

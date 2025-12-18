@@ -26,7 +26,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { RealEstateOwner, OwnershipForm } from '../lib/FormContext';
 
 // Constants
-const OWNER_OPTIONS: RealEstateOwner[] = [
+const ALL_OWNER_OPTIONS: RealEstateOwner[] = [
   'Client',
   'Spouse',
   'Client and Spouse',
@@ -35,13 +35,26 @@ const OWNER_OPTIONS: RealEstateOwner[] = [
   'Client, Spouse and Other',
 ];
 
+const CLIENT_ONLY_OWNER_OPTIONS: RealEstateOwner[] = [
+  'Client',
+  'Client and Other',
+];
+
 const OWNERS_WITH_OTHER: RealEstateOwner[] = [
   'Client and Other',
   'Spouse and Other',
   'Client, Spouse and Other',
 ];
 
-const INDIVIDUAL_OWNER_OPTIONS = ['Client', 'Spouse'] as const;
+const ALL_INDIVIDUAL_OWNER_OPTIONS = ['Client', 'Spouse'] as const;
+const CLIENT_ONLY_INDIVIDUAL_OPTIONS = ['Client'] as const;
+
+// Helper to get owner options based on showSpouse
+const getOwnerOptions = (showSpouse: boolean): RealEstateOwner[] =>
+  showSpouse ? ALL_OWNER_OPTIONS : CLIENT_ONLY_OWNER_OPTIONS;
+
+const getIndividualOwnerOptions = (showSpouse: boolean) =>
+  showSpouse ? ALL_INDIVIDUAL_OWNER_OPTIONS : CLIENT_ONLY_INDIVIDUAL_OPTIONS;
 
 const getOwnershipFormOptions = (owner: RealEstateOwner): OwnershipForm[] => {
   const baseOptions: OwnershipForm[] = ['Life Estate', 'Lady Bird Deed', 'Trust', 'Other'];
@@ -252,6 +265,7 @@ interface RealEstateModalProps {
   initialData?: RealEstateData;
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
+  showSpouse?: boolean;
 }
 
 export const RealEstateModal: React.FC<RealEstateModalProps> = ({
@@ -262,7 +276,9 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
   initialData,
   beneficiaryOptions,
   isEdit = false,
+  showSpouse = true,
 }) => {
+  const ownerOptions = getOwnerOptions(showSpouse);
   const [data, setData] = useState<RealEstateData>(initialData || emptyRealEstate);
 
   useEffect(() => {
@@ -307,7 +323,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
                 label="Owner"
                 onChange={(e) => handleOwnerChange(e.target.value as RealEstateOwner)}
               >
-                {OWNER_OPTIONS.map((option) => (
+                {ownerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -511,6 +527,7 @@ interface BankAccountModalProps {
   initialData?: BankAccountData;
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
+  showSpouse?: boolean;
 }
 
 export const BankAccountModal: React.FC<BankAccountModalProps> = ({
@@ -521,7 +538,9 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
   initialData,
   beneficiaryOptions,
   isEdit = false,
+  showSpouse = true,
 }) => {
+  const ownerOptions = getOwnerOptions(showSpouse);
   const [data, setData] = useState<BankAccountData>(initialData || emptyBankAccount);
 
   useEffect(() => {
@@ -552,7 +571,7 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
                 label="Owner"
                 onChange={(e) => handleChange({ owner: e.target.value })}
               >
-                {OWNER_OPTIONS.map((option) => (
+                {ownerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -676,6 +695,7 @@ interface NonQualifiedInvestmentModalProps {
   initialData?: NonQualifiedInvestmentData;
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
+  showSpouse?: boolean;
 }
 
 export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalProps> = ({
@@ -686,7 +706,9 @@ export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalPr
   initialData,
   beneficiaryOptions,
   isEdit = false,
+  showSpouse = true,
 }) => {
+  const ownerOptions = getOwnerOptions(showSpouse);
   const [data, setData] = useState<NonQualifiedInvestmentData>(initialData || emptyNonQualifiedInvestment);
 
   useEffect(() => {
@@ -717,7 +739,7 @@ export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalPr
                 label="Owner"
                 onChange={(e) => handleChange({ owner: e.target.value })}
               >
-                {OWNER_OPTIONS.map((option) => (
+                {ownerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -852,6 +874,7 @@ interface RetirementAccountModalProps {
   initialData?: RetirementAccountData;
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
+  showSpouse?: boolean;
 }
 
 export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
@@ -862,7 +885,9 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
   initialData,
   beneficiaryOptions,
   isEdit = false,
+  showSpouse = true,
 }) => {
+  const individualOwnerOptions = getIndividualOwnerOptions(showSpouse);
   const [data, setData] = useState<RetirementAccountData>(initialData || emptyRetirementAccount);
 
   useEffect(() => {
@@ -893,7 +918,7 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
                 label="Owner"
                 onChange={(e) => handleChange({ owner: e.target.value })}
               >
-                {INDIVIDUAL_OWNER_OPTIONS.map((option) => (
+                {individualOwnerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -1030,6 +1055,7 @@ interface LifeInsuranceModalProps {
   initialData?: LifeInsuranceData;
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
+  showSpouse?: boolean;
 }
 
 export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
@@ -1040,7 +1066,9 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
   initialData,
   beneficiaryOptions,
   isEdit = false,
+  showSpouse = true,
 }) => {
+  const individualOwnerOptions = getIndividualOwnerOptions(showSpouse);
   const [data, setData] = useState<LifeInsuranceData>(initialData || emptyLifeInsurance);
 
   useEffect(() => {
@@ -1071,7 +1099,7 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
                 label="Owner"
                 onChange={(e) => handleChange({ owner: e.target.value })}
               >
-                {INDIVIDUAL_OWNER_OPTIONS.map((option) => (
+                {individualOwnerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -1213,6 +1241,7 @@ interface VehicleModalProps {
   initialData?: VehicleData;
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
+  showSpouse?: boolean;
 }
 
 export const VehicleModal: React.FC<VehicleModalProps> = ({
@@ -1223,7 +1252,9 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
   initialData,
   beneficiaryOptions,
   isEdit = false,
+  showSpouse = true,
 }) => {
+  const ownerOptions = getOwnerOptions(showSpouse);
   const [data, setData] = useState<VehicleData>(initialData || emptyVehicle);
 
   useEffect(() => {
@@ -1254,7 +1285,7 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
                 label="Owner"
                 onChange={(e) => handleChange({ owner: e.target.value })}
               >
-                {OWNER_OPTIONS.map((option) => (
+                {ownerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -1377,6 +1408,7 @@ interface OtherAssetModalProps {
   initialData?: OtherAssetData;
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
+  showSpouse?: boolean;
 }
 
 export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
@@ -1387,7 +1419,9 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
   initialData,
   beneficiaryOptions,
   isEdit = false,
+  showSpouse = true,
 }) => {
+  const ownerOptions = getOwnerOptions(showSpouse);
   const [data, setData] = useState<OtherAssetData>(initialData || emptyOtherAsset);
 
   useEffect(() => {
@@ -1418,7 +1452,7 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
                 label="Owner"
                 onChange={(e) => handleChange({ owner: e.target.value })}
               >
-                {OWNER_OPTIONS.map((option) => (
+                {ownerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>

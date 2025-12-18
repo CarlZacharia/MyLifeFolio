@@ -8,10 +8,14 @@ import {
   Grid,
   Divider,
   FormControl,
+  FormLabel,
   InputLabel,
   Select,
   MenuItem,
   SelectChangeEvent,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useFormContext, MaritalStatus, Sex } from '../lib/FormContext';
@@ -36,7 +40,7 @@ const MARITAL_STATUS_OPTIONS: MaritalStatus[] = [
   'Domestic Partnership',
 ];
 
-const SEX_OPTIONS: Sex[] = ['Male', 'Female'];
+const SEX_OPTIONS: Sex[] = ['Male', 'Female', 'Other'];
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -125,7 +129,7 @@ const PersonalDataSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <TextField
             fullWidth
             label="Cell Phone"
@@ -136,7 +140,7 @@ const PersonalDataSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <TextField
             fullWidth
             label="Home Phone"
@@ -147,7 +151,7 @@ const PersonalDataSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <TextField
             fullWidth
             label="Work Phone"
@@ -156,6 +160,24 @@ const PersonalDataSection = () => {
             variant="outlined"
             type="tel"
           />
+        </Grid>
+
+        <Grid item xs={12} md={3}>
+          <FormControl fullWidth variant="outlined" required>
+            <InputLabel id="sex-label">Sex</InputLabel>
+            <Select
+              labelId="sex-label"
+              value={formData.sex}
+              onChange={handleSelectChange('sex')}
+              label="Sex"
+            >
+              {SEX_OPTIONS.map((sex) => (
+                <MenuItem key={sex} value={sex}>
+                  {sex}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
 
         <Grid item xs={12} md={6}>
@@ -217,23 +239,64 @@ const PersonalDataSection = () => {
           </FormControl>
         </Grid>
 
+        {/* No. of Children - always shown */}
         <Grid item xs={12} md={2}>
-          <FormControl fullWidth variant="outlined" required>
-            <InputLabel id="sex-label">Sex</InputLabel>
-            <Select
-              labelId="sex-label"
-              value={formData.sex}
-              onChange={handleSelectChange('sex')}
-              label="Sex"
-            >
-              {SEX_OPTIONS.map((sex) => (
-                <MenuItem key={sex} value={sex}>
-                  {sex}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <TextField
+            fullWidth
+            label="No. of Children"
+            value={formData.numberOfChildren}
+            onChange={(e) => {
+              const value = parseInt(e.target.value, 10);
+              updateFormData({ numberOfChildren: isNaN(value) ? 0 : value });
+            }}
+            variant="outlined"
+            type="number"
+            inputProps={{ min: 0, style: { textAlign: 'center' } }}
+          />
         </Grid>
+
+        {/* For married clients, show prior children question */}
+        {showSpouseInfo && (
+          <>
+            <Grid item xs={12} md={4}>
+              <FormControl component="fieldset">
+                <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
+                  Children from prior relationship?
+                </FormLabel>
+                <RadioGroup
+                  row
+                  value={formData.clientHasChildrenFromPrior ? 'yes' : 'no'}
+                  onChange={(e) => {
+                    const hasPrior = e.target.value === 'yes';
+                    updateFormData({
+                      clientHasChildrenFromPrior: hasPrior,
+                      clientChildrenFromPrior: hasPrior ? formData.clientChildrenFromPrior : 0
+                    });
+                  }}
+                >
+                  <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+                  <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+                </RadioGroup>
+              </FormControl>
+            </Grid>
+            {formData.clientHasChildrenFromPrior && (
+              <Grid item xs={12} md={2}>
+                <TextField
+                  fullWidth
+                  label="No. from Prior"
+                  value={formData.clientChildrenFromPrior}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value, 10);
+                    updateFormData({ clientChildrenFromPrior: isNaN(value) ? 0 : value });
+                  }}
+                  variant="outlined"
+                  type="number"
+                  inputProps={{ min: 1, style: { textAlign: 'center' } }}
+                />
+              </Grid>
+            )}
+          </>
+        )}
 
         {/* Spouse Information - Only shown for Married, Second Marriage, or Domestic Partnership */}
         {showSpouseInfo && (
@@ -279,7 +342,7 @@ const PersonalDataSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <TextField
             fullWidth
             label="Spouse Cell Phone"
@@ -290,7 +353,7 @@ const PersonalDataSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <TextField
             fullWidth
             label="Spouse Home Phone"
@@ -301,7 +364,7 @@ const PersonalDataSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <TextField
             fullWidth
             label="Spouse Work Phone"
@@ -310,6 +373,24 @@ const PersonalDataSection = () => {
             variant="outlined"
             type="tel"
           />
+        </Grid>
+
+        <Grid item xs={12} md={3}>
+          <FormControl fullWidth variant="outlined">
+            <InputLabel id="spouse-sex-label">Sex</InputLabel>
+            <Select
+              labelId="spouse-sex-label"
+              value={formData.spouseSex}
+              onChange={handleSelectChange('spouseSex')}
+              label="Sex"
+            >
+              {SEX_OPTIONS.map((sex) => (
+                <MenuItem key={sex} value={sex}>
+                  {sex}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
 
         <Grid item xs={12} md={6}>
@@ -351,23 +432,76 @@ const PersonalDataSection = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={2}>
-          <FormControl fullWidth variant="outlined">
-            <InputLabel id="spouse-sex-label">Sex</InputLabel>
-            <Select
-              labelId="spouse-sex-label"
-              value={formData.spouseSex}
-              onChange={handleSelectChange('spouseSex')}
-              label="Sex"
+        <Grid item xs={12} md={4}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
+              Prior Marriage?
+            </FormLabel>
+            <RadioGroup
+              row
+              value={formData.priorMarriage ? 'yes' : 'no'}
+              onChange={(e) => {
+                updateFormData({ priorMarriage: e.target.value === 'yes' });
+              }}
             >
-              {SEX_OPTIONS.map((sex) => (
-                <MenuItem key={sex} value={sex}>
-                  {sex}
-                </MenuItem>
-              ))}
-            </Select>
+              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
           </FormControl>
         </Grid>
+
+        <Grid item xs={12} md={2}>
+          <TextField
+            fullWidth
+            label="Children Together"
+            value={formData.childrenTogether}
+            onChange={(e) => {
+              const value = parseInt(e.target.value, 10);
+              updateFormData({ childrenTogether: isNaN(value) ? 0 : value });
+            }}
+            variant="outlined"
+            type="number"
+            inputProps={{ min: 0, style: { textAlign: 'center' } }}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend" sx={{ fontSize: '0.875rem' }}>
+              Spouse has children from prior?
+            </FormLabel>
+            <RadioGroup
+              row
+              value={formData.spouseHasChildrenFromPrior ? 'yes' : 'no'}
+              onChange={(e) => {
+                const hasPrior = e.target.value === 'yes';
+                updateFormData({
+                  spouseHasChildrenFromPrior: hasPrior,
+                  spouseChildrenFromPrior: hasPrior ? formData.spouseChildrenFromPrior : 0
+                });
+              }}
+            >
+              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+        {formData.spouseHasChildrenFromPrior && (
+          <Grid item xs={12} md={2}>
+            <TextField
+              fullWidth
+              label="No. from Prior"
+              value={formData.spouseChildrenFromPrior}
+              onChange={(e) => {
+                const value = parseInt(e.target.value, 10);
+                updateFormData({ spouseChildrenFromPrior: isNaN(value) ? 0 : value });
+              }}
+              variant="outlined"
+              type="number"
+              inputProps={{ min: 1, style: { textAlign: 'center' } }}
+            />
+          </Grid>
+        )}
           </>
         )}
       </Grid>

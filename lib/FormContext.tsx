@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export type MaritalStatus = 'Single' | 'Married' | 'Second Marriage' | 'Divorced' | 'Separated' | 'Domestic Partnership' | '';
-export type Sex = 'Male' | 'Female' | '';
+export type Sex = 'Male' | 'Female' | 'Other' | '';
 export type RealEstateOwner = 'Client' | 'Spouse' | 'Client and Spouse' | 'Client and Other' | 'Spouse and Other' | 'Client, Spouse and Other' | '';
 export type OwnershipForm = 'Sole' | 'Tenants by Entirety' | 'JTWROS' | 'Tenants in Common' | 'Life Estate' | 'Lady Bird Deed' | 'Trust' | 'Other' | '';
 
@@ -14,6 +14,9 @@ export interface FormData {
   name: string;
   sex: Sex;
   maritalStatus: MaritalStatus;
+  numberOfChildren: number; // For single clients
+  clientHasChildrenFromPrior: boolean;
+  clientChildrenFromPrior: number;
   aka: string;
   mailingAddress: string;
   cellPhone: string;
@@ -30,6 +33,9 @@ export interface FormData {
   spouseEmail: string;
   spouseBirthDate: Date | null;
   spouseSex: Sex;
+  childrenTogether: number;
+  spouseHasChildrenFromPrior: boolean;
+  spouseChildrenFromPrior: number;
 
   // Marital Information
   dateMarried: Date | null;
@@ -273,6 +279,9 @@ const initialFormData: FormData = {
   name: '',
   sex: '',
   maritalStatus: '',
+  numberOfChildren: 0,
+  clientHasChildrenFromPrior: false,
+  clientChildrenFromPrior: 0,
   aka: '',
   mailingAddress: '',
   cellPhone: '',
@@ -289,6 +298,9 @@ const initialFormData: FormData = {
   spouseEmail: '',
   spouseBirthDate: null,
   spouseSex: '',
+  childrenTogether: 0,
+  spouseHasChildrenFromPrior: false,
+  spouseChildrenFromPrior: 0,
   dateMarried: null,
   placeOfMarriage: '',
   priorMarriage: false,
