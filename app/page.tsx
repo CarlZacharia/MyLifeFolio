@@ -39,10 +39,40 @@ const ALL_STEPS = [
 ];
 
 const QuestionnaireContent = () => {
-  const { formData, currentStep, setCurrentStep } = useFormContext();
+  const { formData, currentStep, setCurrentStep, clearFormData } = useFormContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  // Debug function to log all form data
+  const debugFormData = () => {
+    console.log('=== FORM DATA DEBUG ===');
+    console.log('Full formData object:', formData);
+    console.log('--- Personal Data ---');
+    console.log('Name:', formData.name);
+    console.log('Spouse:', formData.spouseName);
+    console.log('Marital Status:', formData.maritalStatus);
+    console.log('--- Trusts ---');
+    console.log('Client Living Trust:', formData.clientHasLivingTrust, formData.clientLivingTrustName);
+    console.log('Client Irrevocable Trust:', formData.clientHasIrrevocableTrust, formData.clientIrrevocableTrustName);
+    console.log('Spouse Living Trust:', formData.spouseHasLivingTrust, formData.spouseLivingTrustName);
+    console.log('Spouse Irrevocable Trust:', formData.spouseHasIrrevocableTrust, formData.spouseIrrevocableTrustName);
+    console.log('--- Children ---');
+    console.log('Children:', formData.children);
+    console.log('--- Other Beneficiaries ---');
+    console.log('Other Beneficiaries:', formData.otherBeneficiaries);
+    console.log('--- Assets ---');
+    console.log('Real Estate:', formData.realEstate);
+    console.log('Bank Accounts:', formData.bankAccounts);
+    console.log('Non-Qualified Investments:', formData.nonQualifiedInvestments);
+    console.log('Retirement Accounts:', formData.retirementAccounts);
+    console.log('Life Insurance:', formData.lifeInsurance);
+    console.log('Vehicles:', formData.vehicles);
+    console.log('Other Assets:', formData.otherAssets);
+    console.log('Business Interests:', formData.businessInterests);
+    console.log('Digital Assets:', formData.digitalAssets);
+    console.log('=== END DEBUG ===');
+  };
 
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
   // For single clients, use numberOfChildren only; for married clients, add children together + prior children
@@ -97,6 +127,7 @@ const QuestionnaireContent = () => {
 
       if (response.status === 200) {
         setSubmitSuccess(true);
+        clearFormData(); // Clear localStorage after successful submission
         setCurrentStep(currentStep + 1);
       }
     } catch (error) {
@@ -188,6 +219,15 @@ const QuestionnaireContent = () => {
           <Typography variant="body2" color="text.secondary">
             Estate Planning & Elder Law Attorneys
           </Typography>
+          {/* Debug button - remove in production */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={debugFormData}
+            sx={{ mt: 1, fontSize: '0.7rem' }}
+          >
+            Debug: Log Form Data
+          </Button>
         </Box>
 
         {/* Stepper */}

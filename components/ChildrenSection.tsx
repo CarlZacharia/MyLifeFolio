@@ -92,7 +92,6 @@ const ChildrenSection = () => {
           children={formData.children}
           onEdit={openEditModal}
           onAdd={openAddModal}
-          showSpouse={showSpouseInfo}
         />
       </Box>
 
@@ -257,6 +256,19 @@ const ChildrenSection = () => {
             value={formData.childrenOtherConcerns}
             onChange={handleChange('childrenOtherConcerns')}
             variant="outlined"
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Notes about your children"
+            value={formData.childrenNotes}
+            onChange={handleChange('childrenNotes')}
+            variant="outlined"
+            multiline
+            rows={5}
+            placeholder="Enter any additional comments or information about your children..."
           />
         </Grid>
       </Grid>

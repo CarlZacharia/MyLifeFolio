@@ -4,6 +4,12 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
+import GavelIcon from '@mui/icons-material/Gavel';
+import LogoutIcon from '@mui/icons-material/Logout';
+import SchoolIcon from '@mui/icons-material/School';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import NotesIcon from '@mui/icons-material/Notes';
 
 const theme = createTheme({
   palette: {
@@ -143,6 +149,63 @@ export default function RootLayout({
         <ThemeProvider theme={theme}>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <CssBaseline />
+            <AppBar position="static" sx={{ bgcolor: '#1a237e' }}>
+              <Toolbar>
+                {/* Logo */}
+                <Box
+                  component="img"
+                  src="/logo.jpg"
+                  alt="Zacharia Brown & Bratkovich"
+                  sx={{
+                    height: 40,
+                    mr: 2,
+                    display: { xs: 'none', sm: 'block' },
+                  }}
+                  onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                {/* Fallback icon when logo not found */}
+                <GavelIcon sx={{ mr: 2, display: { xs: 'block', sm: 'none' } }} />
+                <Box sx={{ flexGrow: 1 }}>
+                  <Typography variant="h5" component="div" sx={{ fontWeight: 600 }}>
+                    Zacharia Brown & Bratkovich
+                  </Typography>
+                </Box>
+
+                {/* Right-aligned navigation buttons */}
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button
+                    color="inherit"
+                    startIcon={<AssignmentIcon />}
+                    sx={{ display: { xs: 'none', md: 'flex' } }}
+                  >
+                    Questionnaire
+                  </Button>
+                  <Button
+                    color="inherit"
+                    startIcon={<SchoolIcon />}
+                    sx={{ display: { xs: 'none', md: 'flex' } }}
+                  >
+                    Education Center
+                  </Button>
+                  <Button
+                    color="inherit"
+                    startIcon={<NotesIcon />}
+                    sx={{ display: { xs: 'none', md: 'flex' } }}
+                  >
+                    Client Notes
+                  </Button>
+                  <Button
+                    color="inherit"
+                    startIcon={<LogoutIcon />}
+                    sx={{ display: { xs: 'none', sm: 'flex' } }}
+                  >
+                    Log Out
+                  </Button>
+                </Box>
+              </Toolbar>
+            </AppBar>
             {children}
           </LocalizationProvider>
         </ThemeProvider>

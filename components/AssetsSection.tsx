@@ -104,8 +104,40 @@ const AssetsSection = () => {
       }
     });
 
+    // Add trust options if client/spouse has trusts
+    if (formData.clientHasLivingTrust) {
+      const trustName = formData.clientLivingTrustName || "Client's Living Trust";
+      options.push({ value: `trust:client-living:${trustName}`, label: `${trustName} (Living Trust)` });
+    }
+    if (formData.clientHasIrrevocableTrust) {
+      const trustName = formData.clientIrrevocableTrustName || "Client's Irrevocable Trust";
+      options.push({ value: `trust:client-irrevocable:${trustName}`, label: `${trustName} (Irrevocable Trust)` });
+    }
+    if (showSpouseInfo && formData.spouseHasLivingTrust) {
+      const trustName = formData.spouseLivingTrustName || "Spouse's Living Trust";
+      options.push({ value: `trust:spouse-living:${trustName}`, label: `${trustName} (Living Trust)` });
+    }
+    if (showSpouseInfo && formData.spouseHasIrrevocableTrust) {
+      const trustName = formData.spouseIrrevocableTrustName || "Spouse's Irrevocable Trust";
+      options.push({ value: `trust:spouse-irrevocable:${trustName}`, label: `${trustName} (Irrevocable Trust)` });
+    }
+
     return options;
-  }, [showSpouseInfo, formData.spouseName, formData.name, formData.children, formData.otherBeneficiaries]);
+  }, [
+    showSpouseInfo,
+    formData.spouseName,
+    formData.name,
+    formData.children,
+    formData.otherBeneficiaries,
+    formData.clientHasLivingTrust,
+    formData.clientLivingTrustName,
+    formData.clientHasIrrevocableTrust,
+    formData.clientIrrevocableTrustName,
+    formData.spouseHasLivingTrust,
+    formData.spouseLivingTrustName,
+    formData.spouseHasIrrevocableTrust,
+    formData.spouseIrrevocableTrustName,
+  ]);
 
   // Modal open handlers
   const openAddModal = (type: ModalType) => {

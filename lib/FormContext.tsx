@@ -1,6 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
+
+const STORAGE_KEY = 'estate-planning-form-data';
+const STEP_STORAGE_KEY = 'estate-planning-current-step';
 
 export type MaritalStatus = 'Single' | 'Married' | 'Second Marriage' | 'Divorced' | 'Separated' | 'Domestic Partnership' | '';
 export type Sex = 'Male' | 'Female' | 'Other' | '';
@@ -82,6 +85,7 @@ export interface FormData {
   alcoholism: boolean;
   spendthrift: boolean;
   childrenOtherConcerns: string;
+  childrenNotes: string;
 
   // Dispositive Intentions
   provideForSpouseThenChildren: boolean;
@@ -301,7 +305,43 @@ interface FormContextType {
   updateFormData: (data: Partial<FormData>) => void;
   currentStep: number;
   setCurrentStep: (step: number) => void;
+  clearFormData: () => void;
 }
+
+// Fields that contain Date objects and need special serialization
+const DATE_FIELDS = [
+  'birthDate',
+  'spouseBirthDate',
+  'clientLivingTrustDate',
+  'clientIrrevocableTrustDate',
+  'spouseLivingTrustDate',
+  'spouseIrrevocableTrustDate',
+  'dateMarried',
+];
+
+// Serialize form data for localStorage (convert Dates to ISO strings)
+const serializeFormData = (data: FormData): string => {
+  const serialized = { ...data } as Record<string, unknown>;
+  DATE_FIELDS.forEach((field) => {
+    const value = serialized[field];
+    if (value instanceof Date) {
+      serialized[field] = value.toISOString();
+    }
+  });
+  return JSON.stringify(serialized);
+};
+
+// Deserialize form data from localStorage (convert ISO strings back to Dates)
+const deserializeFormData = (json: string): FormData => {
+  const parsed = JSON.parse(json) as Record<string, unknown>;
+  DATE_FIELDS.forEach((field) => {
+    const value = parsed[field];
+    if (typeof value === 'string' && value) {
+      parsed[field] = new Date(value);
+    }
+  });
+  return parsed as unknown as FormData;
+};
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
@@ -369,6 +409,7 @@ const initialFormData: FormData = {
   alcoholism: false,
   spendthrift: false,
   childrenOtherConcerns: '',
+  childrenNotes: '',
   provideForSpouseThenChildren: true,
   treatAllChildrenEqually: true,
   childrenEqualityExplanation: '',
@@ -454,9 +495,73 @@ const initialFormData: FormData = {
 export const FormProvider = ({ children }: { children: ReactNode }) => {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [currentStep, setCurrentStep] = useState(0);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const isFirstRender = useRef(true);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      const savedStep = localStorage.getItem(STEP_STORAGE_KEY);
+
+      if (savedData) {
+        const parsed = deserializeFormData(savedData);
+        // Merge with initialFormData to handle any new fields added to the schema
+        setFormData({ ...initialFormData, ...parsed });
+      }
+
+      if (savedStep) {
+        const step = parseInt(savedStep, 10);
+        if (!isNaN(step)) {
+          setCurrentStep(step);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading form data from localStorage:', error);
+    }
+    setIsInitialized(true);
+  }, []);
+
+  // Auto-save to localStorage whenever formData changes (skip first render)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (!isInitialized) return;
+
+    try {
+      localStorage.setItem(STORAGE_KEY, serializeFormData(formData));
+    } catch (error) {
+      console.error('Error saving form data to localStorage:', error);
+    }
+  }, [formData, isInitialized]);
+
+  // Save currentStep to localStorage
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    try {
+      localStorage.setItem(STEP_STORAGE_KEY, currentStep.toString());
+    } catch (error) {
+      console.error('Error saving step to localStorage:', error);
+    }
+  }, [currentStep, isInitialized]);
 
   const updateFormData = (data: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
+  };
+
+  const clearFormData = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STEP_STORAGE_KEY);
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+    }
+    setFormData(initialFormData);
+    setCurrentStep(0);
   };
 
   return (
@@ -466,6 +571,7 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
         updateFormData,
         currentStep,
         setCurrentStep,
+        clearFormData,
       }}
     >
       {children}
