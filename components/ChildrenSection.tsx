@@ -82,9 +82,6 @@ const ChildrenSection = () => {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
-        CHILDREN
-      </Typography>
 
       {/* Children List with Summary Table */}
       <Box sx={{ mb: 4 }}>

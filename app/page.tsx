@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState } from 'react';
 import {
   Container,
@@ -113,7 +111,7 @@ const QuestionnaireContent = () => {
     setSubmitError('');
 
     try {
-      const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
+      const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
 
       if (!webhookUrl) {
         throw new Error('n8n webhook URL not configured');

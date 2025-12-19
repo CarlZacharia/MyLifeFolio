@@ -527,7 +527,6 @@ const SummarySection = () => {
               <Grid container spacing={1}>
                 <InfoRow label="Primary Agent" value={primaryAgent} />
                 <InfoRow label="Alternate Agent" value={alternateAgent} />
-                <InfoRow label="Withdraw Artificial Food/Fluid" value={formData.withdrawArtificialFoodFluid} />
               </Grid>
             </>
           );
@@ -553,7 +552,6 @@ const SummarySection = () => {
               <Grid container spacing={1}>
                 <InfoRow label="Primary Agent" value={primaryAgent} />
                 <InfoRow label="Alternate Agent" value={alternateAgent} />
-                <InfoRow label="Withdraw Artificial Food/Fluid" value={formData.spouseWithdrawArtificialFoodFluid} />
               </Grid>
             </>
           );

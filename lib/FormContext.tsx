@@ -159,12 +159,16 @@ export interface FormData {
   healthCareAgentNameOther: string;
   healthCareAlternateName: string;
   healthCareAlternateNameOther: string;
+  healthCareSecondAlternateName: string;
+  healthCareSecondAlternateNameOther: string;
   withdrawArtificialFoodFluid: boolean;
 
   spouseHealthCareAgentName: string;
   spouseHealthCareAgentNameOther: string;
   spouseHealthCareAlternateName: string;
   spouseHealthCareAlternateNameOther: string;
+  spouseHealthCareSecondAlternateName: string;
+  spouseHealthCareSecondAlternateNameOther: string;
   spouseWithdrawArtificialFoodFluid: boolean;
 
   // Financial Power of Attorney
@@ -172,11 +176,15 @@ export interface FormData {
   financialAgentNameOther: string;
   financialAlternateName: string;
   financialAlternateNameOther: string;
+  financialSecondAlternateName: string;
+  financialSecondAlternateNameOther: string;
 
   spouseFinancialAgentName: string;
   spouseFinancialAgentNameOther: string;
   spouseFinancialAlternateName: string;
   spouseFinancialAlternateNameOther: string;
+  spouseFinancialSecondAlternateName: string;
+  spouseFinancialSecondAlternateNameOther: string;
 
   // Miscellaneous
   legalIssues: string;
@@ -460,20 +468,28 @@ const initialFormData: FormData = {
   healthCareAgentNameOther: '',
   healthCareAlternateName: '',
   healthCareAlternateNameOther: '',
+  healthCareSecondAlternateName: '',
+  healthCareSecondAlternateNameOther: '',
   withdrawArtificialFoodFluid: false,
   spouseHealthCareAgentName: '',
   spouseHealthCareAgentNameOther: '',
   spouseHealthCareAlternateName: '',
   spouseHealthCareAlternateNameOther: '',
+  spouseHealthCareSecondAlternateName: '',
+  spouseHealthCareSecondAlternateNameOther: '',
   spouseWithdrawArtificialFoodFluid: false,
   financialAgentName: '',
   financialAgentNameOther: '',
   financialAlternateName: '',
   financialAlternateNameOther: '',
+  financialSecondAlternateName: '',
+  financialSecondAlternateNameOther: '',
   spouseFinancialAgentName: '',
   spouseFinancialAgentNameOther: '',
   spouseFinancialAlternateName: '',
   spouseFinancialAlternateNameOther: '',
+  spouseFinancialSecondAlternateName: '',
+  spouseFinancialSecondAlternateNameOther: '',
   legalIssues: '',
   spouseLegalIssues: '',
   importantPapersLocation: '',

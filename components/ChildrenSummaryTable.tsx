@@ -51,7 +51,7 @@ const ChildrenSummaryTable: React.FC<ChildrenSummaryTableProps> = ({
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a237e' }}>
+        <Typography variant="h4" sx={{ fontWeight: 600, color: '#1a237e' }}>
           Children ({children.length})
         </Typography>
         <Button
