@@ -6,69 +6,213 @@ import {
   TextField,
   Typography,
   Grid,
-  FormControl,
   FormLabel,
-  Select,
-  MenuItem,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
   Checkbox,
+  FormControlLabel,
   FormGroup,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Tabs,
   Tab,
   Button,
   IconButton,
   Paper,
+  Collapse,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PersonIcon from '@mui/icons-material/Person';
 import PeopleIcon from '@mui/icons-material/People';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 import {
   useFormContext,
   MaritalStatus,
   CurrentEstatePlanData,
-  SpecificGift,
-  DocumentReviewOption,
 } from '../lib/FormContext';
 import { VideoHelpIcon, HelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
-const US_STATES = [
-  'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
-  'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
-  'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan',
-  'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
-  'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio',
-  'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota',
-  'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia',
-  'Wisconsin', 'Wyoming', 'District of Columbia',
+// Document type definitions
+type DocumentType = 'will' | 'trust' | 'financialPOA' | 'healthCarePOA' | 'livingWill';
+
+interface DocumentTypeConfig {
+  key: DocumentType;
+  label: string;
+  uploadField: keyof CurrentEstatePlanData;
+}
+
+const DOCUMENT_TYPES: DocumentTypeConfig[] = [
+  { key: 'will', label: 'Will', uploadField: 'willUploadedFiles' },
+  { key: 'trust', label: 'Trust', uploadField: 'trustUploadedFiles' },
+  { key: 'financialPOA', label: 'Financial Power of Attorney', uploadField: 'financialPOAUploadedFiles' },
+  { key: 'healthCarePOA', label: 'Health Care Power of Attorney', uploadField: 'healthCarePOAUploadedFiles' },
+  { key: 'livingWill', label: 'Living Will', uploadField: 'livingWillUploadedFiles' },
 ];
 
-const RELATIONSHIP_OPTIONS = [
-  'Spouse',
-  'Child',
-  'Grandchild',
-  'Sibling',
-  'Parent',
-  'Friend',
-  'Charity',
-  'Other',
-];
+// Document Upload Modal
+interface DocumentUploadModalProps {
+  open: boolean;
+  onClose: () => void;
+  documentType: string;
+  uploadedFiles: string[];
+  onFilesChange: (files: string[]) => void;
+  headerColor: string;
+}
 
-const emptySpecificGift: SpecificGift = {
-  recipientName: '',
-  relationship: '',
-  description: '',
-  notes: '',
+const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
+  open,
+  onClose,
+  documentType,
+  uploadedFiles,
+  onFilesChange,
+  headerColor,
+}) => {
+  const [dragOver, setDragOver] = useState(false);
+
+  const handleFileSelect = (files: FileList | null) => {
+    if (files) {
+      const fileNames = Array.from(files).map((f) => f.name);
+      onFilesChange([...uploadedFiles, ...fileNames]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    handleFileSelect(e.dataTransfer.files);
+  };
+
+  const handleRemoveFile = (index: number) => {
+    const updated = uploadedFiles.filter((_, i) => i !== index);
+    onFilesChange(updated);
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          bgcolor: headerColor,
+          color: 'white',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <CloudUploadIcon />
+          <Typography variant="h6" component="span">
+            Upload {documentType}
+          </Typography>
+        </Box>
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{ color: 'white' }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent sx={{ pt: 3 }}>
+        <Box
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          sx={{
+            border: dragOver ? `2px solid ${headerColor}` : '2px dashed #ccc',
+            borderRadius: 2,
+            p: 4,
+            textAlign: 'center',
+            bgcolor: dragOver ? 'action.hover' : 'grey.50',
+            transition: 'all 0.2s ease',
+            cursor: 'pointer',
+            mt: 2,
+          }}
+        >
+          <CloudUploadIcon sx={{ fontSize: 48, color: dragOver ? headerColor : 'grey.500', mb: 1 }} />
+          <Typography variant="body1" color="text.secondary" gutterBottom>
+            Drag and drop your {documentType} document here
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            or
+          </Typography>
+          <Button
+            variant="contained"
+            component="label"
+            startIcon={<AttachFileIcon />}
+            sx={{ bgcolor: headerColor }}
+          >
+            Browse Files
+            <input
+              type="file"
+              hidden
+              multiple
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              onChange={(e) => handleFileSelect(e.target.files)}
+            />
+          </Button>
+          <Typography variant="caption" display="block" sx={{ mt: 2, color: 'text.secondary' }}>
+            Accepted formats: PDF, DOC, DOCX, JPG, PNG
+          </Typography>
+        </Box>
+
+        {uploadedFiles.length > 0 && (
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
+              Uploaded Files ({uploadedFiles.length}):
+            </Typography>
+            <Paper variant="outlined" sx={{ p: 1 }}>
+              {uploadedFiles.map((file, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    py: 0.5,
+                    px: 1,
+                    borderBottom: index < uploadedFiles.length - 1 ? '1px solid' : 'none',
+                    borderColor: 'divider',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <AttachFileIcon fontSize="small" color="action" />
+                    <Typography variant="body2">{file}</Typography>
+                  </Box>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleRemoveFile(index)}
+                    color="error"
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ))}
+            </Paper>
+          </Box>
+        )}
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={onClose} variant="contained" sx={{ bgcolor: headerColor }}>
+          Done
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 };
 
 interface PersonCurrentEstatePlanProps {
@@ -76,7 +220,6 @@ interface PersonCurrentEstatePlanProps {
   onChange: (field: keyof CurrentEstatePlanData, value: CurrentEstatePlanData[keyof CurrentEstatePlanData]) => void;
   onChangeMultiple: (updates: Partial<CurrentEstatePlanData>) => void;
   personLabel: string;
-  showSpouse: boolean;
   headerColor?: string;
   openHelp: (helpId: number) => void;
 }
@@ -86,772 +229,407 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
   onChange,
   onChangeMultiple,
   personLabel,
-  showSpouse,
   headerColor = '#1a237e',
   openHelp,
 }) => {
-  const hasAnyDocument = data.hasWill || data.hasTrust || data.hasFinancialPOA || data.hasHealthCarePOA || data.hasLivingWill;
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [activeDocumentType, setActiveDocumentType] = useState<DocumentTypeConfig | null>(null);
 
-  const handleAddGift = (field: 'willSpecificRealEstateGifts' | 'willSpecificAssetGifts' | 'willGeneralMoneyGifts' | 'trustSpecificRealEstateGifts' | 'trustSpecificAssetGifts' | 'trustGeneralMoneyGifts') => {
-    const currentGifts = data[field] as SpecificGift[];
-    onChange(field, [...currentGifts, { ...emptySpecificGift }]);
+  const handleOpenUploadModal = (docType: DocumentTypeConfig) => {
+    setActiveDocumentType(docType);
+    setUploadModalOpen(true);
   };
 
-  const handleUpdateGift = (
-    field: 'willSpecificRealEstateGifts' | 'willSpecificAssetGifts' | 'willGeneralMoneyGifts' | 'trustSpecificRealEstateGifts' | 'trustSpecificAssetGifts' | 'trustGeneralMoneyGifts',
-    index: number,
-    giftField: keyof SpecificGift,
-    value: string
-  ) => {
-    const currentGifts = [...(data[field] as SpecificGift[])];
-    currentGifts[index] = { ...currentGifts[index], [giftField]: value };
-    onChange(field, currentGifts);
+  const handleCloseUploadModal = () => {
+    setUploadModalOpen(false);
+    setActiveDocumentType(null);
   };
 
-  const handleRemoveGift = (
-    field: 'willSpecificRealEstateGifts' | 'willSpecificAssetGifts' | 'willGeneralMoneyGifts' | 'trustSpecificRealEstateGifts' | 'trustSpecificAssetGifts' | 'trustGeneralMoneyGifts',
-    index: number
-  ) => {
-    const currentGifts = [...(data[field] as SpecificGift[])];
-    currentGifts.splice(index, 1);
-    onChange(field, currentGifts);
+  const getUploadedFiles = (field: keyof CurrentEstatePlanData): string[] => {
+    const value = data[field];
+    return Array.isArray(value) ? value as string[] : [];
   };
 
-  const renderGiftSection = (
-    title: string,
-    field: 'willSpecificRealEstateGifts' | 'willSpecificAssetGifts' | 'willGeneralMoneyGifts' | 'trustSpecificRealEstateGifts' | 'trustSpecificAssetGifts' | 'trustGeneralMoneyGifts',
-    descriptionLabel: string,
-    helpId: number
-  ) => {
-    const gifts = data[field] as SpecificGift[];
-    return (
-      <Box sx={{ mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>{title}</FormLabel>
-          <HelpIcon helpId={helpId} onClick={() => openHelp(helpId)} />
-        </Box>
-        {gifts.map((gift, index) => (
-          <Paper key={index} sx={{ p: 2, mb: 2, bgcolor: 'grey.50' }}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={3}>
-                <TextField
-                  fullWidth
-                  label="Recipient Name"
-                  value={gift.recipientName}
-                  onChange={(e) => handleUpdateGift(field, index, 'recipientName', e.target.value)}
-                  size="small"
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <FormControl fullWidth size="small">
-                  <Select
-                    value={gift.relationship}
-                    onChange={(e) => handleUpdateGift(field, index, 'relationship', e.target.value)}
-                    displayEmpty
-                  >
-                    <MenuItem value="">Relationship</MenuItem>
-                    {RELATIONSHIP_OPTIONS.map((rel) => (
-                      <MenuItem key={rel} value={rel}>{rel}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label={descriptionLabel}
-                  value={gift.description}
-                  onChange={(e) => handleUpdateGift(field, index, 'description', e.target.value)}
-                  size="small"
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField
-                  fullWidth
-                  label="Notes"
-                  value={gift.notes}
-                  onChange={(e) => handleUpdateGift(field, index, 'notes', e.target.value)}
-                  size="small"
-                />
-              </Grid>
-              <Grid item xs={12} md={1}>
-                <IconButton
-                  onClick={() => handleRemoveGift(field, index)}
-                  color="error"
-                  size="small"
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Grid>
-            </Grid>
-          </Paper>
-        ))}
-        <Button
-          startIcon={<AddIcon />}
-          onClick={() => handleAddGift(field)}
-          variant="outlined"
-          size="small"
-        >
-          Add {title.replace('Specific Gifts of ', '').replace('General Gifts of ', '')}
-        </Button>
-      </Box>
-    );
+  const handleFilesChange = (files: string[]) => {
+    if (activeDocumentType) {
+      onChange(activeDocumentType.uploadField, files);
+    }
   };
 
   return (
     <Box>
-      {/* Section 1: Document Types */}
-      <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      {/* Document Checkboxes with inline fields */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
-            1. Existing Estate Planning Documents
+            Existing Estate Planning Documents
           </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Which of the following documents do you currently have?</FormLabel>
-                <HelpIcon helpId={200} onClick={() => openHelp(200)} />
-              </Box>
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={data.hasWill}
-                      onChange={(e) => {
-                        const updates: Partial<CurrentEstatePlanData> = { hasWill: e.target.checked };
-                        if (e.target.checked) updates.hasNone = false;
-                        onChangeMultiple(updates);
-                      }}
-                    />
-                  }
-                  label="Will (Last Will and Testament)"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={data.hasTrust}
-                      onChange={(e) => {
-                        const updates: Partial<CurrentEstatePlanData> = { hasTrust: e.target.checked };
-                        if (e.target.checked) updates.hasNone = false;
-                        onChangeMultiple(updates);
-                      }}
-                    />
-                  }
-                  label="Trust (Revocable Living Trust or Irrevocable Trust)"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={data.hasFinancialPOA}
-                      onChange={(e) => {
-                        const updates: Partial<CurrentEstatePlanData> = { hasFinancialPOA: e.target.checked };
-                        if (e.target.checked) updates.hasNone = false;
-                        onChangeMultiple(updates);
-                      }}
-                    />
-                  }
-                  label="Financial Power of Attorney (Durable Power of Attorney)"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={data.hasHealthCarePOA}
-                      onChange={(e) => {
-                        const updates: Partial<CurrentEstatePlanData> = { hasHealthCarePOA: e.target.checked };
-                        if (e.target.checked) updates.hasNone = false;
-                        onChangeMultiple(updates);
-                      }}
-                    />
-                  }
-                  label="Health Care Power of Attorney (Health Care Surrogate)"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={data.hasLivingWill}
-                      onChange={(e) => {
-                        const updates: Partial<CurrentEstatePlanData> = { hasLivingWill: e.target.checked };
-                        if (e.target.checked) updates.hasNone = false;
-                        onChangeMultiple(updates);
-                      }}
-                    />
-                  }
-                  label="Living Will (Advance Directive)"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={data.hasNone}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          onChangeMultiple({
-                            hasNone: true,
-                            hasWill: false,
-                            hasTrust: false,
-                            hasFinancialPOA: false,
-                            hasHealthCarePOA: false,
-                            hasLivingWill: false,
-                          });
-                        } else {
-                          onChangeMultiple({ hasNone: false });
-                        }
-                      }}
-                    />
-                  }
-                  label="None of the above"
-                />
-              </FormGroup>
-            </Grid>
+          <HelpIcon helpId={200} onClick={() => openHelp(200)} />
+        </Box>
 
-            {hasAnyDocument && (
-              <>
-                <Grid item xs={12} md={6}>
-                  <FormControl fullWidth>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>In which state were these documents prepared?</FormLabel>
-                      <HelpIcon helpId={201} onClick={() => openHelp(201)} />
-                    </Box>
-                    <Select
-                      value={data.documentState}
-                      onChange={(e) => onChange('documentState', e.target.value)}
-                      size="small"
-                    >
-                      <MenuItem value="">Select State...</MenuItem>
-                      {US_STATES.map((state) => (
-                        <MenuItem key={state} value={state}>{state}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>When were these documents signed?</FormLabel>
-                    <HelpIcon helpId={202} onClick={() => openHelp(202)} />
-                  </Box>
-                  <TextField
-                    fullWidth
-                    type="date"
-                    value={data.documentDate}
-                    onChange={(e) => onChange('documentDate', e.target.value)}
-                    size="small"
-                    InputLabelProps={{ shrink: true }}
+        <FormGroup>
+          {/* Will Checkbox */}
+          <Box sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={data.hasWill}
+                    onChange={(e) => {
+                      const updates: Partial<CurrentEstatePlanData> = { hasWill: e.target.checked };
+                      if (e.target.checked) updates.hasNone = false;
+                      onChangeMultiple(updates);
+                    }}
                   />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <FormControl component="fieldset">
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Would you like to upload your documents or answer questions about them?</FormLabel>
-                      <HelpIcon helpId={203} onClick={() => openHelp(203)} />
-                    </Box>
-                    <RadioGroup
-                      row
-                      value={data.reviewOption}
-                      onChange={(e) => onChange('reviewOption', e.target.value as DocumentReviewOption)}
-                    >
-                      <FormControlLabel value="Upload" control={<Radio size="small" />} label="Upload Documents" />
-                      <FormControlLabel value="Answer Questions" control={<Radio size="small" />} label="Answer Questions" />
-                    </RadioGroup>
-                  </FormControl>
-                </Grid>
-
-                {data.reviewOption === 'Upload' && (
-                  <Grid item xs={12}>
-                    <Box
-                      sx={{
-                        border: '2px dashed #ccc',
-                        borderRadius: 2,
-                        p: 4,
-                        textAlign: 'center',
-                        bgcolor: 'grey.50',
-                      }}
-                    >
-                      <CloudUploadIcon sx={{ fontSize: 48, color: 'grey.500', mb: 1 }} />
-                      <Typography variant="body1" color="text.secondary" gutterBottom>
-                        Drag and drop files here, or click to browse
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        component="label"
-                        startIcon={<CloudUploadIcon />}
-                        sx={{ bgcolor: headerColor }}
-                      >
-                        Upload Documents
-                        <input
-                          type="file"
-                          hidden
-                          multiple
-                          accept=".pdf,.doc,.docx"
-                          onChange={(e) => {
-                            const files = e.target.files;
-                            if (files) {
-                              const fileNames = Array.from(files).map((f) => f.name);
-                              onChange('uploadedFiles', [...data.uploadedFiles, ...fileNames]);
-                            }
-                          }}
-                        />
-                      </Button>
-                      {data.uploadedFiles.length > 0 && (
-                        <Box sx={{ mt: 2 }}>
-                          <Typography variant="subtitle2" gutterBottom>Uploaded Files:</Typography>
-                          {data.uploadedFiles.map((file, index) => (
-                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                              <Typography variant="body2">{file}</Typography>
-                              <IconButton
-                                size="small"
-                                onClick={() => {
-                                  const updated = data.uploadedFiles.filter((_, i) => i !== index);
-                                  onChange('uploadedFiles', updated);
-                                }}
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Box>
-                          ))}
-                        </Box>
-                      )}
-                    </Box>
-                  </Grid>
-                )}
-              </>
-            )}
-          </Grid>
-        </AccordionDetails>
-      </Accordion>
-
-      {/* Section 2: Will Details */}
-      {data.hasWill && data.reviewOption === 'Answer Questions' && (
-        <Accordion defaultExpanded>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
-              2. Will Details
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 2 }}>
+                }
+                label="Will (Last Will and Testament)"
+              />
+              {data.hasWill && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<CloudUploadIcon />}
+                  onClick={() => handleOpenUploadModal(DOCUMENT_TYPES[0])}
+                  sx={{ borderColor: headerColor, color: headerColor }}
+                >
+                  Upload{getUploadedFiles('willUploadedFiles').length > 0 && ` (${getUploadedFiles('willUploadedFiles').length})`}
+                </Button>
+              )}
+            </Box>
+            <Collapse in={data.hasWill}>
+              <Box sx={{ ml: 4, mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, borderLeft: `3px solid ${headerColor}` }}>
+                <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 500, color: headerColor }}>
                   Personal Representative (Executor)
                 </Typography>
-              </Grid>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Primary Personal Representative"
+                      value={data.willPersonalRep}
+                      onChange={(e) => onChange('willPersonalRep', e.target.value)}
+                      size="small"
+                      placeholder="Name"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="First Alternate"
+                      value={data.willPersonalRepAlternate1}
+                      onChange={(e) => onChange('willPersonalRepAlternate1', e.target.value)}
+                      size="small"
+                      placeholder="Name"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Second Alternate"
+                      value={data.willPersonalRepAlternate2}
+                      onChange={(e) => onChange('willPersonalRepAlternate2', e.target.value)}
+                      size="small"
+                      placeholder="Name"
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+            </Collapse>
+          </Box>
 
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>First Choice Personal Representative</FormLabel>
-                  <HelpIcon helpId={204} onClick={() => openHelp(204)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.willPersonalRep}
-                  onChange={(e) => onChange('willPersonalRep', e.target.value)}
+          {/* Trust Checkbox */}
+          <Box sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={data.hasTrust}
+                    onChange={(e) => {
+                      const updates: Partial<CurrentEstatePlanData> = { hasTrust: e.target.checked };
+                      if (e.target.checked) updates.hasNone = false;
+                      onChangeMultiple(updates);
+                    }}
+                  />
+                }
+                label="Trust (Revocable Living Trust or Irrevocable Trust)"
+              />
+              {data.hasTrust && (
+                <Button
                   size="small"
-                  placeholder="Name of Personal Representative"
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>First Alternate</FormLabel>
-                  <HelpIcon helpId={205} onClick={() => openHelp(205)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.willPersonalRepAlternate1}
-                  onChange={(e) => onChange('willPersonalRepAlternate1', e.target.value)}
-                  size="small"
-                  placeholder="First Alternate"
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Second Alternate</FormLabel>
-                  <HelpIcon helpId={206} onClick={() => openHelp(206)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.willPersonalRepAlternate2}
-                  onChange={(e) => onChange('willPersonalRepAlternate2', e.target.value)}
-                  size="small"
-                  placeholder="Second Alternate"
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 2, mt: 2 }}>
-                  Beneficiaries
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Primary Beneficiary</FormLabel>
-                  <HelpIcon helpId={207} onClick={() => openHelp(207)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.willPrimaryBeneficiary}
-                  onChange={(e) => onChange('willPrimaryBeneficiary', e.target.value)}
-                  size="small"
-                  placeholder="Who is the primary beneficiary?"
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Secondary Beneficiaries</FormLabel>
-                  <HelpIcon helpId={208} onClick={() => openHelp(208)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.willSecondaryBeneficiaries}
-                  onChange={(e) => onChange('willSecondaryBeneficiaries', e.target.value)}
-                  size="small"
-                  placeholder="Who are the secondary beneficiaries?"
-                  multiline
-                  rows={2}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 2, mt: 2 }}>
-                  Specific Gifts
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12}>
-                {renderGiftSection('Specific Gifts of Real Estate', 'willSpecificRealEstateGifts', 'Property Address/Description', 209)}
-              </Grid>
-
-              <Grid item xs={12}>
-                {renderGiftSection('Specific Gifts of Other Assets', 'willSpecificAssetGifts', 'Asset Description', 210)}
-              </Grid>
-
-              <Grid item xs={12}>
-                {renderGiftSection('General Gifts of Money', 'willGeneralMoneyGifts', 'Amount', 211)}
-              </Grid>
-            </Grid>
-          </AccordionDetails>
-        </Accordion>
-      )}
-
-      {/* Section 3: Trust Details */}
-      {data.hasTrust && data.reviewOption === 'Answer Questions' && (
-        <Accordion defaultExpanded>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
-              3. Trust Details
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 2 }}>
+                  variant="outlined"
+                  startIcon={<CloudUploadIcon />}
+                  onClick={() => handleOpenUploadModal(DOCUMENT_TYPES[1])}
+                  sx={{ borderColor: headerColor, color: headerColor }}
+                >
+                  Upload{getUploadedFiles('trustUploadedFiles').length > 0 && ` (${getUploadedFiles('trustUploadedFiles').length})`}
+                </Button>
+              )}
+            </Box>
+            <Collapse in={data.hasTrust}>
+              <Box sx={{ ml: 4, mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, borderLeft: `3px solid ${headerColor}` }}>
+                <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 500, color: headerColor }}>
                   Trustee
                 </Typography>
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>First Choice Trustee</FormLabel>
-                  <HelpIcon helpId={212} onClick={() => openHelp(212)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.trustTrustee}
-                  onChange={(e) => onChange('trustTrustee', e.target.value)}
-                  size="small"
-                  placeholder="Name of Trustee"
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>First Alternate Trustee</FormLabel>
-                  <HelpIcon helpId={213} onClick={() => openHelp(213)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.trustTrusteeAlternate1}
-                  onChange={(e) => onChange('trustTrusteeAlternate1', e.target.value)}
-                  size="small"
-                  placeholder="First Alternate"
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Second Alternate Trustee</FormLabel>
-                  <HelpIcon helpId={214} onClick={() => openHelp(214)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.trustTrusteeAlternate2}
-                  onChange={(e) => onChange('trustTrusteeAlternate2', e.target.value)}
-                  size="small"
-                  placeholder="Second Alternate"
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 2, mt: 2 }}>
-                  Beneficiaries
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Primary Beneficiary</FormLabel>
-                  <HelpIcon helpId={215} onClick={() => openHelp(215)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.trustPrimaryBeneficiary}
-                  onChange={(e) => onChange('trustPrimaryBeneficiary', e.target.value)}
-                  size="small"
-                  placeholder="Who is the primary beneficiary?"
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Secondary Beneficiaries</FormLabel>
-                  <HelpIcon helpId={216} onClick={() => openHelp(216)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.trustSecondaryBeneficiaries}
-                  onChange={(e) => onChange('trustSecondaryBeneficiaries', e.target.value)}
-                  size="small"
-                  placeholder="Who are the secondary beneficiaries?"
-                  multiline
-                  rows={2}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 2, mt: 2 }}>
-                  Specific Gifts
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12}>
-                {renderGiftSection('Specific Gifts of Real Estate', 'trustSpecificRealEstateGifts', 'Property Address/Description', 217)}
-              </Grid>
-
-              <Grid item xs={12}>
-                {renderGiftSection('Specific Gifts of Other Assets', 'trustSpecificAssetGifts', 'Asset Description', 218)}
-              </Grid>
-
-              <Grid item xs={12}>
-                {renderGiftSection('General Gifts of Money', 'trustGeneralMoneyGifts', 'Amount', 219)}
-              </Grid>
-            </Grid>
-          </AccordionDetails>
-        </Accordion>
-      )}
-
-      {/* Section 4: Financial POA Details */}
-      {data.hasFinancialPOA && data.reviewOption === 'Answer Questions' && (
-        <Accordion defaultExpanded>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
-              4. Financial Power of Attorney Details
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>First Agent</FormLabel>
-                  <HelpIcon helpId={220} onClick={() => openHelp(220)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.financialPOAAgent1}
-                  onChange={(e) => onChange('financialPOAAgent1', e.target.value)}
-                  size="small"
-                  placeholder="Name of First Agent"
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Second Agent</FormLabel>
-                  <HelpIcon helpId={221} onClick={() => openHelp(221)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.financialPOAAgent2}
-                  onChange={(e) => onChange('financialPOAAgent2', e.target.value)}
-                  size="small"
-                  placeholder="Name of Second Agent"
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Third Agent</FormLabel>
-                  <HelpIcon helpId={222} onClick={() => openHelp(222)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.financialPOAAgent3}
-                  onChange={(e) => onChange('financialPOAAgent3', e.target.value)}
-                  size="small"
-                  placeholder="Name of Third Agent"
-                />
-              </Grid>
-            </Grid>
-          </AccordionDetails>
-        </Accordion>
-      )}
-
-      {/* Section 5: Health Care POA Details */}
-      {data.hasHealthCarePOA && data.reviewOption === 'Answer Questions' && (
-        <Accordion defaultExpanded>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
-              5. Health Care Power of Attorney Details
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>First Agent</FormLabel>
-                  <HelpIcon helpId={223} onClick={() => openHelp(223)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.healthCarePOAAgent1}
-                  onChange={(e) => onChange('healthCarePOAAgent1', e.target.value)}
-                  size="small"
-                  placeholder="Name of First Agent"
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Second Agent</FormLabel>
-                  <HelpIcon helpId={224} onClick={() => openHelp(224)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.healthCarePOAAgent2}
-                  onChange={(e) => onChange('healthCarePOAAgent2', e.target.value)}
-                  size="small"
-                  placeholder="Name of Second Agent"
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Third Agent</FormLabel>
-                  <HelpIcon helpId={225} onClick={() => openHelp(225)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={data.healthCarePOAAgent3}
-                  onChange={(e) => onChange('healthCarePOAAgent3', e.target.value)}
-                  size="small"
-                  placeholder="Name of Third Agent"
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 2, mt: 2 }}>
-                  Additional Health Care Directives
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <FormControl component="fieldset">
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Is the Health Care POA HIPAA compliant?</FormLabel>
-                    <HelpIcon helpId={226} onClick={() => openHelp(226)} />
-                  </Box>
-                  <RadioGroup
-                    row
-                    value={data.isHIPAACompliant ? 'yes' : 'no'}
-                    onChange={(e) => onChange('isHIPAACompliant', e.target.value === 'yes')}
-                  >
-                    <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-                    <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-                  </RadioGroup>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <FormControl component="fieldset">
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you have a Do Not Resuscitate (DNR) Order?</FormLabel>
-                    <HelpIcon helpId={227} onClick={() => openHelp(227)} />
-                  </Box>
-                  <RadioGroup
-                    row
-                    value={data.hasDNROrder ? 'yes' : 'no'}
-                    onChange={(e) => onChange('hasDNROrder', e.target.value === 'yes')}
-                  >
-                    <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-                    <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-                  </RadioGroup>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <FormControl component="fieldset">
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you have a Living Will?</FormLabel>
-                    <HelpIcon helpId={228} onClick={() => openHelp(228)} />
-                  </Box>
-                  <RadioGroup
-                    row
-                    value={data.hasLivingWillDocument ? 'yes' : 'no'}
-                    onChange={(e) => onChange('hasLivingWillDocument', e.target.value === 'yes')}
-                  >
-                    <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-                    <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-                  </RadioGroup>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </AccordionDetails>
-        </Accordion>
-      )}
-
-      {/* Section 6: Comments */}
-      <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
-            {data.reviewOption === 'Answer Questions' ? '6. Additional Comments' : '2. Additional Comments'}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>
-                  Any additional comments or concerns about your current estate plan?
-                </FormLabel>
-                <HelpIcon helpId={229} onClick={() => openHelp(229)} />
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Primary Trustee"
+                      value={data.trustTrustee}
+                      onChange={(e) => onChange('trustTrustee', e.target.value)}
+                      size="small"
+                      placeholder="Name"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="First Alternate"
+                      value={data.trustTrusteeAlternate1}
+                      onChange={(e) => onChange('trustTrusteeAlternate1', e.target.value)}
+                      size="small"
+                      placeholder="Name"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Second Alternate"
+                      value={data.trustTrusteeAlternate2}
+                      onChange={(e) => onChange('trustTrusteeAlternate2', e.target.value)}
+                      size="small"
+                      placeholder="Name"
+                    />
+                  </Grid>
+                </Grid>
               </Box>
-              <TextField
-                fullWidth
-                value={data.comments}
-                onChange={(e) => onChange('comments', e.target.value)}
-                multiline
-                rows={4}
-                variant="outlined"
-                placeholder="Enter any additional information about your existing estate planning documents..."
+            </Collapse>
+          </Box>
+
+          {/* Financial POA Checkbox */}
+          <Box sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={data.hasFinancialPOA}
+                    onChange={(e) => {
+                      const updates: Partial<CurrentEstatePlanData> = { hasFinancialPOA: e.target.checked };
+                      if (e.target.checked) updates.hasNone = false;
+                      onChangeMultiple(updates);
+                    }}
+                  />
+                }
+                label="Financial Power of Attorney (Durable Power of Attorney)"
               />
-            </Grid>
-          </Grid>
-        </AccordionDetails>
-      </Accordion>
+              {data.hasFinancialPOA && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<CloudUploadIcon />}
+                  onClick={() => handleOpenUploadModal(DOCUMENT_TYPES[2])}
+                  sx={{ borderColor: headerColor, color: headerColor }}
+                >
+                  Upload{getUploadedFiles('financialPOAUploadedFiles').length > 0 && ` (${getUploadedFiles('financialPOAUploadedFiles').length})`}
+                </Button>
+              )}
+            </Box>
+            <Collapse in={data.hasFinancialPOA}>
+              <Box sx={{ ml: 4, mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, borderLeft: `3px solid ${headerColor}` }}>
+                <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 500, color: headerColor }}>
+                  Financial Power of Attorney Agent
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Primary Agent"
+                      value={data.financialPOAAgent1}
+                      onChange={(e) => onChange('financialPOAAgent1', e.target.value)}
+                      size="small"
+                      placeholder="Name"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="First Alternate"
+                      value={data.financialPOAAgent2}
+                      onChange={(e) => onChange('financialPOAAgent2', e.target.value)}
+                      size="small"
+                      placeholder="Name"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Second Alternate"
+                      value={data.financialPOAAgent3}
+                      onChange={(e) => onChange('financialPOAAgent3', e.target.value)}
+                      size="small"
+                      placeholder="Name"
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+            </Collapse>
+          </Box>
+
+          {/* Health Care POA Checkbox */}
+          <Box sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={data.hasHealthCarePOA}
+                    onChange={(e) => {
+                      const updates: Partial<CurrentEstatePlanData> = { hasHealthCarePOA: e.target.checked };
+                      if (e.target.checked) updates.hasNone = false;
+                      onChangeMultiple(updates);
+                    }}
+                  />
+                }
+                label="Health Care Power of Attorney (Health Care Surrogate)"
+              />
+              {data.hasHealthCarePOA && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<CloudUploadIcon />}
+                  onClick={() => handleOpenUploadModal(DOCUMENT_TYPES[3])}
+                  sx={{ borderColor: headerColor, color: headerColor }}
+                >
+                  Upload{getUploadedFiles('healthCarePOAUploadedFiles').length > 0 && ` (${getUploadedFiles('healthCarePOAUploadedFiles').length})`}
+                </Button>
+              )}
+            </Box>
+            <Collapse in={data.hasHealthCarePOA}>
+              <Box sx={{ ml: 4, mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, borderLeft: `3px solid ${headerColor}` }}>
+                <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 500, color: headerColor }}>
+                  Health Care Power of Attorney Agent
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Primary Agent"
+                      value={data.healthCarePOAAgent1}
+                      onChange={(e) => onChange('healthCarePOAAgent1', e.target.value)}
+                      size="small"
+                      placeholder="Name"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="First Alternate"
+                      value={data.healthCarePOAAgent2}
+                      onChange={(e) => onChange('healthCarePOAAgent2', e.target.value)}
+                      size="small"
+                      placeholder="Name"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Second Alternate"
+                      value={data.healthCarePOAAgent3}
+                      onChange={(e) => onChange('healthCarePOAAgent3', e.target.value)}
+                      size="small"
+                      placeholder="Name"
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+            </Collapse>
+          </Box>
+
+          {/* Living Will Checkbox */}
+          <Box sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={data.hasLivingWill}
+                    onChange={(e) => {
+                      const updates: Partial<CurrentEstatePlanData> = { hasLivingWill: e.target.checked };
+                      if (e.target.checked) updates.hasNone = false;
+                      onChangeMultiple(updates);
+                    }}
+                  />
+                }
+                label="Living Will (Advance Directive)"
+              />
+              {data.hasLivingWill && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<CloudUploadIcon />}
+                  onClick={() => handleOpenUploadModal(DOCUMENT_TYPES[4])}
+                  sx={{ borderColor: headerColor, color: headerColor }}
+                >
+                  Upload{getUploadedFiles('livingWillUploadedFiles').length > 0 && ` (${getUploadedFiles('livingWillUploadedFiles').length})`}
+                </Button>
+              )}
+            </Box>
+          </Box>
+
+          {/* None Checkbox */}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={data.hasNone}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    onChangeMultiple({
+                      hasNone: true,
+                      hasWill: false,
+                      hasTrust: false,
+                      hasFinancialPOA: false,
+                      hasHealthCarePOA: false,
+                      hasLivingWill: false,
+                    });
+                  } else {
+                    onChangeMultiple({ hasNone: false });
+                  }
+                }}
+              />
+            }
+            label="None of the above"
+          />
+        </FormGroup>
+      </Paper>
+
+      {/* Additional Comments */}
+      <Paper sx={{ p: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
+            Additional Comments
+          </Typography>
+          <HelpIcon helpId={229} onClick={() => openHelp(229)} />
+        </Box>
+        <TextField
+          fullWidth
+          value={data.comments}
+          onChange={(e) => onChange('comments', e.target.value)}
+          multiline
+          rows={4}
+          variant="outlined"
+          placeholder="Enter any additional information about your existing estate planning documents..."
+        />
+      </Paper>
+
+      {/* Upload Modal */}
+      {activeDocumentType && (
+        <DocumentUploadModal
+          open={uploadModalOpen}
+          onClose={handleCloseUploadModal}
+          documentType={activeDocumentType.label}
+          uploadedFiles={getUploadedFiles(activeDocumentType.uploadField)}
+          onFilesChange={handleFilesChange}
+          headerColor={headerColor}
+        />
+      )}
     </Box>
   );
 };
@@ -868,6 +646,11 @@ const getDefaultEstatePlanData = (): CurrentEstatePlanData => ({
   documentDate: '',
   reviewOption: '',
   uploadedFiles: [],
+  willUploadedFiles: [],
+  trustUploadedFiles: [],
+  financialPOAUploadedFiles: [],
+  healthCarePOAUploadedFiles: [],
+  livingWillUploadedFiles: [],
   willPersonalRep: '',
   willPersonalRepAlternate1: '',
   willPersonalRepAlternate2: '',
@@ -1005,7 +788,6 @@ const CurrentEstatePlanSection: React.FC = () => {
               onChange={handleClientChange}
               onChangeMultiple={handleClientChangeMultiple}
               personLabel={clientName}
-              showSpouse={showSpouse}
               headerColor="#1a237e"
               openHelp={openHelp}
             />
@@ -1017,7 +799,6 @@ const CurrentEstatePlanSection: React.FC = () => {
               onChange={handleSpouseChange}
               onChangeMultiple={handleSpouseChangeMultiple}
               personLabel={spouseName}
-              showSpouse={showSpouse}
               headerColor="#2e7d32"
               openHelp={openHelp}
             />
@@ -1029,7 +810,6 @@ const CurrentEstatePlanSection: React.FC = () => {
           onChange={handleClientChange}
           onChangeMultiple={handleClientChangeMultiple}
           personLabel={clientName}
-          showSpouse={false}
           headerColor="#1a237e"
           openHelp={openHelp}
         />

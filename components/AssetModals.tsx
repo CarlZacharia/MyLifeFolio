@@ -81,6 +81,25 @@ export interface TrustFlags {
   spouseHasIrrevocableTrust: boolean;
 }
 
+// Property Category Types
+export type PropertyCategory =
+  | "Primary residence"
+  | "Vacation home"
+  | "Rental property"
+  | "Vacant land"
+  | "Commercial property"
+  | "Timeshare"
+  | "";
+
+export const PROPERTY_CATEGORIES: PropertyCategory[] = [
+  "Primary residence",
+  "Vacation home",
+  "Rental property",
+  "Vacant land",
+  "Commercial property",
+  "Timeshare",
+];
+
 const getOwnershipFormOptions = (
   owner: RealEstateOwner,
   trustFlags?: TrustFlags
@@ -304,6 +323,7 @@ const JointOwnerSelector: React.FC<JointOwnerSelectorProps> = ({
 export interface RealEstateData {
   owner: RealEstateOwner;
   ownershipForm: OwnershipForm;
+  category: PropertyCategory;
   showBeneficiaries: boolean;
   showOther: boolean;
   jointOwnerBeneficiaries: string[];
@@ -327,6 +347,7 @@ export interface RealEstateData {
 const emptyRealEstate: RealEstateData = {
   owner: "" as RealEstateOwner,
   ownershipForm: "" as OwnershipForm,
+  category: "" as PropertyCategory,
   showBeneficiaries: false,
   showOther: false,
   jointOwnerBeneficiaries: [],
@@ -504,6 +525,24 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
                     </MenuItem>
                   )
                 )}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Property Category</InputLabel>
+              <Select
+                value={data.category}
+                label="Property Category"
+                onChange={(e) =>
+                  handleChange({ category: e.target.value as PropertyCategory })
+                }
+              >
+                {PROPERTY_CATEGORIES.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>

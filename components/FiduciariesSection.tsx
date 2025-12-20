@@ -92,10 +92,16 @@ const FiduciariesSection = () => {
   const openHelp = (helpId: number) => setActiveHelpId(helpId);
   const closeHelp = () => setActiveHelpId(null);
 
-  // Show Trustee section only if client or spouse has a trust
+  // Show Trustee section if client or spouse has a trust OR is considering one
   const clientHasTrust = formData.clientHasLivingTrust || formData.clientHasIrrevocableTrust;
+  const clientConsideringTrust = formData.clientConsideringTrust;
+  const showClientTrustee = clientHasTrust || clientConsideringTrust;
+
   const spouseHasTrust = formData.spouseHasLivingTrust || formData.spouseHasIrrevocableTrust;
-  const showTrusteeSection = clientHasTrust || spouseHasTrust;
+  const spouseConsideringTrust = formData.spouseConsideringTrust;
+  const showSpouseTrustee = spouseHasTrust || spouseConsideringTrust;
+
+  const showTrusteeSection = showClientTrustee || showSpouseTrustee;
 
   const handleChange = (field: keyof FormData) => (value: string) => {
     updateFormData({ [field]: value });
@@ -162,15 +168,15 @@ const FiduciariesSection = () => {
         <VideoHelpIcon helpId={104} onClick={() => openHelp(104)} size="medium" />
       </Box>
 
-      {/* Executor */}
+      {/* Personal Representative */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6" sx={{ fontWeight: 500 }}>
-          1. Executor
+          1. Personal Representative
         </Typography>
         <HelpIcon helpId={120} onClick={() => openHelp(120)} />
       </Box>
       <Typography variant="body2" sx={{ mb: 2 }}>
-        Whom do you want to serve as your Executor? List at least two names.
+        Whom do you want to serve as your Personal Representative (Executor)? List at least two names.
       </Typography>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -432,7 +438,7 @@ const FiduciariesSection = () => {
         )}
       </Grid>
 
-      {/* Trustee - only show if client or spouse has a trust */}
+      {/* Trustee - only show if client or spouse has a trust or is considering one */}
       {showTrusteeSection && (
         <>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -442,16 +448,16 @@ const FiduciariesSection = () => {
             <HelpIcon helpId={123} onClick={() => openHelp(123)} />
           </Box>
           <Typography variant="body2" sx={{ mb: 2 }}>
-            Whom do you want to serve as your Trustee for any Trust created under your will?
+            Whom do you want to serve as your Trustee for any Trust created under your estate plan?
           </Typography>
 
           <Grid container spacing={3} sx={{ mb: 4 }}>
-            {clientHasTrust && (
+            {showClientTrustee && (
               <>
                 <Grid item xs={12}>
                   <Typography variant="subtitle2" sx={{ mb: 1 }}>Client</Typography>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <FiduciarySelect
                     label="First Choice"
                     value={formData.trusteeFirst}
@@ -461,7 +467,7 @@ const FiduciariesSection = () => {
                     options={clientBeneficiaryOptions}
                   />
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <FiduciarySelect
                     label="Alternate"
                     value={formData.trusteeAlternate}
@@ -472,16 +478,27 @@ const FiduciariesSection = () => {
                     excludeValues={[formData.trusteeFirst]}
                   />
                 </Grid>
+                <Grid item xs={12} md={4}>
+                  <FiduciarySelect
+                    label="Second Alternate (Optional)"
+                    value={formData.trusteeSecondAlternate}
+                    otherValue={formData.trusteeSecondAlternateOther}
+                    onChange={handleChange('trusteeSecondAlternate')}
+                    onOtherChange={handleChange('trusteeSecondAlternateOther')}
+                    options={clientBeneficiaryOptions}
+                    excludeValues={[formData.trusteeFirst, formData.trusteeAlternate]}
+                  />
+                </Grid>
               </>
             )}
 
-            {showSpouseInfo && spouseHasTrust && (
+            {showSpouseInfo && showSpouseTrustee && (
               <>
                 <Grid item xs={12}>
                   <Divider sx={{ my: 1 }} />
                   <Typography variant="subtitle2" sx={{ mb: 1 }}>Spouse</Typography>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <FiduciarySelect
                     label="First Choice"
                     value={formData.spouseTrusteeFirst}
@@ -491,7 +508,7 @@ const FiduciariesSection = () => {
                     options={spouseBeneficiaryOptions}
                   />
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <FiduciarySelect
                     label="Alternate"
                     value={formData.spouseTrusteeAlternate}
@@ -500,6 +517,17 @@ const FiduciariesSection = () => {
                     onOtherChange={handleChange('spouseTrusteeAlternateOther')}
                     options={spouseBeneficiaryOptions}
                     excludeValues={[formData.spouseTrusteeFirst]}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <FiduciarySelect
+                    label="Second Alternate (Optional)"
+                    value={formData.spouseTrusteeSecondAlternate}
+                    otherValue={formData.spouseTrusteeSecondAlternateOther}
+                    onChange={handleChange('spouseTrusteeSecondAlternate')}
+                    onOtherChange={handleChange('spouseTrusteeSecondAlternateOther')}
+                    options={spouseBeneficiaryOptions}
+                    excludeValues={[formData.spouseTrusteeFirst, formData.spouseTrusteeAlternate]}
                   />
                 </Grid>
               </>

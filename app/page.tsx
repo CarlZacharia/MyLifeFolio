@@ -12,7 +12,7 @@ import {
   Snackbar,
   CircularProgress,
 } from '@mui/material';
-import { FormProvider, useFormContext } from '../lib/FormContext';
+import { useFormContext } from '../lib/FormContext';
 import PersonalDataSection from '../components/PersonalDataSection';
 import BeneficiariesSection from '../components/BeneficiariesSection';
 // DispositiveIntentionsSection is kept but tabled for now
@@ -320,9 +320,5 @@ const QuestionnaireContent = () => {
 };
 
 export default function QuestionnairePage() {
-  return (
-    <FormProvider>
-      <QuestionnaireContent />
-    </FormProvider>
-  );
+  return <QuestionnaireContent />;
 }

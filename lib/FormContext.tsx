@@ -11,6 +11,7 @@ export type MaritalStatus = 'Single' | 'Married' | 'Second Marriage' | 'Divorced
 export type Sex = 'Male' | 'Female' | 'Other' | '';
 export type RealEstateOwner = 'Client' | 'Spouse' | 'Client and Spouse' | 'Client and Other' | 'Spouse and Other' | 'Client, Spouse and Other' | '';
 export type OwnershipForm = 'Sole' | 'Tenants by Entirety' | 'JTWROS' | 'Tenants in Common' | 'Life Estate' | 'Lady Bird Deed' | 'Living Trust' | 'Irrevocable Trust' | 'Other' | '';
+export type PropertyCategory = 'Primary residence' | 'Vacation home' | 'Rental property' | 'Vacant land' | 'Commercial property' | 'Timeshare' | '';
 
 // Long-Term Care Types
 export type ConcernLevel = '' | 'Not at all' | 'Slightly' | 'Moderately' | 'Very' | 'Extremely';
@@ -46,8 +47,13 @@ export interface CurrentEstatePlanData {
   documentDate: string;
   reviewOption: DocumentReviewOption;
 
-  // File uploads (store file names/references)
-  uploadedFiles: string[];
+  // File uploads per document type (store file names/references)
+  uploadedFiles: string[]; // Legacy - kept for backwards compatibility
+  willUploadedFiles: string[];
+  trustUploadedFiles: string[];
+  financialPOAUploadedFiles: string[];
+  healthCarePOAUploadedFiles: string[];
+  livingWillUploadedFiles: string[];
 
   // Will Details
   willPersonalRep: string;
@@ -231,12 +237,14 @@ export interface FormData {
   clientHasIrrevocableTrust: boolean;
   clientIrrevocableTrustName: string;
   clientIrrevocableTrustDate: Date | null;
+  clientConsideringTrust: boolean;
   spouseHasLivingTrust: boolean;
   spouseHasIrrevocableTrust: boolean;
   spouseLivingTrustName: string;
   spouseLivingTrustDate: Date | null;
   spouseIrrevocableTrustName: string;
   spouseIrrevocableTrustDate: Date | null;
+  spouseConsideringTrust: boolean;
 
   // Marital Information
   dateMarried: Date | null;
@@ -325,10 +333,14 @@ export interface FormData {
   trusteeFirstOther: string;
   trusteeAlternate: string;
   trusteeAlternateOther: string;
+  trusteeSecondAlternate: string;
+  trusteeSecondAlternateOther: string;
   spouseTrusteeFirst: string;
   spouseTrusteeFirstOther: string;
   spouseTrusteeAlternate: string;
   spouseTrusteeAlternateOther: string;
+  spouseTrusteeSecondAlternate: string;
+  spouseTrusteeSecondAlternateOther: string;
 
   guardianFirst: string;
   guardianFirstOther: string;
@@ -388,6 +400,7 @@ export interface FormData {
   realEstate: Array<{
     owner: RealEstateOwner;
     ownershipForm: OwnershipForm;
+    category: PropertyCategory;
     showBeneficiaries: boolean;
     showOther: boolean;
     jointOwnerBeneficiaries: string[];
@@ -495,6 +508,9 @@ export interface FormData {
   }>;
 
   additionalComments: string;
+
+  // Client Notes - questions/comments for the attorney meeting
+  clientNotes: string;
 
   // Long-Term Care - Client
   clientLongTermCare: LongTermCareData;
@@ -615,12 +631,14 @@ const initialFormData: FormData = {
   clientHasIrrevocableTrust: false,
   clientIrrevocableTrustName: '',
   clientIrrevocableTrustDate: null,
+  clientConsideringTrust: false,
   spouseHasLivingTrust: false,
   spouseLivingTrustName: '',
   spouseLivingTrustDate: null,
   spouseHasIrrevocableTrust: false,
   spouseIrrevocableTrustName: '',
   spouseIrrevocableTrustDate: null,
+  spouseConsideringTrust: false,
   dateMarried: null,
   placeOfMarriage: '',
   priorMarriage: false,
@@ -672,10 +690,14 @@ const initialFormData: FormData = {
   trusteeFirstOther: '',
   trusteeAlternate: '',
   trusteeAlternateOther: '',
+  trusteeSecondAlternate: '',
+  trusteeSecondAlternateOther: '',
   spouseTrusteeFirst: '',
   spouseTrusteeFirstOther: '',
   spouseTrusteeAlternate: '',
   spouseTrusteeAlternateOther: '',
+  spouseTrusteeSecondAlternate: '',
+  spouseTrusteeSecondAlternateOther: '',
   guardianFirst: '',
   guardianFirstOther: '',
   guardianAlternate: '',
@@ -726,6 +748,7 @@ const initialFormData: FormData = {
   businessInterests: [],
   digitalAssets: [],
   additionalComments: '',
+  clientNotes: '',
   clientLongTermCare: {
     primaryGoalsConcerns: '',
     ltcConcernLevel: '',
@@ -869,6 +892,11 @@ const initialFormData: FormData = {
     documentDate: '',
     reviewOption: '',
     uploadedFiles: [],
+    willUploadedFiles: [],
+    trustUploadedFiles: [],
+    financialPOAUploadedFiles: [],
+    healthCarePOAUploadedFiles: [],
+    livingWillUploadedFiles: [],
     willPersonalRep: '',
     willPersonalRepAlternate1: '',
     willPersonalRepAlternate2: '',
@@ -907,6 +935,11 @@ const initialFormData: FormData = {
     documentDate: '',
     reviewOption: '',
     uploadedFiles: [],
+    willUploadedFiles: [],
+    trustUploadedFiles: [],
+    financialPOAUploadedFiles: [],
+    healthCarePOAUploadedFiles: [],
+    livingWillUploadedFiles: [],
     willPersonalRep: '',
     willPersonalRepAlternate1: '',
     willPersonalRepAlternate2: '',

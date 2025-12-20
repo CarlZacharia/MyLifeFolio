@@ -737,6 +737,27 @@ const PersonalDataSection = () => {
           </Box>
         </Grid>
 
+        <Grid item xs={12}>
+          <FormControl component="fieldset">
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
+                Are you interested in creating or updating a trust?
+              </FormLabel>
+              <HelpIcon helpId={54} onClick={() => openHelp(54)} />
+            </Box>
+            <RadioGroup
+              row
+              value={formData.clientConsideringTrust ? 'yes' : 'no'}
+              onChange={(e) => {
+                updateFormData({ clientConsideringTrust: e.target.value === 'yes' });
+              }}
+            >
+              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+
         {/* Spouse Information - Only shown for Married, Second Marriage, or Domestic Partnership */}
         {showSpouseInfo && (
           <>
@@ -1359,6 +1380,27 @@ const PersonalDataSection = () => {
               </>
             )}
           </Box>
+        </Grid>
+
+        <Grid item xs={12}>
+          <FormControl component="fieldset">
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
+                Is your spouse interested in creating or updating a trust?
+              </FormLabel>
+              <HelpIcon helpId={55} onClick={() => openHelp(55)} />
+            </Box>
+            <RadioGroup
+              row
+              value={formData.spouseConsideringTrust ? 'yes' : 'no'}
+              onChange={(e) => {
+                updateFormData({ spouseConsideringTrust: e.target.value === 'yes' });
+              }}
+            >
+              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
+          </FormControl>
         </Grid>
           </>
         )}
