@@ -1080,6 +1080,1190 @@ export const helpAnswers: HelpAnswer[] = [
       <p>Be as thorough and honest as possible - this information is crucial for developing an effective long-term care and asset protection strategy.</p>
     `,
   },
+  // Military Service Help (IDs 40, 42, 47)
+  {
+    id: 40,
+    type: 'Text',
+    title: 'Military Service',
+    text: `
+      <p><strong>Military Service</strong> information is important for estate planning because veterans may be entitled to various benefits.</p>
+      <p>These benefits can include:</p>
+      <ul>
+        <li><strong>VA Pension:</strong> Non-service connected pension for wartime veterans</li>
+        <li><strong>Aid & Attendance:</strong> Additional benefits for veterans needing assistance with daily activities</li>
+        <li><strong>Burial Benefits:</strong> Cemetery plots, headstones, and burial allowances</li>
+        <li><strong>Survivor Benefits:</strong> Benefits for surviving spouses and dependents</li>
+        <li><strong>VA Health Care:</strong> Medical care through VA facilities</li>
+      </ul>
+      <p>Please provide accurate information about military service to help us identify all available benefits.</p>
+    `,
+  },
+  {
+    id: 42,
+    type: 'Text',
+    title: 'Armed Forces Service',
+    text: `
+      <p>Indicate whether you served in any branch of the <strong>United States Armed Forces</strong>.</p>
+      <p>This includes active duty, reserve, or National Guard service in:</p>
+      <ul>
+        <li>Army</li>
+        <li>Navy</li>
+        <li>Air Force</li>
+        <li>Marine Corps</li>
+        <li>Coast Guard</li>
+        <li>Space Force</li>
+        <li>National Guard</li>
+        <li>Reserves</li>
+      </ul>
+      <p><strong>Why we ask:</strong> Veterans and their surviving spouses may qualify for VA benefits that can help pay for long-term care and other expenses. This can be a valuable part of your estate plan.</p>
+    `,
+  },
+  {
+    id: 47,
+    type: 'Text',
+    title: 'Spouse Military Service',
+    text: `
+      <p>Indicate whether your spouse served in any branch of the <strong>United States Armed Forces</strong>.</p>
+      <p><strong>Why this matters:</strong> If your spouse is a veteran, they may be entitled to VA benefits. Additionally, surviving spouses of veterans may qualify for benefits such as:</p>
+      <ul>
+        <li><strong>DIC (Dependency and Indemnity Compensation):</strong> Monthly payments to surviving spouses</li>
+        <li><strong>Survivor's Pension:</strong> Income-based benefits for surviving spouses of wartime veterans</li>
+        <li><strong>CHAMPVA:</strong> Health care benefits for dependents of disabled veterans</li>
+        <li><strong>Burial Benefits:</strong> May be eligible for burial in VA cemeteries</li>
+      </ul>
+    `,
+  },
+  // Funeral Preferences Help (IDs 41, 43-46, 48-49, 52-53)
+  {
+    id: 41,
+    type: 'Text',
+    title: 'Funeral Preferences',
+    text: `
+      <p><strong>Funeral Preferences</strong> help ensure your wishes are known and followed after your passing.</p>
+      <p>Documenting your preferences in advance:</p>
+      <ul>
+        <li>Relieves your family from making difficult decisions during grief</li>
+        <li>Ensures your wishes are honored</li>
+        <li>Can help with financial planning for final expenses</li>
+        <li>Allows time to make arrangements that reflect your values</li>
+      </ul>
+      <p>The information you provide here will be included in your estate plan documents for your family's reference.</p>
+    `,
+  },
+  {
+    id: 43,
+    type: 'Text',
+    title: 'Prepaid Funeral Policy',
+    text: `
+      <p>A <strong>Prepaid Funeral Policy</strong> (also called pre-need or preneed funeral plan) is an arrangement made in advance to pay for funeral services.</p>
+      <p><strong>Benefits of prepaid funeral plans:</strong></p>
+      <ul>
+        <li>Locks in current prices, protecting against inflation</li>
+        <li>Reduces financial burden on family members</li>
+        <li>May be exempt from Medicaid asset calculations</li>
+        <li>Ensures your specific wishes are documented</li>
+      </ul>
+      <p>If you have a prepaid policy, please provide details including the funeral home name and policy information so this can be noted in your estate planning documents.</p>
+    `,
+  },
+  {
+    id: 44,
+    type: 'Text',
+    title: 'Burial or Cremation',
+    text: `
+      <p>This is your preference for the disposition of your remains.</p>
+      <p><strong>Burial:</strong></p>
+      <ul>
+        <li>Traditional interment in a cemetery</li>
+        <li>Requires a casket and burial plot</li>
+        <li>May include above-ground options (mausoleum)</li>
+      </ul>
+      <p><strong>Cremation:</strong></p>
+      <ul>
+        <li>Remains are reduced to ashes</li>
+        <li>Ashes can be kept, scattered, or interred</li>
+        <li>Generally less expensive than traditional burial</li>
+        <li>Memorial service can still be held</li>
+      </ul>
+      <p>If you're undecided, that's okay - you can update this preference later. What's important is documenting your current thinking.</p>
+    `,
+  },
+  {
+    id: 45,
+    type: 'Text',
+    title: 'Preferred Funeral Home',
+    text: `
+      <p>If you have a <strong>Preferred Funeral Home</strong>, please provide the name and location.</p>
+      <p>Reasons you might have a preference:</p>
+      <ul>
+        <li>Family history with a particular funeral home</li>
+        <li>Location convenient for family and friends</li>
+        <li>Religious or cultural considerations</li>
+        <li>Prepaid arrangements already in place</li>
+        <li>Personal experience or recommendations</li>
+      </ul>
+      <p>If you don't have a preference, you can leave this blank. Your family can make this decision when the time comes.</p>
+    `,
+  },
+  {
+    id: 46,
+    type: 'Text',
+    title: 'Preferred Church for Service',
+    text: `
+      <p>If you would like your funeral or memorial service held at a <strong>specific church or place of worship</strong>, please provide the name and location.</p>
+      <p>This might be:</p>
+      <ul>
+        <li>Your regular place of worship</li>
+        <li>A church with family significance</li>
+        <li>A chapel at a funeral home</li>
+        <li>Any other meaningful location</li>
+      </ul>
+      <p>If you prefer a non-religious service or have no preference, you can leave this blank.</p>
+    `,
+  },
+  {
+    id: 48,
+    type: 'Text',
+    title: 'Spouse Prepaid Funeral Policy',
+    text: `
+      <p>Indicate whether your spouse has a <strong>Prepaid Funeral Policy</strong>.</p>
+      <p>If yes, please provide details about the policy including:</p>
+      <ul>
+        <li>The funeral home where arrangements were made</li>
+        <li>Policy or contract number</li>
+        <li>What services are covered</li>
+      </ul>
+      <p>Having this information documented helps ensure these arrangements are known and can be carried out when needed.</p>
+    `,
+  },
+  {
+    id: 49,
+    type: 'Text',
+    title: 'Spouse Burial or Cremation Preference',
+    text: `
+      <p>Indicate your spouse's preference for <strong>burial or cremation</strong>.</p>
+      <p>It's important to discuss these preferences together so each spouse's wishes are known and documented. Many couples choose the same option so they can be interred together.</p>
+      <p>If your spouse hasn't expressed a preference, select "Undecided" and consider having this conversation.</p>
+    `,
+  },
+  {
+    id: 52,
+    type: 'Text',
+    title: 'Spouse Preferred Funeral Home',
+    text: `
+      <p>If your spouse has a <strong>Preferred Funeral Home</strong>, please provide the name and location.</p>
+      <p>Many couples choose the same funeral home for convenience and so arrangements can be coordinated. However, each spouse may have their own preference based on:</p>
+      <ul>
+        <li>Family traditions</li>
+        <li>Existing prepaid arrangements</li>
+        <li>Personal preferences</li>
+      </ul>
+    `,
+  },
+  {
+    id: 53,
+    type: 'Text',
+    title: 'Spouse Preferred Church for Service',
+    text: `
+      <p>If your spouse would like their funeral or memorial service held at a <strong>specific church or place of worship</strong>, please provide the name and location.</p>
+      <p>This ensures your spouse's wishes are documented and can be honored. The preference may be:</p>
+      <ul>
+        <li>The same location as your preference</li>
+        <li>A church from their family tradition</li>
+        <li>A different place of worship</li>
+      </ul>
+    `,
+  },
+  // Long-Term Care Section Questions (IDs 131-168)
+  {
+    id: 131,
+    type: 'Text',
+    title: 'Concern About Paying for Long-Term Care',
+    text: `
+      <p>Rate your level of <strong>concern about paying for long-term care</strong> in the future.</p>
+      <p>Long-term care can be expensive:</p>
+      <ul>
+        <li><strong>Nursing home care:</strong> $8,000 - $15,000+ per month</li>
+        <li><strong>Assisted living:</strong> $4,000 - $7,000+ per month</li>
+        <li><strong>Home health aides:</strong> $25 - $35+ per hour</li>
+      </ul>
+      <p>Your level of concern helps us prioritize asset protection strategies in your estate plan.</p>
+    `,
+  },
+  {
+    id: 132,
+    type: 'Text',
+    title: 'Previous Advisor Meeting',
+    text: `
+      <p>Indicate whether you have <strong>previously consulted</strong> with an attorney or financial advisor about long-term care or Medicaid planning.</p>
+      <p>If yes, please provide details about:</p>
+      <ul>
+        <li>When the meeting took place</li>
+        <li>Who you met with (name and firm)</li>
+        <li>What recommendations were made</li>
+        <li>Whether any documents were prepared</li>
+      </ul>
+      <p>This helps us understand your existing planning and avoid duplication of effort.</p>
+    `,
+  },
+  {
+    id: 133,
+    type: 'Text',
+    title: 'Overall Health Rating',
+    text: `
+      <p>Describe your <strong>overall health status</strong>.</p>
+      <p>Consider factors such as:</p>
+      <ul>
+        <li>Chronic conditions you manage</li>
+        <li>Energy levels and daily functioning</li>
+        <li>Recent changes in health status</li>
+        <li>How you compare to others your age</li>
+      </ul>
+      <p>This self-assessment helps us understand your current situation and potential future care needs.</p>
+    `,
+  },
+  {
+    id: 134,
+    type: 'Text',
+    title: 'Medical Diagnoses',
+    text: `
+      <p>Select any <strong>medical conditions</strong> you have been diagnosed with.</p>
+      <p>These conditions are particularly relevant to long-term care planning because they may:</p>
+      <ul>
+        <li>Affect your future care needs</li>
+        <li>Impact your ability to live independently</li>
+        <li>Require specialized care settings</li>
+        <li>Influence the urgency of planning</li>
+      </ul>
+      <p>Check all that apply. If you have a condition not listed, select "Other" and specify.</p>
+    `,
+  },
+  {
+    id: 135,
+    type: 'Text',
+    title: 'Recent Hospitalizations',
+    text: `
+      <p>Indicate any <strong>hospitalizations, surgeries, or rehab stays</strong> in the last 2 years.</p>
+      <p>Recent medical events can be indicators of:</p>
+      <ul>
+        <li>Declining health requiring more care</li>
+        <li>Conditions that may worsen over time</li>
+        <li>Need for post-acute care services</li>
+      </ul>
+      <p>Please include dates, facilities, and reasons if applicable.</p>
+    `,
+  },
+  {
+    id: 136,
+    type: 'Text',
+    title: 'Mobility Limitations',
+    text: `
+      <p>Select any <strong>mobility limitations</strong> you experience.</p>
+      <p>Mobility issues affect:</p>
+      <ul>
+        <li>What type of housing is appropriate</li>
+        <li>Need for home modifications</li>
+        <li>Level of assistance required</li>
+        <li>Transportation needs</li>
+      </ul>
+      <p>History of falls is particularly important as it often predicts future care needs.</p>
+    `,
+  },
+  {
+    id: 137,
+    type: 'Text',
+    title: 'Activities of Daily Living (ADLs)',
+    text: `
+      <p><strong>Activities of Daily Living (ADLs)</strong> are basic self-care tasks.</p>
+      <p>The six ADLs are:</p>
+      <ul>
+        <li><strong>Bathing:</strong> Washing yourself</li>
+        <li><strong>Dressing:</strong> Putting on and taking off clothes</li>
+        <li><strong>Toileting:</strong> Using the bathroom</li>
+        <li><strong>Transferring:</strong> Moving from bed to chair</li>
+        <li><strong>Continence:</strong> Controlling bladder and bowel</li>
+        <li><strong>Eating:</strong> Feeding yourself</li>
+      </ul>
+      <p><strong>Important:</strong> Needing help with 2+ ADLs typically qualifies as needing long-term care for insurance and Medicaid purposes.</p>
+    `,
+  },
+  {
+    id: 138,
+    type: 'Text',
+    title: 'Instrumental Activities of Daily Living (IADLs)',
+    text: `
+      <p><strong>IADLs</strong> are more complex activities needed to live independently.</p>
+      <p>The IADLs include:</p>
+      <ul>
+        <li><strong>Cooking:</strong> Preparing meals</li>
+        <li><strong>Shopping:</strong> Grocery and household shopping</li>
+        <li><strong>Managing medications:</strong> Taking correct doses on time</li>
+        <li><strong>Driving/transportation:</strong> Getting to appointments and errands</li>
+        <li><strong>Housekeeping:</strong> Cleaning and home maintenance</li>
+        <li><strong>Managing finances:</strong> Paying bills, banking</li>
+      </ul>
+      <p>Difficulty with IADLs often precedes difficulty with ADLs and may indicate early cognitive decline.</p>
+    `,
+  },
+  {
+    id: 139,
+    type: 'Text',
+    title: 'Dementia or Memory Impairment',
+    text: `
+      <p>Indicate if you have been <strong>diagnosed with dementia or memory impairment</strong>.</p>
+      <p>This includes:</p>
+      <ul>
+        <li>Alzheimer's disease</li>
+        <li>Vascular dementia</li>
+        <li>Lewy body dementia</li>
+        <li>Frontotemporal dementia</li>
+        <li>Mild cognitive impairment (MCI)</li>
+      </ul>
+      <p>A dementia diagnosis significantly impacts estate planning, including timing of document execution and capacity considerations.</p>
+    `,
+  },
+  {
+    id: 140,
+    type: 'Text',
+    title: 'Dementia Stage',
+    text: `
+      <p>Indicate the <strong>stage or severity</strong> of dementia.</p>
+      <ul>
+        <li><strong>Mild:</strong> Memory lapses, difficulty with complex tasks, but generally independent</li>
+        <li><strong>Moderate:</strong> Increased confusion, need for help with daily activities, personality changes</li>
+        <li><strong>Severe:</strong> Extensive memory loss, inability to recognize family, full dependence on caregivers</li>
+      </ul>
+      <p>The stage affects the urgency of planning and the type of care arrangements needed.</p>
+    `,
+  },
+  {
+    id: 141,
+    type: 'Text',
+    title: 'Family History of Conditions',
+    text: `
+      <p>Family history can indicate <strong>increased risk</strong> for certain conditions.</p>
+      <p>Relevant family history includes:</p>
+      <ul>
+        <li>Parents or siblings with dementia</li>
+        <li>Family history of stroke</li>
+        <li>Parkinson's disease in the family</li>
+        <li>Other neurological conditions</li>
+      </ul>
+      <p>This helps us assess future care needs and the importance of proactive planning.</p>
+    `,
+  },
+  {
+    id: 142,
+    type: 'Text',
+    title: 'Current Living Situation',
+    text: `
+      <p>Select where you <strong>currently live</strong>.</p>
+      <p>Options include:</p>
+      <ul>
+        <li><strong>Own home:</strong> Single family home you own</li>
+        <li><strong>Rented home/apartment:</strong> Rental property</li>
+        <li><strong>Independent living:</strong> Senior community without daily care</li>
+        <li><strong>Assisted living:</strong> Facility with help for daily activities</li>
+        <li><strong>Memory care:</strong> Specialized dementia care</li>
+        <li><strong>Skilled nursing:</strong> 24-hour medical care facility</li>
+        <li><strong>Living with family:</strong> In a relative's home</li>
+      </ul>
+      <p>Your current situation affects planning strategies and timelines.</p>
+    `,
+  },
+  {
+    id: 143,
+    type: 'Text',
+    title: 'Currently in Long-Term Care Facility',
+    text: `
+      <p>Indicate if you are <strong>currently residing in a long-term care community or facility</strong>.</p>
+      <p>If yes, this is important because:</p>
+      <ul>
+        <li>Different planning strategies apply</li>
+        <li>Medicaid applications may be urgent</li>
+        <li>Private pay vs. Medicaid timing matters</li>
+        <li>Asset protection options may be more limited</li>
+      </ul>
+      <p>Please provide facility details so we can factor in current costs and care levels.</p>
+    `,
+  },
+  {
+    id: 144,
+    type: 'Text',
+    title: 'Level of Care',
+    text: `
+      <p>Select the <strong>level of care</strong> you are currently receiving.</p>
+      <ul>
+        <li><strong>Independent living:</strong> No daily care assistance</li>
+        <li><strong>Assisted living:</strong> Help with some daily activities</li>
+        <li><strong>Memory care:</strong> Specialized dementia care unit</li>
+        <li><strong>Skilled nursing:</strong> 24-hour medical care</li>
+        <li><strong>Rehabilitation:</strong> Short-term recovery care</li>
+        <li><strong>At-home care:</strong> Aides coming to your home</li>
+      </ul>
+      <p>The level of care affects costs, Medicaid eligibility, and planning strategies.</p>
+    `,
+  },
+  {
+    id: 145,
+    type: 'Text',
+    title: 'Home Help',
+    text: `
+      <p>Indicate if you <strong>receive help at home</strong>, whether paid or unpaid.</p>
+      <p>Home help includes:</p>
+      <ul>
+        <li>Paid home health aides</li>
+        <li>Family members providing care</li>
+        <li>Friends assisting with tasks</li>
+        <li>Home care agency services</li>
+      </ul>
+      <p>Family caregiving can sometimes be formalized through caregiver agreements for Medicaid planning.</p>
+    `,
+  },
+  {
+    id: 146,
+    type: 'Text',
+    title: 'Home Help Providers',
+    text: `
+      <p>Select <strong>who provides help</strong> in your home.</p>
+      <ul>
+        <li><strong>Home health agency:</strong> Licensed agency with trained aides</li>
+        <li><strong>Private aide:</strong> Individually hired caregiver</li>
+        <li><strong>Family:</strong> Children, siblings, or other relatives</li>
+        <li><strong>Friends:</strong> Non-family members helping out</li>
+      </ul>
+      <p>Family caregivers may be compensated through caregiver agreements as part of asset protection planning.</p>
+    `,
+  },
+  {
+    id: 147,
+    type: 'Text',
+    title: 'Hours of Help Per Week',
+    text: `
+      <p>Estimate the <strong>hours of help per week</strong> you receive.</p>
+      <p>This helps assess:</p>
+      <ul>
+        <li>Current care costs</li>
+        <li>Whether home care is sustainable</li>
+        <li>Future care needs trajectory</li>
+        <li>Potential for caregiver agreements</li>
+      </ul>
+      <p>Even informal family help should be counted as it reflects your actual care needs.</p>
+    `,
+  },
+  {
+    id: 148,
+    type: 'Text',
+    title: 'Expected Care Increase',
+    text: `
+      <p>Indicate if you <strong>expect your care needs to increase</strong> in the next 6-12 months.</p>
+      <p>Consider:</p>
+      <ul>
+        <li>Progression of existing conditions</li>
+        <li>Recent decline in functioning</li>
+        <li>Doctor's recommendations</li>
+        <li>Family observations</li>
+      </ul>
+      <p>If care needs are expected to increase, planning should be expedited.</p>
+    `,
+  },
+  {
+    id: 149,
+    type: 'Text',
+    title: 'Likelihood of Needing Long-Term Care',
+    text: `
+      <p>Assess the <strong>likelihood of needing long-term care</strong> (more than 90 consecutive days) within the next 5 years.</p>
+      <p>Statistics show that:</p>
+      <ul>
+        <li>About 70% of people over 65 will need some form of long-term care</li>
+        <li>Women typically need care for longer than men</li>
+        <li>Average nursing home stay is 2-3 years</li>
+      </ul>
+      <p>Be realistic in your assessment - this guides the urgency and type of planning needed.</p>
+    `,
+  },
+  {
+    id: 150,
+    type: 'Text',
+    title: 'Care Preference',
+    text: `
+      <p>Select your <strong>preferred care setting</strong> if long-term care becomes necessary.</p>
+      <ul>
+        <li><strong>Age in place at home:</strong> Receive care in your own home</li>
+        <li><strong>Live with family:</strong> Move in with children or relatives</li>
+        <li><strong>Assisted living:</strong> Facility with help for daily activities</li>
+        <li><strong>Memory care:</strong> Specialized dementia care facility</li>
+        <li><strong>Skilled nursing:</strong> 24-hour medical care facility</li>
+        <li><strong>CCRC:</strong> Continuing care retirement community</li>
+      </ul>
+      <p>Your preference helps us plan for appropriate costs and care arrangements.</p>
+    `,
+  },
+  {
+    id: 151,
+    type: 'Text',
+    title: 'Specific Provider in Mind',
+    text: `
+      <p>Indicate if you have a <strong>specific facility or provider</strong> in mind.</p>
+      <p>If yes, please provide:</p>
+      <ul>
+        <li>Name of the facility</li>
+        <li>City and state location</li>
+        <li>Why you prefer this facility</li>
+        <li>Current costs if known</li>
+      </ul>
+      <p>Having a specific facility in mind helps us plan for those particular costs and requirements.</p>
+    `,
+  },
+  {
+    id: 152,
+    type: 'Text',
+    title: 'Home Supports Needed',
+    text: `
+      <p>If you prefer to age in place, select the <strong>supports you think you would need</strong>.</p>
+      <ul>
+        <li><strong>Home health aides:</strong> Personal care assistance</li>
+        <li><strong>Family caregivers:</strong> Relatives providing care</li>
+        <li><strong>Adult day program:</strong> Daytime activities and supervision</li>
+        <li><strong>Home modifications:</strong> Ramps, grab bars, etc.</li>
+        <li><strong>Transportation:</strong> Help getting to appointments</li>
+        <li><strong>Medication management:</strong> Help taking medications correctly</li>
+      </ul>
+      <p>These supports affect the feasibility and cost of aging in place.</p>
+    `,
+  },
+  {
+    id: 153,
+    type: 'Text',
+    title: 'Primary Caregivers',
+    text: `
+      <p>Select who <strong>currently provides care</strong> or who would likely step into that role.</p>
+      <ul>
+        <li><strong>Spouse/partner:</strong> Your husband, wife, or partner</li>
+        <li><strong>Adult child:</strong> Your son or daughter</li>
+        <li><strong>Other relative:</strong> Sibling, niece, nephew, etc.</li>
+        <li><strong>Friend:</strong> Close friend willing to help</li>
+        <li><strong>Hired help:</strong> Paid caregivers</li>
+        <li><strong>None identified:</strong> No clear caregiver available</li>
+      </ul>
+      <p>Identifying caregivers is crucial for planning care coordination and potential caregiver agreements.</p>
+    `,
+  },
+  {
+    id: 154,
+    type: 'Text',
+    title: 'Caregivers Limited in Ability',
+    text: `
+      <p>Indicate if potential caregivers have <strong>limitations that affect their ability to assist</strong>.</p>
+      <p>Consider whether caregivers have:</p>
+      <ul>
+        <li>Their own health problems</li>
+        <li>Disabilities that limit caregiving</li>
+        <li>Live far away</li>
+        <li>Heavy work or family obligations</li>
+        <li>Financial constraints</li>
+      </ul>
+      <p>This affects the feasibility of family caregiving and alternative care planning needs.</p>
+    `,
+  },
+  {
+    id: 155,
+    type: 'Text',
+    title: 'Medicare Coverage',
+    text: `
+      <p>Select which parts of <strong>Medicare</strong> you have.</p>
+      <ul>
+        <li><strong>Part A:</strong> Hospital insurance (usually premium-free)</li>
+        <li><strong>Part B:</strong> Medical insurance (outpatient care)</li>
+        <li><strong>Part C:</strong> Medicare Advantage (private plan combining A & B)</li>
+        <li><strong>Part D:</strong> Prescription drug coverage</li>
+      </ul>
+      <p><strong>Important:</strong> Medicare does NOT pay for long-term custodial care. It only covers short-term skilled nursing after a hospital stay.</p>
+    `,
+  },
+  {
+    id: 156,
+    type: 'Text',
+    title: 'Medicare Supplement (Medigap)',
+    text: `
+      <p>Indicate if you have a <strong>Medicare supplement (Medigap)</strong> or other private health insurance.</p>
+      <p>Medigap policies:</p>
+      <ul>
+        <li>Fill gaps in Original Medicare coverage</li>
+        <li>Cover deductibles and copays</li>
+        <li>May cover some services Medicare doesn't</li>
+      </ul>
+      <p>Note: Medigap does NOT cover long-term care costs.</p>
+    `,
+  },
+  {
+    id: 157,
+    type: 'Text',
+    title: 'Long-Term Care Insurance',
+    text: `
+      <p>Indicate if you have <strong>long-term care insurance</strong> or a hybrid policy.</p>
+      <p>Types of coverage:</p>
+      <ul>
+        <li><strong>Traditional LTC insurance:</strong> Dedicated long-term care policy</li>
+        <li><strong>Hybrid policies:</strong> Life insurance or annuity with LTC benefits</li>
+      </ul>
+      <p>If you have a policy, please provide:</p>
+      <ul>
+        <li>Insurance carrier name</li>
+        <li>Daily/monthly benefit amount</li>
+        <li>Elimination period (waiting period)</li>
+        <li>Benefit period (how long benefits last)</li>
+        <li>Inflation protection rider (if any)</li>
+      </ul>
+    `,
+  },
+  {
+    id: 158,
+    type: 'Text',
+    title: 'Current Benefits',
+    text: `
+      <p>Select any <strong>public benefits</strong> you are currently receiving.</p>
+      <ul>
+        <li><strong>SSI:</strong> Supplemental Security Income for low-income individuals</li>
+        <li><strong>SSDI:</strong> Social Security Disability Insurance</li>
+        <li><strong>VA pension/Aid & Attendance:</strong> Veterans benefits for care needs</li>
+        <li><strong>SNAP:</strong> Food assistance (food stamps)</li>
+        <li><strong>Medicaid:</strong> Health coverage for low-income individuals</li>
+        <li><strong>Medicaid HCBS waiver:</strong> Home and community-based services</li>
+      </ul>
+      <p>Existing benefits affect planning strategies and what additional benefits may be available.</p>
+    `,
+  },
+  {
+    id: 159,
+    type: 'Text',
+    title: 'Previous Medicaid Application',
+    text: `
+      <p>Indicate if you or your spouse have ever <strong>applied for Medicaid</strong> for long-term care.</p>
+      <p>If yes, please provide:</p>
+      <ul>
+        <li>When the application was filed</li>
+        <li>Whether it was approved or denied</li>
+        <li>Reason for denial (if applicable)</li>
+        <li>Whether you are currently on Medicaid</li>
+      </ul>
+      <p>Prior applications affect current planning and any penalty periods that may apply.</p>
+    `,
+  },
+  {
+    id: 160,
+    type: 'Text',
+    title: 'Gifts or Transfers in Last 5 Years',
+    text: `
+      <p>Indicate if you have made <strong>gifts or transfers of more than a modest amount</strong> in the last 5 years.</p>
+      <p><strong>Why this matters:</strong> Medicaid has a <strong>5-year look-back period</strong>. Transfers made within 5 years of applying for Medicaid can result in a penalty period of ineligibility.</p>
+      <p>Please disclose:</p>
+      <ul>
+        <li>Amounts transferred</li>
+        <li>Who received the transfers</li>
+        <li>Dates of transfers</li>
+        <li>Purpose (gifts to family, charitable donations, etc.)</li>
+      </ul>
+    `,
+  },
+  {
+    id: 161,
+    type: 'Text',
+    title: 'Expecting Windfall',
+    text: `
+      <p>Indicate if you are <strong>expecting a significant influx of money</strong>.</p>
+      <p>Examples include:</p>
+      <ul>
+        <li>Inheritance from a family member</li>
+        <li>Lawsuit settlement</li>
+        <li>Sale of property or business</li>
+        <li>Insurance proceeds</li>
+        <li>Retirement account distributions</li>
+      </ul>
+      <p>Future windfalls can affect Medicaid eligibility and require proactive planning.</p>
+    `,
+  },
+  {
+    id: 162,
+    type: 'Text',
+    title: 'Staying with Spouse/Partner',
+    text: `
+      <p>Rate how important it is to <strong>stay with your spouse or partner</strong> if you need long-term care.</p>
+      <p>Considerations:</p>
+      <ul>
+        <li>Some facilities can accommodate couples together</li>
+        <li>Costs are typically higher for couple accommodations</li>
+        <li>Different care needs may require different facilities</li>
+      </ul>
+      <p>This preference affects facility selection and planning for the community spouse.</p>
+    `,
+  },
+  {
+    id: 163,
+    type: 'Text',
+    title: 'Being Near Family',
+    text: `
+      <p>Rate how important it is to be <strong>near family members</strong>.</p>
+      <p>Consider:</p>
+      <ul>
+        <li>Which family members would visit regularly</li>
+        <li>Who would help coordinate care</li>
+        <li>Geographic preferences</li>
+      </ul>
+      <p>Proximity to family affects facility selection and care coordination.</p>
+    `,
+  },
+  {
+    id: 164,
+    type: 'Text',
+    title: 'Religious or Cultural Environment',
+    text: `
+      <p>Rate how important a <strong>religious or cultural environment</strong> is in choosing a care setting.</p>
+      <p>Some facilities offer:</p>
+      <ul>
+        <li>Religious services on-site</li>
+        <li>Kosher or other dietary accommodations</li>
+        <li>Cultural programming and activities</li>
+        <li>Staff who speak your language</li>
+      </ul>
+      <p>Specialized facilities may be more or less available in different areas.</p>
+    `,
+  },
+  {
+    id: 165,
+    type: 'Text',
+    title: 'Pet-Friendly Policies',
+    text: `
+      <p>Rate how important <strong>pet-friendly policies</strong> are in choosing a care setting.</p>
+      <p>Pet policies vary widely:</p>
+      <ul>
+        <li>Some facilities allow pets to live with residents</li>
+        <li>Others have visiting pet programs</li>
+        <li>Many do not allow pets at all</li>
+      </ul>
+      <p>If keeping a pet is important, facility options may be more limited.</p>
+    `,
+  },
+  {
+    id: 166,
+    type: 'Text',
+    title: 'Private Room',
+    text: `
+      <p>Rate how important a <strong>private room</strong> is in choosing a care setting.</p>
+      <p>Consider:</p>
+      <ul>
+        <li>Private rooms cost significantly more than shared rooms</li>
+        <li>Medicaid may only pay for a shared room</li>
+        <li>Privacy may be important for your comfort</li>
+      </ul>
+      <p>This preference affects costs and may require supplemental private payment.</p>
+    `,
+  },
+  {
+    id: 167,
+    type: 'Text',
+    title: 'Social Activities',
+    text: `
+      <p>Rate how important <strong>social activities</strong> are in choosing a care setting.</p>
+      <p>Facilities offer varying levels of activities:</p>
+      <ul>
+        <li>Group outings and events</li>
+        <li>Exercise and wellness programs</li>
+        <li>Arts and crafts, music programs</li>
+        <li>Educational and cultural activities</li>
+      </ul>
+      <p>Active social engagement can improve quality of life and cognitive health.</p>
+    `,
+  },
+  {
+    id: 168,
+    type: 'Text',
+    title: 'On-Site Medical Staff',
+    text: `
+      <p>Rate how important <strong>on-site medical staff</strong> is in choosing a care setting.</p>
+      <p>Staffing levels vary by facility type:</p>
+      <ul>
+        <li><strong>Skilled nursing:</strong> 24-hour nursing with physician oversight</li>
+        <li><strong>Assisted living:</strong> Nursing staff available, but not 24/7 in all facilities</li>
+        <li><strong>Independent living:</strong> Limited or no medical staff on-site</li>
+      </ul>
+      <p>Your medical needs determine the appropriate level of staffing.</p>
+    `,
+  },
+
+  // Current Estate Plan Section (IDs 200-229)
+  {
+    id: 200,
+    type: 'Text',
+    title: 'Existing Estate Planning Documents',
+    text: `
+      <p>Select all the <strong>estate planning documents</strong> you currently have in place.</p>
+      <p><strong>Common documents include:</strong></p>
+      <ul>
+        <li><strong>Will:</strong> A legal document that specifies how your assets should be distributed after death</li>
+        <li><strong>Trust:</strong> A legal arrangement where a trustee holds assets for beneficiaries</li>
+        <li><strong>Financial POA:</strong> Authorizes someone to handle financial matters on your behalf</li>
+        <li><strong>Health Care POA:</strong> Authorizes someone to make medical decisions for you</li>
+        <li><strong>Living Will:</strong> Specifies your wishes regarding end-of-life medical treatment</li>
+      </ul>
+      <p>Understanding your existing documents helps us identify what updates may be needed.</p>
+    `,
+  },
+  {
+    id: 201,
+    type: 'Text',
+    title: 'State Where Documents Were Prepared',
+    text: `
+      <p>Indicate the <strong>state</strong> where your estate planning documents were prepared and signed.</p>
+      <p><strong>Why this matters:</strong></p>
+      <ul>
+        <li>Estate planning laws vary significantly by state</li>
+        <li>Documents prepared in one state may need updates when you move</li>
+        <li>Florida has specific requirements for Powers of Attorney and trusts</li>
+        <li>Some provisions valid in other states may not be recognized in Florida</li>
+      </ul>
+    `,
+  },
+  {
+    id: 202,
+    type: 'Text',
+    title: 'Document Signing Date',
+    text: `
+      <p>Enter the <strong>approximate date</strong> when your estate planning documents were signed.</p>
+      <p><strong>Why the date matters:</strong></p>
+      <ul>
+        <li>Laws change over time, and older documents may not reflect current law</li>
+        <li>Documents over 5-10 years old often need review</li>
+        <li>Life changes (births, deaths, marriages, divorces) may require updates</li>
+        <li>Tax laws affecting estates have changed significantly over the years</li>
+      </ul>
+    `,
+  },
+  {
+    id: 203,
+    type: 'Text',
+    title: 'Upload or Answer Questions',
+    text: `
+      <p>Choose how you would like to share information about your existing documents.</p>
+      <p><strong>Upload Documents:</strong></p>
+      <ul>
+        <li>Securely upload copies of your existing estate planning documents</li>
+        <li>Our team will review them before your consultation</li>
+        <li>Accepted formats: PDF, DOC, DOCX</li>
+      </ul>
+      <p><strong>Answer Questions:</strong></p>
+      <ul>
+        <li>Provide key information about your documents by answering questions</li>
+        <li>Helpful if you don't have digital copies readily available</li>
+        <li>We can discuss the details during your consultation</li>
+      </ul>
+    `,
+  },
+  {
+    id: 204,
+    type: 'Text',
+    title: 'Personal Representative (Executor)',
+    text: `
+      <p>The <strong>Personal Representative</strong> (also called Executor) is the person named in your Will to:</p>
+      <ul>
+        <li>Locate and secure your assets</li>
+        <li>Pay your debts and final expenses</li>
+        <li>File final tax returns</li>
+        <li>Distribute assets according to your Will</li>
+        <li>Handle probate court proceedings</li>
+      </ul>
+      <p>Enter the name of the person currently named as your first-choice Personal Representative.</p>
+    `,
+  },
+  {
+    id: 205,
+    type: 'Text',
+    title: 'First Alternate Personal Representative',
+    text: `
+      <p>The <strong>First Alternate</strong> Personal Representative serves if your first choice is unable or unwilling to serve.</p>
+      <p>Common reasons an alternate may be needed:</p>
+      <ul>
+        <li>Primary choice has predeceased you</li>
+        <li>Primary choice has become incapacitated</li>
+        <li>Primary choice declines to serve</li>
+        <li>Primary choice is unavailable or has moved away</li>
+      </ul>
+    `,
+  },
+  {
+    id: 206,
+    type: 'Text',
+    title: 'Second Alternate Personal Representative',
+    text: `
+      <p>The <strong>Second Alternate</strong> serves if both your first choice and first alternate are unable to serve.</p>
+      <p>Having multiple alternates provides backup planning and ensures your estate can be properly administered.</p>
+    `,
+  },
+  {
+    id: 207,
+    type: 'Text',
+    title: 'Primary Beneficiary (Will)',
+    text: `
+      <p>The <strong>Primary Beneficiary</strong> is the main person or entity who receives your assets under the Will.</p>
+      <p>For married couples, this is typically the surviving spouse. For single individuals, it might be children equally or another chosen beneficiary.</p>
+    `,
+  },
+  {
+    id: 208,
+    type: 'Text',
+    title: 'Secondary Beneficiaries (Will)',
+    text: `
+      <p><strong>Secondary Beneficiaries</strong> receive your assets if the primary beneficiary predeceases you or is otherwise unable to inherit.</p>
+      <p>This typically includes children, grandchildren, or other loved ones you wish to benefit.</p>
+    `,
+  },
+  {
+    id: 209,
+    type: 'Text',
+    title: 'Specific Gifts of Real Estate',
+    text: `
+      <p>A <strong>Specific Gift of Real Estate</strong> leaves a particular property to a named person.</p>
+      <p>Examples:</p>
+      <ul>
+        <li>"I leave my home at 123 Main Street to my daughter Jane"</li>
+        <li>"I leave the vacation home in Michigan to my son John"</li>
+      </ul>
+      <p>List any real estate that your Will specifically bequeaths to a particular person.</p>
+    `,
+  },
+  {
+    id: 210,
+    type: 'Text',
+    title: 'Specific Gifts of Other Assets',
+    text: `
+      <p>A <strong>Specific Gift</strong> of other assets leaves particular items to named persons.</p>
+      <p>Examples:</p>
+      <ul>
+        <li>Jewelry, artwork, or collectibles</li>
+        <li>Vehicles</li>
+        <li>Family heirlooms</li>
+        <li>Specific investment accounts</li>
+      </ul>
+      <p>List any specific assets (other than real estate) that your Will bequeaths to particular persons.</p>
+    `,
+  },
+  {
+    id: 211,
+    type: 'Text',
+    title: 'General Gifts of Money',
+    text: `
+      <p>A <strong>General Gift of Money</strong> (pecuniary bequest) leaves a specific dollar amount to a named person or charity.</p>
+      <p>Examples:</p>
+      <ul>
+        <li>"I leave $10,000 to my niece Sarah"</li>
+        <li>"I leave $5,000 to St. Mary's Church"</li>
+      </ul>
+      <p>List any monetary gifts specified in your Will.</p>
+    `,
+  },
+  {
+    id: 212,
+    type: 'Text',
+    title: 'Trustee',
+    text: `
+      <p>The <strong>Trustee</strong> is the person or institution responsible for managing your Trust.</p>
+      <p>Trustee responsibilities include:</p>
+      <ul>
+        <li>Managing and investing trust assets</li>
+        <li>Making distributions to beneficiaries according to trust terms</li>
+        <li>Keeping accurate records and accounts</li>
+        <li>Filing trust tax returns</li>
+        <li>Acting in the best interest of beneficiaries</li>
+      </ul>
+    `,
+  },
+  {
+    id: 213,
+    type: 'Text',
+    title: 'First Alternate Trustee',
+    text: `
+      <p>The <strong>First Alternate Trustee</strong> (Successor Trustee) serves if the primary Trustee is unable or unwilling to serve.</p>
+      <p>This ensures continuity of trust management without court intervention.</p>
+    `,
+  },
+  {
+    id: 214,
+    type: 'Text',
+    title: 'Second Alternate Trustee',
+    text: `
+      <p>The <strong>Second Alternate Trustee</strong> serves if both the primary Trustee and first alternate are unavailable.</p>
+      <p>Having multiple successor trustees provides additional backup for trust administration.</p>
+    `,
+  },
+  {
+    id: 215,
+    type: 'Text',
+    title: 'Primary Beneficiary (Trust)',
+    text: `
+      <p>The <strong>Primary Beneficiary</strong> of your Trust is the main person who benefits from trust assets.</p>
+      <p>During your lifetime, you are typically the primary beneficiary of your own revocable trust. After death, this typically becomes your spouse or other designated beneficiaries.</p>
+    `,
+  },
+  {
+    id: 216,
+    type: 'Text',
+    title: 'Secondary Beneficiaries (Trust)',
+    text: `
+      <p><strong>Secondary Beneficiaries</strong> (Remainder Beneficiaries) receive trust assets after the primary beneficiary.</p>
+      <p>For married couples, secondary beneficiaries are often children who inherit after both spouses have passed.</p>
+    `,
+  },
+  {
+    id: 217,
+    type: 'Text',
+    title: 'Trust - Specific Gifts of Real Estate',
+    text: `
+      <p>List any <strong>real estate</strong> that your Trust specifically distributes to particular persons.</p>
+      <p>This is similar to specific bequests in a Will, but for assets held in your Trust.</p>
+    `,
+  },
+  {
+    id: 218,
+    type: 'Text',
+    title: 'Trust - Specific Gifts of Other Assets',
+    text: `
+      <p>List any <strong>specific assets</strong> (other than real estate) that your Trust distributes to particular persons.</p>
+      <p>Examples include jewelry, artwork, vehicles, or other valuable personal property.</p>
+    `,
+  },
+  {
+    id: 219,
+    type: 'Text',
+    title: 'Trust - General Gifts of Money',
+    text: `
+      <p>List any <strong>specific dollar amounts</strong> that your Trust distributes to particular persons or charities.</p>
+    `,
+  },
+  {
+    id: 220,
+    type: 'Text',
+    title: 'Financial POA - First Agent',
+    text: `
+      <p>The <strong>First Agent</strong> under your Financial Power of Attorney is the primary person authorized to handle your financial affairs.</p>
+      <p>This person can:</p>
+      <ul>
+        <li>Access bank accounts</li>
+        <li>Pay bills</li>
+        <li>Manage investments</li>
+        <li>File tax returns</li>
+        <li>Handle real estate transactions</li>
+      </ul>
+    `,
+  },
+  {
+    id: 221,
+    type: 'Text',
+    title: 'Financial POA - Second Agent',
+    text: `
+      <p>The <strong>Second Agent</strong> serves as backup if your first agent is unable or unwilling to act.</p>
+      <p>This ensures someone is always available to manage your finances if needed.</p>
+    `,
+  },
+  {
+    id: 222,
+    type: 'Text',
+    title: 'Financial POA - Third Agent',
+    text: `
+      <p>The <strong>Third Agent</strong> provides an additional level of backup for financial management.</p>
+    `,
+  },
+  {
+    id: 223,
+    type: 'Text',
+    title: 'Health Care POA - First Agent',
+    text: `
+      <p>The <strong>First Agent</strong> (Health Care Surrogate) under your Health Care Power of Attorney is authorized to make medical decisions on your behalf.</p>
+      <p>This person can:</p>
+      <ul>
+        <li>Consent to or refuse medical treatment</li>
+        <li>Access your medical records</li>
+        <li>Choose doctors and hospitals</li>
+        <li>Make end-of-life care decisions</li>
+      </ul>
+    `,
+  },
+  {
+    id: 224,
+    type: 'Text',
+    title: 'Health Care POA - Second Agent',
+    text: `
+      <p>The <strong>Second Agent</strong> serves if your first health care agent is unavailable or unable to act.</p>
+    `,
+  },
+  {
+    id: 225,
+    type: 'Text',
+    title: 'Health Care POA - Third Agent',
+    text: `
+      <p>The <strong>Third Agent</strong> provides additional backup for health care decision-making.</p>
+    `,
+  },
+  {
+    id: 226,
+    type: 'Text',
+    title: 'HIPAA Compliance',
+    text: `
+      <p><strong>HIPAA</strong> (Health Insurance Portability and Accountability Act) protects your medical information privacy.</p>
+      <p>A HIPAA-compliant Health Care POA includes authorization for your agent to:</p>
+      <ul>
+        <li>Access your medical records</li>
+        <li>Speak with doctors and other healthcare providers</li>
+        <li>Receive information about your diagnosis, treatment, and prognosis</li>
+      </ul>
+      <p>Older documents may not include HIPAA authorization, which was required after 2003.</p>
+    `,
+  },
+  {
+    id: 227,
+    type: 'Text',
+    title: 'Do Not Resuscitate (DNR) Order',
+    text: `
+      <p>A <strong>Do Not Resuscitate (DNR)</strong> order is a medical order that tells healthcare providers not to perform CPR if your heart stops or you stop breathing.</p>
+      <p>A DNR is different from a Living Will:</p>
+      <ul>
+        <li><strong>DNR:</strong> A specific medical order, usually signed by a physician</li>
+        <li><strong>Living Will:</strong> A broader document expressing your wishes about life-sustaining treatment</li>
+      </ul>
+      <p>In Florida, the form is called a "Do Not Resuscitate Order" (DNRO) and must be signed by your physician.</p>
+    `,
+  },
+  {
+    id: 228,
+    type: 'Text',
+    title: 'Living Will',
+    text: `
+      <p>A <strong>Living Will</strong> (Advance Directive) is a legal document that specifies your wishes regarding end-of-life medical treatment.</p>
+      <p>A Living Will typically addresses:</p>
+      <ul>
+        <li>Life-prolonging procedures when death is imminent</li>
+        <li>Artificial nutrition and hydration</li>
+        <li>Mechanical ventilation</li>
+        <li>Comfort care and pain management</li>
+      </ul>
+      <p>This is separate from your Health Care POA, which names someone to make decisions for you.</p>
+    `,
+  },
+  {
+    id: 229,
+    type: 'Text',
+    title: 'Additional Comments - Current Estate Plan',
+    text: `
+      <p>Use this space to provide any <strong>additional information</strong> about your current estate planning documents.</p>
+      <p>You might include:</p>
+      <ul>
+        <li>Concerns about your current documents</li>
+        <li>Changes you're considering</li>
+        <li>Questions for our team</li>
+        <li>Information about other planning you've done</li>
+        <li>Details about previous attorney relationships</li>
+      </ul>
+    `,
+  },
 ];
 
 interface HelpModalProps {

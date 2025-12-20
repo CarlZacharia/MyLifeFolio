@@ -422,6 +422,7 @@ const PersonalDataSection = () => {
               <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
                 Did you serve in the Armed Forces?
               </FormLabel>
+              <HelpIcon helpId={42} onClick={() => openHelp(42)} />
             </Box>
             <RadioGroup
               row
@@ -524,6 +525,7 @@ const PersonalDataSection = () => {
               <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
                 Do you have a prepaid funeral policy?
               </FormLabel>
+              <HelpIcon helpId={43} onClick={() => openHelp(43)} />
             </Box>
             <RadioGroup
               row
@@ -568,6 +570,7 @@ const PersonalDataSection = () => {
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                 Burial or Cremation Preference
               </Typography>
+              <HelpIcon helpId={44} onClick={() => openHelp(44)} />
             </Box>
             <FormControl fullWidth variant="outlined" size="small">
               <Select
@@ -589,6 +592,7 @@ const PersonalDataSection = () => {
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                 Preferred Funeral Home
               </Typography>
+              <HelpIcon helpId={45} onClick={() => openHelp(45)} />
             </Box>
             <TextField
               fullWidth
@@ -607,6 +611,7 @@ const PersonalDataSection = () => {
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                 Preferred Church for Service
               </Typography>
+              <HelpIcon helpId={46} onClick={() => openHelp(46)} />
             </Box>
             <TextField
               fullWidth
@@ -1047,6 +1052,7 @@ const PersonalDataSection = () => {
               <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
                 Did your spouse serve in the Armed Forces?
               </FormLabel>
+              <HelpIcon helpId={47} onClick={() => openHelp(47)} />
             </Box>
             <RadioGroup
               row
@@ -1146,6 +1152,7 @@ const PersonalDataSection = () => {
               <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
                 Does your spouse have a prepaid funeral policy?
               </FormLabel>
+              <HelpIcon helpId={48} onClick={() => openHelp(48)} />
             </Box>
             <RadioGroup
               row
@@ -1190,6 +1197,7 @@ const PersonalDataSection = () => {
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                 Burial or Cremation Preference
               </Typography>
+              <HelpIcon helpId={49} onClick={() => openHelp(49)} />
             </Box>
             <FormControl fullWidth variant="outlined" size="small">
               <Select
@@ -1211,6 +1219,7 @@ const PersonalDataSection = () => {
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                 Preferred Funeral Home
               </Typography>
+              <HelpIcon helpId={52} onClick={() => openHelp(52)} />
             </Box>
             <TextField
               fullWidth
@@ -1229,6 +1238,7 @@ const PersonalDataSection = () => {
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                 Preferred Church for Service
               </Typography>
+              <HelpIcon helpId={53} onClick={() => openHelp(53)} />
             </Box>
             <TextField
               fullWidth

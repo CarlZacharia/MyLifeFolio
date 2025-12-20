@@ -20,8 +20,12 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PersonIcon from '@mui/icons-material/Person';
+import PeopleIcon from '@mui/icons-material/People';
 import {
   useFormContext,
   MaritalStatus,
@@ -35,7 +39,7 @@ import {
   Likelihood,
   CarePreference,
 } from '../lib/FormContext';
-import { VideoHelpIcon } from './FieldWithHelp';
+import { VideoHelpIcon, HelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
@@ -167,6 +171,8 @@ interface PersonLongTermCareProps {
   onChange: (field: keyof LongTermCareData, value: LongTermCareData[keyof LongTermCareData]) => void;
   personLabel: string;
   showSpouse: boolean;
+  headerColor?: string;
+  openHelp: (helpId: number) => void;
 }
 
 const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
@@ -174,6 +180,8 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
   onChange,
   personLabel,
   showSpouse,
+  headerColor = '#1a237e',
+  openHelp,
 }) => {
   const handleCheckboxArray = (field: keyof LongTermCareData, value: string, checked: boolean) => {
     const currentArray = (data[field] as string[]) || [];
@@ -199,7 +207,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
       {/* Section 1: General Framing Questions */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6" sx={{ fontWeight: 500, color: '#1a237e' }}>
+          <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
             1. General Framing Questions
           </Typography>
         </AccordionSummary>
@@ -219,7 +227,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
-                <FormLabel>How concerned are you about paying for long-term care in the future?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>How concerned are you about paying for long-term care in the future?</FormLabel>
+                  <HelpIcon helpId={131} onClick={() => openHelp(131)} />
+                </Box>
                 <Select
                   value={data.ltcConcernLevel}
                   onChange={(e) => onChange('ltcConcernLevel', e.target.value as ConcernLevel)}
@@ -235,7 +246,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Have you previously met with an attorney or advisor about long-term care or Medicaid planning?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Have you previously met with an attorney or advisor about long-term care or Medicaid planning?</FormLabel>
+                  <HelpIcon helpId={132} onClick={() => openHelp(132)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.previouslyMetWithAdvisor ? 'yes' : 'no'}
@@ -266,7 +280,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
       {/* Section 2: Current Health and Diagnoses */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6" sx={{ fontWeight: 500, color: '#1a237e' }}>
+          <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
             2. Current Health and Diagnoses
           </Typography>
         </AccordionSummary>
@@ -274,7 +288,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
-                <FormLabel>How would you describe your overall health?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>How would you describe your overall health?</FormLabel>
+                  <HelpIcon helpId={133} onClick={() => openHelp(133)} />
+                </Box>
                 <Select
                   value={data.overallHealth}
                   onChange={(e) => onChange('overallHealth', e.target.value as HealthRating)}
@@ -290,7 +307,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12}>
               <FormControl component="fieldset">
-                <FormLabel>Have you been diagnosed with any of the following? (Check all that apply)</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Have you been diagnosed with any of the following? (Check all that apply)</FormLabel>
+                  <HelpIcon helpId={134} onClick={() => openHelp(134)} />
+                </Box>
                 <FormGroup row>
                   {DIAGNOSES_OPTIONS.map((diagnosis) => (
                     <FormControlLabel
@@ -324,7 +344,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Have you experienced any recent hospitalizations, surgeries, or rehab stays in the last 2 years?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Have you experienced any recent hospitalizations, surgeries, or rehab stays in the last 2 years?</FormLabel>
+                  <HelpIcon helpId={135} onClick={() => openHelp(135)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.recentHospitalizations ? 'yes' : 'no'}
@@ -352,7 +375,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12}>
               <FormControl component="fieldset">
-                <FormLabel>Do you have any mobility limitations? (Check all that apply)</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you have any mobility limitations? (Check all that apply)</FormLabel>
+                  <HelpIcon helpId={136} onClick={() => openHelp(136)} />
+                </Box>
                 <FormGroup row>
                   {MOBILITY_OPTIONS.map((limitation) => (
                     <FormControlLabel
@@ -373,7 +399,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12}>
               <FormControl component="fieldset">
-                <FormLabel>Do you require help with any Activities of Daily Living (ADLs)? (Check all that apply)</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you require help with any Activities of Daily Living (ADLs)? (Check all that apply)</FormLabel>
+                  <HelpIcon helpId={137} onClick={() => openHelp(137)} />
+                </Box>
                 <FormGroup row>
                   {ADL_OPTIONS.map((adl) => (
                     <FormControlLabel
@@ -407,7 +436,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12}>
               <FormControl component="fieldset">
-                <FormLabel>Do you require help with any Instrumental Activities of Daily Living (IADLs)? (Check all that apply)</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you require help with any Instrumental Activities of Daily Living (IADLs)? (Check all that apply)</FormLabel>
+                  <HelpIcon helpId={138} onClick={() => openHelp(138)} />
+                </Box>
                 <FormGroup row>
                   {IADL_OPTIONS.map((iadl) => (
                     <FormControlLabel
@@ -428,7 +460,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Have you been diagnosed with dementia or memory impairment?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Have you been diagnosed with dementia or memory impairment?</FormLabel>
+                  <HelpIcon helpId={139} onClick={() => openHelp(139)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.hasDementia ? 'yes' : 'no'}
@@ -443,7 +478,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
             {data.hasDementia && (
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
-                  <FormLabel>Stage or severity</FormLabel>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Stage or severity</FormLabel>
+                    <HelpIcon helpId={140} onClick={() => openHelp(140)} />
+                  </Box>
                   <Select
                     value={data.dementiaStage}
                     onChange={(e) => onChange('dementiaStage', e.target.value as DementiaStage)}
@@ -460,7 +498,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Is there a family history of dementia, stroke, or other conditions that may affect long-term care needs?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Is there a family history of dementia, stroke, or other conditions that may affect long-term care needs?</FormLabel>
+                  <HelpIcon helpId={141} onClick={() => openHelp(141)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.familyHistoryOfConditions ? 'yes' : 'no'}
@@ -491,7 +532,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
       {/* Section 3: Current Living Situation and Services */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6" sx={{ fontWeight: 500, color: '#1a237e' }}>
+          <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
             3. Current Living Situation and Services
           </Typography>
         </AccordionSummary>
@@ -499,7 +540,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
-                <FormLabel>Where do you currently live?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Where do you currently live?</FormLabel>
+                  <HelpIcon helpId={142} onClick={() => openHelp(142)} />
+                </Box>
                 <Select
                   value={data.currentLivingSituation}
                   onChange={(e) => onChange('currentLivingSituation', e.target.value as LivingSituation)}
@@ -528,7 +572,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Are you currently residing in any long-term care community or facility?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Are you currently residing in any long-term care community or facility?</FormLabel>
+                  <HelpIcon helpId={143} onClick={() => openHelp(143)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.inLtcFacility ? 'yes' : 'no'}
@@ -544,7 +591,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <>
                 <Grid item xs={12} md={6}>
                   <FormControl fullWidth>
-                    <FormLabel>Level of care</FormLabel>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Level of care</FormLabel>
+                      <HelpIcon helpId={144} onClick={() => openHelp(144)} />
+                    </Box>
                     <Select
                       value={data.currentCareLevel}
                       onChange={(e) => onChange('currentCareLevel', e.target.value as CareLevel)}
@@ -597,7 +647,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Do you currently receive help at home (paid or unpaid)?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you currently receive help at home (paid or unpaid)?</FormLabel>
+                  <HelpIcon helpId={145} onClick={() => openHelp(145)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.receivesHomeHelp ? 'yes' : 'no'}
@@ -613,7 +666,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <>
                 <Grid item xs={12}>
                   <FormControl component="fieldset">
-                    <FormLabel>Who provides help? (Check all that apply)</FormLabel>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Who provides help? (Check all that apply)</FormLabel>
+                      <HelpIcon helpId={146} onClick={() => openHelp(146)} />
+                    </Box>
                     <FormGroup row>
                       {HOME_HELP_PROVIDERS.map((provider) => (
                         <FormControlLabel
@@ -634,7 +690,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
                 <Grid item xs={12} md={6}>
                   <FormControl fullWidth>
-                    <FormLabel>How many hours per week of help do you receive?</FormLabel>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>How many hours per week of help do you receive?</FormLabel>
+                      <HelpIcon helpId={147} onClick={() => openHelp(147)} />
+                    </Box>
                     <Select
                       value={data.hoursOfHelpPerWeek}
                       onChange={(e) => onChange('hoursOfHelpPerWeek', e.target.value as HoursPerWeek)}
@@ -652,7 +711,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Is there an expectation that your level of care will increase in the next 6-12 months?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Is there an expectation that your level of care will increase in the next 6-12 months?</FormLabel>
+                  <HelpIcon helpId={148} onClick={() => openHelp(148)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.expectCareIncrease}
@@ -684,7 +746,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
       {/* Section 4: Five-Year Care Foreseeability and Preferences */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6" sx={{ fontWeight: 500, color: '#1a237e' }}>
+          <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
             4. Five-Year Care Foreseeability and Preferences
           </Typography>
         </AccordionSummary>
@@ -692,7 +754,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
-                <FormLabel>How likely do you think it is that you will need long-term care (more than 90 consecutive days of help) within the next 5 years?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>How likely do you think it is that you will need long-term care (more than 90 consecutive days of help) within the next 5 years?</FormLabel>
+                  <HelpIcon helpId={149} onClick={() => openHelp(149)} />
+                </Box>
                 <Select
                   value={data.likelihoodOfLtcIn5Years}
                   onChange={(e) => onChange('likelihoodOfLtcIn5Years', e.target.value as Likelihood)}
@@ -708,7 +773,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
-                <FormLabel>If long-term care becomes necessary, where would you prefer to receive that care?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>If long-term care becomes necessary, where would you prefer to receive that care?</FormLabel>
+                  <HelpIcon helpId={150} onClick={() => openHelp(150)} />
+                </Box>
                 <Select
                   value={data.carePreference}
                   onChange={(e) => onChange('carePreference', e.target.value as CarePreference)}
@@ -742,7 +810,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <>
                 <Grid item xs={12} md={6}>
                   <FormControl component="fieldset">
-                    <FormLabel>Do you already have a specific provider or location in mind?</FormLabel>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you already have a specific provider or location in mind?</FormLabel>
+                      <HelpIcon helpId={151} onClick={() => openHelp(151)} />
+                    </Box>
                     <RadioGroup
                       row
                       value={data.hasSpecificProvider ? 'yes' : 'no'}
@@ -772,7 +843,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
             {data.carePreference === 'Age in place at home as long as possible' && (
               <Grid item xs={12}>
                 <FormControl component="fieldset">
-                  <FormLabel>What supports do you think you would need? (Check all that apply)</FormLabel>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>What supports do you think you would need? (Check all that apply)</FormLabel>
+                    <HelpIcon helpId={152} onClick={() => openHelp(152)} />
+                  </Box>
                   <FormGroup row>
                     {HOME_SUPPORTS.map((support) => (
                       <FormControlLabel
@@ -810,7 +884,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
       {/* Section 5: Caregivers */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6" sx={{ fontWeight: 500, color: '#1a237e' }}>
+          <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
             5. Caregivers
           </Typography>
         </AccordionSummary>
@@ -818,7 +892,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <FormControl component="fieldset">
-                <FormLabel>Who are your primary caregivers now or who would likely step into that role? (Check all that apply)</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Who are your primary caregivers now or who would likely step into that role? (Check all that apply)</FormLabel>
+                  <HelpIcon helpId={153} onClick={() => openHelp(153)} />
+                </Box>
                 <FormGroup row>
                   {CAREGIVER_OPTIONS.map((caregiver) => (
                     <FormControlLabel
@@ -839,7 +916,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Are any of your children or potential caregivers disabled, in poor health, or otherwise limited in their ability to assist?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Are any of your children or potential caregivers disabled, in poor health, or otherwise limited in their ability to assist?</FormLabel>
+                  <HelpIcon helpId={154} onClick={() => openHelp(154)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.caregiversLimitedAbility ? 'yes' : 'no'}
@@ -882,7 +962,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
       {/* Section 6: Insurance and Public Benefits */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6" sx={{ fontWeight: 500, color: '#1a237e' }}>
+          <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
             6. Insurance and Public Benefits
           </Typography>
         </AccordionSummary>
@@ -890,7 +970,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <FormControl component="fieldset">
-                <FormLabel>Do you have Medicare? (Check all that apply)</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you have Medicare? (Check all that apply)</FormLabel>
+                  <HelpIcon helpId={155} onClick={() => openHelp(155)} />
+                </Box>
                 <FormGroup row>
                   {MEDICARE_OPTIONS.map((part) => (
                     <FormControlLabel
@@ -911,7 +994,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Do you have a Medicare supplement (Medigap) or other private health insurance?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you have a Medicare supplement (Medigap) or other private health insurance?</FormLabel>
+                  <HelpIcon helpId={156} onClick={() => openHelp(156)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.hasMedigap ? 'yes' : 'no'}
@@ -938,7 +1024,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Do you have long-term care insurance or a life/annuity hybrid with long-term care benefits?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you have long-term care insurance or a life/annuity hybrid with long-term care benefits?</FormLabel>
+                  <HelpIcon helpId={157} onClick={() => openHelp(157)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.hasLtcInsurance ? 'yes' : 'no'}
@@ -966,7 +1055,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12}>
               <FormControl component="fieldset">
-                <FormLabel>Are you currently receiving any of the following benefits? (Check all that apply)</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Are you currently receiving any of the following benefits? (Check all that apply)</FormLabel>
+                  <HelpIcon helpId={158} onClick={() => openHelp(158)} />
+                </Box>
                 <FormGroup row>
                   {BENEFITS_OPTIONS.map((benefit) => (
                     <FormControlLabel
@@ -987,7 +1079,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Have you or your spouse ever applied for Medicaid for long-term care?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Have you or your spouse ever applied for Medicaid for long-term care?</FormLabel>
+                  <HelpIcon helpId={159} onClick={() => openHelp(159)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.previousMedicaidApplication ? 'yes' : 'no'}
@@ -1018,7 +1113,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
       {/* Section 7: Finances Relevant to LTC / Medicaid */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6" sx={{ fontWeight: 500, color: '#1a237e' }}>
+          <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
             7. Finances Relevant to LTC / Medicaid
           </Typography>
         </AccordionSummary>
@@ -1038,7 +1133,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Have you made gifts or transfers of more than a modest amount in the last 5 years?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Have you made gifts or transfers of more than a modest amount in the last 5 years?</FormLabel>
+                  <HelpIcon helpId={160} onClick={() => openHelp(160)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.madeGiftsOver5Years ? 'yes' : 'no'}
@@ -1066,7 +1164,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
-                <FormLabel>Are you expecting any large inheritance, lawsuit settlement, or other significant windfall?</FormLabel>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Are you expecting any large inheritance, lawsuit settlement, or other significant windfall?</FormLabel>
+                  <HelpIcon helpId={161} onClick={() => openHelp(161)} />
+                </Box>
                 <RadioGroup
                   row
                   value={data.expectingWindfall ? 'yes' : 'no'}
@@ -1097,7 +1198,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
       {/* Section 8: Quality-of-Life and Care Preferences */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6" sx={{ fontWeight: 500, color: '#1a237e' }}>
+          <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
             8. Quality-of-Life and Care Preferences
           </Typography>
         </AccordionSummary>
@@ -1112,7 +1213,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                   {showSpouse && (
                     <Grid item xs={12} md={4}>
                       <FormControl fullWidth size="small">
-                        <FormLabel>Staying with spouse/partner</FormLabel>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Staying with spouse/partner</FormLabel>
+                          <HelpIcon helpId={162} onClick={() => openHelp(162)} />
+                        </Box>
                         <Select
                           value={data.careSettingImportance.stayWithSpouse}
                           onChange={(e) => handleImportanceChange('stayWithSpouse', e.target.value)}
@@ -1128,7 +1232,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
                   <Grid item xs={12} md={4}>
                     <FormControl fullWidth size="small">
-                      <FormLabel>Being near family</FormLabel>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Being near family</FormLabel>
+                        <HelpIcon helpId={163} onClick={() => openHelp(163)} />
+                      </Box>
                       <Select
                         value={data.careSettingImportance.nearFamily}
                         onChange={(e) => handleImportanceChange('nearFamily', e.target.value)}
@@ -1143,7 +1250,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
                   <Grid item xs={12} md={4}>
                     <FormControl fullWidth size="small">
-                      <FormLabel>Religious or cultural environment</FormLabel>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Religious or cultural environment</FormLabel>
+                        <HelpIcon helpId={164} onClick={() => openHelp(164)} />
+                      </Box>
                       <Select
                         value={data.careSettingImportance.religiousCultural}
                         onChange={(e) => handleImportanceChange('religiousCultural', e.target.value)}
@@ -1158,7 +1268,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
                   <Grid item xs={12} md={4}>
                     <FormControl fullWidth size="small">
-                      <FormLabel>Pet-friendly policies</FormLabel>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Pet-friendly policies</FormLabel>
+                        <HelpIcon helpId={165} onClick={() => openHelp(165)} />
+                      </Box>
                       <Select
                         value={data.careSettingImportance.petFriendly}
                         onChange={(e) => handleImportanceChange('petFriendly', e.target.value)}
@@ -1173,7 +1286,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
                   <Grid item xs={12} md={4}>
                     <FormControl fullWidth size="small">
-                      <FormLabel>Private room</FormLabel>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Private room</FormLabel>
+                        <HelpIcon helpId={166} onClick={() => openHelp(166)} />
+                      </Box>
                       <Select
                         value={data.careSettingImportance.privateRoom}
                         onChange={(e) => handleImportanceChange('privateRoom', e.target.value)}
@@ -1188,7 +1304,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
                   <Grid item xs={12} md={4}>
                     <FormControl fullWidth size="small">
-                      <FormLabel>Social activities</FormLabel>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Social activities</FormLabel>
+                        <HelpIcon helpId={167} onClick={() => openHelp(167)} />
+                      </Box>
                       <Select
                         value={data.careSettingImportance.socialActivities}
                         onChange={(e) => handleImportanceChange('socialActivities', e.target.value)}
@@ -1203,7 +1322,10 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
 
                   <Grid item xs={12} md={4}>
                     <FormControl fullWidth size="small">
-                      <FormLabel>On-site medical staff</FormLabel>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>On-site medical staff</FormLabel>
+                        <HelpIcon helpId={168} onClick={() => openHelp(168)} />
+                      </Box>
                       <Select
                         value={data.careSettingImportance.onSiteMedicalStaff}
                         onChange={(e) => handleImportanceChange('onSiteMedicalStaff', e.target.value)}
@@ -1254,8 +1376,14 @@ const LongTermCareSection: React.FC = () => {
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
   const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<number>(0);
+
   const openHelp = (helpId: number) => setActiveHelpId(helpId);
   const closeHelp = () => setActiveHelpId(null);
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
 
   const handleClientChange = (
     field: keyof LongTermCareData,
@@ -1295,30 +1423,96 @@ const LongTermCareSection: React.FC = () => {
         to develop an appropriate asset protection and care planning strategy.
       </Typography>
 
-      {/* Client Section */}
-      <Paper variant="outlined" sx={{ p: 3, mb: 4 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}>
-          {formData.name || 'Client'} - Long-Term Care Information
-        </Typography>
-        <PersonLongTermCare
-          data={formData.clientLongTermCare}
-          onChange={handleClientChange}
-          personLabel="Client"
-          showSpouse={showSpouseInfo}
-        />
-      </Paper>
+      {/* Show tabs for married couples, otherwise just show client section */}
+      {showSpouseInfo ? (
+        <>
+          {/* Person Selection Tabs */}
+          <Paper variant="outlined" sx={{ mb: 3 }}>
+            <Tabs
+              value={activeTab}
+              onChange={handleTabChange}
+              variant="fullWidth"
+              TabIndicatorProps={{
+                style: {
+                  backgroundColor: activeTab === 0 ? '#1a237e' : '#2e7d32',
+                  height: 3,
+                },
+              }}
+              sx={{
+                '& .MuiTab-root': {
+                  py: 2,
+                  fontSize: '1rem',
+                  fontWeight: 500,
+                },
+              }}
+            >
+              <Tab
+                icon={<PersonIcon />}
+                iconPosition="start"
+                label={formData.name || 'Client'}
+                sx={{
+                  gap: 1,
+                  '&.Mui-selected': {
+                    color: '#1a237e',
+                    fontWeight: 600,
+                  },
+                }}
+              />
+              <Tab
+                icon={<PeopleIcon />}
+                iconPosition="start"
+                label={formData.spouseName || 'Spouse'}
+                sx={{
+                  gap: 1,
+                  '&.Mui-selected': {
+                    color: '#2e7d32',
+                    fontWeight: 600,
+                  },
+                }}
+              />
+            </Tabs>
+          </Paper>
 
-      {/* Spouse Section */}
-      {showSpouseInfo && (
+          {/* Client Tab Content */}
+          {activeTab === 0 && (
+            <Paper variant="outlined" sx={{ p: 3 }}>
+              <PersonLongTermCare
+                data={formData.clientLongTermCare}
+                onChange={handleClientChange}
+                personLabel="Client"
+                showSpouse={showSpouseInfo}
+                headerColor="#1a237e"
+                openHelp={openHelp}
+              />
+            </Paper>
+          )}
+
+          {/* Spouse Tab Content */}
+          {activeTab === 1 && (
+            <Paper variant="outlined" sx={{ p: 3 }}>
+              <PersonLongTermCare
+                data={formData.spouseLongTermCare}
+                onChange={handleSpouseChange}
+                personLabel="Spouse"
+                showSpouse={showSpouseInfo}
+                headerColor="#2e7d32"
+                openHelp={openHelp}
+              />
+            </Paper>
+          )}
+        </>
+      ) : (
+        /* Single person - no tabs needed */
         <Paper variant="outlined" sx={{ p: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}>
-            {formData.spouseName || 'Spouse'} - Long-Term Care Information
+            {formData.name || 'Client'} - Long-Term Care Information
           </Typography>
           <PersonLongTermCare
-            data={formData.spouseLongTermCare}
-            onChange={handleSpouseChange}
-            personLabel="Spouse"
+            data={formData.clientLongTermCare}
+            onChange={handleClientChange}
+            personLabel="Client"
             showSpouse={showSpouseInfo}
+            openHelp={openHelp}
           />
         </Paper>
       )}

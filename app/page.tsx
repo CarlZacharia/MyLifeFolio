@@ -15,7 +15,9 @@ import {
 import { FormProvider, useFormContext } from '../lib/FormContext';
 import PersonalDataSection from '../components/PersonalDataSection';
 import BeneficiariesSection from '../components/BeneficiariesSection';
-import DispositiveIntentionsSection from '../components/DispositiveIntentionsSection';
+// DispositiveIntentionsSection is kept but tabled for now
+// import DispositiveIntentionsSection from '../components/DispositiveIntentionsSection';
+import CurrentEstatePlanSection from '../components/CurrentEstatePlanSection';
 import FiduciariesSection from '../components/FiduciariesSection';
 import LongTermCareSection from '../components/LongTermCareSection';
 import AssetsSection from '../components/AssetsSection';
@@ -30,9 +32,9 @@ const ALL_STEPS = [
   'Personal Data',
   'Beneficiaries',
   'Assets',
+  'Current Estate Plan',
   'Fiduciaries',
   'Long-Term Care',
-  'Dispositive Intentions',
   'Summary',
   'Analysis',
   'Review & Submit'
@@ -71,6 +73,9 @@ const QuestionnaireContent = () => {
     console.log('Other Assets:', formData.otherAssets);
     console.log('Business Interests:', formData.businessInterests);
     console.log('Digital Assets:', formData.digitalAssets);
+    console.log('--- Current Estate Plan ---');
+    console.log('Client Current Estate Plan:', formData.clientCurrentEstatePlan);
+    console.log('Spouse Current Estate Plan:', formData.spouseCurrentEstatePlan);
     console.log('=== END DEBUG ===');
   };
 
@@ -141,8 +146,8 @@ const QuestionnaireContent = () => {
         return <PersonalDataSection />;
       case 'Beneficiaries':
         return <BeneficiariesSection />;
-      case 'Dispositive Intentions':
-        return <DispositiveIntentionsSection />;
+      case 'Current Estate Plan':
+        return <CurrentEstatePlanSection />;
       case 'Fiduciaries':
         return <FiduciariesSection />;
       case 'Long-Term Care':
@@ -206,7 +211,7 @@ const QuestionnaireContent = () => {
       <Paper elevation={3} sx={{ p: 4 }}>
         {/* Header */}
         <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#1a237e' }}>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#1a237e' }} onClick={debugFormData}>
             Estate Planning Questionnaire
           </Typography>
           <Typography variant="subtitle1" color="text.secondary">
@@ -216,14 +221,7 @@ const QuestionnaireContent = () => {
             Estate Planning & Elder Law Attorneys
           </Typography>
           {/* Debug button - remove in production */}
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={debugFormData}
-            sx={{ mt: 1, fontSize: '0.7rem' }}
-          >
-            Debug: Log Form Data
-          </Button>
+
         </Box>
 
         {/* Stepper */}

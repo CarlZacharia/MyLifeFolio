@@ -4,6 +4,8 @@ import React, { createContext, useContext, useState, useEffect, useRef, ReactNod
 
 const STORAGE_KEY = 'estate-planning-form-data';
 const STEP_STORAGE_KEY = 'estate-planning-current-step';
+const SCHEMA_VERSION_KEY = 'estate-planning-schema-version';
+const CURRENT_SCHEMA_VERSION = 2; // Increment when schema changes require migration
 
 export type MaritalStatus = 'Single' | 'Married' | 'Second Marriage' | 'Divorced' | 'Separated' | 'Domestic Partnership' | '';
 export type Sex = 'Male' | 'Female' | 'Other' | '';
@@ -19,6 +21,70 @@ export type CareLevel = '' | 'Independent living' | 'Assisted living' | 'Memory 
 export type HoursPerWeek = '' | '0' | '1-10' | '11-20' | '21-40' | '40+';
 export type Likelihood = '' | 'Very unlikely' | 'Unlikely' | 'Unsure' | 'Likely' | 'Very likely';
 export type CarePreference = '' | 'Age in place at home as long as possible' | 'Live with family' | 'Assisted living' | 'Memory care' | 'Skilled nursing' | 'Continuing care retirement community' | 'No preference' | 'Other';
+
+// Current Estate Plan Types
+export type DocumentReviewOption = '' | 'Upload' | 'Answer Questions';
+
+export interface SpecificGift {
+  recipientName: string;
+  relationship: string;
+  description: string;
+  notes: string;
+}
+
+export interface CurrentEstatePlanData {
+  // Document existence
+  hasWill: boolean;
+  hasTrust: boolean;
+  hasFinancialPOA: boolean;
+  hasHealthCarePOA: boolean;
+  hasLivingWill: boolean;
+  hasNone: boolean;
+
+  // Document details
+  documentState: string;
+  documentDate: string;
+  reviewOption: DocumentReviewOption;
+
+  // File uploads (store file names/references)
+  uploadedFiles: string[];
+
+  // Will Details
+  willPersonalRep: string;
+  willPersonalRepAlternate1: string;
+  willPersonalRepAlternate2: string;
+  willPrimaryBeneficiary: string;
+  willSecondaryBeneficiaries: string;
+  willSpecificRealEstateGifts: SpecificGift[];
+  willSpecificAssetGifts: SpecificGift[];
+  willGeneralMoneyGifts: SpecificGift[];
+
+  // Trust Details
+  trustTrustee: string;
+  trustTrusteeAlternate1: string;
+  trustTrusteeAlternate2: string;
+  trustPrimaryBeneficiary: string;
+  trustSecondaryBeneficiaries: string;
+  trustSpecificRealEstateGifts: SpecificGift[];
+  trustSpecificAssetGifts: SpecificGift[];
+  trustGeneralMoneyGifts: SpecificGift[];
+
+  // Financial POA Details
+  financialPOAAgent1: string;
+  financialPOAAgent2: string;
+  financialPOAAgent3: string;
+
+  // Health Care POA Details
+  healthCarePOAAgent1: string;
+  healthCarePOAAgent2: string;
+  healthCarePOAAgent3: string;
+  isHIPAACompliant: boolean;
+  hasDNROrder: boolean;
+  hasLivingWillDocument: boolean;
+
+  // Comments
+  comments: string;
+}
 
 export interface LongTermCareData {
   // General framing questions
@@ -434,6 +500,11 @@ export interface FormData {
   clientLongTermCare: LongTermCareData;
   // Long-Term Care - Spouse
   spouseLongTermCare: LongTermCareData;
+
+  // Current Estate Plan - Client
+  clientCurrentEstatePlan: CurrentEstatePlanData;
+  // Current Estate Plan - Spouse
+  spouseCurrentEstatePlan: CurrentEstatePlanData;
 }
 
 interface FormContextType {
@@ -460,8 +531,11 @@ const serializeFormData = (data: FormData): string => {
   const serialized = { ...data } as Record<string, unknown>;
   DATE_FIELDS.forEach((field) => {
     const value = serialized[field];
-    if (value instanceof Date) {
+    if (value instanceof Date && !isNaN(value.getTime())) {
       serialized[field] = value.toISOString();
+    } else if (value instanceof Date) {
+      // Invalid date - set to null
+      serialized[field] = null;
     }
   });
   return JSON.stringify(serialized);
@@ -784,6 +858,82 @@ const initialFormData: FormData = {
     endOfLifePreferences: '',
     importantTherapiesActivities: '',
   },
+  clientCurrentEstatePlan: {
+    hasWill: false,
+    hasTrust: false,
+    hasFinancialPOA: false,
+    hasHealthCarePOA: false,
+    hasLivingWill: false,
+    hasNone: false,
+    documentState: '',
+    documentDate: '',
+    reviewOption: '',
+    uploadedFiles: [],
+    willPersonalRep: '',
+    willPersonalRepAlternate1: '',
+    willPersonalRepAlternate2: '',
+    willPrimaryBeneficiary: '',
+    willSecondaryBeneficiaries: '',
+    willSpecificRealEstateGifts: [],
+    willSpecificAssetGifts: [],
+    willGeneralMoneyGifts: [],
+    trustTrustee: '',
+    trustTrusteeAlternate1: '',
+    trustTrusteeAlternate2: '',
+    trustPrimaryBeneficiary: '',
+    trustSecondaryBeneficiaries: '',
+    trustSpecificRealEstateGifts: [],
+    trustSpecificAssetGifts: [],
+    trustGeneralMoneyGifts: [],
+    financialPOAAgent1: '',
+    financialPOAAgent2: '',
+    financialPOAAgent3: '',
+    healthCarePOAAgent1: '',
+    healthCarePOAAgent2: '',
+    healthCarePOAAgent3: '',
+    isHIPAACompliant: false,
+    hasDNROrder: false,
+    hasLivingWillDocument: false,
+    comments: '',
+  },
+  spouseCurrentEstatePlan: {
+    hasWill: false,
+    hasTrust: false,
+    hasFinancialPOA: false,
+    hasHealthCarePOA: false,
+    hasLivingWill: false,
+    hasNone: false,
+    documentState: '',
+    documentDate: '',
+    reviewOption: '',
+    uploadedFiles: [],
+    willPersonalRep: '',
+    willPersonalRepAlternate1: '',
+    willPersonalRepAlternate2: '',
+    willPrimaryBeneficiary: '',
+    willSecondaryBeneficiaries: '',
+    willSpecificRealEstateGifts: [],
+    willSpecificAssetGifts: [],
+    willGeneralMoneyGifts: [],
+    trustTrustee: '',
+    trustTrusteeAlternate1: '',
+    trustTrusteeAlternate2: '',
+    trustPrimaryBeneficiary: '',
+    trustSecondaryBeneficiaries: '',
+    trustSpecificRealEstateGifts: [],
+    trustSpecificAssetGifts: [],
+    trustGeneralMoneyGifts: [],
+    financialPOAAgent1: '',
+    financialPOAAgent2: '',
+    financialPOAAgent3: '',
+    healthCarePOAAgent1: '',
+    healthCarePOAAgent2: '',
+    healthCarePOAAgent3: '',
+    isHIPAACompliant: false,
+    hasDNROrder: false,
+    hasLivingWillDocument: false,
+    comments: '',
+  },
 };
 
 export const FormProvider = ({ children }: { children: ReactNode }) => {
@@ -797,11 +947,49 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
     try {
       const savedData = localStorage.getItem(STORAGE_KEY);
       const savedStep = localStorage.getItem(STEP_STORAGE_KEY);
+      const savedVersion = localStorage.getItem(SCHEMA_VERSION_KEY);
+      const storedVersion = savedVersion ? parseInt(savedVersion, 10) : 0;
 
       if (savedData) {
         const parsed = deserializeFormData(savedData);
+
         // Merge with initialFormData to handle any new fields added to the schema
-        setFormData({ ...initialFormData, ...parsed });
+        // Deep merge for nested objects like clientLongTermCare, spouseLongTermCare, clientCurrentEstatePlan, spouseCurrentEstatePlan
+        const mergedData: FormData = {
+          ...initialFormData,
+          ...parsed,
+          // Ensure nested objects are properly merged with defaults
+          clientLongTermCare: {
+            ...initialFormData.clientLongTermCare,
+            ...(parsed.clientLongTermCare || {}),
+          },
+          spouseLongTermCare: {
+            ...initialFormData.spouseLongTermCare,
+            ...(parsed.spouseLongTermCare || {}),
+          },
+          clientCurrentEstatePlan: {
+            ...initialFormData.clientCurrentEstatePlan,
+            ...(parsed.clientCurrentEstatePlan || {}),
+          },
+          spouseCurrentEstatePlan: {
+            ...initialFormData.spouseCurrentEstatePlan,
+            ...(parsed.spouseCurrentEstatePlan || {}),
+          },
+        };
+
+        setFormData(mergedData);
+
+        // If schema version changed, save the migrated data back to localStorage
+        if (storedVersion < CURRENT_SCHEMA_VERSION) {
+          localStorage.setItem(STORAGE_KEY, serializeFormData(mergedData));
+          localStorage.setItem(SCHEMA_VERSION_KEY, CURRENT_SCHEMA_VERSION.toString());
+          console.log(`Migrated form data from schema version ${storedVersion} to ${CURRENT_SCHEMA_VERSION}`);
+        }
+      }
+
+      // Always ensure schema version is current
+      if (storedVersion < CURRENT_SCHEMA_VERSION) {
+        localStorage.setItem(SCHEMA_VERSION_KEY, CURRENT_SCHEMA_VERSION.toString());
       }
 
       if (savedStep) {
