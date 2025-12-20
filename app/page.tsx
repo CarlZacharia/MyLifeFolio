@@ -14,12 +14,13 @@ import {
 } from '@mui/material';
 import { FormProvider, useFormContext } from '../lib/FormContext';
 import PersonalDataSection from '../components/PersonalDataSection';
-import ChildrenSection from '../components/ChildrenSection';
-import OtherBeneficiariesSection from '../components/OtherBeneficiariesSection';
+import BeneficiariesSection from '../components/BeneficiariesSection';
 import DispositiveIntentionsSection from '../components/DispositiveIntentionsSection';
 import FiduciariesSection from '../components/FiduciariesSection';
+import LongTermCareSection from '../components/LongTermCareSection';
 import AssetsSection from '../components/AssetsSection';
 import SummarySection from '../components/SummarySection';
+import EstatePlanAnalysis from '../components/EstatePlanAnalysis';
 import axios from 'axios';
 import { MaritalStatus } from '../lib/FormContext';
 
@@ -27,12 +28,13 @@ const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Do
 
 const ALL_STEPS = [
   'Personal Data',
-  'Children',
-  'Other Beneficiaries',
+  'Beneficiaries',
   'Assets',
   'Fiduciaries',
+  'Long-Term Care',
   'Dispositive Intentions',
   'Summary',
+  'Analysis',
   'Review & Submit'
 ];
 
@@ -72,18 +74,12 @@ const QuestionnaireContent = () => {
     console.log('=== END DEBUG ===');
   };
 
-  const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
-  // For single clients, use numberOfChildren only; for married clients, add children together + prior children
-  const totalChildren = showSpouseInfo
-    ? formData.numberOfChildren + formData.clientChildrenFromPrior + formData.childrenTogether + formData.spouseChildrenFromPrior
-    : formData.numberOfChildren;
-  const hasChildren = totalChildren > 0;
   const steps = ALL_STEPS;
   const totalSteps = steps.length;
 
-  // Children step is disabled when there are no children
-  const isStepDisabled = (stepName: string) => {
-    return stepName === 'Children' && !hasChildren;
+  // No steps are disabled - Beneficiaries section handles empty states
+  const isStepDisabled = (_stepName: string) => {
+    return false;
   };
 
   const handleNext = () => {
@@ -143,18 +139,20 @@ const QuestionnaireContent = () => {
     switch (stepName) {
       case 'Personal Data':
         return <PersonalDataSection />;
-      case 'Children':
-        return <ChildrenSection />;
-      case 'Other Beneficiaries':
-        return <OtherBeneficiariesSection />;
+      case 'Beneficiaries':
+        return <BeneficiariesSection />;
       case 'Dispositive Intentions':
         return <DispositiveIntentionsSection />;
       case 'Fiduciaries':
         return <FiduciariesSection />;
+      case 'Long-Term Care':
+        return <LongTermCareSection />;
       case 'Assets':
         return <AssetsSection />;
       case 'Summary':
         return <SummarySection />;
+      case 'Analysis':
+        return <EstatePlanAnalysis />;
       case 'Review & Submit':
         return (
           <Box>

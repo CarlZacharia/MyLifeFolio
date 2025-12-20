@@ -10,6 +10,98 @@ export type Sex = 'Male' | 'Female' | 'Other' | '';
 export type RealEstateOwner = 'Client' | 'Spouse' | 'Client and Spouse' | 'Client and Other' | 'Spouse and Other' | 'Client, Spouse and Other' | '';
 export type OwnershipForm = 'Sole' | 'Tenants by Entirety' | 'JTWROS' | 'Tenants in Common' | 'Life Estate' | 'Lady Bird Deed' | 'Living Trust' | 'Irrevocable Trust' | 'Other' | '';
 
+// Long-Term Care Types
+export type ConcernLevel = '' | 'Not at all' | 'Slightly' | 'Moderately' | 'Very' | 'Extremely';
+export type HealthRating = '' | 'Excellent' | 'Good' | 'Fair' | 'Poor';
+export type DementiaStage = '' | 'Mild' | 'Moderate' | 'Severe';
+export type LivingSituation = '' | 'Own home' | 'Rented home/apartment' | 'Independent living in a senior community' | 'Assisted living' | 'Memory care' | 'Skilled nursing facility' | 'Living with family' | 'Other';
+export type CareLevel = '' | 'Independent living' | 'Assisted living' | 'Memory care' | 'Skilled nursing' | 'Rehabilitation' | 'At-home care with agency' | 'At-home care with private aides';
+export type HoursPerWeek = '' | '0' | '1-10' | '11-20' | '21-40' | '40+';
+export type Likelihood = '' | 'Very unlikely' | 'Unlikely' | 'Unsure' | 'Likely' | 'Very likely';
+export type CarePreference = '' | 'Age in place at home as long as possible' | 'Live with family' | 'Assisted living' | 'Memory care' | 'Skilled nursing' | 'Continuing care retirement community' | 'No preference' | 'Other';
+
+export interface LongTermCareData {
+  // General framing questions
+  primaryGoalsConcerns: string;
+  ltcConcernLevel: ConcernLevel;
+  previouslyMetWithAdvisor: boolean;
+  advisorMeetingDetails: string;
+
+  // Current health and diagnoses
+  overallHealth: HealthRating;
+  diagnoses: string[]; // Array of selected diagnoses
+  diagnosesOther: string;
+  recentHospitalizations: boolean;
+  hospitalizationDetails: string;
+  mobilityLimitations: string[]; // Array of selected limitations
+  adlHelp: string[]; // Activities of Daily Living needing help
+  adlAssistance: string; // Who assists
+  iadlHelp: string[]; // Instrumental ADLs needing help
+  hasDementia: boolean;
+  dementiaStage: DementiaStage;
+  familyHistoryOfConditions: boolean;
+  familyHistoryDetails: string;
+
+  // Current living situation and services
+  currentLivingSituation: LivingSituation;
+  livingOther: string;
+  inLtcFacility: boolean;
+  currentCareLevel: CareLevel;
+  facilityName: string;
+  facilityAddress: string;
+  facilityStartDate: string;
+  receivesHomeHelp: boolean;
+  homeHelpProviders: string[]; // Array of selected providers
+  hoursOfHelpPerWeek: HoursPerWeek;
+  expectCareIncrease: '' | 'Yes' | 'No' | 'Unsure';
+  careIncreaseExplanation: string;
+
+  // Five-year care foreseeability and preferences
+  likelihoodOfLtcIn5Years: Likelihood;
+  carePreference: CarePreference;
+  carePreferenceOther: string;
+  hasSpecificProvider: boolean;
+  preferredProviderDetails: string;
+  homeSupportsNeeded: string[]; // Array of selected supports
+  geographicPreferences: string;
+
+  // Caregivers
+  primaryCaregivers: string[]; // Array of selected caregivers
+  caregiversLimitedAbility: boolean;
+  caregiversLimitedDetails: string;
+  familyConflicts: string;
+
+  // Insurance and public benefits
+  medicareTypes: string[]; // Array: Part A, Part B, Part C, Part D
+  hasMedigap: boolean;
+  medigapDetails: string;
+  hasLtcInsurance: boolean;
+  ltcInsuranceDetails: string;
+  currentBenefits: string[]; // Array of current benefits
+  previousMedicaidApplication: boolean;
+  medicaidApplicationDetails: string;
+
+  // Finances relevant to LTC / Medicaid
+  monthlyIncome: string;
+  madeGiftsOver5Years: boolean;
+  giftsDetails: string;
+  expectingWindfall: boolean;
+  windfallDetails: string;
+
+  // Quality-of-life and care preferences
+  careSettingImportance: {
+    stayWithSpouse: '' | 'Not important' | 'Somewhat important' | 'Very important';
+    nearFamily: '' | 'Not important' | 'Somewhat important' | 'Very important';
+    religiousCultural: '' | 'Not important' | 'Somewhat important' | 'Very important';
+    petFriendly: '' | 'Not important' | 'Somewhat important' | 'Very important';
+    privateRoom: '' | 'Not important' | 'Somewhat important' | 'Very important';
+    socialActivities: '' | 'Not important' | 'Somewhat important' | 'Very important';
+    onSiteMedicalStaff: '' | 'Not important' | 'Somewhat important' | 'Very important';
+  };
+  endOfLifePreferences: string;
+  importantTherapiesActivities: string;
+}
+
 export interface FormData {
   // Personal Data
   date: string;
@@ -40,6 +132,32 @@ export interface FormData {
   spouseHasChildrenFromPrior: boolean;
   spouseChildrenFromPrior: number;
 
+  // Military Service - Client
+  clientServedMilitary: boolean;
+  clientMilitaryBranch: string;
+  clientMilitaryStartDate: string;
+  clientMilitaryEndDate: string;
+
+  // Military Service - Spouse
+  spouseServedMilitary: boolean;
+  spouseMilitaryBranch: string;
+  spouseMilitaryStartDate: string;
+  spouseMilitaryEndDate: string;
+
+  // Funeral Preferences - Client
+  clientHasPrepaidFuneral: boolean;
+  clientPrepaidFuneralDetails: string;
+  clientPreferredFuneralHome: string;
+  clientBurialOrCremation: '' | 'Burial' | 'Cremation' | 'Undecided';
+  clientPreferredChurch: string;
+
+  // Funeral Preferences - Spouse
+  spouseHasPrepaidFuneral: boolean;
+  spousePrepaidFuneralDetails: string;
+  spousePreferredFuneralHome: string;
+  spouseBurialOrCremation: '' | 'Burial' | 'Cremation' | 'Undecided';
+  spousePreferredChurch: string;
+
   // Existing Trusts
   clientHasLivingTrust: boolean;
   clientLivingTrustName: string;
@@ -65,6 +183,7 @@ export interface FormData {
     name: string;
     address: string;
     birthDate: string;
+    age: string;
     relationship: string;
     maritalStatus: 'Single' | 'Married' | 'Divorced' | 'Widowed' | '';
     hasChildren: boolean;
@@ -216,6 +335,10 @@ export interface FormData {
     costBasis: string;
     primaryBeneficiaries: string[]; // Used for Remainder Interest when Life Estate or Lady Bird Deed
     remainderInterestOther: string; // Name of non-beneficiary remainder interest holder
+    clientOwnershipPercentage: string; // For Tenants in Common
+    spouseOwnershipPercentage: string; // For Tenants in Common
+    clientSpouseJointType: string; // For TIC with "Client, Spouse and Other" - how client/spouse own their share (TBE or JTWROS)
+    clientSpouseCombinedPercentage: string; // For TIC with "Client, Spouse and Other" when owned as TBE/JTWROS - their combined share percentage
     notes: string;
   }>;
 
@@ -290,7 +413,7 @@ export interface FormData {
     businessName: string;
     entityType: string;
     ownershipPercentage: string;
-    value: string;
+    fullValue: string; // Full estimated value of the business
     coOwners: string;
     hasBuySellAgreement: boolean;
     notes: string;
@@ -306,6 +429,11 @@ export interface FormData {
   }>;
 
   additionalComments: string;
+
+  // Long-Term Care - Client
+  clientLongTermCare: LongTermCareData;
+  // Long-Term Care - Spouse
+  spouseLongTermCare: LongTermCareData;
 }
 
 interface FormContextType {
@@ -389,6 +517,24 @@ const initialFormData: FormData = {
   childrenTogether: 0,
   spouseHasChildrenFromPrior: false,
   spouseChildrenFromPrior: 0,
+  clientServedMilitary: false,
+  clientMilitaryBranch: '',
+  clientMilitaryStartDate: '',
+  clientMilitaryEndDate: '',
+  spouseServedMilitary: false,
+  spouseMilitaryBranch: '',
+  spouseMilitaryStartDate: '',
+  spouseMilitaryEndDate: '',
+  clientHasPrepaidFuneral: false,
+  clientPrepaidFuneralDetails: '',
+  clientPreferredFuneralHome: '',
+  clientBurialOrCremation: '',
+  clientPreferredChurch: '',
+  spouseHasPrepaidFuneral: false,
+  spousePrepaidFuneralDetails: '',
+  spousePreferredFuneralHome: '',
+  spouseBurialOrCremation: '',
+  spousePreferredChurch: '',
   clientHasLivingTrust: false,
   clientLivingTrustName: '',
   clientLivingTrustDate: null,
@@ -506,6 +652,138 @@ const initialFormData: FormData = {
   businessInterests: [],
   digitalAssets: [],
   additionalComments: '',
+  clientLongTermCare: {
+    primaryGoalsConcerns: '',
+    ltcConcernLevel: '',
+    previouslyMetWithAdvisor: false,
+    advisorMeetingDetails: '',
+    overallHealth: '',
+    diagnoses: [],
+    diagnosesOther: '',
+    recentHospitalizations: false,
+    hospitalizationDetails: '',
+    mobilityLimitations: [],
+    adlHelp: [],
+    adlAssistance: '',
+    iadlHelp: [],
+    hasDementia: false,
+    dementiaStage: '',
+    familyHistoryOfConditions: false,
+    familyHistoryDetails: '',
+    currentLivingSituation: '',
+    livingOther: '',
+    inLtcFacility: false,
+    currentCareLevel: '',
+    facilityName: '',
+    facilityAddress: '',
+    facilityStartDate: '',
+    receivesHomeHelp: false,
+    homeHelpProviders: [],
+    hoursOfHelpPerWeek: '',
+    expectCareIncrease: '',
+    careIncreaseExplanation: '',
+    likelihoodOfLtcIn5Years: '',
+    carePreference: '',
+    carePreferenceOther: '',
+    hasSpecificProvider: false,
+    preferredProviderDetails: '',
+    homeSupportsNeeded: [],
+    geographicPreferences: '',
+    primaryCaregivers: [],
+    caregiversLimitedAbility: false,
+    caregiversLimitedDetails: '',
+    familyConflicts: '',
+    medicareTypes: [],
+    hasMedigap: false,
+    medigapDetails: '',
+    hasLtcInsurance: false,
+    ltcInsuranceDetails: '',
+    currentBenefits: [],
+    previousMedicaidApplication: false,
+    medicaidApplicationDetails: '',
+    monthlyIncome: '',
+    madeGiftsOver5Years: false,
+    giftsDetails: '',
+    expectingWindfall: false,
+    windfallDetails: '',
+    careSettingImportance: {
+      stayWithSpouse: '',
+      nearFamily: '',
+      religiousCultural: '',
+      petFriendly: '',
+      privateRoom: '',
+      socialActivities: '',
+      onSiteMedicalStaff: '',
+    },
+    endOfLifePreferences: '',
+    importantTherapiesActivities: '',
+  },
+  spouseLongTermCare: {
+    primaryGoalsConcerns: '',
+    ltcConcernLevel: '',
+    previouslyMetWithAdvisor: false,
+    advisorMeetingDetails: '',
+    overallHealth: '',
+    diagnoses: [],
+    diagnosesOther: '',
+    recentHospitalizations: false,
+    hospitalizationDetails: '',
+    mobilityLimitations: [],
+    adlHelp: [],
+    adlAssistance: '',
+    iadlHelp: [],
+    hasDementia: false,
+    dementiaStage: '',
+    familyHistoryOfConditions: false,
+    familyHistoryDetails: '',
+    currentLivingSituation: '',
+    livingOther: '',
+    inLtcFacility: false,
+    currentCareLevel: '',
+    facilityName: '',
+    facilityAddress: '',
+    facilityStartDate: '',
+    receivesHomeHelp: false,
+    homeHelpProviders: [],
+    hoursOfHelpPerWeek: '',
+    expectCareIncrease: '',
+    careIncreaseExplanation: '',
+    likelihoodOfLtcIn5Years: '',
+    carePreference: '',
+    carePreferenceOther: '',
+    hasSpecificProvider: false,
+    preferredProviderDetails: '',
+    homeSupportsNeeded: [],
+    geographicPreferences: '',
+    primaryCaregivers: [],
+    caregiversLimitedAbility: false,
+    caregiversLimitedDetails: '',
+    familyConflicts: '',
+    medicareTypes: [],
+    hasMedigap: false,
+    medigapDetails: '',
+    hasLtcInsurance: false,
+    ltcInsuranceDetails: '',
+    currentBenefits: [],
+    previousMedicaidApplication: false,
+    medicaidApplicationDetails: '',
+    monthlyIncome: '',
+    madeGiftsOver5Years: false,
+    giftsDetails: '',
+    expectingWindfall: false,
+    windfallDetails: '',
+    careSettingImportance: {
+      stayWithSpouse: '',
+      nearFamily: '',
+      religiousCultural: '',
+      petFriendly: '',
+      privateRoom: '',
+      socialActivities: '',
+      onSiteMedicalStaff: '',
+    },
+    endOfLifePreferences: '',
+    importantTherapiesActivities: '',
+  },
 };
 
 export const FormProvider = ({ children }: { children: ReactNode }) => {

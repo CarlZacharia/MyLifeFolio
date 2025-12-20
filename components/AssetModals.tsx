@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -21,34 +21,51 @@ import {
   Autocomplete,
   Typography,
   Divider,
-} from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { RealEstateOwner, OwnershipForm } from '../lib/FormContext';
-import CurrencyInput from './CurrencyInput';
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { RealEstateOwner, OwnershipForm } from "../lib/FormContext";
+import CurrencyInput from "./CurrencyInput";
+
+// Validation helpers
+type TouchedFields<T> = Partial<Record<keyof T, boolean>>;
+
+const isFieldTouched = <T,>(touched: TouchedFields<T>, field: keyof T): boolean => {
+  return touched[field] === true;
+};
+
+const hasValue = (value: string | undefined | null): boolean => {
+  return value !== undefined && value !== null && value.trim() !== "";
+};
+
+const hasCurrencyValue = (value: string | undefined | null): boolean => {
+  if (!value) return false;
+  const num = parseFloat(value.replace(/[^0-9.-]/g, ""));
+  return !isNaN(num) && num > 0;
+};
 
 // Constants
 const ALL_OWNER_OPTIONS: RealEstateOwner[] = [
-  'Client',
-  'Spouse',
-  'Client and Spouse',
-  'Client and Other',
-  'Spouse and Other',
-  'Client, Spouse and Other',
+  "Client",
+  "Spouse",
+  "Client and Spouse",
+  "Client and Other",
+  "Spouse and Other",
+  "Client, Spouse and Other",
 ];
 
 const CLIENT_ONLY_OWNER_OPTIONS: RealEstateOwner[] = [
-  'Client',
-  'Client and Other',
+  "Client",
+  "Client and Other",
 ];
 
 const OWNERS_WITH_OTHER: RealEstateOwner[] = [
-  'Client and Other',
-  'Spouse and Other',
-  'Client, Spouse and Other',
+  "Client and Other",
+  "Spouse and Other",
+  "Client, Spouse and Other",
 ];
 
-const ALL_INDIVIDUAL_OWNER_OPTIONS = ['Client', 'Spouse'] as const;
-const CLIENT_ONLY_INDIVIDUAL_OPTIONS = ['Client'] as const;
+const ALL_INDIVIDUAL_OWNER_OPTIONS = ["Client", "Spouse"] as const;
+const CLIENT_ONLY_INDIVIDUAL_OPTIONS = ["Client"] as const;
 
 // Helper to get owner options based on showSpouse
 const getOwnerOptions = (showSpouse: boolean): RealEstateOwner[] =>
@@ -64,43 +81,70 @@ export interface TrustFlags {
   spouseHasIrrevocableTrust: boolean;
 }
 
-const getOwnershipFormOptions = (owner: RealEstateOwner, trustFlags?: TrustFlags): OwnershipForm[] => {
+const getOwnershipFormOptions = (
+  owner: RealEstateOwner,
+  trustFlags?: TrustFlags
+): OwnershipForm[] => {
   // Build trust options based on owner and trust flags
   const trustOptions: OwnershipForm[] = [];
 
   if (trustFlags) {
     // Determine which trust options to show based on owner
-    const showClientTrusts = owner === 'Client' || owner === 'Client and Spouse' ||
-      owner === 'Client and Other' || owner === 'Client, Spouse and Other';
-    const showSpouseTrusts = owner === 'Spouse' || owner === 'Client and Spouse' ||
-      owner === 'Spouse and Other' || owner === 'Client, Spouse and Other';
+    const showClientTrusts =
+      owner === "Client" ||
+      owner === "Client and Spouse" ||
+      owner === "Client and Other" ||
+      owner === "Client, Spouse and Other";
+    const showSpouseTrusts =
+      owner === "Spouse" ||
+      owner === "Client and Spouse" ||
+      owner === "Spouse and Other" ||
+      owner === "Client, Spouse and Other";
 
     if (showClientTrusts && trustFlags.clientHasLivingTrust) {
-      trustOptions.push('Living Trust');
+      trustOptions.push("Living Trust");
     }
-    if (showSpouseTrusts && trustFlags.spouseHasLivingTrust && !trustOptions.includes('Living Trust')) {
-      trustOptions.push('Living Trust');
+    if (
+      showSpouseTrusts &&
+      trustFlags.spouseHasLivingTrust &&
+      !trustOptions.includes("Living Trust")
+    ) {
+      trustOptions.push("Living Trust");
     }
     if (showClientTrusts && trustFlags.clientHasIrrevocableTrust) {
-      trustOptions.push('Irrevocable Trust');
+      trustOptions.push("Irrevocable Trust");
     }
-    if (showSpouseTrusts && trustFlags.spouseHasIrrevocableTrust && !trustOptions.includes('Irrevocable Trust')) {
-      trustOptions.push('Irrevocable Trust');
+    if (
+      showSpouseTrusts &&
+      trustFlags.spouseHasIrrevocableTrust &&
+      !trustOptions.includes("Irrevocable Trust")
+    ) {
+      trustOptions.push("Irrevocable Trust");
     }
   }
 
-  const baseOptions: OwnershipForm[] = ['Life Estate', 'Lady Bird Deed', ...trustOptions, 'Other'];
+  const baseOptions: OwnershipForm[] = [
+    "Life Estate",
+    "Lady Bird Deed",
+    ...trustOptions,
+    "Other",
+  ];
 
   switch (owner) {
-    case 'Client':
-    case 'Spouse':
-      return ['Sole', ...baseOptions];
-    case 'Client and Spouse':
-      return ['Tenants by Entirety', 'JTWROS', 'Tenants in Common', ...baseOptions];
-    case 'Client and Other':
-    case 'Spouse and Other':
-    case 'Client, Spouse and Other':
-      return ['JTWROS', 'Tenants in Common', ...baseOptions];
+    case "Client":
+    case "Spouse":
+      return ["Sole", ...baseOptions];
+    case "Client and Spouse":
+      return [
+        "Tenants by Entirety",
+        "JTWROS",
+        "Tenants in Common",
+        ...baseOptions,
+      ];
+    case "Client and Other":
+    case "Spouse and Other":
+    case "Client, Spouse and Other":
+      return ["JTWROS", "Tenants in Common", ...baseOptions];
     default:
       return baseOptions;
   }
@@ -174,12 +218,12 @@ const JointOwnerSelector: React.FC<JointOwnerSelectorProps> = ({
   const handleOtherTypeChange = (checked: boolean) => {
     onChange({ showOther: checked });
     if (!checked) {
-      onChange({ showOther: false, jointOwnerOther: '' });
+      onChange({ showOther: false, jointOwnerOther: "" });
     }
   };
 
   return (
-    <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+    <Box sx={{ mt: 2, p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
       <FormLabel component="legend" sx={{ mb: 1, fontWeight: 500 }}>
         Who is the &quot;Other&quot; owner?
       </FormLabel>
@@ -215,10 +259,18 @@ const JointOwnerSelector: React.FC<JointOwnerSelectorProps> = ({
                     checked={jointOwnerBeneficiaries.includes(option.value)}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        onChange({ jointOwnerBeneficiaries: [...jointOwnerBeneficiaries, option.value] });
+                        onChange({
+                          jointOwnerBeneficiaries: [
+                            ...jointOwnerBeneficiaries,
+                            option.value,
+                          ],
+                        });
                       } else {
                         onChange({
-                          jointOwnerBeneficiaries: jointOwnerBeneficiaries.filter((b) => b !== option.value)
+                          jointOwnerBeneficiaries:
+                            jointOwnerBeneficiaries.filter(
+                              (b) => b !== option.value
+                            ),
                         });
                       }
                     }}
@@ -265,26 +317,34 @@ export interface RealEstateData {
   costBasis: string;
   primaryBeneficiaries: string[]; // Used for Remainder Interest when Life Estate or Lady Bird Deed
   remainderInterestOther: string; // Name of non-beneficiary remainder interest holder
+  clientOwnershipPercentage: string; // For Tenants in Common
+  spouseOwnershipPercentage: string; // For Tenants in Common
+  clientSpouseJointType: string; // For TIC with "Client, Spouse and Other" - how client/spouse own their share (TBE or JTWROS)
+  clientSpouseCombinedPercentage: string; // For TIC with "Client, Spouse and Other" when owned as TBE/JTWROS - their combined share percentage
   notes: string;
 }
 
 const emptyRealEstate: RealEstateData = {
-  owner: '' as RealEstateOwner,
-  ownershipForm: '' as OwnershipForm,
+  owner: "" as RealEstateOwner,
+  ownershipForm: "" as OwnershipForm,
   showBeneficiaries: false,
   showOther: false,
   jointOwnerBeneficiaries: [],
-  jointOwnerOther: '',
-  street: '',
-  city: '',
-  state: '',
-  zip: '',
-  value: '',
-  mortgageBalance: '',
-  costBasis: '',
+  jointOwnerOther: "",
+  street: "",
+  city: "",
+  state: "",
+  zip: "",
+  value: "",
+  mortgageBalance: "",
+  costBasis: "",
   primaryBeneficiaries: [],
-  remainderInterestOther: '',
-  notes: '',
+  remainderInterestOther: "",
+  clientOwnershipPercentage: "",
+  spouseOwnershipPercentage: "",
+  clientSpouseJointType: "",
+  clientSpouseCombinedPercentage: "",
+  notes: "",
 };
 
 interface RealEstateModalProps {
@@ -311,49 +371,108 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
   trustFlags,
 }) => {
   const ownerOptions = getOwnerOptions(showSpouse);
-  const [data, setData] = useState<RealEstateData>(initialData || emptyRealEstate);
+  const [data, setData] = useState<RealEstateData>(
+    initialData || emptyRealEstate
+  );
+  const [touched, setTouched] = useState<TouchedFields<RealEstateData>>({});
 
   useEffect(() => {
     if (open) {
-      setData(initialData || emptyRealEstate);
+      // Always reset to empty when adding new (isEdit false), otherwise use initialData
+      setData(isEdit && initialData ? initialData : emptyRealEstate);
+      setTouched({}); // Reset touched state when modal opens
     }
-  }, [open, initialData]);
+  }, [open, initialData, isEdit]);
 
   const handleChange = (updates: Partial<RealEstateData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
+  const handleBlur = (field: keyof RealEstateData) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
   const handleOwnerChange = (newOwner: RealEstateOwner) => {
     const updates: Partial<RealEstateData> = {
       owner: newOwner,
-      ownershipForm: '' as OwnershipForm,
+      ownershipForm: "" as OwnershipForm,
+      clientOwnershipPercentage: "",
+      spouseOwnershipPercentage: "",
+      clientSpouseJointType: "",
+      clientSpouseCombinedPercentage: "",
     };
     if (!OWNERS_WITH_OTHER.includes(newOwner)) {
       updates.showBeneficiaries = false;
       updates.showOther = false;
       updates.jointOwnerBeneficiaries = [];
-      updates.jointOwnerOther = '';
+      updates.jointOwnerOther = "";
     }
     handleChange(updates);
+    setTouched((prev) => ({ ...prev, owner: true }));
   };
 
+  const handleOwnershipFormChange = (newForm: OwnershipForm) => {
+    const updates: Partial<RealEstateData> = {
+      ownershipForm: newForm,
+    };
+    if (newForm !== "Tenants in Common") {
+      updates.clientOwnershipPercentage = "";
+      updates.spouseOwnershipPercentage = "";
+      updates.clientSpouseJointType = "";
+      updates.clientSpouseCombinedPercentage = "";
+    }
+    handleChange(updates);
+    setTouched((prev) => ({ ...prev, ownershipForm: true }));
+  };
+
+  // Validation
+  const errors = {
+    owner: !hasValue(data.owner),
+    ownershipForm: !hasValue(data.ownershipForm),
+    street: !hasValue(data.street),
+    city: !hasValue(data.city),
+    state: !hasValue(data.state),
+    value: !hasCurrencyValue(data.value),
+  };
+
+  const isValid = !errors.owner && !errors.ownershipForm && !errors.street &&
+                  !errors.city && !errors.state && !errors.value;
+
   const handleSave = () => {
-    onSave(data);
-    onClose();
+    // Mark all required fields as touched to show errors
+    setTouched({
+      owner: true,
+      ownershipForm: true,
+      street: true,
+      city: true,
+      state: true,
+      value: true,
+    });
+
+    if (isValid) {
+      onSave(data);
+      onClose();
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Property' : 'Add Property'}</DialogTitle>
+      <DialogTitle>{isEdit ? "Edit Property" : "Add Property"}</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Owner</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.owner && errors.owner}
+            >
+              <InputLabel>Owner *</InputLabel>
               <Select
                 value={data.owner}
-                label="Owner"
-                onChange={(e) => handleOwnerChange(e.target.value as RealEstateOwner)}
+                label="Owner *"
+                onChange={(e) =>
+                  handleOwnerChange(e.target.value as RealEstateOwner)
+                }
               >
                 {ownerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
@@ -364,18 +483,27 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
             </FormControl>
           </Grid>
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth size="small" disabled={!data.owner}>
-              <InputLabel>Ownership Form</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              disabled={!data.owner}
+              error={touched.ownershipForm && errors.ownershipForm}
+            >
+              <InputLabel>Ownership Form *</InputLabel>
               <Select
                 value={data.ownershipForm}
-                label="Ownership Form"
-                onChange={(e) => handleChange({ ownershipForm: e.target.value as OwnershipForm })}
+                label="Ownership Form *"
+                onChange={(e) =>
+                  handleOwnershipFormChange(e.target.value as OwnershipForm)
+                }
               >
-                {getOwnershipFormOptions(data.owner, trustFlags).map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
+                {getOwnershipFormOptions(data.owner, trustFlags).map(
+                  (option) => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  )
+                )}
               </Select>
             </FormControl>
           </Grid>
@@ -388,39 +516,163 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
                 jointOwnerBeneficiaries={data.jointOwnerBeneficiaries}
                 jointOwnerOther={data.jointOwnerOther}
                 beneficiaryOptions={beneficiaryOptions}
-                onChange={(updates) => handleChange(updates as Partial<RealEstateData>)}
+                onChange={(updates) =>
+                  handleChange(updates as Partial<RealEstateData>)
+                }
               />
+            </Grid>
+          )}
+
+          {data.ownershipForm === "Tenants in Common" && (
+            <Grid item xs={12}>
+              <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
+                <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                  Ownership Percentages
+                </Typography>
+                <Grid container spacing={2}>
+                  {data.owner === "Client, Spouse and Other" && (
+                    <Grid item xs={12} md={4}>
+                      <FormControl fullWidth size="small">
+                        <InputLabel>
+                          Client and Spouse combined share?
+                        </InputLabel>
+                        <Select
+                          value={data.clientSpouseJointType}
+                          label="Client and Spouse combined share?"
+                          onChange={(e) => {
+                            const newJointType = e.target.value;
+                            // When joint type is selected (TBE/JTWROS), clear individual percentages
+                            // When joint type is cleared, clear combined percentage
+                            if (newJointType) {
+                              handleChange({
+                                clientSpouseJointType: newJointType,
+                                clientOwnershipPercentage: "",
+                                spouseOwnershipPercentage: "",
+                              });
+                            } else {
+                              handleChange({
+                                clientSpouseJointType: "",
+                                clientSpouseCombinedPercentage: "",
+                              });
+                            }
+                          }}
+                        >
+                          <MenuItem value="">Select...</MenuItem>
+                          <MenuItem value="Tenants by Entirety">
+                            Tenants by Entirety
+                          </MenuItem>
+                          <MenuItem value="JTWROS">
+                            Joint Tenants with Rights of Survivorship
+                          </MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  )}
+                  {/* Show combined % when Client+Spouse own as TBE/JTWROS */}
+                  {data.owner === "Client, Spouse and Other" &&
+                    data.clientSpouseJointType && (
+                      <Grid item xs={12} md={4}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Client & Spouse Combined %"
+                          value={data.clientSpouseCombinedPercentage}
+                          onChange={(e) =>
+                            handleChange({
+                              clientSpouseCombinedPercentage: e.target.value,
+                            })
+                          }
+                          variant="outlined"
+                          placeholder="e.g., 50"
+                        />
+                      </Grid>
+                    )}
+                  {/* Show Client % when NOT using combined ownership for Client, Spouse and Other */}
+                  {(data.owner === "Client" ||
+                    data.owner === "Client and Spouse" ||
+                    data.owner === "Client and Other" ||
+                    (data.owner === "Client, Spouse and Other" &&
+                      !data.clientSpouseJointType)) && (
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Client's Ownership %"
+                        value={data.clientOwnershipPercentage}
+                        onChange={(e) =>
+                          handleChange({
+                            clientOwnershipPercentage: e.target.value,
+                          })
+                        }
+                        variant="outlined"
+                        placeholder="e.g., 50"
+                      />
+                    </Grid>
+                  )}
+                  {/* Show Spouse % when NOT using combined ownership for Client, Spouse and Other */}
+                  {(data.owner === "Spouse" ||
+                    data.owner === "Client and Spouse" ||
+                    data.owner === "Spouse and Other" ||
+                    (data.owner === "Client, Spouse and Other" &&
+                      !data.clientSpouseJointType)) && (
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Spouse's Ownership %"
+                        value={data.spouseOwnershipPercentage}
+                        onChange={(e) =>
+                          handleChange({
+                            spouseOwnershipPercentage: e.target.value,
+                          })
+                        }
+                        variant="outlined"
+                        placeholder="e.g., 50"
+                      />
+                    </Grid>
+                  )}
+                </Grid>
+              </Box>
             </Grid>
           )}
 
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Street Address"
+              label="Street Address *"
               value={data.street}
               onChange={(e) => handleChange({ street: e.target.value })}
+              onBlur={() => handleBlur("street")}
               variant="outlined"
               size="small"
+              error={touched.street && errors.street}
+              helperText={touched.street && errors.street ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12} md={5}>
             <TextField
               fullWidth
-              label="City"
+              label="City *"
               value={data.city}
               onChange={(e) => handleChange({ city: e.target.value })}
+              onBlur={() => handleBlur("city")}
               variant="outlined"
               size="small"
+              error={touched.city && errors.city}
+              helperText={touched.city && errors.city ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12} md={3}>
             <TextField
               fullWidth
-              label="State"
+              label="State *"
               value={data.state}
               onChange={(e) => handleChange({ state: e.target.value })}
+              onBlur={() => handleBlur("state")}
               variant="outlined"
               size="small"
+              error={touched.state && errors.state}
+              helperText={touched.state && errors.state ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -436,12 +688,15 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
           <Grid item xs={12} md={4}>
             <CurrencyInput
               fullWidth
-              label="Estimated Value"
+              label="Estimated Value *"
               value={data.value}
               onChange={(e) => handleChange({ value: e.target.value })}
+              onBlur={() => handleBlur("value")}
               variant="outlined"
               size="small"
               name="realEstateValue"
+              error={touched.value && errors.value}
+              helperText={touched.value && errors.value ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -449,7 +704,9 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
               fullWidth
               label="Mortgage Balance"
               value={data.mortgageBalance}
-              onChange={(e) => handleChange({ mortgageBalance: e.target.value })}
+              onChange={(e) =>
+                handleChange({ mortgageBalance: e.target.value })
+              }
               variant="outlined"
               size="small"
               name="mortgageBalance"
@@ -467,14 +724,17 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
             />
           </Grid>
 
-          {(data.ownershipForm === 'Life Estate' || data.ownershipForm === 'Lady Bird Deed') && (
+          {(data.ownershipForm === "Life Estate" ||
+            data.ownershipForm === "Lady Bird Deed") && (
             <>
               <Grid item xs={12}>
                 <BeneficiarySelector
                   label="Remainder Interest"
                   selectedBeneficiaries={data.primaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ primaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ primaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -482,8 +742,10 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
                   fullWidth
                   size="small"
                   label="Other Remainder Interest Holder (non-beneficiary)"
-                  value={data.remainderInterestOther || ''}
-                  onChange={(e) => handleChange({ remainderInterestOther: e.target.value })}
+                  value={data.remainderInterestOther || ""}
+                  onChange={(e) =>
+                    handleChange({ remainderInterestOther: e.target.value })
+                  }
                   variant="outlined"
                   placeholder="Enter name if not listed above"
                 />
@@ -495,7 +757,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
             <TextField
               fullWidth
               label="Notes"
-              value={data.notes || ''}
+              value={data.notes || ""}
               onChange={(e) => handleChange({ notes: e.target.value })}
               variant="outlined"
               multiline
@@ -505,7 +767,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
         <Box>
           {isEdit && onDelete && (
             <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
@@ -516,7 +778,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
         <Box>
           <Button onClick={onClose}>Cancel</Button>
           <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? 'Save Changes' : 'Add Property'}
+            {isEdit ? "Save Changes" : "Add Property"}
           </Button>
         </Box>
       </DialogActions>
@@ -536,13 +798,13 @@ export interface BankAccountData {
 }
 
 const emptyBankAccount: BankAccountData = {
-  owner: '',
-  institution: '',
-  amount: '',
+  owner: "",
+  institution: "",
+  amount: "",
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   secondaryBeneficiaries: [],
-  notes: '',
+  notes: "",
 };
 
 interface BankAccountModalProps {
@@ -567,35 +829,65 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
   showSpouse = true,
 }) => {
   const ownerOptions = getOwnerOptions(showSpouse);
-  const [data, setData] = useState<BankAccountData>(initialData || emptyBankAccount);
+  const [data, setData] = useState<BankAccountData>(
+    initialData || emptyBankAccount
+  );
+  const [touched, setTouched] = useState<TouchedFields<BankAccountData>>({});
 
   useEffect(() => {
     if (open) {
-      setData(initialData || emptyBankAccount);
+      // Always reset to empty when adding new (isEdit false), otherwise use initialData
+      setData(isEdit && initialData ? initialData : emptyBankAccount);
+      setTouched({});
     }
-  }, [open, initialData]);
+  }, [open, initialData, isEdit]);
 
   const handleChange = (updates: Partial<BankAccountData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
+  const handleBlur = (field: keyof BankAccountData) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  // Validation
+  const errors = {
+    owner: !hasValue(data.owner),
+    institution: !hasValue(data.institution),
+    amount: !hasCurrencyValue(data.amount),
+  };
+
+  const isValid = !errors.owner && !errors.institution && !errors.amount;
+
   const handleSave = () => {
-    onSave(data);
-    onClose();
+    setTouched({ owner: true, institution: true, amount: true });
+    if (isValid) {
+      onSave(data);
+      onClose();
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Bank Account' : 'Add Bank Account'}</DialogTitle>
+      <DialogTitle>
+        {isEdit ? "Edit Bank Account" : "Add Bank Account"}
+      </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Owner</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.owner && errors.owner}
+            >
+              <InputLabel>Owner *</InputLabel>
               <Select
                 value={data.owner}
-                label="Owner"
-                onChange={(e) => handleChange({ owner: e.target.value })}
+                label="Owner *"
+                onChange={(e) => {
+                  handleChange({ owner: e.target.value });
+                  setTouched((prev) => ({ ...prev, owner: true }));
+                }}
               >
                 {ownerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
@@ -608,22 +900,28 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Name of Financial Institution"
+              label="Name of Financial Institution *"
               value={data.institution}
               onChange={(e) => handleChange({ institution: e.target.value })}
+              onBlur={() => handleBlur("institution")}
               variant="outlined"
               size="small"
+              error={touched.institution && errors.institution}
+              helperText={touched.institution && errors.institution ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
             <CurrencyInput
               fullWidth
-              label="Amount"
+              label="Amount *"
               value={data.amount}
               onChange={(e) => handleChange({ amount: e.target.value })}
+              onBlur={() => handleBlur("amount")}
               variant="outlined"
               size="small"
               name="bankAmount"
+              error={touched.amount && errors.amount}
+              helperText={touched.amount && errors.amount ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
@@ -631,7 +929,9 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
               control={
                 <Checkbox
                   checked={data.hasBeneficiaries || false}
-                  onChange={(e) => handleChange({ hasBeneficiaries: e.target.checked })}
+                  onChange={(e) =>
+                    handleChange({ hasBeneficiaries: e.target.checked })
+                  }
                 />
               }
               label="Has Beneficiaries?"
@@ -644,7 +944,9 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
                   label="Primary Beneficiaries"
                   selectedBeneficiaries={data.primaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ primaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ primaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -652,7 +954,9 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
                   label="Secondary Beneficiaries"
                   selectedBeneficiaries={data.secondaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ secondaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ secondaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
             </>
@@ -662,7 +966,7 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
             <TextField
               fullWidth
               label="Notes"
-              value={data.notes || ''}
+              value={data.notes || ""}
               onChange={(e) => handleChange({ notes: e.target.value })}
               variant="outlined"
               multiline
@@ -672,7 +976,7 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
         <Box>
           {isEdit && onDelete && (
             <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
@@ -683,7 +987,7 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
         <Box>
           <Button onClick={onClose}>Cancel</Button>
           <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? 'Save Changes' : 'Add Account'}
+            {isEdit ? "Save Changes" : "Add Account"}
           </Button>
         </Box>
       </DialogActions>
@@ -704,14 +1008,14 @@ export interface NonQualifiedInvestmentData {
 }
 
 const emptyNonQualifiedInvestment: NonQualifiedInvestmentData = {
-  owner: '',
-  institution: '',
-  description: '',
-  value: '',
+  owner: "",
+  institution: "",
+  description: "",
+  value: "",
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   secondaryBeneficiaries: [],
-  notes: '',
+  notes: "",
 };
 
 interface NonQualifiedInvestmentModalProps {
@@ -725,7 +1029,9 @@ interface NonQualifiedInvestmentModalProps {
   showSpouse?: boolean;
 }
 
-export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalProps> = ({
+export const NonQualifiedInvestmentModal: React.FC<
+  NonQualifiedInvestmentModalProps
+> = ({
   open,
   onClose,
   onSave,
@@ -736,35 +1042,65 @@ export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalPr
   showSpouse = true,
 }) => {
   const ownerOptions = getOwnerOptions(showSpouse);
-  const [data, setData] = useState<NonQualifiedInvestmentData>(initialData || emptyNonQualifiedInvestment);
+  const [data, setData] = useState<NonQualifiedInvestmentData>(
+    initialData || emptyNonQualifiedInvestment
+  );
+  const [touched, setTouched] = useState<TouchedFields<NonQualifiedInvestmentData>>({});
 
   useEffect(() => {
     if (open) {
-      setData(initialData || emptyNonQualifiedInvestment);
+      // Always reset to empty when adding new (isEdit false), otherwise use initialData
+      setData(isEdit && initialData ? initialData : emptyNonQualifiedInvestment);
+      setTouched({});
     }
-  }, [open, initialData]);
+  }, [open, initialData, isEdit]);
 
   const handleChange = (updates: Partial<NonQualifiedInvestmentData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
+  const handleBlur = (field: keyof NonQualifiedInvestmentData) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  // Validation
+  const errors = {
+    owner: !hasValue(data.owner),
+    institution: !hasValue(data.institution),
+    value: !hasCurrencyValue(data.value),
+  };
+
+  const isValid = !errors.owner && !errors.institution && !errors.value;
+
   const handleSave = () => {
-    onSave(data);
-    onClose();
+    setTouched({ owner: true, institution: true, value: true });
+    if (isValid) {
+      onSave(data);
+      onClose();
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Investment Account' : 'Add Investment Account'}</DialogTitle>
+      <DialogTitle>
+        {isEdit ? "Edit Investment Account" : "Add Investment Account"}
+      </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Owner</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.owner && errors.owner}
+            >
+              <InputLabel>Owner *</InputLabel>
               <Select
                 value={data.owner}
-                label="Owner"
-                onChange={(e) => handleChange({ owner: e.target.value })}
+                label="Owner *"
+                onChange={(e) => {
+                  handleChange({ owner: e.target.value });
+                  setTouched((prev) => ({ ...prev, owner: true }));
+                }}
               >
                 {ownerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
@@ -777,11 +1113,14 @@ export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalPr
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Institution"
+              label="Institution *"
               value={data.institution}
               onChange={(e) => handleChange({ institution: e.target.value })}
+              onBlur={() => handleBlur("institution")}
               variant="outlined"
               size="small"
+              error={touched.institution && errors.institution}
+              helperText={touched.institution && errors.institution ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
@@ -798,12 +1137,15 @@ export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalPr
           <Grid item xs={12}>
             <CurrencyInput
               fullWidth
-              label="Value"
+              label="Value *"
               value={data.value}
               onChange={(e) => handleChange({ value: e.target.value })}
+              onBlur={() => handleBlur("value")}
               variant="outlined"
               size="small"
               name="investmentValue"
+              error={touched.value && errors.value}
+              helperText={touched.value && errors.value ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
@@ -811,7 +1153,9 @@ export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalPr
               control={
                 <Checkbox
                   checked={data.hasBeneficiaries || false}
-                  onChange={(e) => handleChange({ hasBeneficiaries: e.target.checked })}
+                  onChange={(e) =>
+                    handleChange({ hasBeneficiaries: e.target.checked })
+                  }
                 />
               }
               label="Has Beneficiaries?"
@@ -824,7 +1168,9 @@ export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalPr
                   label="Primary Beneficiaries"
                   selectedBeneficiaries={data.primaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ primaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ primaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -832,7 +1178,9 @@ export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalPr
                   label="Secondary Beneficiaries"
                   selectedBeneficiaries={data.secondaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ secondaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ secondaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
             </>
@@ -842,7 +1190,7 @@ export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalPr
             <TextField
               fullWidth
               label="Notes"
-              value={data.notes || ''}
+              value={data.notes || ""}
               onChange={(e) => handleChange({ notes: e.target.value })}
               variant="outlined"
               multiline
@@ -852,7 +1200,7 @@ export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalPr
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
         <Box>
           {isEdit && onDelete && (
             <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
@@ -863,7 +1211,7 @@ export const NonQualifiedInvestmentModal: React.FC<NonQualifiedInvestmentModalPr
         <Box>
           <Button onClick={onClose}>Cancel</Button>
           <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? 'Save Changes' : 'Add Account'}
+            {isEdit ? "Save Changes" : "Add Account"}
           </Button>
         </Box>
       </DialogActions>
@@ -884,14 +1232,14 @@ export interface RetirementAccountData {
 }
 
 const emptyRetirementAccount: RetirementAccountData = {
-  owner: '',
-  institution: '',
-  accountType: '',
-  value: '',
+  owner: "",
+  institution: "",
+  accountType: "",
+  value: "",
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   secondaryBeneficiaries: [],
-  notes: '',
+  notes: "",
 };
 
 interface RetirementAccountModalProps {
@@ -916,35 +1264,66 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
   showSpouse = true,
 }) => {
   const individualOwnerOptions = getIndividualOwnerOptions(showSpouse);
-  const [data, setData] = useState<RetirementAccountData>(initialData || emptyRetirementAccount);
+  const [data, setData] = useState<RetirementAccountData>(
+    initialData || emptyRetirementAccount
+  );
+  const [touched, setTouched] = useState<TouchedFields<RetirementAccountData>>({});
 
   useEffect(() => {
     if (open) {
-      setData(initialData || emptyRetirementAccount);
+      // Always reset to empty when adding new (isEdit false), otherwise use initialData
+      setData(isEdit && initialData ? initialData : emptyRetirementAccount);
+      setTouched({});
     }
-  }, [open, initialData]);
+  }, [open, initialData, isEdit]);
 
   const handleChange = (updates: Partial<RetirementAccountData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
+  const handleBlur = (field: keyof RetirementAccountData) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  // Validation
+  const errors = {
+    owner: !hasValue(data.owner),
+    institution: !hasValue(data.institution),
+    accountType: !hasValue(data.accountType),
+    value: !hasCurrencyValue(data.value),
+  };
+
+  const isValid = !errors.owner && !errors.institution && !errors.accountType && !errors.value;
+
   const handleSave = () => {
-    onSave(data);
-    onClose();
+    setTouched({ owner: true, institution: true, accountType: true, value: true });
+    if (isValid) {
+      onSave(data);
+      onClose();
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Retirement Account' : 'Add Retirement Account'}</DialogTitle>
+      <DialogTitle>
+        {isEdit ? "Edit Retirement Account" : "Add Retirement Account"}
+      </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Owner</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.owner && errors.owner}
+            >
+              <InputLabel>Owner *</InputLabel>
               <Select
                 value={data.owner}
-                label="Owner"
-                onChange={(e) => handleChange({ owner: e.target.value })}
+                label="Owner *"
+                onChange={(e) => {
+                  handleChange({ owner: e.target.value });
+                  setTouched((prev) => ({ ...prev, owner: true }));
+                }}
               >
                 {individualOwnerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
@@ -957,33 +1336,42 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Institution"
+              label="Institution *"
               value={data.institution}
               onChange={(e) => handleChange({ institution: e.target.value })}
+              onBlur={() => handleBlur("institution")}
               variant="outlined"
               size="small"
+              error={touched.institution && errors.institution}
+              helperText={touched.institution && errors.institution ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Account Type"
+              label="Account Type *"
               value={data.accountType}
               onChange={(e) => handleChange({ accountType: e.target.value })}
+              onBlur={() => handleBlur("accountType")}
               variant="outlined"
               size="small"
               placeholder="e.g., IRA, 401k, Pension"
+              error={touched.accountType && errors.accountType}
+              helperText={touched.accountType && errors.accountType ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
             <CurrencyInput
               fullWidth
-              label="Value"
+              label="Value *"
               value={data.value}
               onChange={(e) => handleChange({ value: e.target.value })}
+              onBlur={() => handleBlur("value")}
               variant="outlined"
               size="small"
               name="retirementValue"
+              error={touched.value && errors.value}
+              helperText={touched.value && errors.value ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
@@ -991,7 +1379,9 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
               control={
                 <Checkbox
                   checked={data.hasBeneficiaries || false}
-                  onChange={(e) => handleChange({ hasBeneficiaries: e.target.checked })}
+                  onChange={(e) =>
+                    handleChange({ hasBeneficiaries: e.target.checked })
+                  }
                 />
               }
               label="Has Beneficiaries?"
@@ -1004,7 +1394,9 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
                   label="Primary Beneficiaries"
                   selectedBeneficiaries={data.primaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ primaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ primaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -1012,7 +1404,9 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
                   label="Secondary Beneficiaries"
                   selectedBeneficiaries={data.secondaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ secondaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ secondaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
             </>
@@ -1022,7 +1416,7 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
             <TextField
               fullWidth
               label="Notes"
-              value={data.notes || ''}
+              value={data.notes || ""}
               onChange={(e) => handleChange({ notes: e.target.value })}
               variant="outlined"
               multiline
@@ -1032,7 +1426,7 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
         <Box>
           {isEdit && onDelete && (
             <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
@@ -1043,7 +1437,7 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
         <Box>
           <Button onClick={onClose}>Cancel</Button>
           <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? 'Save Changes' : 'Add Account'}
+            {isEdit ? "Save Changes" : "Add Account"}
           </Button>
         </Box>
       </DialogActions>
@@ -1052,14 +1446,20 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
 };
 
 // Life Insurance Types
-export type LifeInsurancePolicyType = 'Term Life' | 'Group Life' | 'Whole Life' | 'Universal' | 'Other' | '';
+export type LifeInsurancePolicyType =
+  | "Term Life"
+  | "Group Life"
+  | "Whole Life"
+  | "Universal"
+  | "Other"
+  | "";
 
 const LIFE_INSURANCE_POLICY_TYPES: LifeInsurancePolicyType[] = [
-  'Term Life',
-  'Group Life',
-  'Whole Life',
-  'Universal',
-  'Other',
+  "Term Life",
+  "Group Life",
+  "Whole Life",
+  "Universal",
+  "Other",
 ];
 
 export interface LifeInsuranceData {
@@ -1077,17 +1477,17 @@ export interface LifeInsuranceData {
 }
 
 const emptyLifeInsurance: LifeInsuranceData = {
-  owner: '',
-  company: '',
-  policyType: '',
-  faceAmount: '',
-  deathBenefit: '',
-  cashValue: '',
-  insured: '',
+  owner: "",
+  company: "",
+  policyType: "",
+  faceAmount: "",
+  deathBenefit: "",
+  cashValue: "",
+  insured: "",
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   secondaryBeneficiaries: [],
-  notes: '',
+  notes: "",
 };
 
 interface LifeInsuranceModalProps {
@@ -1118,43 +1518,78 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
   const getInitialData = (): LifeInsuranceData => {
     const base = initialData || emptyLifeInsurance;
     if (!showSpouse && !base.insured) {
-      return { ...base, insured: 'Client' };
+      return { ...base, insured: "Client" };
     }
     return base;
   };
 
   const [data, setData] = useState<LifeInsuranceData>(getInitialData());
+  const [touched, setTouched] = useState<TouchedFields<LifeInsuranceData>>({});
 
   useEffect(() => {
     if (open) {
-      setData(getInitialData());
+      // Always reset to empty when adding new (isEdit false), otherwise use initialData
+      if (isEdit && initialData) {
+        setData(initialData);
+      } else {
+        // For new entries, start with empty but set insured to 'Client' if single
+        const empty = emptyLifeInsurance;
+        setData(!showSpouse ? { ...empty, insured: "Client" } : empty);
+      }
+      setTouched({});
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initialData, showSpouse]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialData, showSpouse, isEdit]);
 
   const handleChange = (updates: Partial<LifeInsuranceData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
+  const handleBlur = (field: keyof LifeInsuranceData) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  // Validation
+  const errors = {
+    owner: !hasValue(data.owner),
+    company: !hasValue(data.company),
+    policyType: !hasValue(data.policyType),
+    deathBenefit: !hasCurrencyValue(data.deathBenefit),
+  };
+
+  const isValid = !errors.owner && !errors.company && !errors.policyType && !errors.deathBenefit;
+
   const handleSave = () => {
-    // Ensure insured is set to 'Client' for single clients
-    const saveData = !showSpouse ? { ...data, insured: 'Client' } : data;
-    onSave(saveData);
-    onClose();
+    setTouched({ owner: true, company: true, policyType: true, deathBenefit: true });
+    if (isValid) {
+      // Ensure insured is set to 'Client' for single clients
+      const saveData = !showSpouse ? { ...data, insured: "Client" } : data;
+      onSave(saveData);
+      onClose();
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Life Insurance Policy' : 'Add Life Insurance Policy'}</DialogTitle>
+      <DialogTitle>
+        {isEdit ? "Edit Life Insurance Policy" : "Add Life Insurance Policy"}
+      </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12} md={showSpouse ? 6 : 12}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Owner</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.owner && errors.owner}
+            >
+              <InputLabel>Owner *</InputLabel>
               <Select
                 value={data.owner}
-                label="Owner"
-                onChange={(e) => handleChange({ owner: e.target.value })}
+                label="Owner *"
+                onChange={(e) => {
+                  handleChange({ owner: e.target.value });
+                  setTouched((prev) => ({ ...prev, owner: true }));
+                }}
               >
                 {individualOwnerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
@@ -1185,20 +1620,32 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              label="Company"
+              label="Company *"
               value={data.company}
               onChange={(e) => handleChange({ company: e.target.value })}
+              onBlur={() => handleBlur("company")}
               variant="outlined"
               size="small"
+              error={touched.company && errors.company}
+              helperText={touched.company && errors.company ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Policy Type</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.policyType && errors.policyType}
+            >
+              <InputLabel>Policy Type *</InputLabel>
               <Select
                 value={data.policyType}
-                label="Policy Type"
-                onChange={(e) => handleChange({ policyType: e.target.value as LifeInsurancePolicyType })}
+                label="Policy Type *"
+                onChange={(e) => {
+                  handleChange({
+                    policyType: e.target.value as LifeInsurancePolicyType,
+                  });
+                  setTouched((prev) => ({ ...prev, policyType: true }));
+                }}
               >
                 {LIFE_INSURANCE_POLICY_TYPES.map((option) => (
                   <MenuItem key={option} value={option}>
@@ -1208,7 +1655,16 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} md={data.policyType === 'Term Life' || data.policyType === 'Group Life' ? 6 : 4}>
+          <Grid
+            item
+            xs={12}
+            md={
+              data.policyType === "Term Life" ||
+              data.policyType === "Group Life"
+                ? 6
+                : 4
+            }
+          >
             <CurrencyInput
               fullWidth
               label="Face Amount"
@@ -1219,36 +1675,51 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
               name="faceAmount"
             />
           </Grid>
-          <Grid item xs={12} md={data.policyType === 'Term Life' || data.policyType === 'Group Life' ? 6 : 4}>
+          <Grid
+            item
+            xs={12}
+            md={
+              data.policyType === "Term Life" ||
+              data.policyType === "Group Life"
+                ? 6
+                : 4
+            }
+          >
             <CurrencyInput
               fullWidth
-              label="Death Benefit"
+              label="Death Benefit *"
               value={data.deathBenefit}
               onChange={(e) => handleChange({ deathBenefit: e.target.value })}
+              onBlur={() => handleBlur("deathBenefit")}
               variant="outlined"
               size="small"
               name="deathBenefit"
+              error={touched.deathBenefit && errors.deathBenefit}
+              helperText={touched.deathBenefit && errors.deathBenefit ? "Required" : ""}
             />
           </Grid>
-          {data.policyType !== 'Term Life' && data.policyType !== 'Group Life' && (
-            <Grid item xs={12} md={4}>
-              <CurrencyInput
-                fullWidth
-                label="Cash Value"
-                value={data.cashValue}
-                onChange={(e) => handleChange({ cashValue: e.target.value })}
-                variant="outlined"
-                size="small"
-                name="cashValue"
-              />
-            </Grid>
-          )}
+          {data.policyType !== "Term Life" &&
+            data.policyType !== "Group Life" && (
+              <Grid item xs={12} md={4}>
+                <CurrencyInput
+                  fullWidth
+                  label="Cash Value"
+                  value={data.cashValue}
+                  onChange={(e) => handleChange({ cashValue: e.target.value })}
+                  variant="outlined"
+                  size="small"
+                  name="cashValue"
+                />
+              </Grid>
+            )}
           <Grid item xs={12}>
             <FormControlLabel
               control={
                 <Checkbox
                   checked={data.hasBeneficiaries || false}
-                  onChange={(e) => handleChange({ hasBeneficiaries: e.target.checked })}
+                  onChange={(e) =>
+                    handleChange({ hasBeneficiaries: e.target.checked })
+                  }
                 />
               }
               label="Has Beneficiaries?"
@@ -1261,7 +1732,9 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
                   label="Primary Beneficiaries"
                   selectedBeneficiaries={data.primaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ primaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ primaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -1269,7 +1742,9 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
                   label="Secondary Beneficiaries"
                   selectedBeneficiaries={data.secondaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ secondaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ secondaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
             </>
@@ -1279,7 +1754,7 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
             <TextField
               fullWidth
               label="Notes"
-              value={data.notes || ''}
+              value={data.notes || ""}
               onChange={(e) => handleChange({ notes: e.target.value })}
               variant="outlined"
               multiline
@@ -1289,7 +1764,7 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
         <Box>
           {isEdit && onDelete && (
             <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
@@ -1300,7 +1775,7 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
         <Box>
           <Button onClick={onClose}>Cancel</Button>
           <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? 'Save Changes' : 'Add Policy'}
+            {isEdit ? "Save Changes" : "Add Policy"}
           </Button>
         </Box>
       </DialogActions>
@@ -1320,13 +1795,13 @@ export interface VehicleData {
 }
 
 const emptyVehicle: VehicleData = {
-  owner: '',
-  yearMakeModel: '',
-  value: '',
+  owner: "",
+  yearMakeModel: "",
+  value: "",
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   secondaryBeneficiaries: [],
-  notes: '',
+  notes: "",
 };
 
 interface VehicleModalProps {
@@ -1352,34 +1827,60 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
 }) => {
   const ownerOptions = getOwnerOptions(showSpouse);
   const [data, setData] = useState<VehicleData>(initialData || emptyVehicle);
+  const [touched, setTouched] = useState<TouchedFields<VehicleData>>({});
 
   useEffect(() => {
     if (open) {
-      setData(initialData || emptyVehicle);
+      // Always reset to empty when adding new (isEdit false), otherwise use initialData
+      setData(isEdit && initialData ? initialData : emptyVehicle);
+      setTouched({});
     }
-  }, [open, initialData]);
+  }, [open, initialData, isEdit]);
 
   const handleChange = (updates: Partial<VehicleData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
+  const handleBlur = (field: keyof VehicleData) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  // Validation
+  const errors = {
+    owner: !hasValue(data.owner),
+    yearMakeModel: !hasValue(data.yearMakeModel),
+    value: !hasCurrencyValue(data.value),
+  };
+
+  const isValid = !errors.owner && !errors.yearMakeModel && !errors.value;
+
   const handleSave = () => {
-    onSave(data);
-    onClose();
+    setTouched({ owner: true, yearMakeModel: true, value: true });
+    if (isValid) {
+      onSave(data);
+      onClose();
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Vehicle' : 'Add Vehicle'}</DialogTitle>
+      <DialogTitle>{isEdit ? "Edit Vehicle" : "Add Vehicle"}</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Owner</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.owner && errors.owner}
+            >
+              <InputLabel>Owner *</InputLabel>
               <Select
                 value={data.owner}
-                label="Owner"
-                onChange={(e) => handleChange({ owner: e.target.value })}
+                label="Owner *"
+                onChange={(e) => {
+                  handleChange({ owner: e.target.value });
+                  setTouched((prev) => ({ ...prev, owner: true }));
+                }}
               >
                 {ownerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
@@ -1392,23 +1893,29 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Year, Make, Model"
+              label="Year, Make, Model *"
               value={data.yearMakeModel}
               onChange={(e) => handleChange({ yearMakeModel: e.target.value })}
+              onBlur={() => handleBlur("yearMakeModel")}
               variant="outlined"
               size="small"
               placeholder="e.g., 2020 Toyota Camry"
+              error={touched.yearMakeModel && errors.yearMakeModel}
+              helperText={touched.yearMakeModel && errors.yearMakeModel ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
             <CurrencyInput
               fullWidth
-              label="Value"
+              label="Value *"
               value={data.value}
               onChange={(e) => handleChange({ value: e.target.value })}
+              onBlur={() => handleBlur("value")}
               variant="outlined"
               size="small"
               name="vehicleValue"
+              error={touched.value && errors.value}
+              helperText={touched.value && errors.value ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
@@ -1416,7 +1923,9 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
               control={
                 <Checkbox
                   checked={data.hasBeneficiaries || false}
-                  onChange={(e) => handleChange({ hasBeneficiaries: e.target.checked })}
+                  onChange={(e) =>
+                    handleChange({ hasBeneficiaries: e.target.checked })
+                  }
                 />
               }
               label="Has Beneficiaries?"
@@ -1429,7 +1938,9 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
                   label="Primary Beneficiaries"
                   selectedBeneficiaries={data.primaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ primaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ primaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -1437,7 +1948,9 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
                   label="Secondary Beneficiaries"
                   selectedBeneficiaries={data.secondaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ secondaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ secondaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
             </>
@@ -1447,7 +1960,7 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
             <TextField
               fullWidth
               label="Notes"
-              value={data.notes || ''}
+              value={data.notes || ""}
               onChange={(e) => handleChange({ notes: e.target.value })}
               variant="outlined"
               multiline
@@ -1457,7 +1970,7 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
         <Box>
           {isEdit && onDelete && (
             <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
@@ -1468,7 +1981,7 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
         <Box>
           <Button onClick={onClose}>Cancel</Button>
           <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? 'Save Changes' : 'Add Vehicle'}
+            {isEdit ? "Save Changes" : "Add Vehicle"}
           </Button>
         </Box>
       </DialogActions>
@@ -1488,13 +2001,13 @@ export interface OtherAssetData {
 }
 
 const emptyOtherAsset: OtherAssetData = {
-  owner: '',
-  description: '',
-  value: '',
+  owner: "",
+  description: "",
+  value: "",
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   secondaryBeneficiaries: [],
-  notes: '',
+  notes: "",
 };
 
 interface OtherAssetModalProps {
@@ -1519,35 +2032,63 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
   showSpouse = true,
 }) => {
   const ownerOptions = getOwnerOptions(showSpouse);
-  const [data, setData] = useState<OtherAssetData>(initialData || emptyOtherAsset);
+  const [data, setData] = useState<OtherAssetData>(
+    initialData || emptyOtherAsset
+  );
+  const [touched, setTouched] = useState<TouchedFields<OtherAssetData>>({});
 
   useEffect(() => {
     if (open) {
-      setData(initialData || emptyOtherAsset);
+      // Always reset to empty when adding new (isEdit false), otherwise use initialData
+      setData(isEdit && initialData ? initialData : emptyOtherAsset);
+      setTouched({});
     }
-  }, [open, initialData]);
+  }, [open, initialData, isEdit]);
 
   const handleChange = (updates: Partial<OtherAssetData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
+  const handleBlur = (field: keyof OtherAssetData) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  // Validation
+  const errors = {
+    owner: !hasValue(data.owner),
+    description: !hasValue(data.description),
+    value: !hasCurrencyValue(data.value),
+  };
+
+  const isValid = !errors.owner && !errors.description && !errors.value;
+
   const handleSave = () => {
-    onSave(data);
-    onClose();
+    setTouched({ owner: true, description: true, value: true });
+    if (isValid) {
+      onSave(data);
+      onClose();
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Asset' : 'Add Asset'}</DialogTitle>
+      <DialogTitle>{isEdit ? "Edit Asset" : "Add Asset"}</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Owner</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.owner && errors.owner}
+            >
+              <InputLabel>Owner *</InputLabel>
               <Select
                 value={data.owner}
-                label="Owner"
-                onChange={(e) => handleChange({ owner: e.target.value })}
+                label="Owner *"
+                onChange={(e) => {
+                  handleChange({ owner: e.target.value });
+                  setTouched((prev) => ({ ...prev, owner: true }));
+                }}
               >
                 {ownerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
@@ -1560,23 +2101,29 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Description"
+              label="Description *"
               value={data.description}
               onChange={(e) => handleChange({ description: e.target.value })}
+              onBlur={() => handleBlur("description")}
               variant="outlined"
               size="small"
               placeholder="e.g., Business interest, collectibles, jewelry"
+              error={touched.description && errors.description}
+              helperText={touched.description && errors.description ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
             <CurrencyInput
               fullWidth
-              label="Value"
+              label="Value *"
               value={data.value}
               onChange={(e) => handleChange({ value: e.target.value })}
+              onBlur={() => handleBlur("value")}
               variant="outlined"
               size="small"
               name="otherAssetValue"
+              error={touched.value && errors.value}
+              helperText={touched.value && errors.value ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
@@ -1584,7 +2131,9 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
               control={
                 <Checkbox
                   checked={data.hasBeneficiaries || false}
-                  onChange={(e) => handleChange({ hasBeneficiaries: e.target.checked })}
+                  onChange={(e) =>
+                    handleChange({ hasBeneficiaries: e.target.checked })
+                  }
                 />
               }
               label="Has Beneficiaries?"
@@ -1597,7 +2146,9 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
                   label="Primary Beneficiaries"
                   selectedBeneficiaries={data.primaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ primaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ primaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -1605,7 +2156,9 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
                   label="Secondary Beneficiaries"
                   selectedBeneficiaries={data.secondaryBeneficiaries}
                   options={beneficiaryOptions}
-                  onChange={(selected) => handleChange({ secondaryBeneficiaries: selected })}
+                  onChange={(selected) =>
+                    handleChange({ secondaryBeneficiaries: selected })
+                  }
                 />
               </Grid>
             </>
@@ -1615,7 +2168,7 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
             <TextField
               fullWidth
               label="Notes"
-              value={data.notes || ''}
+              value={data.notes || ""}
               onChange={(e) => handleChange({ notes: e.target.value })}
               variant="outlined"
               multiline
@@ -1625,7 +2178,7 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
         <Box>
           {isEdit && onDelete && (
             <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
@@ -1636,7 +2189,7 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
         <Box>
           <Button onClick={onClose}>Cancel</Button>
           <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? 'Save Changes' : 'Add Asset'}
+            {isEdit ? "Save Changes" : "Add Asset"}
           </Button>
         </Box>
       </DialogActions>
@@ -1645,16 +2198,24 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
 };
 
 // Business Interest Types
-export type BusinessEntityType = 'Sole Proprietorship' | 'LLC' | 'Partnership' | 'S-Corporation' | 'C-Corporation' | 'Professional Practice' | 'Other' | '';
+export type BusinessEntityType =
+  | "Sole Proprietorship"
+  | "LLC"
+  | "Partnership"
+  | "S-Corporation"
+  | "C-Corporation"
+  | "Professional Practice"
+  | "Other"
+  | "";
 
 const BUSINESS_ENTITY_TYPES: BusinessEntityType[] = [
-  'Sole Proprietorship',
-  'LLC',
-  'Partnership',
-  'S-Corporation',
-  'C-Corporation',
-  'Professional Practice',
-  'Other',
+  "Sole Proprietorship",
+  "LLC",
+  "Partnership",
+  "S-Corporation",
+  "C-Corporation",
+  "Professional Practice",
+  "Other",
 ];
 
 export interface BusinessInterestData {
@@ -1662,21 +2223,21 @@ export interface BusinessInterestData {
   businessName: string;
   entityType: BusinessEntityType;
   ownershipPercentage: string;
-  value: string;
+  fullValue: string; // Full estimated value of the business
   coOwners: string;
   hasBuySellAgreement: boolean;
   notes: string;
 }
 
 const emptyBusinessInterest: BusinessInterestData = {
-  owner: '',
-  businessName: '',
-  entityType: '',
-  ownershipPercentage: '',
-  value: '',
-  coOwners: '',
+  owner: "",
+  businessName: "",
+  entityType: "",
+  ownershipPercentage: "",
+  fullValue: "",
+  coOwners: "",
   hasBuySellAgreement: false,
-  notes: '',
+  notes: "",
 };
 
 interface BusinessInterestModalProps {
@@ -1687,7 +2248,21 @@ interface BusinessInterestModalProps {
   initialData?: BusinessInterestData;
   isEdit?: boolean;
   showSpouse?: boolean;
+  trustFlags?: TrustFlags;
 }
+
+// Helper to calculate estimated value based on full value and ownership percentage
+const calculateEstimatedValue = (fullValue: string, ownershipPercentage: string): string => {
+  if (!fullValue || !ownershipPercentage) return "";
+  const fullVal = parseFloat(fullValue.replace(/[^0-9.-]/g, ""));
+  const pct = parseFloat(ownershipPercentage.replace(/[^0-9.-]/g, ""));
+  if (isNaN(fullVal) || isNaN(pct)) return "";
+  const estimated = fullVal * (pct / 100);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(estimated);
+};
 
 export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
   open,
@@ -1697,39 +2272,97 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
   initialData,
   isEdit = false,
   showSpouse = true,
+  trustFlags,
 }) => {
-  const individualOwnerOptions = getIndividualOwnerOptions(showSpouse);
-  const [data, setData] = useState<BusinessInterestData>(initialData || emptyBusinessInterest);
+  const ownerOptions = getOwnerOptions(showSpouse);
+  const [data, setData] = useState<BusinessInterestData>(
+    initialData || emptyBusinessInterest
+  );
+  const [touched, setTouched] = useState<TouchedFields<BusinessInterestData>>({});
+
+  // Build trust options based on flags
+  const trustOwnerOptions: string[] = [];
+  if (trustFlags) {
+    if (trustFlags.clientHasLivingTrust) {
+      trustOwnerOptions.push("Client's Living Trust");
+    }
+    if (trustFlags.clientHasIrrevocableTrust) {
+      trustOwnerOptions.push("Client's Irrevocable Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasLivingTrust) {
+      trustOwnerOptions.push("Spouse's Living Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasIrrevocableTrust) {
+      trustOwnerOptions.push("Spouse's Irrevocable Trust");
+    }
+  }
+
+  // Combine all owner options
+  const allOwnerOptions = [...ownerOptions, ...trustOwnerOptions];
 
   useEffect(() => {
     if (open) {
-      setData(initialData || emptyBusinessInterest);
+      // Always reset to empty when adding new (isEdit false), otherwise use initialData
+      setData(isEdit && initialData ? initialData : emptyBusinessInterest);
+      setTouched({});
     }
-  }, [open, initialData]);
+  }, [open, initialData, isEdit]);
 
   const handleChange = (updates: Partial<BusinessInterestData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
-  const handleSave = () => {
-    onSave(data);
-    onClose();
+  const handleBlur = (field: keyof BusinessInterestData) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
   };
+
+  // Validation
+  const errors = {
+    owner: !hasValue(data.owner),
+    entityType: !hasValue(data.entityType),
+    businessName: !hasValue(data.businessName),
+    fullValue: !hasCurrencyValue(data.fullValue),
+  };
+
+  const isValid = !errors.owner && !errors.entityType && !errors.businessName && !errors.fullValue;
+
+  const handleSave = () => {
+    setTouched({ owner: true, entityType: true, businessName: true, fullValue: true });
+    if (isValid) {
+      onSave(data);
+      onClose();
+    }
+  };
+
+  // Calculate estimated value based on ownership percentage
+  const estimatedValue = calculateEstimatedValue(
+    data.fullValue,
+    data.ownershipPercentage
+  );
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Business Interest' : 'Add Business Interest'}</DialogTitle>
+      <DialogTitle>
+        {isEdit ? "Edit Business Interest" : "Add Business Interest"}
+      </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Owner</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.owner && errors.owner}
+            >
+              <InputLabel>Owner *</InputLabel>
               <Select
                 value={data.owner}
-                label="Owner"
-                onChange={(e) => handleChange({ owner: e.target.value })}
+                label="Owner *"
+                onChange={(e) => {
+                  handleChange({ owner: e.target.value });
+                  setTouched((prev) => ({ ...prev, owner: true }));
+                }}
               >
-                {individualOwnerOptions.map((option) => (
+                {allOwnerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -1738,12 +2371,21 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
             </FormControl>
           </Grid>
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Entity Type</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.entityType && errors.entityType}
+            >
+              <InputLabel>Entity Type *</InputLabel>
               <Select
                 value={data.entityType}
-                label="Entity Type"
-                onChange={(e) => handleChange({ entityType: e.target.value as BusinessEntityType })}
+                label="Entity Type *"
+                onChange={(e) => {
+                  handleChange({
+                    entityType: e.target.value as BusinessEntityType,
+                  });
+                  setTouched((prev) => ({ ...prev, entityType: true }));
+                }}
               >
                 {BUSINESS_ENTITY_TYPES.map((option) => (
                   <MenuItem key={option} value={option}>
@@ -1756,33 +2398,54 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Business Name"
+              label="Business Name *"
               value={data.businessName}
               onChange={(e) => handleChange({ businessName: e.target.value })}
+              onBlur={() => handleBlur("businessName")}
               variant="outlined"
               size="small"
+              error={touched.businessName && errors.businessName}
+              helperText={touched.businessName && errors.businessName ? "Required" : ""}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4}>
+            <CurrencyInput
+              fullWidth
+              label="Estimated Full Value *"
+              value={data.fullValue}
+              onChange={(e) => handleChange({ fullValue: e.target.value })}
+              onBlur={() => handleBlur("fullValue")}
+              variant="outlined"
+              size="small"
+              name="businessFullValue"
+              error={touched.fullValue && errors.fullValue}
+              helperText={touched.fullValue && errors.fullValue ? "Required" : ""}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <TextField
               fullWidth
               label="Ownership Percentage"
               value={data.ownershipPercentage}
-              onChange={(e) => handleChange({ ownershipPercentage: e.target.value })}
+              onChange={(e) =>
+                handleChange({ ownershipPercentage: e.target.value })
+              }
               variant="outlined"
               size="small"
-              placeholder="e.g., 50%"
+              placeholder="e.g., 50"
             />
           </Grid>
-          <Grid item xs={12} md={6}>
-            <CurrencyInput
+          <Grid item xs={12} md={4}>
+            <TextField
               fullWidth
               label="Estimated Value"
-              value={data.value}
-              onChange={(e) => handleChange({ value: e.target.value })}
+              value={estimatedValue}
               variant="outlined"
               size="small"
-              name="businessValue"
+              InputProps={{
+                readOnly: true,
+              }}
+              helperText="Auto-calculated"
             />
           </Grid>
           <Grid item xs={12}>
@@ -1801,7 +2464,9 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
               control={
                 <Checkbox
                   checked={data.hasBuySellAgreement || false}
-                  onChange={(e) => handleChange({ hasBuySellAgreement: e.target.checked })}
+                  onChange={(e) =>
+                    handleChange({ hasBuySellAgreement: e.target.checked })
+                  }
                 />
               }
               label="Has Buy-Sell Agreement?"
@@ -1811,7 +2476,7 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
             <TextField
               fullWidth
               label="Notes"
-              value={data.notes || ''}
+              value={data.notes || ""}
               onChange={(e) => handleChange({ notes: e.target.value })}
               variant="outlined"
               multiline
@@ -1821,7 +2486,7 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
         <Box>
           {isEdit && onDelete && (
             <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
@@ -1832,7 +2497,7 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
         <Box>
           <Button onClick={onClose}>Cancel</Button>
           <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? 'Save Changes' : 'Add Business'}
+            {isEdit ? "Save Changes" : "Add Business"}
           </Button>
         </Box>
       </DialogActions>
@@ -1841,16 +2506,24 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
 };
 
 // Digital Asset Types
-export type DigitalAssetType = 'Cryptocurrency' | 'Domain Names' | 'Digital Storefront' | 'NFTs' | 'Digital Content' | 'Online Accounts' | 'Other' | '';
+export type DigitalAssetType =
+  | "Cryptocurrency"
+  | "Domain Names"
+  | "Digital Storefront"
+  | "NFTs"
+  | "Digital Content"
+  | "Online Accounts"
+  | "Other"
+  | "";
 
 const DIGITAL_ASSET_TYPES: DigitalAssetType[] = [
-  'Cryptocurrency',
-  'Domain Names',
-  'Digital Storefront',
-  'NFTs',
-  'Digital Content',
-  'Online Accounts',
-  'Other',
+  "Cryptocurrency",
+  "Domain Names",
+  "Digital Storefront",
+  "NFTs",
+  "Digital Content",
+  "Online Accounts",
+  "Other",
 ];
 
 export interface DigitalAssetData {
@@ -1863,12 +2536,12 @@ export interface DigitalAssetData {
 }
 
 const emptyDigitalAsset: DigitalAssetData = {
-  owner: '',
-  assetType: '',
-  platform: '',
-  description: '',
-  value: '',
-  notes: '',
+  owner: "",
+  assetType: "",
+  platform: "",
+  description: "",
+  value: "",
+  notes: "",
 };
 
 interface DigitalAssetModalProps {
@@ -1891,35 +2564,66 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
   showSpouse = true,
 }) => {
   const individualOwnerOptions = getIndividualOwnerOptions(showSpouse);
-  const [data, setData] = useState<DigitalAssetData>(initialData || emptyDigitalAsset);
+  const [data, setData] = useState<DigitalAssetData>(
+    initialData || emptyDigitalAsset
+  );
+  const [touched, setTouched] = useState<TouchedFields<DigitalAssetData>>({});
 
   useEffect(() => {
     if (open) {
-      setData(initialData || emptyDigitalAsset);
+      // Always reset to empty when adding new (isEdit false), otherwise use initialData
+      setData(isEdit && initialData ? initialData : emptyDigitalAsset);
+      setTouched({});
     }
-  }, [open, initialData]);
+  }, [open, initialData, isEdit]);
 
   const handleChange = (updates: Partial<DigitalAssetData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
+  const handleBlur = (field: keyof DigitalAssetData) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  // Validation
+  const errors = {
+    owner: !hasValue(data.owner),
+    assetType: !hasValue(data.assetType),
+    description: !hasValue(data.description),
+    value: !hasCurrencyValue(data.value),
+  };
+
+  const isValid = !errors.owner && !errors.assetType && !errors.description && !errors.value;
+
   const handleSave = () => {
-    onSave(data);
-    onClose();
+    setTouched({ owner: true, assetType: true, description: true, value: true });
+    if (isValid) {
+      onSave(data);
+      onClose();
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Digital Asset' : 'Add Digital Asset'}</DialogTitle>
+      <DialogTitle>
+        {isEdit ? "Edit Digital Asset" : "Add Digital Asset"}
+      </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Owner</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.owner && errors.owner}
+            >
+              <InputLabel>Owner *</InputLabel>
               <Select
                 value={data.owner}
-                label="Owner"
-                onChange={(e) => handleChange({ owner: e.target.value })}
+                label="Owner *"
+                onChange={(e) => {
+                  handleChange({ owner: e.target.value });
+                  setTouched((prev) => ({ ...prev, owner: true }));
+                }}
               >
                 {individualOwnerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
@@ -1930,12 +2634,21 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
             </FormControl>
           </Grid>
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Asset Type</InputLabel>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.assetType && errors.assetType}
+            >
+              <InputLabel>Asset Type *</InputLabel>
               <Select
                 value={data.assetType}
-                label="Asset Type"
-                onChange={(e) => handleChange({ assetType: e.target.value as DigitalAssetType })}
+                label="Asset Type *"
+                onChange={(e) => {
+                  handleChange({
+                    assetType: e.target.value as DigitalAssetType,
+                  });
+                  setTouched((prev) => ({ ...prev, assetType: true }));
+                }}
               >
                 {DIGITAL_ASSET_TYPES.map((option) => (
                   <MenuItem key={option} value={option}>
@@ -1959,30 +2672,36 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
           <Grid item xs={12} md={6}>
             <CurrencyInput
               fullWidth
-              label="Estimated Value"
+              label="Estimated Value *"
               value={data.value}
               onChange={(e) => handleChange({ value: e.target.value })}
+              onBlur={() => handleBlur("value")}
               variant="outlined"
               size="small"
               name="digitalAssetValue"
+              error={touched.value && errors.value}
+              helperText={touched.value && errors.value ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Description"
+              label="Description *"
               value={data.description}
               onChange={(e) => handleChange({ description: e.target.value })}
+              onBlur={() => handleBlur("description")}
               variant="outlined"
               size="small"
               placeholder="e.g., Bitcoin holdings, domain portfolio, Etsy store"
+              error={touched.description && errors.description}
+              helperText={touched.description && errors.description ? "Required" : ""}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
               fullWidth
               label="Notes"
-              value={data.notes || ''}
+              value={data.notes || ""}
               onChange={(e) => handleChange({ notes: e.target.value })}
               variant="outlined"
               multiline
@@ -1992,7 +2711,7 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
         <Box>
           {isEdit && onDelete && (
             <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
@@ -2003,7 +2722,7 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
         <Box>
           <Button onClick={onClose}>Cancel</Button>
           <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? 'Save Changes' : 'Add Asset'}
+            {isEdit ? "Save Changes" : "Add Asset"}
           </Button>
         </Box>
       </DialogActions>

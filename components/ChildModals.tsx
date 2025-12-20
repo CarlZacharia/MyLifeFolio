@@ -29,6 +29,7 @@ export interface ChildData {
   name: string;
   address: string;
   birthDate: string;
+  age: string;
   relationship: string;
   maritalStatus: ChildMaritalStatus;
   hasChildren: boolean;
@@ -64,6 +65,7 @@ const getDefaultChildData = (): ChildData => ({
   name: '',
   address: '',
   birthDate: '',
+  age: '',
   relationship: '',
   maritalStatus: '',
   hasChildren: false,
@@ -73,6 +75,28 @@ const getDefaultChildData = (): ChildData => ({
   disinherit: false,
   comments: '',
 });
+
+// Calculate age from birth date
+const calculateAge = (dateString: string | null | undefined): string => {
+  if (!dateString) return '';
+
+  const date = typeof dateString === 'string' ? dateString : String(dateString);
+  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+  if (!match) return '';
+
+  const birthDate = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age >= 0 ? String(age) : '';
+};
 
 export const ChildModal: React.FC<ChildModalProps> = ({
   open,
@@ -102,7 +126,12 @@ export const ChildModal: React.FC<ChildModalProps> = ({
   };
 
   const handleSave = () => {
-    onSave(formData);
+    // Calculate age from birthDate before saving
+    const dataWithAge = {
+      ...formData,
+      age: calculateAge(formData.birthDate),
+    };
+    onSave(dataWithAge);
     onClose();
   };
 

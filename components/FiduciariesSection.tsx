@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Box,
   TextField,
@@ -11,6 +11,8 @@ import {
   MenuItem,
 } from '@mui/material';
 import { useFormContext, FormData, MaritalStatus } from '../lib/FormContext';
+import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
+import HelpModal from './HelpModal';
 
 const OTHER_VALUE = '__OTHER__';
 
@@ -85,6 +87,11 @@ const FiduciariesSection = () => {
 
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
+  // Help modal state
+  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
+  const openHelp = (helpId: number) => setActiveHelpId(helpId);
+  const closeHelp = () => setActiveHelpId(null);
+
   // Show Trustee section only if client or spouse has a trust
   const clientHasTrust = formData.clientHasLivingTrust || formData.clientHasIrrevocableTrust;
   const spouseHasTrust = formData.spouseHasLivingTrust || formData.spouseHasIrrevocableTrust;
@@ -148,14 +155,20 @@ const FiduciariesSection = () => {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
-        FIDUCIARIES
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+          FIDUCIARIES
+        </Typography>
+        <VideoHelpIcon helpId={104} onClick={() => openHelp(104)} size="medium" />
+      </Box>
 
       {/* Executor */}
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-        1. Executor
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 500 }}>
+          1. Executor
+        </Typography>
+        <HelpIcon helpId={120} onClick={() => openHelp(120)} />
+      </Box>
       <Typography variant="body2" sx={{ mb: 2 }}>
         Whom do you want to serve as your Executor? List at least two names.
       </Typography>
@@ -240,9 +253,12 @@ const FiduciariesSection = () => {
       </Grid>
 
       {/* Financial Power of Attorney */}
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-        2. Financial Power of Attorney
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 500 }}>
+          2. Financial Power of Attorney
+        </Typography>
+        <HelpIcon helpId={121} onClick={() => openHelp(121)} />
+      </Box>
       <Typography variant="body2" sx={{ mb: 2 }}>
         Whom do you want to act as your agent for financial matters if you become incapacitated?
       </Typography>
@@ -327,9 +343,12 @@ const FiduciariesSection = () => {
       </Grid>
 
       {/* Health Care Agent */}
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-        3. Health Care Agent
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 500 }}>
+          3. Health Care Agent
+        </Typography>
+        <HelpIcon helpId={122} onClick={() => openHelp(122)} />
+      </Box>
       <Typography variant="body2" sx={{ mb: 2 }}>
         Whom do you want to make health care decisions for you if you become incapacitated?
       </Typography>
@@ -416,9 +435,12 @@ const FiduciariesSection = () => {
       {/* Trustee - only show if client or spouse has a trust */}
       {showTrusteeSection && (
         <>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-            4. Trustee
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              4. Trustee
+            </Typography>
+            <HelpIcon helpId={123} onClick={() => openHelp(123)} />
+          </Box>
           <Typography variant="body2" sx={{ mb: 2 }}>
             Whom do you want to serve as your Trustee for any Trust created under your will?
           </Typography>
@@ -489,9 +511,12 @@ const FiduciariesSection = () => {
       {/* Guardian - only show if there are minor children */}
       {formData.anyChildrenMinors && (
         <>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-            5. Guardian
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              5. Guardian
+            </Typography>
+            <HelpIcon helpId={124} onClick={() => openHelp(124)} />
+          </Box>
           <Typography variant="body2" sx={{ mb: 2 }}>
             If you have minor or disabled child/children, whom do you want to act as Guardian?
           </Typography>
@@ -554,6 +579,13 @@ const FiduciariesSection = () => {
           </Grid>
         </>
       )}
+
+      {/* Help Modal */}
+      <HelpModal
+        open={activeHelpId !== null}
+        onClose={closeHelp}
+        helpId={activeHelpId}
+      />
     </Box>
   );
 };

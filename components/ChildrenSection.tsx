@@ -15,6 +15,8 @@ import {
 import { useFormContext, MaritalStatus } from '../lib/FormContext';
 import { ChildModal, ChildData } from './ChildModals';
 import ChildrenSummaryTable from './ChildrenSummaryTable';
+import { HelpIcon } from './FieldWithHelp';
+import HelpModal from './HelpModal';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -35,6 +37,11 @@ const ChildrenSection = () => {
     isEdit: false,
     editIndex: null,
   });
+
+  // Help modal state
+  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
+  const openHelp = (helpId: number) => setActiveHelpId(helpId);
+  const closeHelp = () => setActiveHelpId(null);
 
   const handleRadioChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     updateFormData({ [field]: event.target.value === 'yes' });
@@ -107,7 +114,10 @@ const ChildrenSection = () => {
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           <FormControl component="fieldset">
-            <FormLabel component="legend">Are all of your children in good health?</FormLabel>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>Are all of your children in good health?</FormLabel>
+              <HelpIcon helpId={30} onClick={() => openHelp(30)} />
+            </Box>
             <RadioGroup
               row
               value={formData.allChildrenHealthy ? 'yes' : 'no'}
@@ -135,7 +145,10 @@ const ChildrenSection = () => {
 
         <Grid item xs={12} md={6}>
           <FormControl component="fieldset">
-            <FormLabel component="legend">Are any of your children under the age of 21?</FormLabel>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>Are any of your children under the age of 21?</FormLabel>
+              <HelpIcon helpId={31} onClick={() => openHelp(31)} />
+            </Box>
             <RadioGroup
               row
               value={formData.anyChildrenMinors ? 'yes' : 'no'}
@@ -149,7 +162,10 @@ const ChildrenSection = () => {
 
         <Grid item xs={12} md={6}>
           <FormControl component="fieldset">
-            <FormLabel component="legend">Are any of your children disabled or blind?</FormLabel>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>Are any of your children disabled or blind?</FormLabel>
+              <HelpIcon helpId={32} onClick={() => openHelp(32)} />
+            </Box>
             <RadioGroup
               row
               value={formData.anyChildrenDisabled ? 'yes' : 'no'}
@@ -163,7 +179,10 @@ const ChildrenSection = () => {
 
         <Grid item xs={12} md={6}>
           <FormControl component="fieldset">
-            <FormLabel component="legend">Have all of your children completed their education?</FormLabel>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>Have all of your children completed their education?</FormLabel>
+              <HelpIcon helpId={33} onClick={() => openHelp(33)} />
+            </Box>
             <RadioGroup
               row
               value={formData.allChildrenEducated ? 'yes' : 'no'}
@@ -177,7 +196,10 @@ const ChildrenSection = () => {
 
         <Grid item xs={12} md={6}>
           <FormControl component="fieldset">
-            <FormLabel component="legend">Do any of your children have marital problems?</FormLabel>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>Do any of your children have marital problems?</FormLabel>
+              <HelpIcon helpId={34} onClick={() => openHelp(34)} />
+            </Box>
             <RadioGroup
               row
               value={formData.anyChildrenMaritalProblems ? 'yes' : 'no'}
@@ -191,9 +213,12 @@ const ChildrenSection = () => {
 
         <Grid item xs={12} md={6}>
           <FormControl component="fieldset">
-            <FormLabel component="legend">
-              Are any of your children receiving SSI or other government entitlement?
-            </FormLabel>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
+                Does any child receive SSI / Other government benefits?
+              </FormLabel>
+              <HelpIcon helpId={35} onClick={() => openHelp(35)} />
+            </Box>
             <RadioGroup
               row
               value={formData.anyChildrenReceivingSSI ? 'yes' : 'no'}
@@ -207,7 +232,10 @@ const ChildrenSection = () => {
 
         <Grid item xs={12} md={6}>
           <FormControl component="fieldset">
-            <FormLabel component="legend">Drug Addiction?</FormLabel>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>Drug Addiction?</FormLabel>
+              <HelpIcon helpId={36} onClick={() => openHelp(36)} />
+            </Box>
             <RadioGroup
               row
               value={formData.drugAddiction ? 'yes' : 'no'}
@@ -221,7 +249,10 @@ const ChildrenSection = () => {
 
         <Grid item xs={12} md={6}>
           <FormControl component="fieldset">
-            <FormLabel component="legend">Alcoholism?</FormLabel>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>Alcoholism?</FormLabel>
+              <HelpIcon helpId={37} onClick={() => openHelp(37)} />
+            </Box>
             <RadioGroup
               row
               value={formData.alcoholism ? 'yes' : 'no'}
@@ -234,7 +265,10 @@ const ChildrenSection = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <FormControl component="fieldset">
-            <FormLabel component="legend">Does any child have financial problems?</FormLabel>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>Does any child have financial problems?</FormLabel>
+              <HelpIcon helpId={38} onClick={() => openHelp(38)} />
+            </Box>
             <RadioGroup
               row
               value={formData.spendthrift ? 'yes' : 'no'}
@@ -247,13 +281,20 @@ const ChildrenSection = () => {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
-            label="Other"
-            value={formData.childrenOtherConcerns}
-            onChange={handleChange('childrenOtherConcerns')}
-            variant="outlined"
-          />
+          <FormControl component="fieldset" fullWidth>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>Other</FormLabel>
+              <HelpIcon helpId={39} onClick={() => openHelp(39)} />
+            </Box>
+            <TextField
+              fullWidth
+              value={formData.childrenOtherConcerns}
+              onChange={handleChange('childrenOtherConcerns')}
+              variant="outlined"
+              size="small"
+              placeholder="Any other concerns..."
+            />
+          </FormControl>
         </Grid>
 
         <Grid item xs={12}>
@@ -269,6 +310,13 @@ const ChildrenSection = () => {
           />
         </Grid>
       </Grid>
+
+      {/* Help Modal */}
+      <HelpModal
+        open={activeHelpId !== null}
+        onClose={closeHelp}
+        helpId={activeHelpId}
+      />
     </Box>
   );
 };

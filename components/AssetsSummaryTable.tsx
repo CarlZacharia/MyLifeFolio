@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -14,6 +14,8 @@ import {
   Button,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { VideoHelpIcon } from './FieldWithHelp';
+import HelpModal from './HelpModal';
 
 // Helper to parse currency values
 const parseValue = (value: string): number => {
@@ -48,6 +50,8 @@ interface AssetCategoryProps {
   onRowClick: (index: number) => void;
   onAddClick: () => void;
   addButtonLabel: string;
+  helpId: number;
+  onHelpClick: (helpId: number) => void;
 }
 
 const AssetCategory: React.FC<AssetCategoryProps> = ({
@@ -57,15 +61,20 @@ const AssetCategory: React.FC<AssetCategoryProps> = ({
   onRowClick,
   onAddClick,
   addButtonLabel,
+  helpId,
+  onHelpClick,
 }) => {
   const categoryTotal = rows.reduce((sum, row) => sum + row.value, 0);
 
   return (
     <Box sx={{ mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 500 }}>
-          {categoryNumber}. {title}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography variant="h6" sx={{ fontWeight: 500 }}>
+            {categoryNumber}. {title}
+          </Typography>
+          <VideoHelpIcon helpId={helpId} onClick={() => onHelpClick(helpId)} size="small" />
+        </Box>
         <Button variant="outlined" startIcon={<AddIcon />} onClick={onAddClick} size="small">
           {addButtonLabel}
         </Button>
@@ -134,6 +143,8 @@ interface InstitutionAssetCategoryProps {
   onRowClick: (index: number) => void;
   onAddClick: () => void;
   addButtonLabel: string;
+  helpId: number;
+  onHelpClick: (helpId: number) => void;
 }
 
 const InstitutionAssetCategory: React.FC<InstitutionAssetCategoryProps> = ({
@@ -143,15 +154,20 @@ const InstitutionAssetCategory: React.FC<InstitutionAssetCategoryProps> = ({
   onRowClick,
   onAddClick,
   addButtonLabel,
+  helpId,
+  onHelpClick,
 }) => {
   const categoryTotal = rows.reduce((sum, row) => sum + row.value, 0);
 
   return (
     <Box sx={{ mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 500 }}>
-          {categoryNumber}. {title}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography variant="h6" sx={{ fontWeight: 500 }}>
+            {categoryNumber}. {title}
+          </Typography>
+          <VideoHelpIcon helpId={helpId} onClick={() => onHelpClick(helpId)} size="small" />
+        </Box>
         <Button variant="outlined" startIcon={<AddIcon />} onClick={onAddClick} size="small">
           {addButtonLabel}
         </Button>
@@ -222,6 +238,8 @@ interface CompanyAssetCategoryProps {
   onRowClick: (index: number) => void;
   onAddClick: () => void;
   addButtonLabel: string;
+  helpId: number;
+  onHelpClick: (helpId: number) => void;
 }
 
 const CompanyAssetCategory: React.FC<CompanyAssetCategoryProps> = ({
@@ -231,15 +249,20 @@ const CompanyAssetCategory: React.FC<CompanyAssetCategoryProps> = ({
   onRowClick,
   onAddClick,
   addButtonLabel,
+  helpId,
+  onHelpClick,
 }) => {
   const categoryTotal = rows.reduce((sum, row) => sum + row.value, 0);
 
   return (
     <Box sx={{ mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 500 }}>
-          {categoryNumber}. {title}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography variant="h6" sx={{ fontWeight: 500 }}>
+            {categoryNumber}. {title}
+          </Typography>
+          <VideoHelpIcon helpId={helpId} onClick={() => onHelpClick(helpId)} size="small" />
+        </Box>
         <Button variant="outlined" startIcon={<AddIcon />} onClick={onAddClick} size="small">
           {addButtonLabel}
         </Button>
@@ -306,21 +329,28 @@ interface RealEstateCategoryProps {
   rows: RealEstateRow[];
   onRowClick: (index: number) => void;
   onAddClick: () => void;
+  helpId: number;
+  onHelpClick: (helpId: number) => void;
 }
 
 const RealEstateCategory: React.FC<RealEstateCategoryProps> = ({
   rows,
   onRowClick,
   onAddClick,
+  helpId,
+  onHelpClick,
 }) => {
   const categoryTotal = rows.reduce((sum, row) => sum + row.value, 0);
 
   return (
     <Box sx={{ mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 500 }}>
-          1. Real Estate
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography variant="h6" sx={{ fontWeight: 500 }}>
+            1. Real Estate
+          </Typography>
+          <VideoHelpIcon helpId={helpId} onClick={() => onHelpClick(helpId)} size="small" />
+        </Box>
         <Button variant="outlined" startIcon={<AddIcon />} onClick={onAddClick} size="small">
           Add Property
         </Button>
@@ -500,6 +530,10 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
   onAddBusinessInterest,
   onAddDigitalAsset,
 }) => {
+  // Help modal state
+  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
+  const openHelp = (helpId: number) => setActiveHelpId(helpId);
+  const closeHelp = () => setActiveHelpId(null);
   // Transform data for each category
   const realEstateRows: RealEstateRow[] = realEstate.map((item, index) => ({
     id: index,
@@ -613,6 +647,8 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
         rows={realEstateRows}
         onRowClick={onEditRealEstate}
         onAddClick={onAddRealEstate}
+        helpId={110}
+        onHelpClick={openHelp}
       />
 
       <InstitutionAssetCategory
@@ -622,6 +658,8 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
         onRowClick={onEditBankAccount}
         onAddClick={onAddBankAccount}
         addButtonLabel="Add Account"
+        helpId={111}
+        onHelpClick={openHelp}
       />
 
       <InstitutionAssetCategory
@@ -631,6 +669,8 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
         onRowClick={onEditNonQualifiedInvestment}
         onAddClick={onAddNonQualifiedInvestment}
         addButtonLabel="Add Account"
+        helpId={112}
+        onHelpClick={openHelp}
       />
 
       <InstitutionAssetCategory
@@ -640,6 +680,8 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
         onRowClick={onEditRetirementAccount}
         onAddClick={onAddRetirementAccount}
         addButtonLabel="Add Account"
+        helpId={113}
+        onHelpClick={openHelp}
       />
 
       <CompanyAssetCategory
@@ -649,6 +691,8 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
         onRowClick={onEditLifeInsurance}
         onAddClick={onAddLifeInsurance}
         addButtonLabel="Add Policy"
+        helpId={114}
+        onHelpClick={openHelp}
       />
 
       <AssetCategory
@@ -658,6 +702,8 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
         onRowClick={onEditVehicle}
         onAddClick={onAddVehicle}
         addButtonLabel="Add Vehicle"
+        helpId={115}
+        onHelpClick={openHelp}
       />
 
       <AssetCategory
@@ -667,6 +713,8 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
         onRowClick={onEditOtherAsset}
         onAddClick={onAddOtherAsset}
         addButtonLabel="Add Asset"
+        helpId={116}
+        onHelpClick={openHelp}
       />
 
       <AssetCategory
@@ -676,6 +724,8 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
         onRowClick={onEditBusinessInterest}
         onAddClick={onAddBusinessInterest}
         addButtonLabel="Add Business"
+        helpId={117}
+        onHelpClick={openHelp}
       />
 
       <AssetCategory
@@ -685,6 +735,8 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
         onRowClick={onEditDigitalAsset}
         onAddClick={onAddDigitalAsset}
         addButtonLabel="Add Asset"
+        helpId={118}
+        onHelpClick={openHelp}
       />
 
       {/* Grand Total */}
@@ -698,6 +750,13 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
           </Typography>
         </Box>
       </Paper>
+
+      {/* Help Modal */}
+      <HelpModal
+        open={activeHelpId !== null}
+        onClose={closeHelp}
+        helpId={activeHelpId}
+      />
     </Box>
   );
 };

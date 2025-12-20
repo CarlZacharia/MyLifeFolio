@@ -5,6 +5,8 @@ import { Box, Typography } from '@mui/material';
 import { useFormContext } from '../lib/FormContext';
 import { BeneficiaryModal, CharityModal, BeneficiaryData, CharityData } from './BeneficiaryModals';
 import { BeneficiariesSummaryTable, CharitiesSummaryTable } from './BeneficiariesSummaryTable';
+import { VideoHelpIcon } from './FieldWithHelp';
+import HelpModal from './HelpModal';
 
 type ModalType = 'beneficiary' | 'charity' | null;
 
@@ -23,6 +25,11 @@ const OtherBeneficiariesSection = () => {
     isEdit: false,
     editIndex: null,
   });
+
+  // Help modal state
+  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
+  const openHelp = (helpId: number) => setActiveHelpId(helpId);
+  const closeHelp = () => setActiveHelpId(null);
 
   // Modal handlers
   const openAddModal = (type: ModalType) => {
@@ -88,9 +95,12 @@ const OtherBeneficiariesSection = () => {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
-        OTHER BENEFICIARIES & CHARITIES
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+          OTHER BENEFICIARIES
+        </Typography>
+        <VideoHelpIcon helpId={102} onClick={() => openHelp(102)} size="medium" />
+      </Box>
 
       {/* Other Beneficiaries */}
       <Box sx={{ mb: 4 }}>
@@ -106,6 +116,12 @@ const OtherBeneficiariesSection = () => {
 
       {/* Charities */}
       <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+            CHARITIES
+          </Typography>
+          <VideoHelpIcon helpId={103} onClick={() => openHelp(103)} size="medium" />
+        </Box>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Include any charitable organizations you wish to name as beneficiaries.
         </Typography>
@@ -134,6 +150,13 @@ const OtherBeneficiariesSection = () => {
         onDelete={modalState.isEdit ? handleDeleteCharity : undefined}
         initialData={getCharityEditData()}
         isEdit={modalState.isEdit}
+      />
+
+      {/* Help Modal */}
+      <HelpModal
+        open={activeHelpId !== null}
+        onClose={closeHelp}
+        helpId={activeHelpId}
       />
     </Box>
   );

@@ -477,6 +477,7 @@ const AssetsSection = () => {
         initialData={getEditData() as BusinessInterestData | undefined}
         isEdit={modalState.isEdit}
         showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
       />
 
       {/* Digital Asset Modal */}
