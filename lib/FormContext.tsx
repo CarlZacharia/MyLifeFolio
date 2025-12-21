@@ -186,6 +186,9 @@ export interface FormData {
   clientChildrenFromPrior: number;
   aka: string;
   mailingAddress: string;
+  stateOfDomicile: string;
+  lookingToChangeDomicile: boolean;
+  newDomicileState: string;
   cellPhone: string;
   homePhone: string;
   workPhone: string;
@@ -311,6 +314,7 @@ export interface FormData {
     address: string;
     relationship: string;
     relationshipOther: string;
+    age: string;
     distributionType: 'Per Stirpes' | 'Per Capita' | '';
     notes: string;
   }>;
@@ -590,6 +594,9 @@ const initialFormData: FormData = {
   clientChildrenFromPrior: 0,
   aka: '',
   mailingAddress: '',
+  stateOfDomicile: '',
+  lookingToChangeDomicile: false,
+  newDomicileState: '',
   cellPhone: '',
   homePhone: '',
   workPhone: '',

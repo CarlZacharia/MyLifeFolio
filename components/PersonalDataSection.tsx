@@ -162,6 +162,70 @@ const PersonalDataSection = () => {
           </Box>
         </Grid>
 
+        {/* Domicile Fields */}
+        <Grid item xs={12} md={4}>
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                State of Domicile
+              </Typography>
+              <HelpIcon helpId={29} onClick={() => openHelp(29)} />
+            </Box>
+            <TextField
+              fullWidth
+              value={formData.stateOfDomicile}
+              onChange={handleChange('stateOfDomicile')}
+              variant="outlined"
+              size="small"
+              placeholder="e.g., Ohio"
+            />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
+              Are you looking to change domicile to another state?
+            </FormLabel>
+            <RadioGroup
+              row
+              value={formData.lookingToChangeDomicile ? 'yes' : 'no'}
+              onChange={(e) => {
+                const isYes = e.target.value === 'yes';
+                updateFormData({
+                  lookingToChangeDomicile: isYes,
+                  newDomicileState: isYes ? formData.newDomicileState : ''
+                });
+              }}
+            >
+              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+
+        {formData.lookingToChangeDomicile && (
+          <Grid item xs={12} md={4}>
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+                New State of Domicile
+              </Typography>
+              <FormControl fullWidth size="small">
+                <Select
+                  value={formData.newDomicileState}
+                  onChange={(e) => updateFormData({ newDomicileState: e.target.value })}
+                  displayEmpty
+                >
+                  <MenuItem value="" disabled>Select a state</MenuItem>
+                  <MenuItem value="Florida">Florida</MenuItem>
+                  <MenuItem value="Pennsylvania">Pennsylvania</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          </Grid>
+        )}
+
         <Grid item xs={12} md={3}>
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>

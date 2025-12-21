@@ -92,10 +92,10 @@ const ChildrenSummaryTable: React.FC<ChildrenSummaryTableProps> = ({
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Typography variant="h4" sx={{ fontWeight: 600, color: '#1a237e' }}>
-            Children ({children.length})
+          <Typography variant="h6" sx={{ fontWeight: 500 }}>
+            1. Children ({children.length})
           </Typography>
-          <VideoHelpIcon helpId={101} onClick={() => setHelpOpen(true)} size="medium" />
+          <VideoHelpIcon helpId={101} onClick={() => setHelpOpen(true)} size="small" />
         </Box>
         <Button
           variant="outlined"

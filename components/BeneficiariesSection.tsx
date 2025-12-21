@@ -156,12 +156,6 @@ const BeneficiariesSection = () => {
 
       {/* Category 1: Children */}
       <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 500 }}>
-            1. Children
-          </Typography>
-        </Box>
-
         {/* Children List with Summary Table */}
         <Box sx={{ mb: 3 }}>
           <ChildrenSummaryTable

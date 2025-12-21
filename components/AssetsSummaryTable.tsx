@@ -707,19 +707,8 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
       />
 
       <AssetCategory
-        title="Other Assets"
-        categoryNumber={7}
-        rows={otherAssetRows}
-        onRowClick={onEditOtherAsset}
-        onAddClick={onAddOtherAsset}
-        addButtonLabel="Add Asset"
-        helpId={116}
-        onHelpClick={openHelp}
-      />
-
-      <AssetCategory
         title="Business Interests"
-        categoryNumber={8}
+        categoryNumber={7}
         rows={businessInterestRows}
         onRowClick={onEditBusinessInterest}
         onAddClick={onAddBusinessInterest}
@@ -730,12 +719,23 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
 
       <AssetCategory
         title="Digital Assets"
-        categoryNumber={9}
+        categoryNumber={8}
         rows={digitalAssetRows}
         onRowClick={onEditDigitalAsset}
         onAddClick={onAddDigitalAsset}
         addButtonLabel="Add Asset"
         helpId={118}
+        onHelpClick={openHelp}
+      />
+
+      <AssetCategory
+        title="Other Assets"
+        categoryNumber={9}
+        rows={otherAssetRows}
+        onRowClick={onEditOtherAsset}
+        onAddClick={onAddOtherAsset}
+        addButtonLabel="Add Asset"
+        helpId={116}
         onHelpClick={openHelp}
       />
 

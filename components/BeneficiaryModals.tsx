@@ -28,6 +28,7 @@ export interface BeneficiaryData {
   address: string;
   relationship: string;
   relationshipOther: string;
+  age: string;
   distributionType: 'Per Stirpes' | 'Per Capita' | '';
   notes: string;
 }
@@ -55,6 +56,7 @@ const getDefaultBeneficiaryData = (): BeneficiaryData => ({
   address: '',
   relationship: '',
   relationshipOther: '',
+  age: '',
   distributionType: '',
   notes: '',
 });
@@ -84,6 +86,10 @@ export const BeneficiaryModal: React.FC<BeneficiaryModalProps> = ({
       // Clear relationshipOther if relationship is not "Other"
       if (field === 'relationship' && value !== 'Other') {
         updated.relationshipOther = '';
+      }
+      // Clear age if relationship is not "Grandchild"
+      if (field === 'relationship' && value !== 'Grandchild') {
+        updated.age = '';
       }
       return updated;
     });
@@ -143,6 +149,20 @@ export const BeneficiaryModal: React.FC<BeneficiaryModalProps> = ({
                   variant="outlined"
                   size="small"
                   helperText="e.g., cousin, neighbor"
+                />
+              </Grid>
+            )}
+            {formData.relationship === 'Grandchild' && (
+              <Grid item xs={12} md={3}>
+                <TextField
+                  fullWidth
+                  label="Age"
+                  value={formData.age}
+                  onChange={handleChange('age')}
+                  variant="outlined"
+                  size="small"
+                  type="number"
+                  inputProps={{ min: 0 }}
                 />
               </Grid>
             )}

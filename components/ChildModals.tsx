@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -22,6 +22,7 @@ import {
   Typography,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useFormContext } from '../lib/FormContext';
 
 export type ChildMaritalStatus = 'Single' | 'Married' | 'Divorced' | 'Widowed' | '';
 
@@ -43,12 +44,12 @@ export interface ChildData {
 const CHILD_MARITAL_STATUS_OPTIONS: ChildMaritalStatus[] = ['Single', 'Married', 'Divorced', 'Widowed'];
 
 const RELATIONSHIP_OPTIONS = [
+  'Son of Both',
+  'Daughter of Both',
   'Son of Client',
   'Daughter of Client',
   'Son of Spouse',
   'Daughter of Spouse',
-  'Son of Both',
-  'Daughter of Both',
 ];
 
 interface ChildModalProps {
@@ -108,12 +109,23 @@ export const ChildModal: React.FC<ChildModalProps> = ({
   showSpouse,
 }) => {
   const [formData, setFormData] = useState<ChildData>(getDefaultChildData());
+  const { formData: contextFormData } = useFormContext();
 
   useEffect(() => {
     if (open) {
       setFormData(initialData || getDefaultChildData());
     }
   }, [open, initialData]);
+
+  // Update age whenever birthDate changes
+  useEffect(() => {
+    if (formData.birthDate) {
+      const calculatedAge = calculateAge(formData.birthDate);
+      if (calculatedAge !== formData.age) {
+        setFormData((prev) => ({ ...prev, age: calculatedAge }));
+      }
+    }
+  }, [formData.birthDate, formData.age]);
 
   const handleChange = (field: keyof ChildData) => (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: string } }
@@ -135,10 +147,37 @@ export const ChildModal: React.FC<ChildModalProps> = ({
     onClose();
   };
 
-  // Filter relationship options based on whether spouse info is shown
-  const relationshipOptions = showSpouse
-    ? RELATIONSHIP_OPTIONS
-    : RELATIONSHIP_OPTIONS.filter(opt => opt.includes('Client') && !opt.includes('Spouse') && !opt.includes('Both'));
+  // Dynamically filter relationship options based on prior children and children together
+  const relationshipOptions = useMemo(() => {
+    // If no spouse, only show Client options
+    if (!showSpouse) {
+      return RELATIONSHIP_OPTIONS.filter(opt => opt.includes('Client') && !opt.includes('Spouse') && !opt.includes('Both'));
+    }
+
+    const clientHasPriorChildren = contextFormData.clientHasChildrenFromPrior;
+    const spouseHasPriorChildren = contextFormData.spouseHasChildrenFromPrior;
+    const hasChildrenTogether = contextFormData.childrenTogether > 0;
+
+    const options: string[] = [];
+
+    // Add "of Both" options if there are children together OR if neither has prior children
+    // (When neither has prior children, "of Both" are the only options available)
+    if (hasChildrenTogether || (!clientHasPriorChildren && !spouseHasPriorChildren)) {
+      options.push('Son of Both', 'Daughter of Both');
+    }
+
+    // Add Client options if client has children from prior relationship
+    if (clientHasPriorChildren) {
+      options.push('Son of Client', 'Daughter of Client');
+    }
+
+    // Add Spouse options if spouse has children from prior relationship
+    if (spouseHasPriorChildren) {
+      options.push('Son of Spouse', 'Daughter of Spouse');
+    }
+
+    return options;
+  }, [showSpouse, contextFormData.clientHasChildrenFromPrior, contextFormData.spouseHasChildrenFromPrior, contextFormData.childrenTogether]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -158,7 +197,7 @@ export const ChildModal: React.FC<ChildModalProps> = ({
               />
             </Grid>
             <Grid item xs={12} md={4}>
-              <FormControl fullWidth size="small">
+              <FormControl fullWidth size="small" required>
                 <InputLabel>Relationship</InputLabel>
                 <Select
                   value={formData.relationship}
@@ -207,6 +246,11 @@ export const ChildModal: React.FC<ChildModalProps> = ({
                 type="date"
                 InputLabelProps={{ shrink: true }}
               />
+              {formData.birthDate && calculateAge(formData.birthDate) && (
+                <Typography variant="body2" sx={{ mt: 0.5, color: 'text.secondary' }}>
+                  Age: {calculateAge(formData.birthDate)} years old
+                </Typography>
+              )}
             </Grid>
             <Grid item xs={12} md={4}>
               <FormControl fullWidth size="small">
@@ -319,7 +363,7 @@ export const ChildModal: React.FC<ChildModalProps> = ({
           <Button onClick={onClose} sx={{ mr: 1 }}>
             Cancel
           </Button>
-          <Button onClick={handleSave} variant="contained" disabled={!formData.name}>
+          <Button onClick={handleSave} variant="contained" disabled={!formData.name || !formData.relationship}>
             {isEdit ? 'Save Changes' : 'Add Child'}
           </Button>
         </Box>
