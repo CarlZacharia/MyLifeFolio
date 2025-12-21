@@ -436,7 +436,9 @@ export interface FormData {
     amount: string;
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
+    primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     secondaryBeneficiaries: string[];
+    secondaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     notes: string;
   }>;
 
@@ -447,7 +449,9 @@ export interface FormData {
     value: string;
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
+    primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     secondaryBeneficiaries: string[];
+    secondaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     notes: string;
   }>;
 
@@ -458,7 +462,9 @@ export interface FormData {
     value: string;
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
+    primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     secondaryBeneficiaries: string[];
+    secondaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     notes: string;
   }>;
 
@@ -472,7 +478,9 @@ export interface FormData {
     insured: string;
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
+    primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     secondaryBeneficiaries: string[];
+    secondaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     notes: string;
   }>;
 
@@ -482,7 +490,9 @@ export interface FormData {
     value: string;
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
+    primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     secondaryBeneficiaries: string[];
+    secondaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     notes: string;
   }>;
 
@@ -492,7 +502,9 @@ export interface FormData {
     value: string;
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
+    primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     secondaryBeneficiaries: string[];
+    secondaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     addToPersonalPropertyMemo: boolean;
     notes: string;
   }>;

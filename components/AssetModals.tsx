@@ -74,6 +74,31 @@ const getOwnerOptions = (showSpouse: boolean): RealEstateOwner[] =>
 const getIndividualOwnerOptions = (showSpouse: boolean) =>
   showSpouse ? ALL_INDIVIDUAL_OWNER_OPTIONS : CLIENT_ONLY_INDIVIDUAL_OPTIONS;
 
+// Joint ownership types where Client and Spouse should be excluded from beneficiary options
+// For these ownership types, the surviving joint owner automatically inherits,
+// so beneficiary designations only apply after both joint owners are deceased
+const JOINT_OWNER_TYPES: RealEstateOwner[] = [
+  "Client and Spouse",
+  "Client and Other",
+  "Spouse and Other",
+  "Client, Spouse and Other",
+];
+
+// Filter beneficiary options based on owner type
+// Excludes Client and Spouse options for jointly owned assets
+const filterBeneficiaryOptions = (
+  options: BeneficiaryOption[],
+  owner: string
+): BeneficiaryOption[] => {
+  if (!JOINT_OWNER_TYPES.includes(owner as RealEstateOwner)) {
+    return options;
+  }
+  // For joint ownership, exclude Client and Spouse from beneficiary options
+  return options.filter(
+    (opt) => !opt.value.startsWith("client:") && !opt.value.startsWith("spouse:")
+  );
+};
+
 export interface TrustFlags {
   clientHasLivingTrust: boolean;
   clientHasIrrevocableTrust: boolean;
@@ -179,6 +204,9 @@ interface BeneficiarySelectorProps {
   selectedBeneficiaries: string[];
   options: BeneficiaryOption[];
   onChange: (selected: string[]) => void;
+  distributionType?: 'Per Stirpes' | 'Per Capita' | '';
+  onDistributionTypeChange?: (type: 'Per Stirpes' | 'Per Capita' | '') => void;
+  showDistributionType?: boolean;
 }
 
 const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
@@ -186,22 +214,43 @@ const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
   selectedBeneficiaries,
   options,
   onChange,
+  distributionType = '',
+  onDistributionTypeChange,
+  showDistributionType = false,
 }) => {
   return (
-    <Autocomplete
-      multiple
-      size="small"
-      options={options}
-      getOptionLabel={(option) => option.label}
-      value={options.filter((opt) => selectedBeneficiaries.includes(opt.value))}
-      onChange={(_, newValue) => {
-        onChange(newValue.map((v) => v.value));
-      }}
-      renderInput={(params) => (
-        <TextField {...params} label={label} variant="outlined" />
+    <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+      <Box sx={{ flex: 1 }}>
+        <Autocomplete
+          multiple
+          size="small"
+          options={options}
+          getOptionLabel={(option) => option.label}
+          value={options.filter((opt) => selectedBeneficiaries.includes(opt.value))}
+          onChange={(_, newValue) => {
+            onChange(newValue.map((v) => v.value));
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label={label} variant="outlined" />
+          )}
+          isOptionEqualToValue={(option, value) => option.value === value.value}
+        />
+      </Box>
+      {showDistributionType && onDistributionTypeChange && (
+        <FormControl size="small" sx={{ minWidth: 140 }}>
+          <InputLabel>Distribution</InputLabel>
+          <Select
+            value={distributionType}
+            label="Distribution"
+            onChange={(e) => onDistributionTypeChange(e.target.value as 'Per Stirpes' | 'Per Capita' | '')}
+          >
+            <MenuItem value="">Select...</MenuItem>
+            <MenuItem value="Per Stirpes">Per Stirpes</MenuItem>
+            <MenuItem value="Per Capita">Per Capita</MenuItem>
+          </Select>
+        </FormControl>
       )}
-      isOptionEqualToValue={(option, value) => option.value === value.value}
-    />
+    </Box>
   );
 };
 
@@ -770,7 +819,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
                 <BeneficiarySelector
                   label="Remainder Interest"
                   selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ primaryBeneficiaries: selected })
                   }
@@ -848,6 +897,11 @@ export const BANK_ACCOUNT_TYPES: BankAccountType[] = [
   "Other",
 ];
 
+// Distribution type for beneficiaries
+export type DistributionType = 'Per Stirpes' | 'Per Capita' | '';
+
+export const DISTRIBUTION_TYPES: DistributionType[] = ['Per Stirpes', 'Per Capita'];
+
 export interface BankAccountData {
   owner: string;
   accountType: BankAccountType;
@@ -855,7 +909,9 @@ export interface BankAccountData {
   amount: string;
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
+  primaryDistributionType: DistributionType;
   secondaryBeneficiaries: string[];
+  secondaryDistributionType: DistributionType;
   notes: string;
 }
 
@@ -866,7 +922,9 @@ const emptyBankAccount: BankAccountData = {
   amount: "",
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
+  primaryDistributionType: "",
   secondaryBeneficiaries: [],
+  secondaryDistributionType: "",
   notes: "",
 };
 
@@ -1030,9 +1088,14 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
                 <BeneficiarySelector
                   label="Primary Beneficiaries"
                   selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ primaryBeneficiaries: selected })
+                  }
+                  showDistributionType={true}
+                  distributionType={data.primaryDistributionType}
+                  onDistributionTypeChange={(type) =>
+                    handleChange({ primaryDistributionType: type })
                   }
                 />
               </Grid>
@@ -1040,9 +1103,14 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
                 <BeneficiarySelector
                   label="Secondary Beneficiaries"
                   selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ secondaryBeneficiaries: selected })
+                  }
+                  showDistributionType={true}
+                  distributionType={data.secondaryDistributionType}
+                  onDistributionTypeChange={(type) =>
+                    handleChange({ secondaryDistributionType: type })
                   }
                 />
               </Grid>
@@ -1090,7 +1158,9 @@ export interface NonQualifiedInvestmentData {
   value: string;
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
+  primaryDistributionType: DistributionType;
   secondaryBeneficiaries: string[];
+  secondaryDistributionType: DistributionType;
   notes: string;
 }
 
@@ -1101,7 +1171,9 @@ const emptyNonQualifiedInvestment: NonQualifiedInvestmentData = {
   value: "",
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
+  primaryDistributionType: "",
   secondaryBeneficiaries: [],
+  secondaryDistributionType: "",
   notes: "",
 };
 
@@ -1254,9 +1326,14 @@ export const NonQualifiedInvestmentModal: React.FC<
                 <BeneficiarySelector
                   label="Primary Beneficiaries"
                   selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ primaryBeneficiaries: selected })
+                  }
+                  showDistributionType={true}
+                  distributionType={data.primaryDistributionType}
+                  onDistributionTypeChange={(type) =>
+                    handleChange({ primaryDistributionType: type })
                   }
                 />
               </Grid>
@@ -1264,9 +1341,14 @@ export const NonQualifiedInvestmentModal: React.FC<
                 <BeneficiarySelector
                   label="Secondary Beneficiaries"
                   selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ secondaryBeneficiaries: selected })
+                  }
+                  showDistributionType={true}
+                  distributionType={data.secondaryDistributionType}
+                  onDistributionTypeChange={(type) =>
+                    handleChange({ secondaryDistributionType: type })
                   }
                 />
               </Grid>
@@ -1314,7 +1396,9 @@ export interface RetirementAccountData {
   value: string;
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
+  primaryDistributionType: DistributionType;
   secondaryBeneficiaries: string[];
+  secondaryDistributionType: DistributionType;
   notes: string;
 }
 
@@ -1325,7 +1409,9 @@ const emptyRetirementAccount: RetirementAccountData = {
   value: "",
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
+  primaryDistributionType: "",
   secondaryBeneficiaries: [],
+  secondaryDistributionType: "",
   notes: "",
 };
 
@@ -1480,9 +1566,14 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
                 <BeneficiarySelector
                   label="Primary Beneficiaries"
                   selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ primaryBeneficiaries: selected })
+                  }
+                  showDistributionType={true}
+                  distributionType={data.primaryDistributionType}
+                  onDistributionTypeChange={(type) =>
+                    handleChange({ primaryDistributionType: type })
                   }
                 />
               </Grid>
@@ -1490,9 +1581,14 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
                 <BeneficiarySelector
                   label="Secondary Beneficiaries"
                   selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ secondaryBeneficiaries: selected })
+                  }
+                  showDistributionType={true}
+                  distributionType={data.secondaryDistributionType}
+                  onDistributionTypeChange={(type) =>
+                    handleChange({ secondaryDistributionType: type })
                   }
                 />
               </Grid>
@@ -1559,7 +1655,9 @@ export interface LifeInsuranceData {
   insured: string;
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
+  primaryDistributionType: DistributionType;
   secondaryBeneficiaries: string[];
+  secondaryDistributionType: DistributionType;
   notes: string;
 }
 
@@ -1573,7 +1671,9 @@ const emptyLifeInsurance: LifeInsuranceData = {
   insured: "",
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
+  primaryDistributionType: "",
   secondaryBeneficiaries: [],
+  secondaryDistributionType: "",
   notes: "",
 };
 
@@ -1818,9 +1918,14 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
                 <BeneficiarySelector
                   label="Primary Beneficiaries"
                   selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ primaryBeneficiaries: selected })
+                  }
+                  showDistributionType={true}
+                  distributionType={data.primaryDistributionType}
+                  onDistributionTypeChange={(type) =>
+                    handleChange({ primaryDistributionType: type })
                   }
                 />
               </Grid>
@@ -1828,9 +1933,14 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
                 <BeneficiarySelector
                   label="Secondary Beneficiaries"
                   selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ secondaryBeneficiaries: selected })
+                  }
+                  showDistributionType={true}
+                  distributionType={data.secondaryDistributionType}
+                  onDistributionTypeChange={(type) =>
+                    handleChange({ secondaryDistributionType: type })
                   }
                 />
               </Grid>
@@ -1877,7 +1987,9 @@ export interface VehicleData {
   value: string;
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
+  primaryDistributionType: DistributionType;
   secondaryBeneficiaries: string[];
+  secondaryDistributionType: DistributionType;
   notes: string;
 }
 
@@ -1887,7 +1999,9 @@ const emptyVehicle: VehicleData = {
   value: "",
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
+  primaryDistributionType: "",
   secondaryBeneficiaries: [],
+  secondaryDistributionType: "",
   notes: "",
 };
 
@@ -2024,9 +2138,14 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
                 <BeneficiarySelector
                   label="Primary Beneficiaries"
                   selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ primaryBeneficiaries: selected })
+                  }
+                  showDistributionType={true}
+                  distributionType={data.primaryDistributionType}
+                  onDistributionTypeChange={(type) =>
+                    handleChange({ primaryDistributionType: type })
                   }
                 />
               </Grid>
@@ -2034,9 +2153,14 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
                 <BeneficiarySelector
                   label="Secondary Beneficiaries"
                   selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ secondaryBeneficiaries: selected })
+                  }
+                  showDistributionType={true}
+                  distributionType={data.secondaryDistributionType}
+                  onDistributionTypeChange={(type) =>
+                    handleChange({ secondaryDistributionType: type })
                   }
                 />
               </Grid>
@@ -2083,7 +2207,9 @@ export interface OtherAssetData {
   value: string;
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
+  primaryDistributionType: DistributionType;
   secondaryBeneficiaries: string[];
+  secondaryDistributionType: DistributionType;
   addToPersonalPropertyMemo: boolean;
   notes: string;
 }
@@ -2094,7 +2220,9 @@ const emptyOtherAsset: OtherAssetData = {
   value: "",
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
+  primaryDistributionType: "",
   secondaryBeneficiaries: [],
+  secondaryDistributionType: "",
   addToPersonalPropertyMemo: false,
   notes: "",
 };
@@ -2234,9 +2362,14 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
                 <BeneficiarySelector
                   label="Primary Beneficiaries"
                   selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ primaryBeneficiaries: selected })
+                  }
+                  showDistributionType={true}
+                  distributionType={data.primaryDistributionType}
+                  onDistributionTypeChange={(type) =>
+                    handleChange({ primaryDistributionType: type })
                   }
                 />
               </Grid>
@@ -2244,9 +2377,14 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
                 <BeneficiarySelector
                   label="Secondary Beneficiaries"
                   selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={beneficiaryOptions}
+                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
                   onChange={(selected) =>
                     handleChange({ secondaryBeneficiaries: selected })
+                  }
+                  showDistributionType={true}
+                  distributionType={data.secondaryDistributionType}
+                  onDistributionTypeChange={(type) =>
+                    handleChange({ secondaryDistributionType: type })
                   }
                 />
               </Grid>
