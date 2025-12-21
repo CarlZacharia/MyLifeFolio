@@ -15,8 +15,7 @@ import {
 import { useFormContext } from '../lib/FormContext';
 import PersonalDataSection from '../components/PersonalDataSection';
 import BeneficiariesSection from '../components/BeneficiariesSection';
-// DispositiveIntentionsSection is kept but tabled for now
-// import DispositiveIntentionsSection from '../components/DispositiveIntentionsSection';
+import DispositiveIntentionsSection from '../components/DispositiveIntentionsSection';
 import CurrentEstatePlanSection from '../components/CurrentEstatePlanSection';
 import FiduciariesSection from '../components/FiduciariesSection';
 import LongTermCareSection from '../components/LongTermCareSection';
@@ -32,6 +31,7 @@ const ALL_STEPS = [
   'Personal Data',
   'Beneficiaries',
   'Assets',
+  'Will/Trust Provisions',
   'Current Estate Plan',
   'Fiduciaries',
   'Long-Term Care',
@@ -146,6 +146,8 @@ const QuestionnaireContent = () => {
         return <PersonalDataSection />;
       case 'Beneficiaries':
         return <BeneficiariesSection />;
+      case 'Will/Trust Provisions':
+        return <DispositiveIntentionsSection />;
       case 'Current Estate Plan':
         return <CurrentEstatePlanSection />;
       case 'Fiduciaries':

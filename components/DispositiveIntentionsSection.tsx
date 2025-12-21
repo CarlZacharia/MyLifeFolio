@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   TextField,
@@ -11,13 +11,43 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Checkbox,
+  Divider,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
 } from '@mui/material';
-import { useFormContext, MaritalStatus } from '../lib/FormContext';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import {
+  useFormContext,
+  MaritalStatus,
+  SpecificGiftItem,
+  CashGiftToBeneficiary,
+} from '../lib/FormContext';
+import DistributionPlanSection from './DistributionPlanSection';
+import { SpecificGiftModal } from './SpecificGiftModal';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
+// Interface for available beneficiaries
+interface AvailableBeneficiary {
+  id: string;
+  name: string;
+  relationship: string;
+}
+
 const DispositiveIntentionsSection = () => {
   const { formData, updateFormData } = useFormContext();
+  const [specificGiftModalOpen, setSpecificGiftModalOpen] = useState(false);
+  const [editingGiftIndex, setEditingGiftIndex] = useState<number | null>(null);
 
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
@@ -29,10 +59,124 @@ const DispositiveIntentionsSection = () => {
     updateFormData({ [field]: event.target.value });
   };
 
+  // Get all available beneficiaries for cash gifts
+  const availableBeneficiaries: AvailableBeneficiary[] = useMemo(() => {
+    const beneficiaries: AvailableBeneficiary[] = [];
+
+    // Add spouse if applicable
+    if (showSpouseInfo && formData.spouseName) {
+      beneficiaries.push({ id: 'spouse', name: formData.spouseName, relationship: 'Spouse' });
+    }
+
+    // Add children
+    formData.children.forEach((child, index) => {
+      beneficiaries.push({
+        id: `child-${index}`,
+        name: child.name,
+        relationship: child.relationship || 'Child',
+      });
+    });
+
+    // Add other beneficiaries
+    formData.otherBeneficiaries.forEach((ben, index) => {
+      beneficiaries.push({
+        id: `beneficiary-${index}`,
+        name: ben.name,
+        relationship: ben.relationship || 'Other',
+      });
+    });
+
+    // Add charities
+    formData.charities.forEach((charity, index) => {
+      beneficiaries.push({
+        id: `charity-${index}`,
+        name: charity.name,
+        relationship: 'Charity',
+      });
+    });
+
+    return beneficiaries;
+  }, [formData.children, formData.otherBeneficiaries, formData.charities, formData.spouseName, showSpouseInfo]);
+
+  // Specific Gift handlers
+  const handleAddSpecificGift = () => {
+    setEditingGiftIndex(null);
+    setSpecificGiftModalOpen(true);
+  };
+
+  const handleEditSpecificGift = (index: number) => {
+    setEditingGiftIndex(index);
+    setSpecificGiftModalOpen(true);
+  };
+
+  const handleSaveSpecificGift = (gift: SpecificGiftItem) => {
+    if (editingGiftIndex !== null) {
+      const newGifts = [...formData.specificGifts];
+      newGifts[editingGiftIndex] = gift;
+      updateFormData({ specificGifts: newGifts });
+    } else {
+      updateFormData({ specificGifts: [...formData.specificGifts, gift] });
+    }
+    setSpecificGiftModalOpen(false);
+    setEditingGiftIndex(null);
+  };
+
+  const handleDeleteSpecificGift = () => {
+    if (editingGiftIndex !== null) {
+      updateFormData({
+        specificGifts: formData.specificGifts.filter((_, i) => i !== editingGiftIndex),
+      });
+      setSpecificGiftModalOpen(false);
+      setEditingGiftIndex(null);
+    }
+  };
+
+  // Cash Gift to Beneficiary handlers
+  const isBeneficiarySelected = (beneficiaryId: string): boolean => {
+    return formData.cashGiftsToBeneficiaries.some(g => g.beneficiaryId === beneficiaryId);
+  };
+
+  const getCashGiftAmount = (beneficiaryId: string): string => {
+    const gift = formData.cashGiftsToBeneficiaries.find(g => g.beneficiaryId === beneficiaryId);
+    return gift?.amount || '';
+  };
+
+  const handleBeneficiaryToggle = (beneficiary: AvailableBeneficiary) => {
+    if (isBeneficiarySelected(beneficiary.id)) {
+      // Remove the gift
+      updateFormData({
+        cashGiftsToBeneficiaries: formData.cashGiftsToBeneficiaries.filter(
+          g => g.beneficiaryId !== beneficiary.id
+        ),
+      });
+    } else {
+      // Add a new gift with empty amount
+      updateFormData({
+        cashGiftsToBeneficiaries: [
+          ...formData.cashGiftsToBeneficiaries,
+          {
+            beneficiaryId: beneficiary.id,
+            beneficiaryName: beneficiary.name,
+            relationship: beneficiary.relationship,
+            amount: '',
+          },
+        ],
+      });
+    }
+  };
+
+  const handleCashGiftAmountChange = (beneficiaryId: string, amount: string) => {
+    updateFormData({
+      cashGiftsToBeneficiaries: formData.cashGiftsToBeneficiaries.map(g =>
+        g.beneficiaryId === beneficiaryId ? { ...g, amount } : g
+      ),
+    });
+  };
+
   return (
     <Box>
       <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
-        DISPOSITIVE INTENTIONS
+        WILL/TRUST PROVISIONS
       </Typography>
 
       {/* 1. Children (or Spouse and Children) */}
@@ -119,85 +263,173 @@ const DispositiveIntentionsSection = () => {
         </Grid>
       </Grid>
 
-      {/* 2. Specific Devises */}
+      <Divider sx={{ my: 3 }} />
+
+      {/* 2. Specific Gifts */}
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-        2. Specific Devises
+        2. Specific Gifts
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Use this section to leave specific items (jewelry, furniture, artwork, etc.) to specific individuals.
       </Typography>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend">
-              Do you wish to make any specific devise of real property?
-            </FormLabel>
-            <RadioGroup
-              row
-              value={formData.hasSpecificDevises ? 'yes' : 'no'}
-              onChange={handleRadioChange('hasSpecificDevises')}
-            >
-              <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio />} label="No" />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
+      {formData.specificGifts.length > 0 && (
+        <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                <TableCell sx={{ fontWeight: 600 }}>Recipient</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Item/Description</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: 60 }}>Edit</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {formData.specificGifts.map((gift, index) => (
+                <TableRow key={index}>
+                  <TableCell>{gift.recipientName}</TableCell>
+                  <TableCell>{gift.relationship}</TableCell>
+                  <TableCell>{gift.description}</TableCell>
+                  <TableCell>
+                    <IconButton size="small" onClick={() => handleEditSpecificGift(index)}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
-        {formData.hasSpecificDevises && (
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Description"
-              value={formData.specificDevisesDescription}
-              onChange={handleChange('specificDevisesDescription')}
-              variant="outlined"
-              multiline
-              rows={3}
-              placeholder="Describe the specific devises of real property"
-            />
-          </Grid>
-        )}
-      </Grid>
+      <Button
+        variant="outlined"
+        startIcon={<AddIcon />}
+        onClick={handleAddSpecificGift}
+        size="small"
+        sx={{ mb: 2 }}
+      >
+        Add Specific Gift
+      </Button>
 
-      {/* 3. General Bequests */}
+      <Divider sx={{ my: 3 }} />
+
+      {/* 3. Gifts of Cash */}
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-        3. General Bequests
+        3. Gifts of Cash
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Select beneficiaries to receive cash gifts and enter the amount for each.
       </Typography>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend">
-              Do you wish to make any general bequests of cash to any person?
-            </FormLabel>
-            <RadioGroup
-              row
-              value={formData.hasGeneralBequests ? 'yes' : 'no'}
-              onChange={handleRadioChange('hasGeneralBequests')}
-            >
-              <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio />} label="No" />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
+      {availableBeneficiaries.length === 0 ? (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontStyle: 'italic' }}>
+          No beneficiaries available. Please add children, other beneficiaries, or charities in the Beneficiaries section first.
+        </Typography>
+      ) : (
+        <TableContainer component={Paper} variant="outlined" sx={{ mb: 3 }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                <TableCell sx={{ fontWeight: 600, width: 60 }}>Select</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Beneficiary</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: 180 }}>Amount</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {availableBeneficiaries.map(ben => {
+                const isSelected = isBeneficiarySelected(ben.id);
+                return (
+                  <TableRow key={ben.id}>
+                    <TableCell>
+                      <Checkbox
+                        size="small"
+                        checked={isSelected}
+                        onChange={() => handleBeneficiaryToggle(ben)}
+                      />
+                    </TableCell>
+                    <TableCell>{ben.name}</TableCell>
+                    <TableCell>{ben.relationship}</TableCell>
+                    <TableCell>
+                      {isSelected && (
+                        <TextField
+                          size="small"
+                          value={getCashGiftAmount(ben.id)}
+                          onChange={(e) => handleCashGiftAmountChange(ben.id, e.target.value)}
+                          placeholder="e.g., $10,000"
+                          sx={{ width: '100%' }}
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
-        {formData.hasGeneralBequests && (
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Description"
-              value={formData.generalBequestsDescription}
-              onChange={handleChange('generalBequestsDescription')}
-              variant="outlined"
-              multiline
-              rows={3}
-              placeholder="Describe the general bequests of cash"
-            />
-          </Grid>
-        )}
-      </Grid>
+      <Divider sx={{ my: 4 }} />
 
-      {/* 4. Comments */}
+      {/* 4. Will/Trust Distribution Plans */}
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-        4. Comments
+        4. Will/Trust Distribution Plans
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+        Define how your probate and trust assets should be distributed. Assets with designated beneficiaries
+        (like retirement accounts and life insurance) pass outside of the Will/Trust.
+      </Typography>
+
+      {/* Mirror Plans Option */}
+      {showSpouseInfo && (
+        <Box sx={{ mb: 3, p: 2, bgcolor: '#e3f2fd', borderRadius: 1 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formData.mirrorDistributionPlans}
+                onChange={(e) => updateFormData({ mirrorDistributionPlans: e.target.checked })}
+              />
+            }
+            label={
+              <Box>
+                <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                  Mirror Plans
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Check this box if both spouses want identical distribution plans (each leaving to the other first,
+                  then to children equally).
+                </Typography>
+              </Box>
+            }
+          />
+        </Box>
+      )}
+
+      {/* Client's Distribution Plan */}
+      <DistributionPlanSection
+        personType="client"
+        personName={formData.name || 'Client'}
+        spouseName={showSpouseInfo ? formData.spouseName : undefined}
+      />
+
+      {/* Spouse's Distribution Plan */}
+      {showSpouseInfo && !formData.mirrorDistributionPlans && (
+        <>
+          <Divider sx={{ my: 3 }} />
+          <DistributionPlanSection
+            personType="spouse"
+            personName={formData.spouseName || 'Spouse'}
+            spouseName={formData.name}
+          />
+        </>
+      )}
+
+      <Divider sx={{ my: 4 }} />
+
+      {/* 5. Comments */}
+      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+        5. Comments
       </Typography>
 
       <Grid container spacing={3}>
@@ -209,10 +441,23 @@ const DispositiveIntentionsSection = () => {
             variant="outlined"
             multiline
             rows={4}
-            placeholder="Any additional comments regarding dispositive intentions"
+            placeholder="Any additional comments regarding will/trust provisions"
           />
         </Grid>
       </Grid>
+
+      {/* Specific Gift Modal */}
+      <SpecificGiftModal
+        open={specificGiftModalOpen}
+        onClose={() => {
+          setSpecificGiftModalOpen(false);
+          setEditingGiftIndex(null);
+        }}
+        onSave={handleSaveSpecificGift}
+        onDelete={editingGiftIndex !== null ? handleDeleteSpecificGift : undefined}
+        initialData={editingGiftIndex !== null ? formData.specificGifts[editingGiftIndex] : undefined}
+        isEdit={editingGiftIndex !== null}
+      />
     </Box>
   );
 };

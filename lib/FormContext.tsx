@@ -33,6 +33,54 @@ export interface SpecificGift {
   notes: string;
 }
 
+// Will/Trust Distribution Plan Types
+export interface AssetGift {
+  assetId: string;           // Reference to the asset (e.g., "realEstate-0", "vehicle-1")
+  assetDescription: string;  // Human-readable description
+  assetValue: number;        // Value for display
+  recipientIds: string[];    // Array of beneficiary IDs (e.g., "child-0", "beneficiary-1")
+}
+
+export interface CashGift {
+  recipientName: string;
+  relationship: string;
+  amount: string;
+  notes: string;
+}
+
+export interface ResiduaryBeneficiary {
+  id: string;
+  name: string;
+  relationship: string;
+  percentage: number;        // Percentage share (0-100)
+}
+
+export interface DistributionPlan {
+  isSweetheartPlan: boolean;
+  hasSpecificGifts: boolean;
+  specificAssetGifts: AssetGift[];
+  cashGifts: CashGift[];
+  residuaryBeneficiaries: ResiduaryBeneficiary[];
+  residuaryShareType: 'equal' | 'percentage';
+  notes: string;
+}
+
+// Specific Gift - for giving specific items to specific people
+export interface SpecificGiftItem {
+  recipientName: string;
+  relationship: string;
+  description: string;
+  notes: string;
+}
+
+// Cash Gift to Beneficiary - for giving cash amounts to beneficiaries
+export interface CashGiftToBeneficiary {
+  beneficiaryId: string;  // e.g., "child-0", "beneficiary-1", "charity-0"
+  beneficiaryName: string;
+  relationship: string;
+  amount: string;
+}
+
 export interface CurrentEstatePlanData {
   // Document existence
   hasWill: boolean;
@@ -296,8 +344,10 @@ export interface FormData {
   grandchildrenDistributionAge: string;
   hasSpecificDevises: boolean;
   specificDevisesDescription: string;
+  specificGifts: SpecificGiftItem[];
   hasGeneralBequests: boolean;
   generalBequestsDescription: string;
+  cashGiftsToBeneficiaries: CashGiftToBeneficiary[];
   dispositiveIntentionsComments: string;
 
   // Charities
@@ -531,6 +581,11 @@ export interface FormData {
 
   additionalComments: string;
 
+  // Will/Trust Distribution Plans
+  clientDistributionPlan: DistributionPlan;
+  spouseDistributionPlan: DistributionPlan;
+  mirrorDistributionPlans: boolean;
+
   // Client Notes - questions/comments for the attorney meeting
   clientNotes: string;
 
@@ -693,8 +748,10 @@ const initialFormData: FormData = {
   grandchildrenDistributionAge: '',
   hasSpecificDevises: false,
   specificDevisesDescription: '',
+  specificGifts: [],
   hasGeneralBequests: false,
   generalBequestsDescription: '',
+  cashGiftsToBeneficiaries: [],
   dispositiveIntentionsComments: '',
   leaveToCharity: false,
   charities: [],
@@ -777,6 +834,25 @@ const initialFormData: FormData = {
   businessInterests: [],
   digitalAssets: [],
   additionalComments: '',
+  clientDistributionPlan: {
+    isSweetheartPlan: true,
+    hasSpecificGifts: false,
+    specificAssetGifts: [],
+    cashGifts: [],
+    residuaryBeneficiaries: [],
+    residuaryShareType: 'equal',
+    notes: '',
+  },
+  spouseDistributionPlan: {
+    isSweetheartPlan: true,
+    hasSpecificGifts: false,
+    specificAssetGifts: [],
+    cashGifts: [],
+    residuaryBeneficiaries: [],
+    residuaryShareType: 'equal',
+    notes: '',
+  },
+  mirrorDistributionPlans: false,
   clientNotes: '',
   clientLongTermCare: {
     primaryGoalsConcerns: '',
@@ -1036,6 +1112,14 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
           spouseCurrentEstatePlan: {
             ...initialFormData.spouseCurrentEstatePlan,
             ...(parsed.spouseCurrentEstatePlan || {}),
+          },
+          clientDistributionPlan: {
+            ...initialFormData.clientDistributionPlan,
+            ...(parsed.clientDistributionPlan || {}),
+          },
+          spouseDistributionPlan: {
+            ...initialFormData.spouseDistributionPlan,
+            ...(parsed.spouseDistributionPlan || {}),
           },
         };
 
