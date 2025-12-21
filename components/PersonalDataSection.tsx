@@ -822,6 +822,138 @@ const PersonalDataSection = () => {
           </FormControl>
         </Grid>
 
+        {/* Safe Deposit Box */}
+        <Grid item xs={12}>
+          <Divider sx={{ my: 2 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              Safe Deposit Box
+            </Typography>
+            <HelpIcon helpId={56} onClick={() => openHelp(56)} />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <FormControl component="fieldset">
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
+                Do you have a safe deposit box?
+              </FormLabel>
+              <HelpIcon helpId={57} onClick={() => openHelp(57)} />
+            </Box>
+            <RadioGroup
+              row
+              value={formData.hasSafeDepositBox ? 'yes' : 'no'}
+              onChange={(e) => {
+                const hasBox = e.target.value === 'yes';
+                updateFormData({
+                  hasSafeDepositBox: hasBox,
+                  safeDepositBoxBank: hasBox ? formData.safeDepositBoxBank : '',
+                  safeDepositBoxNumber: hasBox ? formData.safeDepositBoxNumber : '',
+                  safeDepositBoxLocation: hasBox ? formData.safeDepositBoxLocation : '',
+                  safeDepositBoxAccess: hasBox ? formData.safeDepositBoxAccess : '',
+                  safeDepositBoxContents: hasBox ? formData.safeDepositBoxContents : '',
+                });
+              }}
+            >
+              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+
+        {formData.hasSafeDepositBox && (
+          <>
+            <Grid item xs={12} md={4}>
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                    Bank/Institution
+                  </Typography>
+                </Box>
+                <TextField
+                  fullWidth
+                  value={formData.safeDepositBoxBank}
+                  onChange={handleChange('safeDepositBoxBank')}
+                  variant="outlined"
+                  size="small"
+                  placeholder="e.g., Chase Bank, First National Bank"
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                    Box Number
+                  </Typography>
+                </Box>
+                <TextField
+                  fullWidth
+                  value={formData.safeDepositBoxNumber}
+                  onChange={handleChange('safeDepositBoxNumber')}
+                  variant="outlined"
+                  size="small"
+                  placeholder="e.g., Box #1234"
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                    Branch Location/Address
+                  </Typography>
+                </Box>
+                <TextField
+                  fullWidth
+                  value={formData.safeDepositBoxLocation}
+                  onChange={handleChange('safeDepositBoxLocation')}
+                  variant="outlined"
+                  size="small"
+                  placeholder="e.g., 123 Main St, Columbus, OH"
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                    Who Has Access/Keys?
+                  </Typography>
+                </Box>
+                <TextField
+                  fullWidth
+                  value={formData.safeDepositBoxAccess}
+                  onChange={handleChange('safeDepositBoxAccess')}
+                  variant="outlined"
+                  size="small"
+                  placeholder="e.g., Client and spouse, Attorney John Smith"
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={12}>
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                    Contents/What&apos;s Stored
+                  </Typography>
+                </Box>
+                <TextField
+                  fullWidth
+                  value={formData.safeDepositBoxContents}
+                  onChange={handleChange('safeDepositBoxContents')}
+                  variant="outlined"
+                  size="small"
+                  multiline
+                  rows={2}
+                  placeholder="e.g., Original will, deed to home, jewelry, birth certificates"
+                />
+              </Box>
+            </Grid>
+          </>
+        )}
+
         {/* Spouse Information - Only shown for Married, Second Marriage, or Domestic Partnership */}
         {showSpouseInfo && (
           <>

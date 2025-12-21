@@ -826,8 +826,31 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
 };
 
 // Bank Account Types
+export type BankAccountType =
+  | "Checking"
+  | "Savings"
+  | "Money Market"
+  | "Certificate of Deposit"
+  | "Christmas Club"
+  | "Health Savings Account"
+  | "Cash Management"
+  | "Other"
+  | "";
+
+export const BANK_ACCOUNT_TYPES: BankAccountType[] = [
+  "Checking",
+  "Savings",
+  "Money Market",
+  "Certificate of Deposit",
+  "Christmas Club",
+  "Health Savings Account",
+  "Cash Management",
+  "Other",
+];
+
 export interface BankAccountData {
   owner: string;
+  accountType: BankAccountType;
   institution: string;
   amount: string;
   hasBeneficiaries: boolean;
@@ -838,6 +861,7 @@ export interface BankAccountData {
 
 const emptyBankAccount: BankAccountData = {
   owner: "",
+  accountType: "",
   institution: "",
   amount: "",
   hasBeneficiaries: false,
@@ -892,14 +916,15 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
   // Validation
   const errors = {
     owner: !hasValue(data.owner),
+    accountType: !hasValue(data.accountType),
     institution: !hasValue(data.institution),
     amount: !hasCurrencyValue(data.amount),
   };
 
-  const isValid = !errors.owner && !errors.institution && !errors.amount;
+  const isValid = !errors.owner && !errors.accountType && !errors.institution && !errors.amount;
 
   const handleSave = () => {
-    setTouched({ owner: true, institution: true, amount: true });
+    setTouched({ owner: true, accountType: true, institution: true, amount: true });
     if (isValid) {
       onSave(data);
       onClose();
@@ -913,7 +938,7 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
+          <Grid item xs={12} md={6}>
             <FormControl
               fullWidth
               size="small"
@@ -929,6 +954,29 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
                 }}
               >
                 {ownerOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <FormControl
+              fullWidth
+              size="small"
+              error={touched.accountType && errors.accountType}
+            >
+              <InputLabel>Account Type *</InputLabel>
+              <Select
+                value={data.accountType}
+                label="Account Type *"
+                onChange={(e) => {
+                  handleChange({ accountType: e.target.value as BankAccountType });
+                  setTouched((prev) => ({ ...prev, accountType: true }));
+                }}
+              >
+                {BANK_ACCOUNT_TYPES.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -2036,6 +2084,7 @@ export interface OtherAssetData {
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
   secondaryBeneficiaries: string[];
+  addToPersonalPropertyMemo: boolean;
   notes: string;
 }
 
@@ -2046,6 +2095,7 @@ const emptyOtherAsset: OtherAssetData = {
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   secondaryBeneficiaries: [],
+  addToPersonalPropertyMemo: false,
   notes: "",
 };
 
@@ -2202,6 +2252,23 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
               </Grid>
             </>
           )}
+
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={data.addToPersonalPropertyMemo || false}
+                  onChange={(e) =>
+                    handleChange({ addToPersonalPropertyMemo: e.target.checked })
+                  }
+                />
+              }
+              label="Add to Personal Property Memorandum"
+            />
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 4 }}>
+              Check this for items like family heirlooms, jewelry, guns, artwork, or other tangible personal property you want to specifically designate.
+            </Typography>
+          </Grid>
 
           <Grid item xs={12}>
             <TextField

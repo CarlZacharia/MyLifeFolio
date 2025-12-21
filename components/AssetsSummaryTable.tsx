@@ -639,9 +639,12 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
-        ASSETS
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+          ASSETS
+        </Typography>
+        <VideoHelpIcon helpId={105} onClick={() => openHelp(105)} size="medium" />
+      </Box>
 
       <RealEstateCategory
         rows={realEstateRows}

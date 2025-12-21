@@ -636,6 +636,12 @@ const EstatePlanAnalysis: React.FC = () => {
   const clientNonProbateTotal = calculateTotal(clientNonProbateAssets);
   const spouseNonProbateTotal = calculateTotal(spouseNonProbateAssets);
 
+  // Calculate joint totals for summary
+  const jointClientSpouseTotal = calculateTotal(jointNoBeneficiaries) + calculateTotal(jointWithBeneficiaries);
+  const jointClientOtherTotal = calculateTotal(ticClientOther) + calculateTotal(jtwrosClientOther);
+  const jointSpouseOtherTotal = calculateTotal(ticSpouseOther) + calculateTotal(jtwrosSpouseOther);
+  const jointClientSpouseOtherTotal = calculateTotal(ticClientSpouseOther) + calculateTotal(jtwrosClientSpouseOther);
+
   // Scenario-specific asset groupings
   // Helper to check if spouse is the primary beneficiary
   const hasSpouseAsPrimaryBeneficiary = (asset: CategorizedAsset): boolean => {
@@ -928,51 +934,87 @@ const EstatePlanAnalysis: React.FC = () => {
             <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
               Asset Summary
             </Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-          <Box>
-            <Typography variant="body2" color="text.secondary">Total Estate Value</Typography>
-            <Typography variant="h5" sx={{ fontWeight: 600, color: 'primary.main' }}>
-              {formatCurrency(grandTotal)}
-            </Typography>
-          </Box>
-          <Box>
-            <Typography variant="body2" color="text.secondary">Client Probate Assets</Typography>
-            <Typography variant="h6" sx={{ fontWeight: 500, color: 'error.main' }}>
-              {formatCurrency(clientProbateTotal)}
-            </Typography>
-          </Box>
-          <Box>
-            <Typography variant="body2" color="text.secondary">Client Non-Probate Assets</Typography>
-            <Typography variant="h6" sx={{ fontWeight: 500, color: 'success.main' }}>
-              {formatCurrency(clientNonProbateTotal)}
-            </Typography>
-          </Box>
-          {showSpouse && (
-            <Box>
-              <Typography variant="body2" color="text.secondary">Spouse Probate Assets</Typography>
-              <Typography variant="h6" sx={{ fontWeight: 500, color: 'error.main' }}>
-                {formatCurrency(spouseProbateTotal)}
+
+            {/* Row 1: Total Estate Value */}
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary">Total Estate Value</Typography>
+              <Typography variant="h5" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                {formatCurrency(grandTotal)}
               </Typography>
             </Box>
-          )}
-          {showSpouse && (
-            <Box>
-              <Typography variant="body2" color="text.secondary">Spouse Non-Probate Assets</Typography>
-              <Typography variant="h6" sx={{ fontWeight: 500, color: 'success.main' }}>
-                {formatCurrency(spouseNonProbateTotal)}
-              </Typography>
+
+            <Divider sx={{ my: 2 }} />
+
+            {/* Row 2: Client Probate and Client Non-Probate */}
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4, mb: 2 }}>
+              <Box>
+                <Typography variant="body2" color="text.secondary">Client Probate</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 500, color: 'error.main' }}>
+                  {formatCurrency(clientProbateTotal)}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="text.secondary">Client Non-Probate</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 500, color: 'success.main' }}>
+                  {formatCurrency(clientNonProbateTotal)}
+                </Typography>
+              </Box>
             </Box>
-          )}
-          {showSpouse && (
-            <Box>
-              <Typography variant="body2" color="text.secondary">Joint Assets (No Beneficiaries)</Typography>
-              <Typography variant="h6" sx={{ fontWeight: 500, color: 'warning.main' }}>
-                {formatCurrency(jointNoBeneficiariesTotal)}
-              </Typography>
-            </Box>
-          )}
-        </Box>
-      </Paper>
+
+            {/* Row 3: Spouse Probate and Spouse Non-Probate */}
+            {showSpouse && (
+              <>
+                <Divider sx={{ my: 2 }} />
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4, mb: 2 }}>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">Spouse Probate</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 500, color: 'error.main' }}>
+                      {formatCurrency(spouseProbateTotal)}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">Spouse Non-Probate</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 500, color: 'success.main' }}>
+                      {formatCurrency(spouseNonProbateTotal)}
+                    </Typography>
+                  </Box>
+                </Box>
+              </>
+            )}
+
+            {/* Row 4: Joint Assets */}
+            {showSpouse && (
+              <>
+                <Divider sx={{ my: 2 }} />
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">Joint Client-Spouse</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 500, color: 'info.main' }}>
+                      {formatCurrency(jointClientSpouseTotal)}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">Joint Client-Other</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 500, color: 'warning.main' }}>
+                      {formatCurrency(jointClientOtherTotal)}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">Joint Spouse-Other</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 500, color: 'warning.main' }}>
+                      {formatCurrency(jointSpouseOtherTotal)}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">Joint Client, Spouse & Other</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 500, color: 'warning.main' }}>
+                      {formatCurrency(jointClientSpouseOtherTotal)}
+                    </Typography>
+                  </Box>
+                </Box>
+              </>
+            )}
+          </Paper>
 
       {/* Probate Warning */}
           {(clientProbateTotal > 0 || spouseProbateTotal > 0) && (

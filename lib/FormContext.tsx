@@ -392,7 +392,11 @@ export interface FormData {
   spouseLegalIssues: string;
   importantPapersLocation: string;
   hasSafeDepositBox: boolean;
+  safeDepositBoxBank: string;
+  safeDepositBoxNumber: string;
   safeDepositBoxLocation: string;
+  safeDepositBoxAccess: string;
+  safeDepositBoxContents: string;
 
   // Dependents
   dependents: Array<{
@@ -427,6 +431,7 @@ export interface FormData {
 
   bankAccounts: Array<{
     owner: string;
+    accountType: string;
     institution: string;
     amount: string;
     hasBeneficiaries: boolean;
@@ -488,6 +493,7 @@ export interface FormData {
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
     secondaryBeneficiaries: string[];
+    addToPersonalPropertyMemo: boolean;
     notes: string;
   }>;
 
@@ -743,7 +749,11 @@ const initialFormData: FormData = {
   spouseLegalIssues: '',
   importantPapersLocation: '',
   hasSafeDepositBox: false,
+  safeDepositBoxBank: '',
+  safeDepositBoxNumber: '',
   safeDepositBoxLocation: '',
+  safeDepositBoxAccess: '',
+  safeDepositBoxContents: '',
   dependents: [],
   realEstate: [],
   bankAccounts: [],
