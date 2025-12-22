@@ -1040,17 +1040,62 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
             </Grid>
 
             {data.hasLtcInsurance && (
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Carrier, daily/monthly benefit, elimination period, benefit period, inflation rider"
-                  value={data.ltcInsuranceDetails}
-                  onChange={(e) => onChange('ltcInsuranceDetails', e.target.value)}
-                  multiline
-                  rows={2}
-                  variant="outlined"
-                />
-              </Grid>
+              <>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Insurance Company Name"
+                    value={data.ltcInsuranceCompany}
+                    onChange={(e) => onChange('ltcInsuranceCompany', e.target.value)}
+                    variant="outlined"
+                    size="small"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Daily Benefit Amount"
+                    value={data.ltcInsuranceDailyBenefit}
+                    onChange={(e) => onChange('ltcInsuranceDailyBenefit', e.target.value)}
+                    variant="outlined"
+                    size="small"
+                    placeholder="e.g., $200/day"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Term of Coverage"
+                    value={data.ltcInsuranceTerm}
+                    onChange={(e) => onChange('ltcInsuranceTerm', e.target.value)}
+                    variant="outlined"
+                    size="small"
+                    placeholder="e.g., 3 years, 5 years, Lifetime"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Maximum Benefit Amount"
+                    value={data.ltcInsuranceMaximum}
+                    onChange={(e) => onChange('ltcInsuranceMaximum', e.target.value)}
+                    variant="outlined"
+                    size="small"
+                    placeholder="e.g., $250,000"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Level of Care Required to Trigger Benefits"
+                    value={data.ltcInsuranceCareLevel}
+                    onChange={(e) => onChange('ltcInsuranceCareLevel', e.target.value)}
+                    variant="outlined"
+                    size="small"
+                    placeholder="e.g., Unable to perform 2 ADLs, Cognitive impairment"
+                  />
+                </Grid>
+              </>
             )}
 
             <Grid item xs={12}>

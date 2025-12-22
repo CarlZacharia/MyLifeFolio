@@ -206,7 +206,12 @@ export interface LongTermCareData {
   hasMedigap: boolean;
   medigapDetails: string;
   hasLtcInsurance: boolean;
-  ltcInsuranceDetails: string;
+  ltcInsuranceDetails: string; // Legacy field, kept for backwards compatibility
+  ltcInsuranceCompany: string;
+  ltcInsuranceDailyBenefit: string;
+  ltcInsuranceTerm: string; // e.g., "3 years", "5 years", "Lifetime"
+  ltcInsuranceMaximum: string;
+  ltcInsuranceCareLevel: string; // Level of care required to trigger benefits
   currentBenefits: string[]; // Array of current benefits
   previousMedicaidApplication: boolean;
   medicaidApplicationDetails: string;
@@ -915,6 +920,11 @@ const initialFormData: FormData = {
     medigapDetails: '',
     hasLtcInsurance: false,
     ltcInsuranceDetails: '',
+    ltcInsuranceCompany: '',
+    ltcInsuranceDailyBenefit: '',
+    ltcInsuranceTerm: '',
+    ltcInsuranceMaximum: '',
+    ltcInsuranceCareLevel: '',
     currentBenefits: [],
     previousMedicaidApplication: false,
     medicaidApplicationDetails: '',
@@ -981,6 +991,11 @@ const initialFormData: FormData = {
     medigapDetails: '',
     hasLtcInsurance: false,
     ltcInsuranceDetails: '',
+    ltcInsuranceCompany: '',
+    ltcInsuranceDailyBenefit: '',
+    ltcInsuranceTerm: '',
+    ltcInsuranceMaximum: '',
+    ltcInsuranceCareLevel: '',
     currentBenefits: [],
     previousMedicaidApplication: false,
     medicaidApplicationDetails: '',

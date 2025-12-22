@@ -1105,7 +1105,13 @@ const SummarySection = () => {
           )}
           <InfoRow label="Has LTC Insurance" value={formData.clientLongTermCare.hasLtcInsurance} />
           {formData.clientLongTermCare.hasLtcInsurance && (
-            <InfoRow label="LTC Insurance Details" value={formData.clientLongTermCare.ltcInsuranceDetails} />
+            <>
+              <InfoRow label="Insurance Company" value={formData.clientLongTermCare.ltcInsuranceCompany} />
+              <InfoRow label="Daily Benefit" value={formData.clientLongTermCare.ltcInsuranceDailyBenefit} />
+              <InfoRow label="Term of Coverage" value={formData.clientLongTermCare.ltcInsuranceTerm} />
+              <InfoRow label="Maximum Benefit" value={formData.clientLongTermCare.ltcInsuranceMaximum} />
+              <InfoRow label="Care Level Required" value={formData.clientLongTermCare.ltcInsuranceCareLevel} />
+            </>
           )}
           <InfoRow label="Care Preference" value={formData.clientLongTermCare.carePreference} />
           <InfoRow label="Likelihood of LTC in 5 Years" value={formData.clientLongTermCare.likelihoodOfLtcIn5Years} />
@@ -1162,7 +1168,13 @@ const SummarySection = () => {
               )}
               <InfoRow label="Has LTC Insurance" value={formData.spouseLongTermCare.hasLtcInsurance} />
               {formData.spouseLongTermCare.hasLtcInsurance && (
-                <InfoRow label="LTC Insurance Details" value={formData.spouseLongTermCare.ltcInsuranceDetails} />
+                <>
+                  <InfoRow label="Insurance Company" value={formData.spouseLongTermCare.ltcInsuranceCompany} />
+                  <InfoRow label="Daily Benefit" value={formData.spouseLongTermCare.ltcInsuranceDailyBenefit} />
+                  <InfoRow label="Term of Coverage" value={formData.spouseLongTermCare.ltcInsuranceTerm} />
+                  <InfoRow label="Maximum Benefit" value={formData.spouseLongTermCare.ltcInsuranceMaximum} />
+                  <InfoRow label="Care Level Required" value={formData.spouseLongTermCare.ltcInsuranceCareLevel} />
+                </>
               )}
               <InfoRow label="Care Preference" value={formData.spouseLongTermCare.carePreference} />
               <InfoRow label="Likelihood of LTC in 5 Years" value={formData.spouseLongTermCare.likelihoodOfLtcIn5Years} />
