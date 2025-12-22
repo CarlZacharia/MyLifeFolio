@@ -135,19 +135,33 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
   onLogin,
   onRegister,
 }) => {
-  // Check if there's existing questionnaire data in localStorage
-  const hasExistingData = useMemo(() => {
-    if (typeof window === 'undefined') return false;
+  // Check if there's existing questionnaire data in localStorage and get creation date
+  const { hasExistingData, createdAt } = useMemo(() => {
+    if (typeof window === 'undefined') return { hasExistingData: false, createdAt: null };
     try {
-      const stored = localStorage.getItem('estate-planning-questionnaire');
-      if (!stored) return false;
+      const stored = localStorage.getItem('estate-planning-form-data');
+      if (!stored) return { hasExistingData: false, createdAt: null };
       const data = JSON.parse(stored);
       // Check if there's meaningful data (e.g., name filled in)
-      return data && (data.name || data.spouseName || data.children?.length > 0);
+      const hasData = data && (data.name || data.spouseName || data.children?.length > 0);
+      return {
+        hasExistingData: hasData,
+        createdAt: data?.createdAt ? new Date(data.createdAt) : null,
+      };
     } catch {
-      return false;
+      return { hasExistingData: false, createdAt: null };
     }
   }, []);
+
+  // Format date for display
+  const formatDate = (date: Date | null) => {
+    if (!date) return '';
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
@@ -255,7 +269,6 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
           <Grid item xs={12} md={5}>
             <Card
               sx={{
-                height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'transform 0.2s, box-shadow 0.2s',
@@ -312,6 +325,11 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                       ? 'Pick up where you left off on your estate planning questionnaire.'
                       : 'Begin your estate planning questionnaire to help us understand your needs.'}
                   </Typography>
+                  {hasExistingData && createdAt && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                      Started on {formatDate(createdAt)}
+                    </Typography>
+                  )}
                   <Button
                     variant="contained"
                     fullWidth

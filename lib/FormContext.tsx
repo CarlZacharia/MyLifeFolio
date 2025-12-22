@@ -608,6 +608,9 @@ export interface FormData {
   clientCurrentEstatePlan: CurrentEstatePlanData;
   // Current Estate Plan - Spouse
   spouseCurrentEstatePlan: CurrentEstatePlanData;
+
+  // Metadata
+  createdAt: string; // ISO date string of when the questionnaire was started
 }
 
 interface FormContextType {
@@ -1106,6 +1109,9 @@ const initialFormData: FormData = {
     hasLivingWillDocument: false,
     comments: '',
   },
+
+  // Metadata
+  createdAt: '',
 };
 
 export const FormProvider = ({ children }: { children: ReactNode }) => {
@@ -1156,6 +1162,11 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
             ...(parsed.spouseDistributionPlan || {}),
           },
         };
+
+        // Ensure createdAt is set if it doesn't exist
+        if (!mergedData.createdAt) {
+          mergedData.createdAt = new Date().toISOString();
+        }
 
         setFormData(mergedData);
 
