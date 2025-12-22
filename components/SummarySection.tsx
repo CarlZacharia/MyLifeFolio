@@ -321,25 +321,282 @@ const SummarySection = () => {
           )}
           <InfoRow label="Distribution Age" value={formData.distributionAge} />
           <InfoRow label="Predeceased Children to Grandchildren" value={formData.childrenPredeceasedBeneficiaries} />
-          <InfoRow label="Has Specific Devises" value={formData.hasSpecificDevises} />
-          {formData.hasSpecificDevises && (
-            <InfoRow label="Specific Devises" value={formData.specificDevisesDescription} />
-          )}
-          <InfoRow label="Has General Bequests" value={formData.hasGeneralBequests} />
-          {formData.hasGeneralBequests && (
-            <InfoRow label="General Bequests" value={formData.generalBequestsDescription} />
-          )}
-          {formData.dispositiveIntentionsComments && (
-            <Grid item xs={12}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary', mb: 0.5 }}>
-                Comments:
-              </Typography>
-              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-                {formData.dispositiveIntentionsComments}
-              </Typography>
-            </Grid>
-          )}
         </Grid>
+
+        {/* Specific Gifts */}
+        {formData.specificGifts.length > 0 && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Specific Gifts ({formData.specificGifts.length})
+            </Typography>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Recipient</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Item/Description</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Notes</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {formData.specificGifts.map((gift, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{gift.recipientName}</TableCell>
+                      <TableCell>{gift.relationship || '-'}</TableCell>
+                      <TableCell>{gift.description}</TableCell>
+                      <TableCell>{gift.notes || '-'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
+        )}
+
+        {/* Cash Gifts to Beneficiaries */}
+        {formData.cashGiftsToBeneficiaries.length > 0 && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Cash Gifts ({formData.cashGiftsToBeneficiaries.length})
+            </Typography>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Beneficiary</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {formData.cashGiftsToBeneficiaries.map((gift, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{gift.beneficiaryName}</TableCell>
+                      <TableCell>{gift.relationship || '-'}</TableCell>
+                      <TableCell>{formatCurrency(gift.amount)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
+        )}
+
+        {/* Distribution Plan */}
+        {(formData.clientDistributionPlan.distributionType !== 'sweetheart' ||
+          (showSpouseInfo && formData.spouseDistributionPlan.distributionType !== 'sweetheart')) && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Distribution Plan
+            </Typography>
+            <Grid container spacing={1}>
+              <InfoRow
+                label="Client Distribution Type"
+                value={formData.clientDistributionPlan.distributionType === 'sweetheart'
+                  ? 'Sweetheart (all to spouse, then children equally)'
+                  : formData.clientDistributionPlan.distributionType === 'spouseFirstDiffering'
+                    ? 'Spouse First with Different Secondary'
+                    : 'Custom Distribution'}
+              />
+              {showSpouseInfo && (
+                <InfoRow
+                  label="Spouse Distribution Type"
+                  value={formData.spouseDistributionPlan.distributionType === 'sweetheart'
+                    ? 'Sweetheart (all to spouse, then children equally)'
+                    : formData.spouseDistributionPlan.distributionType === 'spouseFirstDiffering'
+                      ? 'Spouse First with Different Secondary'
+                      : 'Custom Distribution'}
+                />
+              )}
+            </Grid>
+          </>
+        )}
+
+        {formData.dispositiveIntentionsComments && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary', mb: 0.5 }}>
+              Comments:
+            </Typography>
+            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+              {formData.dispositiveIntentionsComments}
+            </Typography>
+          </>
+        )}
+      </Paper>
+
+      {/* Current Estate Plan */}
+      <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+        <SectionHeader title="Current Estate Plan" />
+
+        {/* Client's Current Estate Plan */}
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+          {showSpouseInfo ? "Client's Documents" : 'Existing Documents'}
+        </Typography>
+
+        {formData.clientCurrentEstatePlan.hasNone ? (
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            No existing estate planning documents.
+          </Typography>
+        ) : (
+          <Box sx={{ mb: 2 }}>
+            {formData.clientCurrentEstatePlan.documentState && (
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                <strong>Documents signed in:</strong> {formData.clientCurrentEstatePlan.documentState}
+              </Typography>
+            )}
+            {formData.clientCurrentEstatePlan.hasWill && (
+              <Box sx={{ mb: 1 }}>
+                <Typography variant="body2">
+                  <strong>Will:</strong> {formData.clientCurrentEstatePlan.willDateSigned ? `Signed ${formData.clientCurrentEstatePlan.willDateSigned}` : 'Date not specified'}
+                  {formData.clientCurrentEstatePlan.willUploadedFiles.length > 0 && ` (${formData.clientCurrentEstatePlan.willUploadedFiles.length} file(s) uploaded)`}
+                </Typography>
+              </Box>
+            )}
+            {formData.clientCurrentEstatePlan.hasTrust && (
+              <Box sx={{ mb: 1 }}>
+                <Typography variant="body2">
+                  <strong>Trust:</strong> {formData.clientCurrentEstatePlan.trustDateSigned ? `Signed ${formData.clientCurrentEstatePlan.trustDateSigned}` : 'Date not specified'}
+                  {showSpouseInfo && formData.clientCurrentEstatePlan.isJointTrust && ' (Joint with Spouse)'}
+                  {formData.clientCurrentEstatePlan.trustUploadedFiles.length > 0 && ` (${formData.clientCurrentEstatePlan.trustUploadedFiles.length} file(s) uploaded)`}
+                </Typography>
+              </Box>
+            )}
+            {formData.clientCurrentEstatePlan.hasFinancialPOA && (
+              <Box sx={{ mb: 1 }}>
+                <Typography variant="body2">
+                  <strong>Financial Power of Attorney:</strong> {formData.clientCurrentEstatePlan.financialPOADateSigned ? `Signed ${formData.clientCurrentEstatePlan.financialPOADateSigned}` : 'Date not specified'}
+                  {formData.clientCurrentEstatePlan.financialPOAUploadedFiles.length > 0 && ` (${formData.clientCurrentEstatePlan.financialPOAUploadedFiles.length} file(s) uploaded)`}
+                </Typography>
+              </Box>
+            )}
+            {formData.clientCurrentEstatePlan.hasHealthCarePOA && (
+              <Box sx={{ mb: 1 }}>
+                <Typography variant="body2">
+                  <strong>Health Care Power of Attorney:</strong> {formData.clientCurrentEstatePlan.healthCarePOADateSigned ? `Signed ${formData.clientCurrentEstatePlan.healthCarePOADateSigned}` : 'Date not specified'}
+                  {formData.clientCurrentEstatePlan.healthCarePOAUploadedFiles.length > 0 && ` (${formData.clientCurrentEstatePlan.healthCarePOAUploadedFiles.length} file(s) uploaded)`}
+                </Typography>
+              </Box>
+            )}
+            {formData.clientCurrentEstatePlan.hasLivingWill && (
+              <Box sx={{ mb: 1 }}>
+                <Typography variant="body2">
+                  <strong>Living Will:</strong> {formData.clientCurrentEstatePlan.livingWillDateSigned ? `Signed ${formData.clientCurrentEstatePlan.livingWillDateSigned}` : 'Date not specified'}
+                  {formData.clientCurrentEstatePlan.livingWillUploadedFiles.length > 0 && ` (${formData.clientCurrentEstatePlan.livingWillUploadedFiles.length} file(s) uploaded)`}
+                </Typography>
+              </Box>
+            )}
+            {!formData.clientCurrentEstatePlan.hasWill &&
+              !formData.clientCurrentEstatePlan.hasTrust &&
+              !formData.clientCurrentEstatePlan.hasFinancialPOA &&
+              !formData.clientCurrentEstatePlan.hasHealthCarePOA &&
+              !formData.clientCurrentEstatePlan.hasLivingWill && (
+                <Typography variant="body2" color="text.secondary">
+                  No documents selected.
+                </Typography>
+              )}
+          </Box>
+        )}
+
+        {formData.clientCurrentEstatePlan.comments && (
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary' }}>
+              Comments:
+            </Typography>
+            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+              {formData.clientCurrentEstatePlan.comments}
+            </Typography>
+          </Box>
+        )}
+
+        {/* Spouse's Current Estate Plan */}
+        {showSpouseInfo && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Spouse's Documents
+            </Typography>
+
+            {formData.spouseCurrentEstatePlan.hasNone ? (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                No existing estate planning documents.
+              </Typography>
+            ) : (
+              <Box sx={{ mb: 2 }}>
+                {formData.spouseCurrentEstatePlan.documentState && (
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    <strong>Documents signed in:</strong> {formData.spouseCurrentEstatePlan.documentState}
+                  </Typography>
+                )}
+                {formData.spouseCurrentEstatePlan.hasWill && (
+                  <Box sx={{ mb: 1 }}>
+                    <Typography variant="body2">
+                      <strong>Will:</strong> {formData.spouseCurrentEstatePlan.willDateSigned ? `Signed ${formData.spouseCurrentEstatePlan.willDateSigned}` : 'Date not specified'}
+                      {formData.spouseCurrentEstatePlan.willUploadedFiles.length > 0 && ` (${formData.spouseCurrentEstatePlan.willUploadedFiles.length} file(s) uploaded)`}
+                    </Typography>
+                  </Box>
+                )}
+                {formData.spouseCurrentEstatePlan.hasTrust && (
+                  <Box sx={{ mb: 1 }}>
+                    <Typography variant="body2">
+                      <strong>Trust:</strong> {formData.spouseCurrentEstatePlan.trustDateSigned ? `Signed ${formData.spouseCurrentEstatePlan.trustDateSigned}` : 'Date not specified'}
+                      {formData.spouseCurrentEstatePlan.isJointTrust && ' (Joint with Spouse)'}
+                      {formData.spouseCurrentEstatePlan.trustUploadedFiles.length > 0 && ` (${formData.spouseCurrentEstatePlan.trustUploadedFiles.length} file(s) uploaded)`}
+                    </Typography>
+                  </Box>
+                )}
+                {formData.spouseCurrentEstatePlan.hasFinancialPOA && (
+                  <Box sx={{ mb: 1 }}>
+                    <Typography variant="body2">
+                      <strong>Financial Power of Attorney:</strong> {formData.spouseCurrentEstatePlan.financialPOADateSigned ? `Signed ${formData.spouseCurrentEstatePlan.financialPOADateSigned}` : 'Date not specified'}
+                      {formData.spouseCurrentEstatePlan.financialPOAUploadedFiles.length > 0 && ` (${formData.spouseCurrentEstatePlan.financialPOAUploadedFiles.length} file(s) uploaded)`}
+                    </Typography>
+                  </Box>
+                )}
+                {formData.spouseCurrentEstatePlan.hasHealthCarePOA && (
+                  <Box sx={{ mb: 1 }}>
+                    <Typography variant="body2">
+                      <strong>Health Care Power of Attorney:</strong> {formData.spouseCurrentEstatePlan.healthCarePOADateSigned ? `Signed ${formData.spouseCurrentEstatePlan.healthCarePOADateSigned}` : 'Date not specified'}
+                      {formData.spouseCurrentEstatePlan.healthCarePOAUploadedFiles.length > 0 && ` (${formData.spouseCurrentEstatePlan.healthCarePOAUploadedFiles.length} file(s) uploaded)`}
+                    </Typography>
+                  </Box>
+                )}
+                {formData.spouseCurrentEstatePlan.hasLivingWill && (
+                  <Box sx={{ mb: 1 }}>
+                    <Typography variant="body2">
+                      <strong>Living Will:</strong> {formData.spouseCurrentEstatePlan.livingWillDateSigned ? `Signed ${formData.spouseCurrentEstatePlan.livingWillDateSigned}` : 'Date not specified'}
+                      {formData.spouseCurrentEstatePlan.livingWillUploadedFiles.length > 0 && ` (${formData.spouseCurrentEstatePlan.livingWillUploadedFiles.length} file(s) uploaded)`}
+                    </Typography>
+                  </Box>
+                )}
+                {!formData.spouseCurrentEstatePlan.hasWill &&
+                  !formData.spouseCurrentEstatePlan.hasTrust &&
+                  !formData.spouseCurrentEstatePlan.hasFinancialPOA &&
+                  !formData.spouseCurrentEstatePlan.hasHealthCarePOA &&
+                  !formData.spouseCurrentEstatePlan.hasLivingWill && (
+                    <Typography variant="body2" color="text.secondary">
+                      No documents selected.
+                    </Typography>
+                  )}
+              </Box>
+            )}
+
+            {formData.spouseCurrentEstatePlan.comments && (
+              <Box sx={{ mt: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary' }}>
+                  Comments:
+                </Typography>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                  {formData.spouseCurrentEstatePlan.comments}
+                </Typography>
+              </Box>
+            )}
+          </>
+        )}
       </Paper>
 
       {/* Fiduciaries */}
@@ -818,6 +1075,124 @@ const SummarySection = () => {
           )}
         </Paper>
       )}
+
+      {/* Long-Term Care */}
+      <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+        <SectionHeader title="Long-Term Care" />
+
+        {/* Client's Long-Term Care */}
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+          {showSpouseInfo ? "Client's Information" : 'Long-Term Care Information'}
+        </Typography>
+
+        <Grid container spacing={1}>
+          <InfoRow label="Overall Health" value={formData.clientLongTermCare.overallHealth} />
+          <InfoRow label="LTC Concern Level" value={formData.clientLongTermCare.ltcConcernLevel} />
+          <InfoRow label="Current Living Situation" value={formData.clientLongTermCare.currentLivingSituation} />
+          {formData.clientLongTermCare.currentLivingSituation === 'Other' && (
+            <InfoRow label="Living Situation Details" value={formData.clientLongTermCare.livingOther} />
+          )}
+          <InfoRow label="In LTC Facility" value={formData.clientLongTermCare.inLtcFacility} />
+          {formData.clientLongTermCare.inLtcFacility && (
+            <>
+              <InfoRow label="Facility Name" value={formData.clientLongTermCare.facilityName} />
+              <InfoRow label="Care Level" value={formData.clientLongTermCare.currentCareLevel} />
+            </>
+          )}
+          <InfoRow label="Receives Home Help" value={formData.clientLongTermCare.receivesHomeHelp} />
+          {formData.clientLongTermCare.receivesHomeHelp && (
+            <InfoRow label="Hours Per Week" value={formData.clientLongTermCare.hoursOfHelpPerWeek} />
+          )}
+          <InfoRow label="Has LTC Insurance" value={formData.clientLongTermCare.hasLtcInsurance} />
+          {formData.clientLongTermCare.hasLtcInsurance && (
+            <InfoRow label="LTC Insurance Details" value={formData.clientLongTermCare.ltcInsuranceDetails} />
+          )}
+          <InfoRow label="Care Preference" value={formData.clientLongTermCare.carePreference} />
+          <InfoRow label="Likelihood of LTC in 5 Years" value={formData.clientLongTermCare.likelihoodOfLtcIn5Years} />
+        </Grid>
+
+        {formData.clientLongTermCare.diagnoses.length > 0 && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary' }}>
+              Diagnoses:
+            </Typography>
+            <Typography variant="body2">
+              {formData.clientLongTermCare.diagnoses.join(', ')}
+              {formData.clientLongTermCare.diagnosesOther && `, ${formData.clientLongTermCare.diagnosesOther}`}
+            </Typography>
+          </Box>
+        )}
+
+        {formData.clientLongTermCare.primaryGoalsConcerns && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary' }}>
+              Primary Goals/Concerns:
+            </Typography>
+            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+              {formData.clientLongTermCare.primaryGoalsConcerns}
+            </Typography>
+          </Box>
+        )}
+
+        {/* Spouse's Long-Term Care */}
+        {showSpouseInfo && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Spouse's Information
+            </Typography>
+
+            <Grid container spacing={1}>
+              <InfoRow label="Overall Health" value={formData.spouseLongTermCare.overallHealth} />
+              <InfoRow label="LTC Concern Level" value={formData.spouseLongTermCare.ltcConcernLevel} />
+              <InfoRow label="Current Living Situation" value={formData.spouseLongTermCare.currentLivingSituation} />
+              {formData.spouseLongTermCare.currentLivingSituation === 'Other' && (
+                <InfoRow label="Living Situation Details" value={formData.spouseLongTermCare.livingOther} />
+              )}
+              <InfoRow label="In LTC Facility" value={formData.spouseLongTermCare.inLtcFacility} />
+              {formData.spouseLongTermCare.inLtcFacility && (
+                <>
+                  <InfoRow label="Facility Name" value={formData.spouseLongTermCare.facilityName} />
+                  <InfoRow label="Care Level" value={formData.spouseLongTermCare.currentCareLevel} />
+                </>
+              )}
+              <InfoRow label="Receives Home Help" value={formData.spouseLongTermCare.receivesHomeHelp} />
+              {formData.spouseLongTermCare.receivesHomeHelp && (
+                <InfoRow label="Hours Per Week" value={formData.spouseLongTermCare.hoursOfHelpPerWeek} />
+              )}
+              <InfoRow label="Has LTC Insurance" value={formData.spouseLongTermCare.hasLtcInsurance} />
+              {formData.spouseLongTermCare.hasLtcInsurance && (
+                <InfoRow label="LTC Insurance Details" value={formData.spouseLongTermCare.ltcInsuranceDetails} />
+              )}
+              <InfoRow label="Care Preference" value={formData.spouseLongTermCare.carePreference} />
+              <InfoRow label="Likelihood of LTC in 5 Years" value={formData.spouseLongTermCare.likelihoodOfLtcIn5Years} />
+            </Grid>
+
+            {formData.spouseLongTermCare.diagnoses.length > 0 && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary' }}>
+                  Diagnoses:
+                </Typography>
+                <Typography variant="body2">
+                  {formData.spouseLongTermCare.diagnoses.join(', ')}
+                  {formData.spouseLongTermCare.diagnosesOther && `, ${formData.spouseLongTermCare.diagnosesOther}`}
+                </Typography>
+              </Box>
+            )}
+
+            {formData.spouseLongTermCare.primaryGoalsConcerns && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary' }}>
+                  Primary Goals/Concerns:
+                </Typography>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                  {formData.spouseLongTermCare.primaryGoalsConcerns}
+                </Typography>
+              </Box>
+            )}
+          </>
+        )}
+      </Paper>
 
       {/* Miscellaneous */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>

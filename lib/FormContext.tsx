@@ -55,8 +55,11 @@ export interface ResiduaryBeneficiary {
   percentage: number;        // Percentage share (0-100)
 }
 
+export type DistributionType = 'sweetheart' | 'spouseFirstDiffering' | 'custom';
+
 export interface DistributionPlan {
-  isSweetheartPlan: boolean;
+  distributionType: DistributionType;
+  isSweetheartPlan: boolean; // Kept for backwards compatibility
   hasSpecificGifts: boolean;
   specificAssetGifts: AssetGift[];
   cashGifts: CashGift[];
@@ -85,12 +88,25 @@ export interface CurrentEstatePlanData {
   // Document existence
   hasWill: boolean;
   hasTrust: boolean;
+  isJointTrust: boolean; // For married couples - is the trust joint with spouse?
   hasFinancialPOA: boolean;
   hasHealthCarePOA: boolean;
   hasLivingWill: boolean;
   hasNone: boolean;
 
-  // Document details
+  // Per-document details: date signed and home state at signing
+  willDateSigned: string;
+  willStateSigned: string;
+  trustDateSigned: string;
+  trustStateSigned: string;
+  financialPOADateSigned: string;
+  financialPOAStateSigned: string;
+  healthCarePOADateSigned: string;
+  healthCarePOAStateSigned: string;
+  livingWillDateSigned: string;
+  livingWillStateSigned: string;
+
+  // Legacy document details - kept for backwards compatibility
   documentState: string;
   documentDate: string;
   reviewOption: DocumentReviewOption;
@@ -103,7 +119,7 @@ export interface CurrentEstatePlanData {
   healthCarePOAUploadedFiles: string[];
   livingWillUploadedFiles: string[];
 
-  // Will Details
+  // Legacy fiduciary fields - kept for backwards compatibility but no longer shown in UI
   willPersonalRep: string;
   willPersonalRepAlternate1: string;
   willPersonalRepAlternate2: string;
@@ -112,8 +128,6 @@ export interface CurrentEstatePlanData {
   willSpecificRealEstateGifts: SpecificGift[];
   willSpecificAssetGifts: SpecificGift[];
   willGeneralMoneyGifts: SpecificGift[];
-
-  // Trust Details
   trustTrustee: string;
   trustTrusteeAlternate1: string;
   trustTrusteeAlternate2: string;
@@ -122,13 +136,9 @@ export interface CurrentEstatePlanData {
   trustSpecificRealEstateGifts: SpecificGift[];
   trustSpecificAssetGifts: SpecificGift[];
   trustGeneralMoneyGifts: SpecificGift[];
-
-  // Financial POA Details
   financialPOAAgent1: string;
   financialPOAAgent2: string;
   financialPOAAgent3: string;
-
-  // Health Care POA Details
   healthCarePOAAgent1: string;
   healthCarePOAAgent2: string;
   healthCarePOAAgent3: string;
@@ -835,6 +845,7 @@ const initialFormData: FormData = {
   digitalAssets: [],
   additionalComments: '',
   clientDistributionPlan: {
+    distributionType: 'sweetheart',
     isSweetheartPlan: true,
     hasSpecificGifts: false,
     specificAssetGifts: [],
@@ -844,6 +855,7 @@ const initialFormData: FormData = {
     notes: '',
   },
   spouseDistributionPlan: {
+    distributionType: 'sweetheart',
     isSweetheartPlan: true,
     hasSpecificGifts: false,
     specificAssetGifts: [],
@@ -989,10 +1001,21 @@ const initialFormData: FormData = {
   clientCurrentEstatePlan: {
     hasWill: false,
     hasTrust: false,
+    isJointTrust: false,
     hasFinancialPOA: false,
     hasHealthCarePOA: false,
     hasLivingWill: false,
     hasNone: false,
+    willDateSigned: '',
+    willStateSigned: '',
+    trustDateSigned: '',
+    trustStateSigned: '',
+    financialPOADateSigned: '',
+    financialPOAStateSigned: '',
+    healthCarePOADateSigned: '',
+    healthCarePOAStateSigned: '',
+    livingWillDateSigned: '',
+    livingWillStateSigned: '',
     documentState: '',
     documentDate: '',
     reviewOption: '',
@@ -1032,10 +1055,21 @@ const initialFormData: FormData = {
   spouseCurrentEstatePlan: {
     hasWill: false,
     hasTrust: false,
+    isJointTrust: false,
     hasFinancialPOA: false,
     hasHealthCarePOA: false,
     hasLivingWill: false,
     hasNone: false,
+    willDateSigned: '',
+    willStateSigned: '',
+    trustDateSigned: '',
+    trustStateSigned: '',
+    financialPOADateSigned: '',
+    financialPOAStateSigned: '',
+    healthCarePOADateSigned: '',
+    healthCarePOAStateSigned: '',
+    livingWillDateSigned: '',
+    livingWillStateSigned: '',
     documentState: '',
     documentDate: '',
     reviewOption: '',

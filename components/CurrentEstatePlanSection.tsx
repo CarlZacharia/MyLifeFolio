@@ -6,7 +6,6 @@ import {
   TextField,
   Typography,
   Grid,
-  FormLabel,
   Checkbox,
   FormControlLabel,
   FormGroup,
@@ -20,6 +19,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  MenuItem,
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import PeopleIcon from '@mui/icons-material/People';
@@ -37,6 +37,18 @@ import HelpModal from './HelpModal';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
+// US States for dropdown
+const US_STATES = [
+  'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
+  'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
+  'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan',
+  'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+  'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio',
+  'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota',
+  'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia',
+  'Wisconsin', 'Wyoming', 'District of Columbia'
+];
+
 // Document type definitions
 type DocumentType = 'will' | 'trust' | 'financialPOA' | 'healthCarePOA' | 'livingWill';
 
@@ -44,14 +56,17 @@ interface DocumentTypeConfig {
   key: DocumentType;
   label: string;
   uploadField: keyof CurrentEstatePlanData;
+  dateField: keyof CurrentEstatePlanData;
+  stateField: keyof CurrentEstatePlanData;
+  hasField: keyof CurrentEstatePlanData;
 }
 
 const DOCUMENT_TYPES: DocumentTypeConfig[] = [
-  { key: 'will', label: 'Will', uploadField: 'willUploadedFiles' },
-  { key: 'trust', label: 'Trust', uploadField: 'trustUploadedFiles' },
-  { key: 'financialPOA', label: 'Financial Power of Attorney', uploadField: 'financialPOAUploadedFiles' },
-  { key: 'healthCarePOA', label: 'Health Care Power of Attorney', uploadField: 'healthCarePOAUploadedFiles' },
-  { key: 'livingWill', label: 'Living Will', uploadField: 'livingWillUploadedFiles' },
+  { key: 'will', label: 'Will (Last Will and Testament)', uploadField: 'willUploadedFiles', dateField: 'willDateSigned', stateField: 'willStateSigned', hasField: 'hasWill' },
+  { key: 'trust', label: 'Trust (Revocable Living Trust)', uploadField: 'trustUploadedFiles', dateField: 'trustDateSigned', stateField: 'trustStateSigned', hasField: 'hasTrust' },
+  { key: 'financialPOA', label: 'Financial Power of Attorney', uploadField: 'financialPOAUploadedFiles', dateField: 'financialPOADateSigned', stateField: 'financialPOAStateSigned', hasField: 'hasFinancialPOA' },
+  { key: 'healthCarePOA', label: 'Health Care Power of Attorney', uploadField: 'healthCarePOAUploadedFiles', dateField: 'healthCarePOADateSigned', stateField: 'healthCarePOAStateSigned', hasField: 'hasHealthCarePOA' },
+  { key: 'livingWill', label: 'Living Will (Advance Directive)', uploadField: 'livingWillUploadedFiles', dateField: 'livingWillDateSigned', stateField: 'livingWillStateSigned', hasField: 'hasLivingWill' },
 ];
 
 // Document Upload Modal
@@ -222,6 +237,7 @@ interface PersonCurrentEstatePlanProps {
   personLabel: string;
   headerColor?: string;
   openHelp: (helpId: number) => void;
+  showSpouse: boolean;
 }
 
 const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
@@ -231,6 +247,7 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
   personLabel,
   headerColor = '#1a237e',
   openHelp,
+  showSpouse,
 }) => {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [activeDocumentType, setActiveDocumentType] = useState<DocumentTypeConfig | null>(null);
@@ -256,6 +273,76 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
     }
   };
 
+  // Check if any documents are selected
+  const hasAnyDocuments = data.hasWill || data.hasTrust || data.hasFinancialPOA || data.hasHealthCarePOA || data.hasLivingWill;
+
+  const renderDocumentSection = (docType: DocumentTypeConfig, index: number) => {
+    const isChecked = data[docType.hasField] as boolean;
+    const uploadedFiles = getUploadedFiles(docType.uploadField);
+    const isTrust = docType.key === 'trust';
+
+    return (
+      <Box key={docType.key} sx={{ mb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isChecked}
+                onChange={(e) => {
+                  const updates: Partial<CurrentEstatePlanData> = { [docType.hasField]: e.target.checked };
+                  if (e.target.checked) updates.hasNone = false;
+                  onChangeMultiple(updates);
+                }}
+              />
+            }
+            label={docType.label}
+          />
+          {isChecked && (
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<CloudUploadIcon />}
+              onClick={() => handleOpenUploadModal(docType)}
+              sx={{ borderColor: headerColor, color: headerColor }}
+            >
+              Upload{uploadedFiles.length > 0 && ` (${uploadedFiles.length})`}
+            </Button>
+          )}
+        </Box>
+        <Collapse in={isChecked}>
+          <Box sx={{ ml: 4, mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, borderLeft: `3px solid ${headerColor}` }}>
+            <Grid container spacing={2} alignItems="center">
+              {/* Joint Trust option for married couples */}
+              {isTrust && showSpouse && (
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={data.isJointTrust}
+                        onChange={(e) => onChange('isJointTrust', e.target.checked)}
+                      />
+                    }
+                    label="This is a joint trust with my spouse"
+                  />
+                </Grid>
+              )}
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Approximate Date Signed"
+                  value={data[docType.dateField] as string || ''}
+                  onChange={(e) => onChange(docType.dateField, e.target.value)}
+                  size="small"
+                  placeholder="e.g., March 2020, 2019, 05/15/2018"
+                />
+              </Grid>
+            </Grid>
+          </Box>
+        </Collapse>
+      </Box>
+    );
+  };
+
   return (
     <Box>
       {/* Document Checkboxes with inline fields */}
@@ -264,315 +351,32 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
           <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
             Existing Estate Planning Documents
           </Typography>
-          <HelpIcon helpId={200} onClick={() => openHelp(200)} />
+          <HelpIcon helpId={210} onClick={() => openHelp(210)} />
+        </Box>
+
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          Check each document you currently have. You can also upload copies of your documents for our review.
+        </Typography>
+
+        {/* Single State Selector for all documents */}
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            select
+            label="State Where Documents Were Signed"
+            value={data.documentState || ''}
+            onChange={(e) => onChange('documentState', e.target.value)}
+            size="small"
+            sx={{ minWidth: 280 }}
+          >
+            <MenuItem value="">Select State</MenuItem>
+            {US_STATES.map((state) => (
+              <MenuItem key={state} value={state}>{state}</MenuItem>
+            ))}
+          </TextField>
         </Box>
 
         <FormGroup>
-          {/* Will Checkbox */}
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={data.hasWill}
-                    onChange={(e) => {
-                      const updates: Partial<CurrentEstatePlanData> = { hasWill: e.target.checked };
-                      if (e.target.checked) updates.hasNone = false;
-                      onChangeMultiple(updates);
-                    }}
-                  />
-                }
-                label="Will (Last Will and Testament)"
-              />
-              {data.hasWill && (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<CloudUploadIcon />}
-                  onClick={() => handleOpenUploadModal(DOCUMENT_TYPES[0])}
-                  sx={{ borderColor: headerColor, color: headerColor }}
-                >
-                  Upload{getUploadedFiles('willUploadedFiles').length > 0 && ` (${getUploadedFiles('willUploadedFiles').length})`}
-                </Button>
-              )}
-            </Box>
-            <Collapse in={data.hasWill}>
-              <Box sx={{ ml: 4, mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, borderLeft: `3px solid ${headerColor}` }}>
-                <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 500, color: headerColor }}>
-                  Personal Representative (Executor)
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      fullWidth
-                      label="Primary Personal Representative"
-                      value={data.willPersonalRep}
-                      onChange={(e) => onChange('willPersonalRep', e.target.value)}
-                      size="small"
-                      placeholder="Name"
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      fullWidth
-                      label="First Alternate"
-                      value={data.willPersonalRepAlternate1}
-                      onChange={(e) => onChange('willPersonalRepAlternate1', e.target.value)}
-                      size="small"
-                      placeholder="Name"
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      fullWidth
-                      label="Second Alternate"
-                      value={data.willPersonalRepAlternate2}
-                      onChange={(e) => onChange('willPersonalRepAlternate2', e.target.value)}
-                      size="small"
-                      placeholder="Name"
-                    />
-                  </Grid>
-                </Grid>
-              </Box>
-            </Collapse>
-          </Box>
-
-          {/* Trust Checkbox */}
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={data.hasTrust}
-                    onChange={(e) => {
-                      const updates: Partial<CurrentEstatePlanData> = { hasTrust: e.target.checked };
-                      if (e.target.checked) updates.hasNone = false;
-                      onChangeMultiple(updates);
-                    }}
-                  />
-                }
-                label="Trust (Revocable Living Trust or Irrevocable Trust)"
-              />
-              {data.hasTrust && (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<CloudUploadIcon />}
-                  onClick={() => handleOpenUploadModal(DOCUMENT_TYPES[1])}
-                  sx={{ borderColor: headerColor, color: headerColor }}
-                >
-                  Upload{getUploadedFiles('trustUploadedFiles').length > 0 && ` (${getUploadedFiles('trustUploadedFiles').length})`}
-                </Button>
-              )}
-            </Box>
-            <Collapse in={data.hasTrust}>
-              <Box sx={{ ml: 4, mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, borderLeft: `3px solid ${headerColor}` }}>
-                <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 500, color: headerColor }}>
-                  Trustee
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      fullWidth
-                      label="Primary Trustee"
-                      value={data.trustTrustee}
-                      onChange={(e) => onChange('trustTrustee', e.target.value)}
-                      size="small"
-                      placeholder="Name"
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      fullWidth
-                      label="First Alternate"
-                      value={data.trustTrusteeAlternate1}
-                      onChange={(e) => onChange('trustTrusteeAlternate1', e.target.value)}
-                      size="small"
-                      placeholder="Name"
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      fullWidth
-                      label="Second Alternate"
-                      value={data.trustTrusteeAlternate2}
-                      onChange={(e) => onChange('trustTrusteeAlternate2', e.target.value)}
-                      size="small"
-                      placeholder="Name"
-                    />
-                  </Grid>
-                </Grid>
-              </Box>
-            </Collapse>
-          </Box>
-
-          {/* Financial POA Checkbox */}
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={data.hasFinancialPOA}
-                    onChange={(e) => {
-                      const updates: Partial<CurrentEstatePlanData> = { hasFinancialPOA: e.target.checked };
-                      if (e.target.checked) updates.hasNone = false;
-                      onChangeMultiple(updates);
-                    }}
-                  />
-                }
-                label="Financial Power of Attorney (Durable Power of Attorney)"
-              />
-              {data.hasFinancialPOA && (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<CloudUploadIcon />}
-                  onClick={() => handleOpenUploadModal(DOCUMENT_TYPES[2])}
-                  sx={{ borderColor: headerColor, color: headerColor }}
-                >
-                  Upload{getUploadedFiles('financialPOAUploadedFiles').length > 0 && ` (${getUploadedFiles('financialPOAUploadedFiles').length})`}
-                </Button>
-              )}
-            </Box>
-            <Collapse in={data.hasFinancialPOA}>
-              <Box sx={{ ml: 4, mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, borderLeft: `3px solid ${headerColor}` }}>
-                <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 500, color: headerColor }}>
-                  Financial Power of Attorney Agent
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      fullWidth
-                      label="Primary Agent"
-                      value={data.financialPOAAgent1}
-                      onChange={(e) => onChange('financialPOAAgent1', e.target.value)}
-                      size="small"
-                      placeholder="Name"
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      fullWidth
-                      label="First Alternate"
-                      value={data.financialPOAAgent2}
-                      onChange={(e) => onChange('financialPOAAgent2', e.target.value)}
-                      size="small"
-                      placeholder="Name"
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      fullWidth
-                      label="Second Alternate"
-                      value={data.financialPOAAgent3}
-                      onChange={(e) => onChange('financialPOAAgent3', e.target.value)}
-                      size="small"
-                      placeholder="Name"
-                    />
-                  </Grid>
-                </Grid>
-              </Box>
-            </Collapse>
-          </Box>
-
-          {/* Health Care POA Checkbox */}
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={data.hasHealthCarePOA}
-                    onChange={(e) => {
-                      const updates: Partial<CurrentEstatePlanData> = { hasHealthCarePOA: e.target.checked };
-                      if (e.target.checked) updates.hasNone = false;
-                      onChangeMultiple(updates);
-                    }}
-                  />
-                }
-                label="Health Care Power of Attorney (Health Care Surrogate)"
-              />
-              {data.hasHealthCarePOA && (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<CloudUploadIcon />}
-                  onClick={() => handleOpenUploadModal(DOCUMENT_TYPES[3])}
-                  sx={{ borderColor: headerColor, color: headerColor }}
-                >
-                  Upload{getUploadedFiles('healthCarePOAUploadedFiles').length > 0 && ` (${getUploadedFiles('healthCarePOAUploadedFiles').length})`}
-                </Button>
-              )}
-            </Box>
-            <Collapse in={data.hasHealthCarePOA}>
-              <Box sx={{ ml: 4, mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, borderLeft: `3px solid ${headerColor}` }}>
-                <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 500, color: headerColor }}>
-                  Health Care Power of Attorney Agent
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      fullWidth
-                      label="Primary Agent"
-                      value={data.healthCarePOAAgent1}
-                      onChange={(e) => onChange('healthCarePOAAgent1', e.target.value)}
-                      size="small"
-                      placeholder="Name"
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      fullWidth
-                      label="First Alternate"
-                      value={data.healthCarePOAAgent2}
-                      onChange={(e) => onChange('healthCarePOAAgent2', e.target.value)}
-                      size="small"
-                      placeholder="Name"
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField
-                      fullWidth
-                      label="Second Alternate"
-                      value={data.healthCarePOAAgent3}
-                      onChange={(e) => onChange('healthCarePOAAgent3', e.target.value)}
-                      size="small"
-                      placeholder="Name"
-                    />
-                  </Grid>
-                </Grid>
-              </Box>
-            </Collapse>
-          </Box>
-
-          {/* Living Will Checkbox */}
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={data.hasLivingWill}
-                    onChange={(e) => {
-                      const updates: Partial<CurrentEstatePlanData> = { hasLivingWill: e.target.checked };
-                      if (e.target.checked) updates.hasNone = false;
-                      onChangeMultiple(updates);
-                    }}
-                  />
-                }
-                label="Living Will (Advance Directive)"
-              />
-              {data.hasLivingWill && (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<CloudUploadIcon />}
-                  onClick={() => handleOpenUploadModal(DOCUMENT_TYPES[4])}
-                  sx={{ borderColor: headerColor, color: headerColor }}
-                >
-                  Upload{getUploadedFiles('livingWillUploadedFiles').length > 0 && ` (${getUploadedFiles('livingWillUploadedFiles').length})`}
-                </Button>
-              )}
-            </Box>
-          </Box>
+          {DOCUMENT_TYPES.map((docType, index) => renderDocumentSection(docType, index))}
 
           {/* None Checkbox */}
           <FormControlLabel
@@ -585,6 +389,7 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
                       hasNone: true,
                       hasWill: false,
                       hasTrust: false,
+                      isJointTrust: false,
                       hasFinancialPOA: false,
                       hasHealthCarePOA: false,
                       hasLivingWill: false,
@@ -595,7 +400,7 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
                 }}
               />
             }
-            label="None of the above"
+            label="I do not have any existing estate planning documents"
           />
         </FormGroup>
       </Paper>
@@ -606,7 +411,7 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
           <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
             Additional Comments
           </Typography>
-          <HelpIcon helpId={229} onClick={() => openHelp(229)} />
+          <HelpIcon helpId={211} onClick={() => openHelp(211)} />
         </Box>
         <TextField
           fullWidth
@@ -615,7 +420,7 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
           multiline
           rows={4}
           variant="outlined"
-          placeholder="Enter any additional information about your existing estate planning documents..."
+          placeholder="Any additional information about your existing documents that would be helpful for us to know..."
         />
       </Paper>
 
@@ -638,10 +443,21 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
 const getDefaultEstatePlanData = (): CurrentEstatePlanData => ({
   hasWill: false,
   hasTrust: false,
+  isJointTrust: false,
   hasFinancialPOA: false,
   hasHealthCarePOA: false,
   hasLivingWill: false,
   hasNone: false,
+  willDateSigned: '',
+  willStateSigned: '',
+  trustDateSigned: '',
+  trustStateSigned: '',
+  financialPOADateSigned: '',
+  financialPOAStateSigned: '',
+  healthCarePOADateSigned: '',
+  healthCarePOAStateSigned: '',
+  livingWillDateSigned: '',
+  livingWillStateSigned: '',
   documentState: '',
   documentDate: '',
   reviewOption: '',
@@ -751,7 +567,7 @@ const CurrentEstatePlanSection: React.FC = () => {
       </Box>
 
       <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
-        Tell us about any existing estate planning documents you may have. This information helps us understand
+        Tell us about any existing estate planning documents you may have. This helps us understand
         your current situation and identify any updates that may be needed.
       </Typography>
 
@@ -790,6 +606,7 @@ const CurrentEstatePlanSection: React.FC = () => {
               personLabel={clientName}
               headerColor="#1a237e"
               openHelp={openHelp}
+              showSpouse={showSpouse}
             />
           )}
 
@@ -801,6 +618,7 @@ const CurrentEstatePlanSection: React.FC = () => {
               personLabel={spouseName}
               headerColor="#2e7d32"
               openHelp={openHelp}
+              showSpouse={showSpouse}
             />
           )}
         </>
@@ -812,6 +630,7 @@ const CurrentEstatePlanSection: React.FC = () => {
           personLabel={clientName}
           headerColor="#1a237e"
           openHelp={openHelp}
+          showSpouse={showSpouse}
         />
       )}
 

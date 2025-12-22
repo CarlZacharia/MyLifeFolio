@@ -250,19 +250,33 @@ const DistributionPlanSection: React.FC<DistributionPlanSectionProps> = ({
     return assets;
   }, [formData, personType]);
 
-  // Handle sweetheart plan toggle
-  const handleSweetheartChange = (isSweetheart: boolean) => {
-    if (isSweetheart) {
+  // Handle distribution type change
+  const handleDistributionTypeChange = (type: 'sweetheart' | 'spouseFirstDiffering' | 'custom') => {
+    if (type === 'sweetheart') {
       // Clear specific gifts when switching to sweetheart plan
       updatePlan({
+        distributionType: 'sweetheart',
         isSweetheartPlan: true,
         hasSpecificGifts: false,
         specificAssetGifts: [],
         residuaryBeneficiaries: [],
         residuaryShareType: 'equal',
       });
+    } else if (type === 'spouseFirstDiffering') {
+      // Spouse is primary, show residuary for contingent beneficiaries with custom percentages
+      updatePlan({
+        distributionType: 'spouseFirstDiffering',
+        isSweetheartPlan: false,
+        hasSpecificGifts: false,
+        specificAssetGifts: [],
+        residuaryShareType: 'percentage',
+      });
     } else {
-      updatePlan({ isSweetheartPlan: false });
+      // Custom - full control
+      updatePlan({
+        distributionType: 'custom',
+        isSweetheartPlan: false,
+      });
     }
   };
 
@@ -393,8 +407,9 @@ const DistributionPlanSection: React.FC<DistributionPlanSectionProps> = ({
   const percentageValid = Math.abs(totalPercentage - 100) < 0.01;
 
   // Get beneficiaries not yet added to residuary
+  // Exclude spouse since spouse is always primary beneficiary in custom distribution
   const availableForResiduary = availableBeneficiaries.filter(
-    b => !plan.residuaryBeneficiaries.find(rb => rb.id === b.id)
+    b => b.id !== 'spouse' && b.id !== 'client' && !plan.residuaryBeneficiaries.find(rb => rb.id === b.id)
   );
 
   return (
@@ -403,34 +418,194 @@ const DistributionPlanSection: React.FC<DistributionPlanSectionProps> = ({
         {personName}&apos;s Distribution Plan
       </Typography>
 
-      {/* Sweetheart Plan Option */}
+      {/* Distribution Plan Type Options */}
       <Box sx={{ mb: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
         <FormControl component="fieldset">
           <FormLabel component="legend" sx={{ fontWeight: 500 }}>
-            Is this a Sweetheart Plan?
+            How would you like to distribute your estate?
           </FormLabel>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            A Sweetheart Plan leaves everything to your spouse, then to your children equally.
-          </Typography>
           <RadioGroup
-            row
-            value={plan.isSweetheartPlan ? 'yes' : 'no'}
-            onChange={(e) => handleSweetheartChange(e.target.value === 'yes')}
+            value={plan.distributionType || 'sweetheart'}
+            onChange={(e) => handleDistributionTypeChange(e.target.value as 'sweetheart' | 'spouseFirstDiffering' | 'custom')}
           >
-            <FormControlLabel value="yes" control={<Radio />} label="Yes - Sweetheart Plan" />
-            <FormControlLabel value="no" control={<Radio />} label="No - Custom Distribution" />
+            <FormControlLabel
+              value="sweetheart"
+              control={<Radio />}
+              label={
+                <Box>
+                  <Typography variant="body1">Sweetheart Plan</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Everything to {spouseName || 'spouse'} first, then equally to children
+                  </Typography>
+                </Box>
+              }
+              sx={{ alignItems: 'flex-start', mb: 1 }}
+            />
+            <FormControlLabel
+              value="spouseFirstDiffering"
+              control={<Radio />}
+              label={
+                <Box>
+                  <Typography variant="body1">All to Spouse First, Differing Amounts to Others</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {spouseName || 'Spouse'} receives everything first, then specify different amounts for each beneficiary
+                  </Typography>
+                </Box>
+              }
+              sx={{ alignItems: 'flex-start', mb: 1 }}
+            />
+            <FormControlLabel
+              value="custom"
+              control={<Radio />}
+              label={
+                <Box>
+                  <Typography variant="body1">Completely Custom Distribution</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Specify exactly how each asset and the residuary should be distributed
+                  </Typography>
+                </Box>
+              }
+              sx={{ alignItems: 'flex-start' }}
+            />
           </RadioGroup>
         </FormControl>
       </Box>
 
-      {plan.isSweetheartPlan ? (
+      {/* Sweetheart Plan Display */}
+      {(plan.distributionType === 'sweetheart' || (!plan.distributionType && plan.isSweetheartPlan)) && (
         <Alert severity="info" sx={{ mb: 3 }}>
           <Typography variant="body2">
             <strong>Sweetheart Plan:</strong> All assets will pass to {spouseName || 'your spouse'} first.
             If {spouseName || 'your spouse'} predeceases you, assets will be distributed equally among your children.
           </Typography>
         </Alert>
-      ) : (
+      )}
+
+      {/* Spouse First with Differing Amounts */}
+      {plan.distributionType === 'spouseFirstDiffering' && (
+        <>
+          <Alert severity="info" sx={{ mb: 3 }}>
+            <Typography variant="body2">
+              <strong>Primary Beneficiary:</strong> {spouseName || 'Your spouse'} will receive everything first.
+              The contingent beneficiaries below will receive their specified shares if {spouseName || 'your spouse'} predeceases you.
+            </Typography>
+          </Alert>
+
+          {/* Residuary Distribution for Contingent Beneficiaries */}
+          <Accordion defaultExpanded sx={{ mb: 2 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography sx={{ fontWeight: 500 }}>
+                Contingent Beneficiaries
+                {plan.residuaryBeneficiaries.length > 0 && (
+                  <Chip
+                    label={plan.residuaryBeneficiaries.length}
+                    size="small"
+                    sx={{ ml: 1 }}
+                    color="primary"
+                  />
+                )}
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Specify what percentage each beneficiary should receive if {spouseName || 'your spouse'} predeceases you.
+              </Typography>
+
+              {/* Residuary Beneficiaries Table */}
+              {plan.residuaryBeneficiaries.length > 0 && (
+                <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                        <TableCell sx={{ fontWeight: 600 }}>Beneficiary</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
+                        <TableCell sx={{ fontWeight: 600, width: 120 }}>Share %</TableCell>
+                        <TableCell sx={{ fontWeight: 600, width: 60 }}>Remove</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {plan.residuaryBeneficiaries.map(ben => (
+                        <TableRow key={ben.id}>
+                          <TableCell>{ben.name}</TableCell>
+                          <TableCell>{ben.relationship}</TableCell>
+                          <TableCell>
+                            <TextField
+                              type="number"
+                              size="small"
+                              value={ben.percentage}
+                              onChange={(e) => handlePercentageChange(ben.id, parseFloat(e.target.value) || 0)}
+                              inputProps={{ min: 0, max: 100, step: 0.01 }}
+                              sx={{ width: 80 }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => handleRemoveResiduaryBeneficiary(ben.id)}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow sx={{ bgcolor: percentageValid ? '#e8f5e9' : '#ffebee' }}>
+                        <TableCell colSpan={2} sx={{ fontWeight: 600 }}>Total</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {totalPercentage.toFixed(2)}%
+                        </TableCell>
+                        <TableCell />
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+
+              {!percentageValid && plan.residuaryBeneficiaries.length > 0 && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  Total percentage must equal 100%. Current total: {totalPercentage.toFixed(2)}%
+                </Alert>
+              )}
+
+              {/* Add Beneficiary Buttons - exclude spouse since they're primary */}
+              {availableBeneficiaries.filter(b => b.id !== 'spouse' && b.id !== 'client' && !plan.residuaryBeneficiaries.find(rb => rb.id === b.id)).length > 0 && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  <Typography variant="body2" sx={{ mr: 1, alignSelf: 'center' }}>
+                    Add:
+                  </Typography>
+                  {availableBeneficiaries
+                    .filter(b => b.id !== 'spouse' && b.id !== 'client' && !plan.residuaryBeneficiaries.find(rb => rb.id === b.id))
+                    .map(ben => (
+                      <Button
+                        key={ben.id}
+                        variant="outlined"
+                        size="small"
+                        onClick={() => handleAddResiduaryBeneficiary(ben)}
+                      >
+                        {ben.name}
+                      </Button>
+                    ))}
+                </Box>
+              )}
+            </AccordionDetails>
+          </Accordion>
+
+          {/* Notes */}
+          <TextField
+            fullWidth
+            label="Distribution Notes"
+            value={plan.notes}
+            onChange={(e) => updatePlan({ notes: e.target.value })}
+            variant="outlined"
+            multiline
+            rows={2}
+            placeholder="Any additional notes about this distribution plan..."
+          />
+        </>
+      )}
+
+      {/* Custom Distribution */}
+      {plan.distributionType === 'custom' && (
         <>
           {/* Specific Asset Gifts */}
           <Accordion defaultExpanded sx={{ mb: 2 }}>
@@ -572,14 +747,26 @@ const DistributionPlanSection: React.FC<DistributionPlanSectionProps> = ({
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
+              {/* Show spouse as primary beneficiary notice */}
+              {spouseName && (
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  <Typography variant="body2">
+                    <strong>Primary Beneficiary:</strong> {spouseName} will receive the residuary estate first.
+                    The contingent beneficiaries below will receive their shares if {spouseName} predeceases you.
+                  </Typography>
+                </Alert>
+              )}
+
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 The residuary is everything that remains after specific gifts and cash gifts.
-                Select who receives the residuary and in what shares.
+                {spouseName ? ' Select contingent beneficiaries and their shares.' : ' Select who receives the residuary and in what shares.'}
               </Typography>
 
               {/* Share Type Selection */}
               <FormControl component="fieldset" sx={{ mb: 2 }}>
-                <FormLabel component="legend">Distribution Method</FormLabel>
+                <FormLabel component="legend">
+                  {spouseName ? 'Contingent Distribution Method' : 'Distribution Method'}
+                </FormLabel>
                 <RadioGroup
                   row
                   value={plan.residuaryShareType}

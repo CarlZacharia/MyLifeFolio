@@ -1910,88 +1910,113 @@ export const helpAnswers: HelpAnswer[] = [
     `,
   },
 
-  // Current Estate Plan Section (IDs 200-229)
+  // Will/Trust Provisions Section (IDs 200-209)
   {
     id: 200,
     type: "Text",
-    title: "Existing Estate Planning Documents",
+    title: "Spouse and Children/Beneficiaries",
     text: `
-      <p>Select all the <strong>estate planning documents</strong> you currently have in place.</p>
-      <p><strong>Common documents include:</strong></p>
+      <p>This section establishes the <strong>primary structure</strong> of your estate plan - who receives your assets and in what order.</p>
+      <p><strong>Key decisions in this section:</strong></p>
       <ul>
-        <li><strong>Will:</strong> A legal document that specifies how your assets should be distributed after death</li>
-        <li><strong>Trust:</strong> A legal arrangement where a trustee holds assets for beneficiaries</li>
-        <li><strong>Financial POA:</strong> Authorizes someone to handle financial matters on your behalf</li>
-        <li><strong>Health Care POA:</strong> Authorizes someone to make medical decisions for you</li>
-        <li><strong>Living Will:</strong> Specifies your wishes regarding end-of-life medical treatment</li>
+        <li><strong>Spouse First:</strong> Most married couples want everything to go to the surviving spouse, then to children after both pass</li>
+        <li><strong>Equal Treatment:</strong> Decide if all children/beneficiaries should receive equal shares</li>
+        <li><strong>Distribution Age:</strong> For children, you can delay distribution until they reach a certain age (e.g., 25, 30, 35)</li>
+        <li><strong>Per Stirpes:</strong> If a child predeceases you, their share can pass to their children (your grandchildren)</li>
       </ul>
-      <p>Understanding your existing documents helps us identify what updates may be needed.</p>
+      <p><strong>Why these decisions matter:</strong></p>
+      <ul>
+        <li>Ensures your surviving spouse is financially secure</li>
+        <li>Protects young beneficiaries from receiving large sums too early</li>
+        <li>Prevents assets from passing outside your family if a child dies before you</li>
+      </ul>
     `,
   },
   {
     id: 201,
     type: "Text",
-    title: "State Where Documents Were Prepared",
+    title: "Specific Gifts",
     text: `
-      <p>Indicate the <strong>state</strong> where your estate planning documents were prepared and signed.</p>
-      <p><strong>Why this matters:</strong></p>
+      <p><strong>Specific Gifts</strong> (also called "specific bequests" or "specific devises") are provisions in your Will or Trust that leave particular, identified items to specific individuals.</p>
+      <p><strong>Examples of Specific Gifts:</strong></p>
       <ul>
-        <li>Estate planning laws vary significantly by state</li>
-        <li>Documents prepared in one state may need updates when you move</li>
-        <li>Florida has specific requirements for Powers of Attorney and trusts</li>
-        <li>Some provisions valid in other states may not be recognized in Florida</li>
+        <li>Grandmother's diamond ring to your daughter</li>
+        <li>The grandfather clock to your nephew</li>
+        <li>Your art collection to a specific museum</li>
+        <li>A particular piece of real estate to one child</li>
+        <li>Your vintage car to a friend or family member</li>
+        <li>Family heirlooms with sentimental value</li>
       </ul>
+      <p><strong>Why Specific Gifts matter:</strong></p>
+      <ul>
+        <li>Ensures meaningful items go to the people you intend</li>
+        <li>Prevents family disputes over sentimental possessions</li>
+        <li>Allows you to honor special relationships</li>
+        <li>These gifts are distributed first, before the residuary estate</li>
+      </ul>
+      <p><strong>Note:</strong> If a specific gift item no longer exists at your death (sold, lost, or destroyed), the gift typically "lapses" and the recipient receives nothing in its place unless you specify otherwise.</p>
     `,
   },
   {
     id: 202,
     type: "Text",
-    title: "Document Signing Date",
+    title: "Gifts of Cash",
     text: `
-      <p>Enter the <strong>approximate date</strong> when your estate planning documents were signed.</p>
-      <p><strong>Why the date matters:</strong></p>
+      <p><strong>Gifts of Cash</strong> (also called "general bequests" or "pecuniary gifts") are specific dollar amounts left to named individuals or organizations.</p>
+      <p><strong>Examples of Cash Gifts:</strong></p>
       <ul>
-        <li>Laws change over time, and older documents may not reflect current law</li>
-        <li>Documents over 5-10 years old often need review</li>
-        <li>Life changes (births, deaths, marriages, divorces) may require updates</li>
-        <li>Tax laws affecting estates have changed significantly over the years</li>
+        <li>$10,000 to a favorite nephew</li>
+        <li>$5,000 to a longtime caregiver</li>
+        <li>$25,000 to your church or a charity</li>
+        <li>$50,000 to a grandchild for education</li>
       </ul>
+      <p><strong>How Cash Gifts work:</strong></p>
+      <ul>
+        <li>Paid from your estate before the residuary is distributed</li>
+        <li>Recipients receive the exact dollar amount specified</li>
+        <li>If your estate doesn't have enough cash, other assets may need to be sold</li>
+        <li>Cash gifts are typically paid before percentage-based distributions</li>
+      </ul>
+      <p><strong>Important consideration:</strong> If your estate shrinks significantly before death, large cash gifts could consume most of the estate, leaving little for residuary beneficiaries. Consider this when setting amounts.</p>
     `,
   },
   {
     id: 203,
     type: "Text",
-    title: "Upload or Answer Questions",
+    title: "Will/Trust Distribution Plans",
     text: `
-      <p>Choose how you would like to share information about your existing documents.</p>
-      <p><strong>Upload Documents:</strong></p>
+      <p>This section defines <strong>how your probate and trust assets</strong> will be distributed after your death.</p>
+      <p><strong>Three Distribution Options:</strong></p>
       <ul>
-        <li>Securely upload copies of your existing estate planning documents</li>
-        <li>Our team will review them before your consultation</li>
-        <li>Accepted formats: PDF, DOC, DOCX</li>
+        <li><strong>Sweetheart Plan:</strong> Everything goes to your spouse first, then equally to children. This is the most common choice for married couples.</li>
+        <li><strong>Spouse First, Differing Amounts:</strong> Spouse receives everything first, but if spouse predeceases you, beneficiaries receive different percentages (not equal shares).</li>
+        <li><strong>Completely Custom:</strong> Full control over which specific assets go to which beneficiaries, with custom residuary distributions.</li>
       </ul>
-      <p><strong>Answer Questions:</strong></p>
+      <p><strong>Understanding Probate vs. Non-Probate Assets:</strong></p>
       <ul>
-        <li>Provide key information about your documents by answering questions</li>
-        <li>Helpful if you don't have digital copies readily available</li>
-        <li>We can discuss the details during your consultation</li>
+        <li><strong>Probate assets:</strong> Pass through your Will/Trust (real estate, vehicles, bank accounts without beneficiaries)</li>
+        <li><strong>Non-probate assets:</strong> Pass directly to named beneficiaries (retirement accounts, life insurance, accounts with POD/TOD designations)</li>
       </ul>
+      <p><strong>Mirror Plans:</strong> If both spouses want identical plans, check the "Mirror Plans" box to avoid entering information twice.</p>
     `,
   },
   {
     id: 204,
     type: "Text",
-    title: "Personal Representative (Executor)",
+    title: "Additional Comments",
     text: `
-      <p>The <strong>Personal Representative</strong> (also called Executor) is the person named in your Will to:</p>
+      <p>Use this section to share any <strong>additional information</strong> about your estate planning wishes that wasn't covered in the previous questions.</p>
+      <p><strong>Topics you might address:</strong></p>
       <ul>
-        <li>Locate and secure your assets</li>
-        <li>Pay your debts and final expenses</li>
-        <li>File final tax returns</li>
-        <li>Distribute assets according to your Will</li>
-        <li>Handle probate court proceedings</li>
+        <li>Special circumstances affecting your distribution wishes</li>
+        <li>Concerns about specific beneficiaries</li>
+        <li>Family dynamics that should be considered</li>
+        <li>Reasons for unequal distributions</li>
+        <li>Conditions you want placed on inheritances</li>
+        <li>Wishes regarding family businesses</li>
+        <li>Instructions for personal property not specifically listed</li>
       </ul>
-      <p>Enter the name of the person currently named as your first-choice Personal Representative.</p>
+      <p>This information helps your attorney understand the complete picture and draft documents that truly reflect your intentions.</p>
     `,
   },
   {
@@ -2053,31 +2078,40 @@ export const helpAnswers: HelpAnswer[] = [
   {
     id: 210,
     type: "Text",
-    title: "Specific Gifts of Other Assets",
+    title: "Existing Estate Planning Documents",
     text: `
-      <p>A <strong>Specific Gift</strong> of other assets leaves particular items to named persons.</p>
-      <p>Examples:</p>
+      <p>Check each <strong>estate planning document</strong> you currently have in place.</p>
+      <p><strong>Common documents include:</strong></p>
       <ul>
-        <li>Jewelry, artwork, or collectibles</li>
-        <li>Vehicles</li>
-        <li>Family heirlooms</li>
-        <li>Specific investment accounts</li>
+        <li><strong>Will:</strong> Specifies how your assets should be distributed after death and names a Personal Representative</li>
+        <li><strong>Trust:</strong> A legal arrangement where a trustee holds and manages assets for beneficiaries. For married couples, this may be a joint trust.</li>
+        <li><strong>Financial POA:</strong> Authorizes someone to handle financial matters on your behalf if you become incapacitated</li>
+        <li><strong>Health Care POA:</strong> Authorizes someone to make medical decisions for you if you cannot</li>
+        <li><strong>Living Will:</strong> Specifies your wishes regarding end-of-life medical treatment</li>
       </ul>
-      <p>List any specific assets (other than real estate) that your Will bequeaths to particular persons.</p>
+      <p><strong>Why we ask for date and state:</strong></p>
+      <ul>
+        <li>Laws vary by state - documents from other states may need updates</li>
+        <li>Older documents may not reflect current law or your current wishes</li>
+        <li>Florida has specific requirements that differ from other states</li>
+      </ul>
     `,
   },
   {
     id: 211,
     type: "Text",
-    title: "General Gifts of Money",
+    title: "Additional Comments About Documents",
     text: `
-      <p>A <strong>General Gift of Money</strong> (pecuniary bequest) leaves a specific dollar amount to a named person or charity.</p>
-      <p>Examples:</p>
+      <p>Use this section to share any <strong>additional information</strong> about your existing estate planning documents.</p>
+      <p><strong>Topics you might address:</strong></p>
       <ul>
-        <li>"I leave $10,000 to my niece Sarah"</li>
-        <li>"I leave $5,000 to St. Mary's Church"</li>
+        <li>Concerns about whether your documents are up to date</li>
+        <li>Changes in your life since documents were signed (new children, divorce, etc.)</li>
+        <li>Documents you know need to be updated</li>
+        <li>Questions about whether your documents are still valid</li>
+        <li>Any amendments or codicils that have been made</li>
       </ul>
-      <p>List any monetary gifts specified in your Will.</p>
+      <p>This information helps us prepare for your consultation and identify what updates may be needed.</p>
     `,
   },
   {

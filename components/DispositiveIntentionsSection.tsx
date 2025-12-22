@@ -25,15 +25,15 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import {
   useFormContext,
   MaritalStatus,
   SpecificGiftItem,
-  CashGiftToBeneficiary,
 } from '../lib/FormContext';
 import DistributionPlanSection from './DistributionPlanSection';
 import { SpecificGiftModal } from './SpecificGiftModal';
+import { HelpIcon } from './FieldWithHelp';
+import HelpModal from './HelpModal';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -48,8 +48,15 @@ const DispositiveIntentionsSection = () => {
   const { formData, updateFormData } = useFormContext();
   const [specificGiftModalOpen, setSpecificGiftModalOpen] = useState(false);
   const [editingGiftIndex, setEditingGiftIndex] = useState<number | null>(null);
+  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
 
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
+
+  // Check if there are any children from either spouse
+  const hasChildren = formData.children.length > 0;
+
+  const openHelp = (helpId: number) => setActiveHelpId(helpId);
+  const closeHelp = () => setActiveHelpId(null);
 
   const handleRadioChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     updateFormData({ [field]: event.target.value === 'yes' });
@@ -179,17 +186,22 @@ const DispositiveIntentionsSection = () => {
         WILL/TRUST PROVISIONS
       </Typography>
 
-      {/* 1. Children (or Spouse and Children) */}
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-        1. {showSpouseInfo ? 'Spouse and Children' : 'Children'}
-      </Typography>
+      {/* 1. Children/Beneficiaries (or Spouse and Children/Beneficiaries) */}
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 500 }}>
+          1. {showSpouseInfo
+            ? (hasChildren ? 'Spouse and Children' : 'Spouse and Beneficiaries')
+            : (hasChildren ? 'Children' : 'Beneficiaries')}
+        </Typography>
+        <HelpIcon helpId={200} onClick={() => openHelp(200)} />
+      </Box>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {showSpouseInfo && (
           <Grid item xs={12}>
             <FormControl component="fieldset">
               <FormLabel component="legend">
-                Do you wish to provide primarily for your spouse and secondarily for your children?
+                Do you wish to provide primarily for your spouse and secondarily for your {hasChildren ? 'children' : 'beneficiaries'}?
               </FormLabel>
               <RadioGroup
                 row
@@ -206,7 +218,7 @@ const DispositiveIntentionsSection = () => {
         <Grid item xs={12}>
           <FormControl component="fieldset">
             <FormLabel component="legend">
-              Do you wish to treat all of your children equally?
+              Do you wish to treat all of your {hasChildren ? 'children' : 'beneficiaries'} equally?
             </FormLabel>
             <RadioGroup
               row
@@ -233,44 +245,51 @@ const DispositiveIntentionsSection = () => {
           </Grid>
         )}
 
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label={showSpouseInfo
-              ? "After your spouse's death, at what age do you want to distribute to your children?"
-              : "At what age do you want to distribute to your children?"}
-            value={formData.distributionAge}
-            onChange={handleChange('distributionAge')}
-            variant="outlined"
-            helperText="e.g., 1/3 at age 25, 1/3 at age 30 and 1/3 at age 35 or immediate"
-          />
-        </Grid>
+        {hasChildren && (
+          <>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label={showSpouseInfo
+                  ? "After your spouse's death, at what age do you want to distribute to your children?"
+                  : "At what age do you want to distribute to your children?"}
+                value={formData.distributionAge}
+                onChange={handleChange('distributionAge')}
+                variant="outlined"
+                helperText="e.g., 1/3 at age 25, 1/3 at age 30 and 1/3 at age 35 or immediate"
+              />
+            </Grid>
 
-        <Grid item xs={12}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend">
-              If one of your children should predecease you, would you want the share of your deceased child(ren) to pass to their surviving children?
-            </FormLabel>
-            <RadioGroup
-              row
-              value={formData.childrenPredeceasedBeneficiaries ? 'yes' : 'no'}
-              onChange={handleRadioChange('childrenPredeceasedBeneficiaries')}
-            >
-              <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio />} label="No" />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
+            <Grid item xs={12}>
+              <FormControl component="fieldset">
+                <FormLabel component="legend">
+                  If one of your children should predecease you, would you want the share of your deceased child(ren) to pass to their surviving children?
+                </FormLabel>
+                <RadioGroup
+                  row
+                  value={formData.childrenPredeceasedBeneficiaries ? 'yes' : 'no'}
+                  onChange={handleRadioChange('childrenPredeceasedBeneficiaries')}
+                >
+                  <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                  <FormControlLabel value="no" control={<Radio />} label="No" />
+                </RadioGroup>
+              </FormControl>
+            </Grid>
+          </>
+        )}
       </Grid>
 
       <Divider sx={{ my: 3 }} />
 
       {/* 2. Specific Gifts */}
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-        2. Specific Gifts
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 500 }}>
+          2. Specific Gifts
+        </Typography>
+        <HelpIcon helpId={201} onClick={() => openHelp(201)} />
+      </Box>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Use this section to leave specific items (jewelry, furniture, artwork, etc.) to specific individuals.
+        Use this section to leave specific, identified assets to specified individuals.
       </Typography>
 
       {formData.specificGifts.length > 0 && (
@@ -315,67 +334,96 @@ const DispositiveIntentionsSection = () => {
       <Divider sx={{ my: 3 }} />
 
       {/* 3. Gifts of Cash */}
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-        3. Gifts of Cash
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Select beneficiaries to receive cash gifts and enter the amount for each.
-      </Typography>
-
-      {availableBeneficiaries.length === 0 ? (
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontStyle: 'italic' }}>
-          No beneficiaries available. Please add children, other beneficiaries, or charities in the Beneficiaries section first.
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 500 }}>
+          3. Gifts of Cash
         </Typography>
-      ) : (
-        <TableContainer component={Paper} variant="outlined" sx={{ mb: 3 }}>
-          <Table size="small">
-            <TableHead>
-              <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                <TableCell sx={{ fontWeight: 600, width: 60 }}>Select</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Beneficiary</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: 180 }}>Amount</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {availableBeneficiaries.map(ben => {
-                const isSelected = isBeneficiarySelected(ben.id);
-                return (
-                  <TableRow key={ben.id}>
-                    <TableCell>
-                      <Checkbox
-                        size="small"
-                        checked={isSelected}
-                        onChange={() => handleBeneficiaryToggle(ben)}
-                      />
-                    </TableCell>
-                    <TableCell>{ben.name}</TableCell>
-                    <TableCell>{ben.relationship}</TableCell>
-                    <TableCell>
-                      {isSelected && (
-                        <TextField
-                          size="small"
-                          value={getCashGiftAmount(ben.id)}
-                          onChange={(e) => handleCashGiftAmountChange(ben.id, e.target.value)}
-                          placeholder="e.g., $10,000"
-                          sx={{ width: '100%' }}
-                        />
-                      )}
-                    </TableCell>
+        <HelpIcon helpId={202} onClick={() => openHelp(202)} />
+      </Box>
+
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid item xs={12}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend">
+              Do you desire to make any gifts of cash to anyone?
+            </FormLabel>
+            <RadioGroup
+              row
+              value={formData.hasGeneralBequests ? 'yes' : 'no'}
+              onChange={handleRadioChange('hasGeneralBequests')}
+            >
+              <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+      </Grid>
+
+      {formData.hasGeneralBequests && (
+        <>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Select beneficiaries to receive cash gifts and enter the amount for each.
+          </Typography>
+
+          {availableBeneficiaries.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontStyle: 'italic' }}>
+              No beneficiaries available. Please add children, other beneficiaries, or charities in the Beneficiaries section first.
+            </Typography>
+          ) : (
+            <TableContainer component={Paper} variant="outlined" sx={{ mb: 3 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableCell sx={{ fontWeight: 600, width: 60 }}>Select</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Beneficiary</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
+                    <TableCell sx={{ fontWeight: 600, width: 180 }}>Amount</TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {availableBeneficiaries.map(ben => {
+                    const isSelected = isBeneficiarySelected(ben.id);
+                    return (
+                      <TableRow key={ben.id}>
+                        <TableCell>
+                          <Checkbox
+                            size="small"
+                            checked={isSelected}
+                            onChange={() => handleBeneficiaryToggle(ben)}
+                          />
+                        </TableCell>
+                        <TableCell>{ben.name}</TableCell>
+                        <TableCell>{ben.relationship}</TableCell>
+                        <TableCell>
+                          {isSelected && (
+                            <TextField
+                              size="small"
+                              value={getCashGiftAmount(ben.id)}
+                              onChange={(e) => handleCashGiftAmountChange(ben.id, e.target.value)}
+                              placeholder="e.g., $10,000"
+                              sx={{ width: '100%' }}
+                            />
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </>
       )}
 
       <Divider sx={{ my: 4 }} />
 
       {/* 4. Will/Trust Distribution Plans */}
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-        4. Will/Trust Distribution Plans
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 500 }}>
+          4. Will/Trust Distribution Plans
+        </Typography>
+        <HelpIcon helpId={203} onClick={() => openHelp(203)} />
+      </Box>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         Define how your probate and trust assets should be distributed. Assets with designated beneficiaries
         (like retirement accounts and life insurance) pass outside of the Will/Trust.
@@ -428,9 +476,12 @@ const DispositiveIntentionsSection = () => {
       <Divider sx={{ my: 4 }} />
 
       {/* 5. Comments */}
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
-        5. Comments
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 500 }}>
+          5. Comments
+        </Typography>
+        <HelpIcon helpId={204} onClick={() => openHelp(204)} />
+      </Box>
 
       <Grid container spacing={3}>
         <Grid item xs={12}>
@@ -457,6 +508,13 @@ const DispositiveIntentionsSection = () => {
         onDelete={editingGiftIndex !== null ? handleDeleteSpecificGift : undefined}
         initialData={editingGiftIndex !== null ? formData.specificGifts[editingGiftIndex] : undefined}
         isEdit={editingGiftIndex !== null}
+      />
+
+      {/* Help Modal */}
+      <HelpModal
+        open={activeHelpId !== null}
+        onClose={closeHelp}
+        helpId={activeHelpId}
       />
     </Box>
   );
