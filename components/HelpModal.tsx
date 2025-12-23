@@ -659,6 +659,28 @@ export const helpAnswers: HelpAnswer[] = [
   },
   // Section Overview Videos (IDs 100+)
   {
+    id: 0,
+    type: "Video",
+    title: "Estate Planning Intake Overview",
+    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO", // Replace with your actual video URL
+    text: `
+      <p>Welcome to the <strong>Zacharia Brown & Bratkovich Estate Planning Intake Questionnaire</strong>.</p>
+      <p>This comprehensive questionnaire will guide you through providing all the information we need to prepare your estate plan. The process is divided into the following sections:</p>
+      <ul>
+        <li><strong>Personal Data:</strong> Your contact information, marital status, and basic details</li>
+        <li><strong>Beneficiaries:</strong> Your children, family members, and other beneficiaries</li>
+        <li><strong>Assets:</strong> Real estate, bank accounts, investments, retirement accounts, and other property</li>
+        <li><strong>Will/Trust Provisions:</strong> How you want your estate distributed</li>
+        <li><strong>Current Estate Plan:</strong> Any existing wills, trusts, or powers of attorney</li>
+        <li><strong>Fiduciaries:</strong> Who you want to serve as executor, trustee, and agents</li>
+        <li><strong>Long-Term Care:</strong> Your health status and care planning preferences</li>
+        <li><strong>Summary & Analysis:</strong> Review your information and receive personalized insights</li>
+      </ul>
+      <p>Your progress is automatically saved as you go. You can close this questionnaire at any time and return later to continue where you left off.</p>
+      <p>Look for the <strong>video icons</strong> throughout the questionnaire for helpful explanations of each section.</p>
+    `,
+  },
+  {
     id: 100,
     type: "Video",
     title: "Personal Data Overview",

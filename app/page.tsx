@@ -29,6 +29,8 @@ import SummarySection from '../components/SummarySection';
 import EstatePlanAnalysis from '../components/EstatePlanAnalysis';
 import LandingPage from '../components/LandingPage';
 import EstatePlanningHome from '../components/EstatePlanningHome';
+import { VideoHelpIcon } from '../components/FieldWithHelp';
+import HelpModal from '../components/HelpModal';
 import axios from 'axios';
 import { MaritalStatus } from '../lib/FormContext';
 
@@ -59,6 +61,10 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
+
+  const openHelp = (helpId: number) => setActiveHelpId(helpId);
+  const closeHelp = () => setActiveHelpId(null);
 
   // Debug function to log all form data
   const debugFormData = () => {
@@ -245,9 +251,12 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
         <Paper elevation={3} sx={{ p: 4 }}>
           {/* Header */}
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#1a237e' }} onClick={debugFormData}>
-              Estate Planning Questionnaire
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+              <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 0 }} onClick={debugFormData}>
+                Estate Planning Questionnaire
+              </Typography>
+              <VideoHelpIcon helpId={0} onClick={() => openHelp(0)} size="medium" />
+            </Box>
             <Typography variant="subtitle1" color="text.secondary">
               Zacharia Brown & Bratkovich
             </Typography>
@@ -255,6 +264,13 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
               Estate Planning & Elder Law Attorneys
             </Typography>
           </Box>
+
+          {/* Help Modal */}
+          <HelpModal
+            open={activeHelpId !== null}
+            onClose={closeHelp}
+            helpId={activeHelpId ?? 0}
+          />
 
           {/* Stepper */}
           {currentStep < totalSteps && (

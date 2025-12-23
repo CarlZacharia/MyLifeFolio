@@ -992,7 +992,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12}>
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you have a Medicare supplement (Medigap) or other private health insurance?</FormLabel>
@@ -1022,7 +1022,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               </Grid>
             )}
 
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12}>
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you have long-term care insurance or a life/annuity hybrid with long-term care benefits?</FormLabel>
