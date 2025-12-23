@@ -8,13 +8,13 @@ import HelpModal from './HelpModal';
 interface HelpIconProps {
   helpId: number;
   onClick: () => void;
-  size?: 'small' | 'medium';
+  size?: 'small' | 'medium' | 'large';
 }
 
 // Standalone help icon component
 export const HelpIcon: React.FC<HelpIconProps> = ({ onClick, size = 'small' }) => {
-  const iconSize = size === 'small' ? 16 : 20;
-  const fontSize = size === 'small' ? '0.65rem' : '0.75rem';
+  const iconSize = size === 'small' ? 16 : size === 'medium' ? 20 : 28;
+  const fontSize = size === 'small' ? '0.65rem' : size === 'medium' ? '0.75rem' : '0.95rem';
 
   return (
     <Box
@@ -53,8 +53,8 @@ export const HelpIcon: React.FC<HelpIconProps> = ({ onClick, size = 'small' }) =
 
 // Video help icon component - uses video camera icon instead of ?
 export const VideoHelpIcon: React.FC<HelpIconProps> = ({ onClick, size = 'small' }) => {
-  const iconSize = size === 'small' ? 20 : 24;
-  const muiIconSize = size === 'small' ? 12 : 14;
+  const iconSize = size === 'small' ? 20 : size === 'medium' ? 24 : 32;
+  const muiIconSize = size === 'small' ? 12 : size === 'medium' ? 14 : 18;
 
   return (
     <Box

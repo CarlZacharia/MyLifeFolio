@@ -809,6 +809,25 @@ export const helpAnswers: HelpAnswer[] = [
       <p>A complete asset inventory ensures nothing is overlooked in your estate plan.</p>
     `,
   },
+  {
+    id: 107,
+    type: "Video",
+    title: "New Plan Provisions Overview",
+    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO", // Replace with your actual video URL
+    text: `
+      <p>This section captures your <strong>wishes for your new estate plan</strong>.</p>
+      <p>You'll specify:</p>
+      <ul>
+        <li>How your estate should be distributed among your spouse and children/beneficiaries</li>
+        <li>Whether all children should receive equal shares</li>
+        <li>At what age beneficiaries should receive their inheritance</li>
+        <li>Specific gifts of particular items or property</li>
+        <li>Cash gifts to specific beneficiaries</li>
+        <li>Your overall distribution plan (Sweetheart Plan, custom percentages, etc.)</li>
+      </ul>
+      <p>These provisions form the heart of your estate plan and ensure your wishes are carried out exactly as you intend.</p>
+    `,
+  },
   // Asset Category Videos (IDs 110-118)
   {
     id: 110,

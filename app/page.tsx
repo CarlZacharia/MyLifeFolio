@@ -40,9 +40,9 @@ const ALL_STEPS = [
   'Personal Data',
   'Beneficiaries',
   'Assets',
-  'Will/Trust Provisions',
   'Current Estate Plan',
   'Fiduciaries',
+  'New Plan Provisions',
   'Long-Term Care',
   'Summary',
   'Analysis',
@@ -166,7 +166,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
         return <PersonalDataSection />;
       case 'Beneficiaries':
         return <BeneficiariesSection />;
-      case 'Will/Trust Provisions':
+      case 'New Plan Provisions':
         return <DispositiveIntentionsSection />;
       case 'Current Estate Plan':
         return <CurrentEstatePlanSection />;
@@ -255,7 +255,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
               <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 0 }} onClick={debugFormData}>
                 Estate Planning Questionnaire
               </Typography>
-              <VideoHelpIcon helpId={0} onClick={() => openHelp(0)} size="medium" />
+              <VideoHelpIcon helpId={0} onClick={() => openHelp(0)} size="large" />
             </Box>
             <Typography variant="subtitle1" color="text.secondary">
               Zacharia Brown & Bratkovich

@@ -32,7 +32,7 @@ import {
 } from '../lib/FormContext';
 import DistributionPlanSection from './DistributionPlanSection';
 import { SpecificGiftModal } from './SpecificGiftModal';
-import { HelpIcon } from './FieldWithHelp';
+import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
@@ -182,9 +182,12 @@ const DispositiveIntentionsSection = () => {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
-        WILL/TRUST PROVISIONS
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+          NEW PLAN PROVISIONS
+        </Typography>
+        <VideoHelpIcon helpId={106} onClick={() => openHelp(106)} size="medium" />
+      </Box>
 
       {/* 1. Children/Beneficiaries (or Spouse and Children/Beneficiaries) */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
