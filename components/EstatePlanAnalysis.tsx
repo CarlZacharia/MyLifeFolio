@@ -1423,7 +1423,26 @@ const EstatePlanAnalysis: React.FC = () => {
 
           // Combine both first death and second death assets for complete heir summary
           const allAssetsForHeirSummary = [...firstDeathAssetsWithShares, ...allAssetsWithShares];
-          const heirInheritances = aggregateHeirInheritance(allAssetsForHeirSummary);
+
+          // Add cash gifts (general bequests) to heir summary - these are paid when both are deceased
+          const cashGiftsAsShares = formData.cashGiftsToBeneficiaries.map(gift => ({
+            asset: {
+              type: 'Cash Gift',
+              description: `Cash Gift to ${gift.beneficiaryName}`,
+              value: gift.amount,
+              owner: 'Estate',
+              hasBeneficiaries: true,
+            } as CategorizedAsset,
+            displayValue: parseCurrency(gift.amount),
+            shares: [{
+              beneficiaryName: gift.beneficiaryName,
+              percentage: 100,
+              amount: parseCurrency(gift.amount),
+            }],
+          }));
+
+          const allAssetsWithCashGifts = [...allAssetsForHeirSummary, ...cashGiftsAsShares];
+          const heirInheritances = aggregateHeirInheritance(allAssetsWithCashGifts);
 
           return (
             <>
@@ -1827,7 +1846,26 @@ const EstatePlanAnalysis: React.FC = () => {
 
           // Combine both first death and second death assets for complete heir summary
           const allAssetsForHeirSummary = [...firstDeathAssetsWithShares, ...allAssetsWithShares];
-          const heirInheritances = aggregateHeirInheritance(allAssetsForHeirSummary);
+
+          // Add cash gifts (general bequests) to heir summary - these are paid when both are deceased
+          const cashGiftsAsShares = formData.cashGiftsToBeneficiaries.map(gift => ({
+            asset: {
+              type: 'Cash Gift',
+              description: `Cash Gift to ${gift.beneficiaryName}`,
+              value: gift.amount,
+              owner: 'Estate',
+              hasBeneficiaries: true,
+            } as CategorizedAsset,
+            displayValue: parseCurrency(gift.amount),
+            shares: [{
+              beneficiaryName: gift.beneficiaryName,
+              percentage: 100,
+              amount: parseCurrency(gift.amount),
+            }],
+          }));
+
+          const allAssetsWithCashGifts = [...allAssetsForHeirSummary, ...cashGiftsAsShares];
+          const heirInheritances = aggregateHeirInheritance(allAssetsWithCashGifts);
 
           return (
             <>

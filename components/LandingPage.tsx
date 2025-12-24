@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -8,76 +8,317 @@ import {
   Button,
   Card,
   CardContent,
-  CardMedia,
   Grid,
   AppBar,
   Toolbar,
+  Fade,
+  Slide,
+  useScrollTrigger,
+  Divider,
+  IconButton,
+  Link,
 } from '@mui/material';
+import { ThemeProvider, createTheme, alpha } from '@mui/material/styles';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PhoneIcon from '@mui/icons-material/Phone';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import EmailIcon from '@mui/icons-material/Email';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ShieldIcon from '@mui/icons-material/Shield';
+import GavelIcon from '@mui/icons-material/Gavel';
+import BalanceIcon from '@mui/icons-material/Balance';
+
+// Custom theme with sophisticated typography and colors
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1e3a5f', // Deep sophisticated navy
+      light: '#2d5a8e',
+      dark: '#0f2744',
+    },
+    secondary: {
+      main: '#c9a227', // Warm gold accent
+      light: '#e8c547',
+      dark: '#9a7b1a',
+    },
+    background: {
+      default: '#faf9f7', // Warm off-white
+      paper: '#ffffff',
+    },
+    text: {
+      primary: '#1a1a1a',
+      secondary: '#5a5a5a',
+    },
+  },
+  typography: {
+    fontFamily: '"Source Sans 3", "Georgia", serif',
+    h1: {
+      fontFamily: '"Playfair Display", Georgia, serif',
+      fontWeight: 600,
+      letterSpacing: '-0.02em',
+    },
+    h2: {
+      fontFamily: '"Playfair Display", Georgia, serif',
+      fontWeight: 600,
+      letterSpacing: '-0.01em',
+    },
+    h3: {
+      fontFamily: '"Playfair Display", Georgia, serif',
+      fontWeight: 500,
+    },
+    h4: {
+      fontFamily: '"Playfair Display", Georgia, serif',
+      fontWeight: 500,
+    },
+    h5: {
+      fontFamily: '"Source Sans 3", sans-serif',
+      fontWeight: 600,
+    },
+    h6: {
+      fontFamily: '"Source Sans 3", sans-serif',
+      fontWeight: 600,
+    },
+    body1: {
+      fontFamily: '"Source Sans 3", sans-serif',
+      fontSize: '1.05rem',
+      lineHeight: 1.7,
+    },
+    body2: {
+      fontFamily: '"Source Sans 3", sans-serif',
+      lineHeight: 1.6,
+    },
+    button: {
+      fontFamily: '"Source Sans 3", sans-serif',
+      fontWeight: 600,
+      textTransform: 'none',
+      letterSpacing: '0.02em',
+    },
+  },
+  shape: {
+    borderRadius: 4,
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 2,
+          padding: '10px 24px',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 3,
+          boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+        },
+      },
+    },
+  },
+});
+
+// Animated component wrapper
+const AnimatedSection: React.FC<{ children: React.ReactNode; delay?: number }> = ({
+  children,
+  delay = 0,
+}) => {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  return (
+    <Fade in={visible} timeout={800}>
+      <Box sx={{ transform: visible ? 'translateY(0)' : 'translateY(20px)', transition: 'transform 0.6s ease-out' }}>
+        {children}
+      </Box>
+    </Fade>
+  );
+};
 
 interface ServiceCardProps {
   title: string;
   description: string;
   icon: React.ReactNode;
-  color: string;
+  accentColor: string;
   onClick?: () => void;
   disabled?: boolean;
+  delay?: number;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({
   title,
   description,
   icon,
-  color,
+  accentColor,
   onClick,
   disabled = false,
-}) => (
-  <Card
-    sx={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      transition: 'transform 0.2s, box-shadow 0.2s',
-      cursor: disabled ? 'not-allowed' : 'pointer',
-      opacity: disabled ? 0.6 : 1,
-      '&:hover': {
-        transform: disabled ? 'none' : 'translateY(-4px)',
-        boxShadow: disabled ? undefined : 6,
-      },
-    }}
-    onClick={disabled ? undefined : onClick}
-  >
-    <Box
-      sx={{
-        bgcolor: color,
-        py: 4,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Box sx={{ color: 'white', fontSize: 64 }}>{icon}</Box>
-    </Box>
-    <CardContent sx={{ flexGrow: 1 }}>
-      <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600 }}>
-        {title}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {description}
-      </Typography>
-      {disabled && (
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block', fontStyle: 'italic' }}>
-          Coming Soon
+  delay = 0,
+}) => {
+  const [visible, setVisible] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  return (
+    <Fade in={visible} timeout={600}>
+      <Card
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          overflow: 'hidden',
+          cursor: disabled ? 'default' : 'pointer',
+          opacity: disabled ? 0.7 : 1,
+          transition: 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)',
+          border: '1px solid',
+          borderColor: hovered && !disabled ? alpha(accentColor, 0.3) : 'transparent',
+          transform: hovered && !disabled ? 'translateY(-8px)' : 'translateY(0)',
+          boxShadow: hovered && !disabled
+            ? `0 20px 40px ${alpha(accentColor, 0.15)}`
+            : '0 4px 24px rgba(0,0,0,0.06)',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            background: `linear-gradient(90deg, ${accentColor}, ${alpha(accentColor, 0.6)})`,
+            transform: hovered && !disabled ? 'scaleX(1)' : 'scaleX(0)',
+            transformOrigin: 'left',
+            transition: 'transform 0.4s ease',
+          },
+        }}
+        onClick={disabled ? undefined : onClick}
+      >
+        <CardContent sx={{ p: 4, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+          <Box
+            sx={{
+              width: 64,
+              height: 64,
+              borderRadius: 2,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              mb: 3,
+              background: `linear-gradient(135deg, ${alpha(accentColor, 0.1)}, ${alpha(accentColor, 0.05)})`,
+              border: `1px solid ${alpha(accentColor, 0.15)}`,
+              transition: 'all 0.3s ease',
+              transform: hovered && !disabled ? 'scale(1.05)' : 'scale(1)',
+            }}
+          >
+            <Box sx={{ color: accentColor, display: 'flex' }}>{icon}</Box>
+          </Box>
+
+          <Typography
+            variant="h6"
+            component="h3"
+            gutterBottom
+            sx={{
+              color: 'text.primary',
+              fontSize: '1.25rem',
+              mb: 2,
+            }}
+          >
+            {title}
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              flexGrow: 1,
+              mb: 2,
+            }}
+          >
+            {description}
+          </Typography>
+
+          {disabled ? (
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                fontStyle: 'italic',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+              }}
+            >
+              Coming Soon
+            </Typography>
+          ) : (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                color: accentColor,
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                transition: 'gap 0.3s ease',
+                '&:hover': { gap: 1 },
+              }}
+            >
+              Begin Intake
+              <ArrowForwardIcon sx={{ fontSize: 18 }} />
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+    </Fade>
+  );
+};
+
+// Trust indicator component
+const TrustIndicator: React.FC<{ icon: React.ReactNode; text: string; delay: number }> = ({
+  icon,
+  text,
+  delay,
+}) => {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  return (
+    <Fade in={visible} timeout={500}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+          px: 3,
+          py: 1.5,
+          borderRadius: 1,
+          bgcolor: alpha('#ffffff', 0.1),
+          backdropFilter: 'blur(10px)',
+        }}
+      >
+        <Box sx={{ color: 'secondary.main', display: 'flex' }}>{icon}</Box>
+        <Typography variant="body2" sx={{ color: 'white', fontWeight: 500 }}>
+          {text}
         </Typography>
-      )}
-    </CardContent>
-  </Card>
-);
+      </Box>
+    </Fade>
+  );
+};
 
 interface LandingPageProps {
   onNavigate: (page: string) => void;
@@ -86,223 +327,720 @@ interface LandingPageProps {
 }
 
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegister }) => {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const services = [
     {
       title: 'Estate Planning',
       description:
-        'Create a comprehensive estate plan including wills, trusts, powers of attorney, and advance directives to protect your family and assets.',
-      icon: <AccountBalanceIcon sx={{ fontSize: 64 }} />,
-      color: '#1a237e',
+        'Create a comprehensive estate plan including wills, trusts, powers of attorney, and advance directives to protect your family and preserve your legacy.',
+      icon: <AccountBalanceIcon sx={{ fontSize: 32 }} />,
+      accentColor: '#1e3a5f',
       onClick: () => onNavigate('estate-planning-home'),
       disabled: false,
     },
     {
       title: 'Long-Term Care Planning',
       description:
-        'Plan for your future care needs with strategies to protect your assets while ensuring you receive the care you deserve.',
-      icon: <HealthAndSafetyIcon sx={{ fontSize: 64 }} />,
-      color: '#2e7d32',
+        'Develop strategies to protect your assets while ensuring access to quality care. Plan ahead for nursing home, assisted living, or in-home care needs.',
+      icon: <HealthAndSafetyIcon sx={{ fontSize: 32 }} />,
+      accentColor: '#2d6a4f',
       onClick: () => onNavigate('long-term-care'),
       disabled: true,
     },
     {
       title: 'Medicaid Applications',
       description:
-        'Navigate the complex Medicaid application process with guidance to help you qualify for benefits while preserving your assets.',
-      icon: <AssignmentIcon sx={{ fontSize: 64 }} />,
-      color: '#c62828',
+        'Navigate the complex Medicaid application process with experienced guidance. We help you qualify for benefits while preserving assets for your family.',
+      icon: <AssignmentIcon sx={{ fontSize: 32 }} />,
+      accentColor: '#9b2226',
       onClick: () => onNavigate('medicaid'),
       disabled: true,
     },
     {
       title: 'Estate Administration',
       description:
-        'Settle an estate with confidence. We guide executors and administrators through probate and trust administration.',
-      icon: <FamilyRestroomIcon sx={{ fontSize: 64 }} />,
-      color: '#6a1b9a',
+        'Settle estates with confidence and care. We guide executors, personal representatives, and trustees through probate and trust administration.',
+      icon: <FamilyRestroomIcon sx={{ fontSize: 32 }} />,
+      accentColor: '#7b2cbf',
       onClick: () => onNavigate('estate-administration'),
       disabled: true,
     },
   ];
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
-      {/* Navigation Bar */}
-      <AppBar position="static" sx={{ bgcolor: '#1a237e' }}>
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            Zacharia Brown & Bratkovich
-          </Typography>
-          <Button
-            color="inherit"
-            startIcon={<LoginIcon />}
-            onClick={onLogin}
-            sx={{ mr: 1 }}
-          >
-            Login
-          </Button>
-          <Button
-            variant="outlined"
-            color="inherit"
-            startIcon={<PersonAddIcon />}
-            onClick={onRegister}
-            sx={{ borderColor: 'white' }}
-          >
-            Register
-          </Button>
-        </Toolbar>
-      </AppBar>
+    <ThemeProvider theme={theme}>
+      {/* Google Fonts */}
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
+        `}
+      </style>
 
-      {/* Hero Section */}
-      <Box
-        sx={{
-          bgcolor: '#1a237e',
-          color: 'white',
-          py: { xs: 6, md: 10 },
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <Container maxWidth="lg">
-          <Grid container spacing={4} alignItems="center">
-            <Grid item xs={12} md={8}>
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+        {/* Navigation Bar */}
+        <AppBar
+          position="fixed"
+          elevation={scrolled ? 1 : 0}
+          sx={{
+            bgcolor: scrolled ? 'rgba(30, 58, 95, 0.98)' : 'transparent',
+            backdropFilter: scrolled ? 'blur(12px)' : 'none',
+            transition: 'all 0.3s ease',
+            borderBottom: scrolled ? 'none' : '1px solid rgba(255,255,255,0.08)',
+          }}
+        >
+          <Container maxWidth="lg">
+            <Toolbar
+              disableGutters
+              sx={{
+                py: { xs: 1, md: 1.5 },
+                minHeight: { xs: 64, md: 72 },
+              }}
+            >
+              {/* Logo - Clean and simple */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  cursor: 'pointer',
+                }}
+                onClick={() => onNavigate('home')}
+              >
+                <BalanceIcon
+                  sx={{
+                    fontSize: { xs: 28, md: 32 },
+                    color: 'secondary.main',
+                  }}
+                />
+                <Typography
+                  sx={{
+                    fontFamily: '"Playfair Display", serif',
+                    fontWeight: 600,
+                    fontSize: { xs: '1.1rem', md: '1.25rem' },
+                    letterSpacing: '0.01em',
+                    display: { xs: 'none', sm: 'block' },
+                  }}
+                >
+                  Zacharia Brown & Bratkovich
+                </Typography>
+              </Box>
+
+              {/* Spacer */}
+              <Box sx={{ flexGrow: 1 }} />
+
+              {/* Auth Buttons - Minimal and clean */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
+                <Button
+                  color="inherit"
+                  onClick={onLogin}
+                  sx={{
+                    fontWeight: 500,
+                    fontSize: '0.9rem',
+                    px: { xs: 1.5, md: 2.5 },
+                    py: 1,
+                    minWidth: 'auto',
+                    opacity: 0.9,
+                    '&:hover': {
+                      opacity: 1,
+                      bgcolor: 'rgba(255,255,255,0.08)',
+                    },
+                  }}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={onRegister}
+                  sx={{
+                    bgcolor: 'secondary.main',
+                    color: 'primary.dark',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    px: { xs: 2, md: 3 },
+                    py: 1,
+                    boxShadow: 'none',
+                    '&:hover': {
+                      bgcolor: 'secondary.light',
+                      boxShadow: '0 4px 12px rgba(201, 162, 39, 0.3)',
+                    },
+                  }}
+                >
+                  Get Started
+                </Button>
+              </Box>
+            </Toolbar>
+          </Container>
+        </AppBar>
+
+        {/* Hero Section */}
+        <Box
+          sx={{
+            background: 'linear-gradient(165deg, #1e3a5f 0%, #0f2744 50%, #1a3050 100%)',
+            color: 'white',
+            pt: { xs: 14, md: 18 },
+            pb: { xs: 10, md: 14 },
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Subtle texture overlay */}
+          <Box
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              opacity: 0.03,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          />
+
+          {/* Decorative elements */}
+          <Box
+            sx={{
+              position: 'absolute',
+              right: { xs: -150, md: -50 },
+              top: { xs: -100, md: -80 },
+              width: { xs: 300, md: 500 },
+              height: { xs: 300, md: 500 },
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(201, 162, 39, 0.08) 0%, transparent 70%)',
+            }}
+          />
+          <Box
+            sx={{
+              position: 'absolute',
+              left: { xs: -100, md: -50 },
+              bottom: { xs: -100, md: -100 },
+              width: { xs: 250, md: 400 },
+              height: { xs: 250, md: 400 },
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%)',
+            }}
+          />
+
+          <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
+            <Grid container spacing={6} alignItems="center">
+              <Grid item xs={12} md={7}>
+                <AnimatedSection delay={100}>
+                  <Typography
+                    component="span"
+                    sx={{
+                      display: 'inline-block',
+                      color: 'secondary.main',
+                      fontWeight: 600,
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      fontSize: '0.75rem',
+                      mb: 2,
+                    }}
+                  >
+                    Trusted Counsel Since 1990
+                  </Typography>
+                </AnimatedSection>
+
+                <AnimatedSection delay={200}>
+                  <Typography
+                    variant="h1"
+                    component="h1"
+                    sx={{
+                      fontSize: { xs: '2.5rem', md: '3.5rem', lg: '4rem' },
+                      lineHeight: 1.1,
+                      mb: 3,
+                    }}
+                  >
+                    Protecting What
+                    <Box
+                      component="span"
+                      sx={{
+                        display: 'block',
+                        color: 'secondary.main',
+                      }}
+                    >
+                      Matters Most
+                    </Box>
+                  </Typography>
+                </AnimatedSection>
+
+                <AnimatedSection delay={300}>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      mb: 4,
+                      maxWidth: 520,
+                      opacity: 0.85,
+                      fontSize: '1.15rem',
+                      lineHeight: 1.8,
+                    }}
+                  >
+                    At Zacharia Brown & Bratkovich, we understand that planning for the future
+                    requires trust, expertise, and a personal approach. Our experienced attorneys
+                    guide you through every step, ensuring your wishes are honored and your loved
+                    ones protected.
+                  </Typography>
+                </AnimatedSection>
+
+                <AnimatedSection delay={400}>
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 5 }}>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      onClick={() => onNavigate('estate-planning-home')}
+                      endIcon={<ArrowForwardIcon />}
+                      sx={{
+                        bgcolor: 'secondary.main',
+                        color: 'primary.dark',
+                        px: 4,
+                        py: 1.5,
+                        fontSize: '1rem',
+                        '&:hover': {
+                          bgcolor: 'secondary.light',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 8px 24px rgba(201, 162, 39, 0.3)',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      Start Your Estate Plan
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      size="large"
+                      sx={{
+                        borderColor: 'rgba(255,255,255,0.4)',
+                        color: 'white',
+                        px: 4,
+                        py: 1.5,
+                        '&:hover': {
+                          borderColor: 'white',
+                          bgcolor: 'rgba(255,255,255,0.05)',
+                        },
+                      }}
+                    >
+                      Schedule Consultation
+                    </Button>
+                  </Box>
+                </AnimatedSection>
+
+                {/* Trust indicators */}
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <TrustIndicator
+                    icon={<ShieldIcon sx={{ fontSize: 20 }} />}
+                    text="30+ Years Experience"
+                    delay={500}
+                  />
+                  <TrustIndicator
+                    icon={<GavelIcon sx={{ fontSize: 20 }} />}
+                    text="Florida & Pennsylvania Licensed"
+                    delay={600}
+                  />
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} md={5} sx={{ display: { xs: 'none', md: 'block' } }}>
+                <AnimatedSection delay={500}>
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      height: 400,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {/* Decorative legal imagery placeholder */}
+                    <Box
+                      sx={{
+                        width: 280,
+                        height: 280,
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.15) 0%, rgba(201, 162, 39, 0.05) 100%)',
+                        border: '2px solid rgba(201, 162, 39, 0.2)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        position: 'relative',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          inset: -20,
+                          borderRadius: '50%',
+                          border: '1px solid rgba(201, 162, 39, 0.1)',
+                        },
+                        '&::after': {
+                          content: '""',
+                          position: 'absolute',
+                          inset: -40,
+                          borderRadius: '50%',
+                          border: '1px solid rgba(201, 162, 39, 0.05)',
+                        },
+                      }}
+                    >
+                      <BalanceIcon sx={{ fontSize: 100, color: 'secondary.main', opacity: 0.6 }} />
+                    </Box>
+                  </Box>
+                </AnimatedSection>
+              </Grid>
+            </Grid>
+          </Container>
+        </Box>
+
+        {/* Services Section */}
+        <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 } }}>
+          <Box sx={{ textAlign: 'center', mb: 8 }}>
+            <AnimatedSection delay={100}>
+              <Typography
+                component="span"
+                sx={{
+                  display: 'inline-block',
+                  color: 'secondary.dark',
+                  fontWeight: 600,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  fontSize: '0.75rem',
+                  mb: 2,
+                }}
+              >
+                How We Can Help
+              </Typography>
+            </AnimatedSection>
+
+            <AnimatedSection delay={200}>
               <Typography
                 variant="h2"
-                component="h1"
-                gutterBottom
+                component="h2"
                 sx={{
-                  fontWeight: 700,
-                  fontSize: { xs: '2rem', md: '3rem' },
+                  color: 'primary.main',
+                  fontSize: { xs: '2rem', md: '2.75rem' },
+                  mb: 2,
                 }}
               >
-                Protecting Your Family's Future
+                Our Practice Areas
               </Typography>
+            </AnimatedSection>
+
+            <AnimatedSection delay={300}>
               <Typography
-                variant="h5"
-                sx={{
-                  mb: 4,
-                  opacity: 0.9,
-                  fontSize: { xs: '1.1rem', md: '1.5rem' },
-                }}
+                variant="body1"
+                color="text.secondary"
+                sx={{ maxWidth: 600, mx: 'auto' }}
               >
-                Estate Planning & Elder Law Attorneys serving Southwest Florida
+                Select a practice area below to begin your intake questionnaire. Your information
+                helps us understand your unique situation before your consultation.
               </Typography>
-              <Typography variant="body1" sx={{ mb: 4, maxWidth: 600, opacity: 0.85 }}>
-                At Zacharia Brown & Bratkovich, we understand that planning for the future can feel
-                overwhelming. Our experienced attorneys are here to guide you through every step,
-                ensuring your wishes are honored and your loved ones are protected.
-              </Typography>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => onNavigate('estate-planning-home')}
-                sx={{
-                  bgcolor: 'white',
-                  color: '#1a237e',
-                  px: 4,
-                  py: 1.5,
-                  fontWeight: 600,
-                  '&:hover': {
-                    bgcolor: '#e8eaf6',
-                  },
-                }}
-              >
-                Get Started
-              </Button>
-            </Grid>
+            </AnimatedSection>
+          </Box>
+
+          <Grid container spacing={4}>
+            {services.map((service, index) => (
+              <Grid item xs={12} sm={6} lg={3} key={index}>
+                <ServiceCard {...service} delay={400 + index * 100} />
+              </Grid>
+            ))}
           </Grid>
         </Container>
-        {/* Decorative element */}
+
+        {/* Why Choose Us Section */}
+        <Box sx={{ bgcolor: 'white', py: { xs: 8, md: 10 } }}>
+          <Container maxWidth="lg">
+            <Grid container spacing={6} alignItems="center">
+              <Grid item xs={12} md={5}>
+                <AnimatedSection delay={100}>
+                  <Typography
+                    component="span"
+                    sx={{
+                      display: 'inline-block',
+                      color: 'secondary.dark',
+                      fontWeight: 600,
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      fontSize: '0.75rem',
+                      mb: 2,
+                    }}
+                  >
+                    Why Choose Us
+                  </Typography>
+                </AnimatedSection>
+
+                <AnimatedSection delay={200}>
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      color: 'primary.main',
+                      fontSize: { xs: '1.75rem', md: '2.25rem' },
+                      mb: 3,
+                    }}
+                  >
+                    Experience That Makes a Difference
+                  </Typography>
+                </AnimatedSection>
+
+                <AnimatedSection delay={300}>
+                  <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                    For over three decades, families throughout Southwest Florida have trusted
+                    Zacharia Brown & Bratkovich to protect their legacies and plan for the future.
+                    Our attorneys combine deep legal expertise with genuine compassion for every
+                    client we serve.
+                  </Typography>
+                </AnimatedSection>
+              </Grid>
+
+              <Grid item xs={12} md={7}>
+                <Grid container spacing={3}>
+                  {[
+                    {
+                      number: '30+',
+                      label: 'Years of Combined Experience',
+                      delay: 400,
+                    },
+                    {
+                      number: '4',
+                      label: 'State Licenses (FL, PA, OH and WV)',
+                      delay: 500,
+                    },
+                    {
+                      number: '1000+',
+                      label: 'Families Served',
+                      delay: 600,
+                    },
+                    {
+                      number: '100%',
+                      label: 'Personalized Attention',
+                      delay: 700,
+                    },
+                  ].map((stat, index) => (
+                    <Grid item xs={6} key={index}>
+                      <AnimatedSection delay={stat.delay}>
+                        <Box
+                          sx={{
+                            p: 3,
+                            borderRadius: 2,
+                            bgcolor: 'background.default',
+                            border: '1px solid',
+                            borderColor: alpha('#1e3a5f', 0.08),
+                            textAlign: 'center',
+                          }}
+                        >
+                          <Typography
+                            variant="h3"
+                            sx={{
+                              color: 'secondary.dark',
+                              fontSize: { xs: '2rem', md: '2.5rem' },
+                              mb: 0.5,
+                            }}
+                          >
+                            {stat.number}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {stat.label}
+                          </Typography>
+                        </Box>
+                      </AnimatedSection>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Grid>
+            </Grid>
+          </Container>
+        </Box>
+
+        {/* Contact Section */}
         <Box
           sx={{
-            position: 'absolute',
-            right: -100,
-            top: -100,
-            width: 400,
-            height: 400,
-            borderRadius: '50%',
-            bgcolor: 'rgba(255,255,255,0.05)',
-            display: { xs: 'none', md: 'block' },
+            background: 'linear-gradient(165deg, #1e3a5f 0%, #0f2744 100%)',
+            color: 'white',
+            py: { xs: 8, md: 10 },
           }}
-        />
-        <Box
-          sx={{
-            position: 'absolute',
-            right: 50,
-            bottom: -150,
-            width: 300,
-            height: 300,
-            borderRadius: '50%',
-            bgcolor: 'rgba(255,255,255,0.03)',
-            display: { xs: 'none', md: 'block' },
-          }}
-        />
-      </Box>
-
-      {/* Services Section */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Typography
-          variant="h4"
-          component="h2"
-          align="center"
-          gutterBottom
-          sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}
         >
-          Our Services
-        </Typography>
-        <Typography
-          variant="body1"
-          align="center"
-          color="text.secondary"
-          sx={{ mb: 6, maxWidth: 600, mx: 'auto' }}
-        >
-          Select a service below to begin your intake questionnaire. Your information helps us
-          better understand your needs before your consultation.
-        </Typography>
+          <Container maxWidth="lg">
+            <Grid container spacing={6}>
+              <Grid item xs={12} md={6}>
+                <Typography
+                  component="span"
+                  sx={{
+                    display: 'inline-block',
+                    color: 'secondary.main',
+                    fontWeight: 600,
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase',
+                    fontSize: '0.75rem',
+                    mb: 2,
+                  }}
+                >
+                  Get In Touch
+                </Typography>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontSize: { xs: '1.75rem', md: '2.25rem' },
+                    mb: 3,
+                  }}
+                >
+                  Ready to Plan Your Future?
+                </Typography>
+                <Typography variant="body1" sx={{ opacity: 0.85, mb: 4, maxWidth: 450 }}>
+                  Schedule your consultation today. We're here to answer your questions and help
+                  you take the first step toward protecting your family.
+                </Typography>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => onNavigate('estate-planning-home')}
+                  sx={{
+                    bgcolor: 'secondary.main',
+                    color: 'primary.dark',
+                    px: 4,
+                    py: 1.5,
+                    '&:hover': {
+                      bgcolor: 'secondary.light',
+                    },
+                  }}
+                >
+                  Begin Your Intake
+                </Button>
+              </Grid>
 
-        <Grid container spacing={4}>
-          {services.map((service, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              <ServiceCard {...service} />
+              <Grid item xs={12} md={6}>
+                <Box sx={{ pl: { md: 4 } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 3 }}>
+                    <Box
+                      sx={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 1,
+                        bgcolor: alpha('#ffffff', 0.1),
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <LocationOnIcon sx={{ color: 'secondary.main' }} />
+                    </Box>
+                    <Box>
+                      <Typography variant="h6" sx={{ fontSize: '1rem', mb: 0.5 }}>
+                        Office Location
+                      </Typography>
+                      <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                        26811 South Bay Drive, Suite 260
+                        <br />
+                        Bonita Springs, Florida 34134
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 3 }}>
+                    <Box
+                      sx={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 1,
+                        bgcolor: alpha('#ffffff', 0.1),
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <PhoneIcon sx={{ color: 'secondary.main' }} />
+                    </Box>
+                    <Box>
+                      <Typography variant="h6" sx={{ fontSize: '1rem', mb: 0.5 }}>
+                        Telephone
+                      </Typography>
+                      <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                        (239) 345-4545
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                    <Box
+                      sx={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 1,
+                        bgcolor: alpha('#ffffff', 0.1),
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <EmailIcon sx={{ color: 'secondary.main' }} />
+                    </Box>
+                    <Box>
+                      <Typography variant="h6" sx={{ fontSize: '1rem', mb: 0.5 }}>
+                        Email
+                      </Typography>
+                      <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                        info@zbblaw.com
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              </Grid>
             </Grid>
-          ))}
-        </Grid>
-      </Container>
+          </Container>
+        </Box>
 
-      {/* Contact Section */}
-      <Box sx={{ bgcolor: 'white', py: 6 }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={4} justifyContent="center">
-            <Grid item xs={12} md={6} textAlign="center">
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1a237e' }}>
-                Contact Us
-              </Typography>
-              <Typography variant="body1" color="text.secondary" gutterBottom>
-                Zacharia Brown & Bratkovich
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                26811 South Bay Dr. Ste 260
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Bonita Springs, Florida 34134
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Tel: (239) 345-4545
-              </Typography>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
+        {/* Footer */}
+        <Box sx={{ bgcolor: '#0a1929', color: 'white', py: 4 }}>
+          <Container maxWidth="lg">
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', md: 'row' },
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 2,
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <BalanceIcon sx={{ fontSize: 24, color: 'secondary.main' }} />
+                <Typography
+                  sx={{
+                    fontFamily: '"Playfair Display", serif',
+                    fontWeight: 500,
+                    fontSize: '1rem',
+                  }}
+                >
+                  Zacharia Brown & Bratkovich
+                </Typography>
+              </Box>
 
-      {/* Footer */}
-      <Box sx={{ bgcolor: '#1a237e', color: 'white', py: 3 }}>
-        <Container maxWidth="lg">
-          <Typography variant="body2" align="center" sx={{ opacity: 0.8 }}>
-            &copy; {new Date().getFullYear()} Zacharia Brown & Bratkovich. All rights reserved.
-          </Typography>
-        </Container>
+              <Typography variant="body2" sx={{ opacity: 0.6, textAlign: 'center' }}>
+                © {new Date().getFullYear()} Zacharia Brown & Bratkovich. All rights reserved.
+              </Typography>
+
+              <Box sx={{ display: 'flex', gap: 3 }}>
+                <Link
+                  href="#"
+                  underline="hover"
+                  sx={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem' }}
+                >
+                  Privacy Policy
+                </Link>
+                <Link
+                  href="#"
+                  underline="hover"
+                  sx={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem' }}
+                >
+                  Terms of Service
+                </Link>
+              </Box>
+            </Box>
+          </Container>
+        </Box>
       </Box>
-    </Box>
+    </ThemeProvider>
   );
 };
 
