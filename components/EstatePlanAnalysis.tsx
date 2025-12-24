@@ -1323,7 +1323,31 @@ const EstatePlanAnalysis: React.FC = () => {
             return { asset, displayValue, shares };
           });
 
-          const heirInheritances = aggregateHeirInheritance(allAssetsWithShares);
+          // Also include assets that passed to other beneficiaries at client's death (first death)
+          // These need to be added to the final heir summary
+          const firstDeathAssetsWithShares = assetsToOtherBeneficiaries.map(asset => {
+            const displayValue = asset.calculatedValue !== undefined
+              ? asset.calculatedValue
+              : parseCurrency(asset.value);
+
+            const shares = calculateBeneficiaryShares(
+              displayValue,
+              asset.primaryBeneficiaries,
+              asset.secondaryBeneficiaries,
+              asset.secondaryDistributionType,
+              formData.clientDistributionPlan.residuaryBeneficiaries,
+              formData.clientDistributionPlan.residuaryShareType,
+              formData.clientDistributionPlan,
+              formData.children,
+              [formData.name] // Only client was deceased at first death
+            );
+
+            return { asset, displayValue, shares };
+          });
+
+          // Combine both first death and second death assets for complete heir summary
+          const allAssetsForHeirSummary = [...firstDeathAssetsWithShares, ...allAssetsWithShares];
+          const heirInheritances = aggregateHeirInheritance(allAssetsForHeirSummary);
 
           return (
             <>
@@ -1657,7 +1681,31 @@ const EstatePlanAnalysis: React.FC = () => {
             return { asset, displayValue, shares };
           });
 
-          const heirInheritances = aggregateHeirInheritance(allAssetsWithShares);
+          // Also include assets that passed to other beneficiaries at spouse's death (first death)
+          // These need to be added to the final heir summary
+          const firstDeathAssetsWithShares = assetsToOtherBeneficiaries.map(asset => {
+            const displayValue = asset.calculatedValue !== undefined
+              ? asset.calculatedValue
+              : parseCurrency(asset.value);
+
+            const shares = calculateBeneficiaryShares(
+              displayValue,
+              asset.primaryBeneficiaries,
+              asset.secondaryBeneficiaries,
+              asset.secondaryDistributionType,
+              formData.spouseDistributionPlan.residuaryBeneficiaries,
+              formData.spouseDistributionPlan.residuaryShareType,
+              formData.spouseDistributionPlan,
+              formData.children,
+              [formData.spouseName] // Only spouse was deceased at first death
+            );
+
+            return { asset, displayValue, shares };
+          });
+
+          // Combine both first death and second death assets for complete heir summary
+          const allAssetsForHeirSummary = [...firstDeathAssetsWithShares, ...allAssetsWithShares];
+          const heirInheritances = aggregateHeirInheritance(allAssetsForHeirSummary);
 
           return (
             <>
