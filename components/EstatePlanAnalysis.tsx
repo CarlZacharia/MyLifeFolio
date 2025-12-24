@@ -20,7 +20,7 @@ import {
   Divider,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useFormContext, MaritalStatus, RealEstateOwner, OwnershipForm } from '../lib/FormContext';
+import { useFormContext, MaritalStatus, RealEstateOwner, OwnershipForm, DistributionPlan, ResiduaryBeneficiary } from '../lib/FormContext';
 
 type AnalysisView = 'summary' | 'client-first' | 'spouse-first';
 
@@ -35,6 +35,8 @@ interface CategorizedAsset {
   ownershipForm?: string;
   hasBeneficiaries: boolean;
   primaryBeneficiaries?: string[]; // Store beneficiaries for scenario analysis
+  secondaryBeneficiaries?: string[]; // Store secondary beneficiaries
+  secondaryDistributionType?: 'Per Stirpes' | 'Per Capita' | ''; // Distribution type for secondary beneficiaries
   clientPercentage?: string;
   spousePercentage?: string;
   clientSpouseJointType?: string; // For TIC with "Client, Spouse and Other"
@@ -43,6 +45,27 @@ interface CategorizedAsset {
   calculatedValue?: number;
   // For scenario display - how asset passes (e.g., "Joint with Spouse", "Beneficiary Designation")
   passageMethod?: string;
+}
+
+// Beneficiary share from a specific asset
+interface BeneficiaryShare {
+  beneficiaryName: string;
+  percentage: number;
+  amount: number;
+}
+
+// Asset with beneficiary breakdown
+interface AssetWithBeneficiaryBreakdown {
+  asset: CategorizedAsset;
+  displayValue: number;
+  beneficiaryShares: BeneficiaryShare[];
+}
+
+// Heir's total inheritance summary
+interface HeirInheritance {
+  name: string;
+  assets: { description: string; amount: number }[];
+  total: number;
 }
 
 // Asset category definition
@@ -71,6 +94,197 @@ const parsePercentage = (value: string): number => {
   if (!value) return 0;
   const num = parseFloat(value.replace(/[^0-9.-]/g, ''));
   return isNaN(num) ? 0 : num / 100; // Convert percentage to decimal
+};
+
+// Helper to format beneficiary names from an array
+const formatBeneficiaryList = (beneficiaries: string[], distributionType?: string): string => {
+  if (!beneficiaries || beneficiaries.length === 0) return '';
+  const names = beneficiaries.join(', ');
+  if (distributionType && distributionType !== '') {
+    return `${names} (${distributionType})`;
+  }
+  return names;
+};
+
+// Helper to format Will residuary beneficiaries with percentages
+// For sweetheart plans where spouse has predeceased, shows children as contingent beneficiaries
+const formatResiduaryBeneficiaries = (
+  residuaryBeneficiaries: ResiduaryBeneficiary[],
+  shareType: 'equal' | 'percentage',
+  distributionPlan?: DistributionPlan,
+  children?: { name: string }[]
+): string => {
+  // For sweetheart plans, if no residuary beneficiaries are set, assume children share equally
+  if (distributionPlan?.distributionType === 'sweetheart' || distributionPlan?.isSweetheartPlan) {
+    if (children && children.length > 0) {
+      const childNames = children.map(c => c.name).join(', ');
+      return `${childNames} (Equal Shares)`;
+    }
+    return 'Children (Equal Shares)';
+  }
+
+  if (!residuaryBeneficiaries || residuaryBeneficiaries.length === 0) return 'Per Will';
+
+  if (shareType === 'equal') {
+    const names = residuaryBeneficiaries.map(b => b.name).join(', ');
+    return `${names} (Equal Shares)`;
+  }
+
+  // Percentage shares - show each beneficiary with their percentage
+  return residuaryBeneficiaries
+    .map(b => `${b.name} (${b.percentage}%)`)
+    .join(', ');
+};
+
+// Normalize beneficiary name by extracting actual name from prefixed formats
+// e.g., "child:0:JR Ewing Jr" -> "JR Ewing Jr"
+// e.g., "spouse:Jane Doe" -> "Jane Doe"
+// e.g., "beneficiary:1:John Smith" -> "John Smith"
+const normalizeBeneficiaryName = (name: string): string => {
+  // Check for patterns like "child:0:Name", "spouse:Name", "beneficiary:1:Name"
+  const colonParts = name.split(':');
+  if (colonParts.length >= 2) {
+    // If format is "type:index:name" (3+ parts), return everything after the second colon
+    if (colonParts.length >= 3) {
+      return colonParts.slice(2).join(':').trim();
+    }
+    // If format is "type:name" (2 parts) and first part looks like a type identifier
+    const firstPart = colonParts[0].toLowerCase();
+    if (['child', 'spouse', 'beneficiary', 'charity', 'client'].includes(firstPart) ||
+        /^(child|spouse|beneficiary|charity)\d*$/.test(firstPart)) {
+      return colonParts.slice(1).join(':').trim();
+    }
+  }
+  return name.trim();
+};
+
+// Filter out deceased persons from beneficiary list
+const filterOutDeceased = (
+  beneficiaries: string[] | undefined,
+  deceasedNames: string[]
+): string[] => {
+  if (!beneficiaries || beneficiaries.length === 0) return [];
+
+  return beneficiaries.filter(b => {
+    const bLower = b.toLowerCase();
+    // Check if this beneficiary matches any deceased person
+    return !deceasedNames.some(deceased => {
+      const deceasedLower = deceased.toLowerCase();
+      return bLower.includes(deceasedLower) ||
+             deceasedLower.includes(bLower) ||
+             (bLower === 'spouse' && deceasedNames.length > 0) ||
+             (bLower === 'client' && deceasedNames.length > 0);
+    });
+  });
+};
+
+// Calculate beneficiary shares for an asset based on Will distribution or designated beneficiaries
+// Key logic:
+// 1. Filter out any deceased persons from beneficiary lists
+// 2. If primary beneficiaries remain after filtering -> use them
+// 3. If primary beneficiaries are all deceased -> use secondary beneficiaries
+// 4. If no beneficiaries remain -> use the Will plan
+const calculateBeneficiaryShares = (
+  assetValue: number,
+  primaryBeneficiaries: string[] | undefined,
+  secondaryBeneficiaries: string[] | undefined,
+  distributionType: string | undefined,
+  residuaryBeneficiaries: ResiduaryBeneficiary[] | undefined,
+  shareType: 'equal' | 'percentage',
+  distributionPlan: DistributionPlan | undefined,
+  children: { name: string }[] | undefined,
+  deceasedPersonNames: string[] // Names of people who have already died in this scenario
+): BeneficiaryShare[] => {
+
+  // Filter out deceased persons from primary beneficiaries
+  const livingPrimaryBeneficiaries = filterOutDeceased(primaryBeneficiaries, deceasedPersonNames);
+
+  // Filter out deceased persons from secondary beneficiaries
+  const livingSecondaryBeneficiaries = filterOutDeceased(secondaryBeneficiaries, deceasedPersonNames);
+
+  // Case 1: Living primary beneficiaries exist - use them
+  if (livingPrimaryBeneficiaries.length > 0) {
+    const sharePerBeneficiary = assetValue / livingPrimaryBeneficiaries.length;
+    return livingPrimaryBeneficiaries.map(name => ({
+      beneficiaryName: normalizeBeneficiaryName(name),
+      percentage: 100 / livingPrimaryBeneficiaries.length,
+      amount: sharePerBeneficiary,
+    }));
+  }
+
+  // Case 2: No living primary beneficiaries - use secondary beneficiaries if they exist
+  if (livingSecondaryBeneficiaries.length > 0) {
+    const sharePerBeneficiary = assetValue / livingSecondaryBeneficiaries.length;
+    return livingSecondaryBeneficiaries.map(name => ({
+      beneficiaryName: normalizeBeneficiaryName(name),
+      percentage: 100 / livingSecondaryBeneficiaries.length,
+      amount: sharePerBeneficiary,
+    }));
+  }
+
+  // Case 3: No living designated beneficiaries - use Will plan
+  // For sweetheart plans, use children equally
+  if (distributionPlan?.distributionType === 'sweetheart' || distributionPlan?.isSweetheartPlan) {
+    if (children && children.length > 0) {
+      const sharePerChild = assetValue / children.length;
+      const percentPerChild = 100 / children.length;
+      return children.map(child => ({
+        beneficiaryName: normalizeBeneficiaryName(child.name),
+        percentage: percentPerChild,
+        amount: sharePerChild,
+      }));
+    }
+    return [{ beneficiaryName: 'Children (per Will)', percentage: 100, amount: assetValue }];
+  }
+
+  // Use residuary beneficiaries from Will
+  if (residuaryBeneficiaries && residuaryBeneficiaries.length > 0) {
+    if (shareType === 'equal') {
+      const sharePerBeneficiary = assetValue / residuaryBeneficiaries.length;
+      const percentPerBeneficiary = 100 / residuaryBeneficiaries.length;
+      return residuaryBeneficiaries.map(b => ({
+        beneficiaryName: normalizeBeneficiaryName(b.name),
+        percentage: percentPerBeneficiary,
+        amount: sharePerBeneficiary,
+      }));
+    } else {
+      // Percentage-based shares
+      return residuaryBeneficiaries.map(b => ({
+        beneficiaryName: normalizeBeneficiaryName(b.name),
+        percentage: b.percentage,
+        amount: (assetValue * b.percentage) / 100,
+      }));
+    }
+  }
+
+  // Fallback
+  return [{ beneficiaryName: 'Per Will', percentage: 100, amount: assetValue }];
+};
+
+// Aggregate all beneficiary shares across multiple assets into heir inheritance totals
+const aggregateHeirInheritance = (
+  assetsWithShares: { asset: CategorizedAsset; displayValue: number; shares: BeneficiaryShare[] }[]
+): HeirInheritance[] => {
+  const heirMap = new Map<string, HeirInheritance>();
+
+  assetsWithShares.forEach(({ asset, shares }) => {
+    shares.forEach(share => {
+      const existing = heirMap.get(share.beneficiaryName);
+      if (existing) {
+        existing.assets.push({ description: asset.description, amount: share.amount });
+        existing.total += share.amount;
+      } else {
+        heirMap.set(share.beneficiaryName, {
+          name: share.beneficiaryName,
+          assets: [{ description: asset.description, amount: share.amount }],
+          total: share.amount,
+        });
+      }
+    });
+  });
+
+  // Sort by total amount descending
+  return Array.from(heirMap.values()).sort((a, b) => b.total - a.total);
 };
 
 // Calculate the proportional value for TIC assets based on client+spouse ownership percentages
@@ -163,17 +377,53 @@ const CategoryAccordion: React.FC<{ category: AssetCategory; defaultExpanded?: b
   );
 };
 
-// Scenario section component for death order analysis
+// Scenario section component for death order analysis - enhanced with beneficiary breakdown
 interface ScenarioSectionProps {
   title: string;
   assets: CategorizedAsset[];
   totalValue: number;
   color?: string;
   subtitle?: string;
+  // Props needed for beneficiary calculation
+  distributionPlan?: DistributionPlan;
+  children?: { name: string }[];
+  showBeneficiaryBreakdown?: boolean;
+  deceasedPersonNames?: string[]; // Names of people who have already died in this scenario
 }
 
-const ScenarioSection: React.FC<ScenarioSectionProps> = ({ title, assets, totalValue, color = 'primary.main', subtitle }) => {
+const ScenarioSection: React.FC<ScenarioSectionProps> = ({
+  title,
+  assets,
+  totalValue,
+  color = 'primary.main',
+  subtitle,
+  distributionPlan,
+  children,
+  showBeneficiaryBreakdown = false,
+  deceasedPersonNames = []
+}) => {
   if (assets.length === 0) return null;
+
+  // Calculate beneficiary shares for each asset
+  const assetsWithShares = assets.map(asset => {
+    const displayValue = asset.calculatedValue !== undefined
+      ? asset.calculatedValue
+      : parseCurrency(asset.value);
+
+    const shares = calculateBeneficiaryShares(
+      displayValue,
+      asset.primaryBeneficiaries,
+      asset.secondaryBeneficiaries,
+      asset.secondaryDistributionType,
+      distributionPlan?.residuaryBeneficiaries,
+      distributionPlan?.residuaryShareType || 'equal',
+      distributionPlan,
+      children,
+      deceasedPersonNames
+    );
+
+    return { asset, displayValue, shares };
+  });
 
   return (
     <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
@@ -190,33 +440,128 @@ const ScenarioSection: React.FC<ScenarioSectionProps> = ({ title, assets, totalV
           {subtitle}
         </Typography>
       )}
-      <TableContainer>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 600 }}>Asset Type</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>How It Passes</TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="right">Value</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {assets.map((asset, index) => {
-              const displayValue = asset.calculatedValue !== undefined
-                ? asset.calculatedValue
-                : asset.value;
-              return (
-                <TableRow key={index}>
-                  <TableCell>{asset.type}</TableCell>
-                  <TableCell>{asset.description}</TableCell>
-                  <TableCell>{asset.passageMethod || '-'}</TableCell>
-                  <TableCell align="right">{formatCurrency(displayValue)}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+
+      {/* Asset list with beneficiary breakdown */}
+      {assetsWithShares.map(({ asset, displayValue, shares }, index) => (
+        <Box key={index} sx={{ mb: index < assetsWithShares.length - 1 ? 2 : 0 }}>
+          {/* Asset header row */}
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            bgcolor: 'grey.100',
+            p: 1,
+            borderRadius: 1
+          }}>
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                {asset.type}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {asset.description}
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              {formatCurrency(displayValue)}
+            </Typography>
+          </Box>
+
+          {/* Beneficiary breakdown table */}
+          {showBeneficiaryBreakdown && shares.length > 0 && (
+            <TableContainer sx={{ mt: 0.5 }}>
+              <Table size="small">
+                <TableBody>
+                  {shares.map((share, shareIndex) => (
+                    <TableRow key={shareIndex} sx={{ '&:last-child td': { borderBottom: 0 } }}>
+                      <TableCell sx={{ pl: 3, py: 0.5, width: '60%' }}>
+                        <Typography variant="body2">
+                          → {share.beneficiaryName}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="center" sx={{ py: 0.5, width: '15%' }}>
+                        <Typography variant="body2" color="text.secondary">
+                          {share.percentage.toFixed(1)}%
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="right" sx={{ py: 0.5, width: '25%' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {formatCurrency(share.amount)}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Box>
+      ))}
+    </Paper>
+  );
+};
+
+// Heir Summary component - shows each heir's total inheritance with asset breakdown
+interface HeirSummaryProps {
+  title: string;
+  heirs: HeirInheritance[];
+}
+
+const HeirSummary: React.FC<HeirSummaryProps> = ({ title, heirs }) => {
+  if (heirs.length === 0) return null;
+
+  const grandTotal = heirs.reduce((sum, heir) => sum + heir.total, 0);
+
+  return (
+    <Paper variant="outlined" sx={{ p: 2, mb: 2, bgcolor: 'primary.50', borderColor: 'primary.main' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+          {title}
+        </Typography>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+          {formatCurrency(grandTotal)}
+        </Typography>
+      </Box>
+
+      {heirs.map((heir, heirIndex) => (
+        <Accordion key={heirIndex} defaultExpanded={heirIndex === 0} sx={{ mb: 1 }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', pr: 2 }}>
+              <Typography sx={{ fontWeight: 600 }}>
+                {heir.name}
+              </Typography>
+              <Typography sx={{ fontWeight: 600, color: 'success.main' }}>
+                {formatCurrency(heir.total)}
+              </Typography>
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600 }}>Asset</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }} align="right">Amount</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {heir.assets.map((asset, assetIndex) => (
+                    <TableRow key={assetIndex}>
+                      <TableCell>{asset.description}</TableCell>
+                      <TableCell align="right">{formatCurrency(asset.amount)}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow sx={{ bgcolor: 'grey.100' }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Total for {heir.name}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>
+                      {formatCurrency(heir.total)}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </AccordionDetails>
+        </Accordion>
+      ))}
     </Paper>
   );
 };
@@ -330,6 +675,8 @@ const EstatePlanAnalysis: React.FC = () => {
         owner: account.owner,
         hasBeneficiaries,
         primaryBeneficiaries: account.primaryBeneficiaries,
+        secondaryBeneficiaries: account.secondaryBeneficiaries,
+        secondaryDistributionType: account.secondaryDistributionType,
         passageMethod: getPassageMethod(account.owner, undefined, hasBeneficiaries),
       };
     });
@@ -346,6 +693,8 @@ const EstatePlanAnalysis: React.FC = () => {
         owner: investment.owner,
         hasBeneficiaries,
         primaryBeneficiaries: investment.primaryBeneficiaries,
+        secondaryBeneficiaries: investment.secondaryBeneficiaries,
+        secondaryDistributionType: investment.secondaryDistributionType,
         passageMethod: getPassageMethod(investment.owner, undefined, hasBeneficiaries),
       };
     });
@@ -362,6 +711,8 @@ const EstatePlanAnalysis: React.FC = () => {
         owner: account.owner,
         hasBeneficiaries,
         primaryBeneficiaries: account.primaryBeneficiaries,
+        secondaryBeneficiaries: account.secondaryBeneficiaries,
+        secondaryDistributionType: account.secondaryDistributionType,
         passageMethod: getPassageMethod(account.owner, undefined, hasBeneficiaries),
       };
     });
@@ -380,6 +731,8 @@ const EstatePlanAnalysis: React.FC = () => {
           owner: policy.owner,
           hasBeneficiaries,
           primaryBeneficiaries: policy.primaryBeneficiaries,
+          secondaryBeneficiaries: policy.secondaryBeneficiaries,
+          secondaryDistributionType: policy.secondaryDistributionType,
           passageMethod: getPassageMethod(policy.owner, undefined, hasBeneficiaries),
         };
       });
@@ -396,6 +749,8 @@ const EstatePlanAnalysis: React.FC = () => {
         owner: vehicle.owner,
         hasBeneficiaries,
         primaryBeneficiaries: vehicle.primaryBeneficiaries,
+        secondaryBeneficiaries: vehicle.secondaryBeneficiaries,
+        secondaryDistributionType: vehicle.secondaryDistributionType,
         passageMethod: getPassageMethod(vehicle.owner, undefined, hasBeneficiaries),
       };
     });
@@ -412,6 +767,8 @@ const EstatePlanAnalysis: React.FC = () => {
         owner: asset.owner,
         hasBeneficiaries,
         primaryBeneficiaries: asset.primaryBeneficiaries,
+        secondaryBeneficiaries: asset.secondaryBeneficiaries,
+        secondaryDistributionType: asset.secondaryDistributionType,
         passageMethod: getPassageMethod(asset.owner, undefined, hasBeneficiaries),
       };
     });
@@ -783,6 +1140,11 @@ const EstatePlanAnalysis: React.FC = () => {
           assets={assetsToOtherBeneficiaries}
           totalValue={calculateTotal(assetsToOtherBeneficiaries)}
           color="info.main"
+          subtitle="These assets pass directly to the designated beneficiaries (not spouse) when Client dies."
+          distributionPlan={formData.clientDistributionPlan}
+          children={formData.children}
+          showBeneficiaryBreakdown={true}
+          deceasedPersonNames={[formData.name]}
         />
 
         <ScenarioSection
@@ -798,6 +1160,41 @@ const EstatePlanAnalysis: React.FC = () => {
           totalValue={calculateTotal(clientJointWithOther)}
           color="warning.main"
         />
+
+        {/* First Death Heir Summary - for assets going to non-spouse beneficiaries */}
+        {(() => {
+          // Calculate shares for assets going to other beneficiaries at first death
+          const firstDeathAssetsWithShares = assetsToOtherBeneficiaries.map(asset => {
+            const displayValue = asset.calculatedValue !== undefined
+              ? asset.calculatedValue
+              : parseCurrency(asset.value);
+
+            const shares = calculateBeneficiaryShares(
+              displayValue,
+              asset.primaryBeneficiaries,
+              asset.secondaryBeneficiaries,
+              asset.secondaryDistributionType,
+              formData.clientDistributionPlan.residuaryBeneficiaries,
+              formData.clientDistributionPlan.residuaryShareType,
+              formData.clientDistributionPlan,
+              formData.children,
+              [formData.name] // Only client is deceased at first death
+            );
+
+            return { asset, displayValue, shares };
+          });
+
+          const firstDeathHeirs = aggregateHeirInheritance(firstDeathAssetsWithShares);
+
+          if (firstDeathHeirs.length === 0) return null;
+
+          return (
+            <HeirSummary
+              title="Summary: Inheritance at Client's Death"
+              heirs={firstDeathHeirs}
+            />
+          );
+        })()}
 
         <Divider sx={{ my: 3 }} />
 
@@ -832,30 +1229,101 @@ const EstatePlanAnalysis: React.FC = () => {
 
           const totalSpouseEstate = calculateTotal(spouseEstateAtDeath);
 
+          // Get spouse's Will distribution plan for probate assets
+          const spouseDistPlan = formData.spouseDistributionPlan;
+          const spouseWillBeneficiaries = formatResiduaryBeneficiaries(
+            spouseDistPlan.residuaryBeneficiaries,
+            spouseDistPlan.residuaryShareType,
+            spouseDistPlan,
+            formData.children
+          );
+
           // Spouse's original non-probate assets - these pass to their designated secondary beneficiaries
           const spouseOriginalNonProbate: CategorizedAsset[] = [
-            ...spouseNonProbateAssets.map(a => ({ ...a, passageMethod: 'Secondary Beneficiaries' })),
+            ...spouseNonProbateAssets.map(a => {
+              const secondaryBenefs = formatBeneficiaryList(a.secondaryBeneficiaries || [], a.secondaryDistributionType);
+              return {
+                ...a,
+                passageMethod: secondaryBenefs || 'Secondary Beneficiaries (Not Designated)'
+              };
+            }),
           ];
 
           // Joint assets with beneficiaries - these pass to designated beneficiaries
           const jointAssetsWithBenef: CategorizedAsset[] = [
-            ...jointWithBeneficiaries.map(a => ({ ...a, passageMethod: 'Beneficiary Designation' })),
+            ...jointWithBeneficiaries.map(a => {
+              const secondaryBenefs = formatBeneficiaryList(a.secondaryBeneficiaries || [], a.secondaryDistributionType);
+              return {
+                ...a,
+                passageMethod: secondaryBenefs || formatBeneficiaryList(a.primaryBeneficiaries || []) || 'Beneficiary Designation'
+              };
+            }),
           ];
 
           // Assets subject to beneficiary redesignation - inherited from client with beneficiary designations
           // Spouse may keep original secondary beneficiaries OR designate new ones after rollover
           const assetsSubjectToRedesignation: CategorizedAsset[] = [
-            ...clientAssetsWithSpouseAsBeneficiary.map(a => ({ ...a, passageMethod: 'Inherited (May Redesignate)' })),
+            ...clientAssetsWithSpouseAsBeneficiary.map(a => {
+              const secondaryBenefs = formatBeneficiaryList(a.secondaryBeneficiaries || [], a.secondaryDistributionType);
+              return {
+                ...a,
+                passageMethod: secondaryBenefs ? `${secondaryBenefs} (May Redesignate)` : 'Inherited (May Redesignate)'
+              };
+            }),
           ];
 
-          // Assets going to probate - no beneficiary designations
+          // Assets going to probate - show Will beneficiaries with their percentages
+          // Also include TIC assets where spouse's share goes through probate
           const assetsToSpouseProbate: CategorizedAsset[] = [
-            ...spouseProbateAssets.map(a => ({ ...a, passageMethod: 'Probate' })),
-            ...jointNoBeneficiaries.map(a => ({ ...a, passageMethod: 'Probate (was Joint)' })),
+            ...spouseProbateAssets.map(a => ({ ...a, passageMethod: spouseWillBeneficiaries })),
+            ...jointNoBeneficiaries.map(a => ({ ...a, passageMethod: spouseWillBeneficiaries })),
             ...(provideForSpouseFirst
-              ? clientProbateAssets.map(a => ({ ...a, passageMethod: 'Probate (Inherited from Client)' }))
+              ? clientProbateAssets.map(a => ({ ...a, passageMethod: spouseWillBeneficiaries }))
               : []),
+            // TIC assets where spouse has a share - spouse's percentage goes through probate
+            ...ticSpouseOther.map(a => ({
+              ...a,
+              passageMethod: `Spouse's Share: ${spouseWillBeneficiaries}`
+            })),
+            // TIC with Client, Spouse and Other - spouse's share goes through probate after client predeceased
+            ...ticClientSpouseOther.map(a => ({
+              ...a,
+              passageMethod: `Spouse's Share: ${spouseWillBeneficiaries}`
+            })),
           ];
+
+          // Collect all assets with their beneficiary shares for heir summary
+          const allDistributedAssets = [
+            ...spouseOriginalNonProbate,
+            ...jointAssetsWithBenef,
+            ...assetsSubjectToRedesignation,
+            ...assetsToSpouseProbate,
+          ];
+
+          // When spouse dies (second death), both client and spouse are deceased
+          // Use spouse's Will for distribution, filter out both deceased persons from beneficiaries
+          const bothDeceased = [formData.name, formData.spouseName].filter(Boolean);
+          const allAssetsWithShares = allDistributedAssets.map(asset => {
+            const displayValue = asset.calculatedValue !== undefined
+              ? asset.calculatedValue
+              : parseCurrency(asset.value);
+
+            const shares = calculateBeneficiaryShares(
+              displayValue,
+              asset.primaryBeneficiaries,
+              asset.secondaryBeneficiaries,
+              asset.secondaryDistributionType,
+              spouseDistPlan.residuaryBeneficiaries,
+              spouseDistPlan.residuaryShareType,
+              spouseDistPlan,
+              formData.children,
+              bothDeceased
+            );
+
+            return { asset, displayValue, shares };
+          });
+
+          const heirInheritances = aggregateHeirInheritance(allAssetsWithShares);
 
           return (
             <>
@@ -877,6 +1345,10 @@ const EstatePlanAnalysis: React.FC = () => {
                 totalValue={calculateTotal(spouseOriginalNonProbate)}
                 color="info.main"
                 subtitle="These are Spouse's original assets with beneficiary designations. They pass to the designated secondary beneficiaries."
+                distributionPlan={spouseDistPlan}
+                children={formData.children}
+                showBeneficiaryBreakdown={true}
+                deceasedPersonNames={[formData.name, formData.spouseName].filter(Boolean)}
               />
 
               <ScenarioSection
@@ -885,6 +1357,10 @@ const EstatePlanAnalysis: React.FC = () => {
                 totalValue={calculateTotal(jointAssetsWithBenef)}
                 color="info.main"
                 subtitle="Joint assets that now pass to their designated beneficiaries."
+                distributionPlan={spouseDistPlan}
+                children={formData.children}
+                showBeneficiaryBreakdown={true}
+                deceasedPersonNames={[formData.name, formData.spouseName].filter(Boolean)}
               />
 
               <ScenarioSection
@@ -893,6 +1369,10 @@ const EstatePlanAnalysis: React.FC = () => {
                 totalValue={calculateTotal(assetsSubjectToRedesignation)}
                 color="#ed6c02"
                 subtitle="Spouse inherited these from Client and may keep the original secondary beneficiaries OR designate new beneficiaries after rolling over the accounts."
+                distributionPlan={spouseDistPlan}
+                children={formData.children}
+                showBeneficiaryBreakdown={true}
+                deceasedPersonNames={[formData.name, formData.spouseName].filter(Boolean)}
               />
 
               <ScenarioSection
@@ -903,10 +1383,21 @@ const EstatePlanAnalysis: React.FC = () => {
               />
 
               <ScenarioSection
-                title="Assets Subject to Probate"
+                title="Assets Subject to Probate (Distributed per Will)"
                 assets={assetsToSpouseProbate}
                 totalValue={calculateTotal(assetsToSpouseProbate)}
                 color="error.main"
+                distributionPlan={spouseDistPlan}
+                children={formData.children}
+                showBeneficiaryBreakdown={true}
+                deceasedPersonNames={[formData.name, formData.spouseName].filter(Boolean)}
+              />
+
+              {/* Heir Summary - Total inheritance per beneficiary */}
+              <Divider sx={{ my: 3 }} />
+              <HeirSummary
+                title="Summary: Each Heir's Total Inheritance"
+                heirs={heirInheritances}
               />
             </>
           );
@@ -983,6 +1474,11 @@ const EstatePlanAnalysis: React.FC = () => {
           assets={assetsToOtherBeneficiaries}
           totalValue={calculateTotal(assetsToOtherBeneficiaries)}
           color="info.main"
+          subtitle="These assets pass directly to the designated beneficiaries (not client) when Spouse dies."
+          distributionPlan={formData.spouseDistributionPlan}
+          children={formData.children}
+          showBeneficiaryBreakdown={true}
+          deceasedPersonNames={[formData.spouseName]}
         />
 
         <ScenarioSection
@@ -998,6 +1494,41 @@ const EstatePlanAnalysis: React.FC = () => {
           totalValue={calculateTotal(spouseJointWithOther)}
           color="warning.main"
         />
+
+        {/* First Death Heir Summary - for assets going to non-client beneficiaries */}
+        {(() => {
+          // Calculate shares for assets going to other beneficiaries at first death
+          const firstDeathAssetsWithShares = assetsToOtherBeneficiaries.map(asset => {
+            const displayValue = asset.calculatedValue !== undefined
+              ? asset.calculatedValue
+              : parseCurrency(asset.value);
+
+            const shares = calculateBeneficiaryShares(
+              displayValue,
+              asset.primaryBeneficiaries,
+              asset.secondaryBeneficiaries,
+              asset.secondaryDistributionType,
+              formData.spouseDistributionPlan.residuaryBeneficiaries,
+              formData.spouseDistributionPlan.residuaryShareType,
+              formData.spouseDistributionPlan,
+              formData.children,
+              [formData.spouseName] // Only spouse is deceased at first death
+            );
+
+            return { asset, displayValue, shares };
+          });
+
+          const firstDeathHeirs = aggregateHeirInheritance(firstDeathAssetsWithShares);
+
+          if (firstDeathHeirs.length === 0) return null;
+
+          return (
+            <HeirSummary
+              title="Summary: Inheritance at Spouse's Death"
+              heirs={firstDeathHeirs}
+            />
+          );
+        })()}
 
         <Divider sx={{ my: 3 }} />
 
@@ -1032,30 +1563,101 @@ const EstatePlanAnalysis: React.FC = () => {
 
           const totalClientEstate = calculateTotal(clientEstateAtDeath);
 
+          // Get client's Will distribution plan for probate assets
+          const clientDistPlan = formData.clientDistributionPlan;
+          const clientWillBeneficiaries = formatResiduaryBeneficiaries(
+            clientDistPlan.residuaryBeneficiaries,
+            clientDistPlan.residuaryShareType,
+            clientDistPlan,
+            formData.children
+          );
+
           // Client's original non-probate assets - these pass to their designated secondary beneficiaries
           const clientOriginalNonProbate: CategorizedAsset[] = [
-            ...clientNonProbateAssets.map(a => ({ ...a, passageMethod: 'Secondary Beneficiaries' })),
+            ...clientNonProbateAssets.map(a => {
+              const secondaryBenefs = formatBeneficiaryList(a.secondaryBeneficiaries || [], a.secondaryDistributionType);
+              return {
+                ...a,
+                passageMethod: secondaryBenefs || 'Secondary Beneficiaries (Not Designated)'
+              };
+            }),
           ];
 
           // Joint assets with beneficiaries - these pass to designated beneficiaries
           const jointAssetsWithBenef: CategorizedAsset[] = [
-            ...jointWithBeneficiaries.map(a => ({ ...a, passageMethod: 'Beneficiary Designation' })),
+            ...jointWithBeneficiaries.map(a => {
+              const secondaryBenefs = formatBeneficiaryList(a.secondaryBeneficiaries || [], a.secondaryDistributionType);
+              return {
+                ...a,
+                passageMethod: secondaryBenefs || formatBeneficiaryList(a.primaryBeneficiaries || []) || 'Beneficiary Designation'
+              };
+            }),
           ];
 
           // Assets subject to beneficiary redesignation - inherited from spouse with beneficiary designations
           // Client may keep original secondary beneficiaries OR designate new ones after rollover
           const assetsSubjectToRedesignation: CategorizedAsset[] = [
-            ...spouseAssetsWithClientAsBeneficiary.map(a => ({ ...a, passageMethod: 'Inherited (May Redesignate)' })),
+            ...spouseAssetsWithClientAsBeneficiary.map(a => {
+              const secondaryBenefs = formatBeneficiaryList(a.secondaryBeneficiaries || [], a.secondaryDistributionType);
+              return {
+                ...a,
+                passageMethod: secondaryBenefs ? `${secondaryBenefs} (May Redesignate)` : 'Inherited (May Redesignate)'
+              };
+            }),
           ];
 
-          // Assets going to probate - no beneficiary designations
+          // Assets going to probate - show Will beneficiaries with their percentages
+          // Also include TIC assets where client's share goes through probate
           const assetsToClientProbate: CategorizedAsset[] = [
-            ...clientProbateAssets.map(a => ({ ...a, passageMethod: 'Probate' })),
-            ...jointNoBeneficiaries.map(a => ({ ...a, passageMethod: 'Probate (was Joint)' })),
+            ...clientProbateAssets.map(a => ({ ...a, passageMethod: clientWillBeneficiaries })),
+            ...jointNoBeneficiaries.map(a => ({ ...a, passageMethod: clientWillBeneficiaries })),
             ...(provideForSpouseFirst
-              ? spouseProbateAssets.map(a => ({ ...a, passageMethod: 'Probate (Inherited from Spouse)' }))
+              ? spouseProbateAssets.map(a => ({ ...a, passageMethod: clientWillBeneficiaries }))
               : []),
+            // TIC assets where client has a share - client's percentage goes through probate
+            ...ticClientOther.map(a => ({
+              ...a,
+              passageMethod: `Client's Share: ${clientWillBeneficiaries}`
+            })),
+            // TIC with Client, Spouse and Other - client's share goes through probate after spouse predeceased
+            ...ticClientSpouseOther.map(a => ({
+              ...a,
+              passageMethod: `Client's Share: ${clientWillBeneficiaries}`
+            })),
           ];
+
+          // Collect all assets with their beneficiary shares for heir summary
+          const allDistributedAssets = [
+            ...clientOriginalNonProbate,
+            ...jointAssetsWithBenef,
+            ...assetsSubjectToRedesignation,
+            ...assetsToClientProbate,
+          ];
+
+          // When client dies (second death), both client and spouse are deceased
+          // Use client's Will for distribution, filter out both deceased persons from beneficiaries
+          const bothDeceased = [formData.name, formData.spouseName].filter(Boolean);
+          const allAssetsWithShares = allDistributedAssets.map(asset => {
+            const displayValue = asset.calculatedValue !== undefined
+              ? asset.calculatedValue
+              : parseCurrency(asset.value);
+
+            const shares = calculateBeneficiaryShares(
+              displayValue,
+              asset.primaryBeneficiaries,
+              asset.secondaryBeneficiaries,
+              asset.secondaryDistributionType,
+              clientDistPlan.residuaryBeneficiaries,
+              clientDistPlan.residuaryShareType,
+              clientDistPlan,
+              formData.children,
+              bothDeceased
+            );
+
+            return { asset, displayValue, shares };
+          });
+
+          const heirInheritances = aggregateHeirInheritance(allAssetsWithShares);
 
           return (
             <>
@@ -1077,6 +1679,10 @@ const EstatePlanAnalysis: React.FC = () => {
                 totalValue={calculateTotal(clientOriginalNonProbate)}
                 color="info.main"
                 subtitle="These are Client's original assets with beneficiary designations. They pass to the designated secondary beneficiaries."
+                distributionPlan={clientDistPlan}
+                children={formData.children}
+                showBeneficiaryBreakdown={true}
+                deceasedPersonNames={[formData.name, formData.spouseName].filter(Boolean)}
               />
 
               <ScenarioSection
@@ -1085,6 +1691,10 @@ const EstatePlanAnalysis: React.FC = () => {
                 totalValue={calculateTotal(jointAssetsWithBenef)}
                 color="info.main"
                 subtitle="Joint assets that now pass to their designated beneficiaries."
+                distributionPlan={clientDistPlan}
+                children={formData.children}
+                showBeneficiaryBreakdown={true}
+                deceasedPersonNames={[formData.name, formData.spouseName].filter(Boolean)}
               />
 
               <ScenarioSection
@@ -1093,6 +1703,10 @@ const EstatePlanAnalysis: React.FC = () => {
                 totalValue={calculateTotal(assetsSubjectToRedesignation)}
                 color="#ed6c02"
                 subtitle="Client inherited these from Spouse and may keep the original secondary beneficiaries OR designate new beneficiaries after rolling over the accounts."
+                distributionPlan={clientDistPlan}
+                children={formData.children}
+                showBeneficiaryBreakdown={true}
+                deceasedPersonNames={[formData.name, formData.spouseName].filter(Boolean)}
               />
 
               <ScenarioSection
@@ -1103,10 +1717,21 @@ const EstatePlanAnalysis: React.FC = () => {
               />
 
               <ScenarioSection
-                title="Assets Subject to Probate"
+                title="Assets Subject to Probate (Distributed per Will)"
                 assets={assetsToClientProbate}
                 totalValue={calculateTotal(assetsToClientProbate)}
                 color="error.main"
+                distributionPlan={clientDistPlan}
+                children={formData.children}
+                showBeneficiaryBreakdown={true}
+                deceasedPersonNames={[formData.name, formData.spouseName].filter(Boolean)}
+              />
+
+              {/* Heir Summary - Total inheritance per beneficiary */}
+              <Divider sx={{ my: 3 }} />
+              <HeirSummary
+                title="Summary: Each Heir's Total Inheritance"
+                heirs={heirInheritances}
               />
             </>
           );
