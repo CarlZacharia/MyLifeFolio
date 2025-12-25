@@ -36,6 +36,15 @@ const BeneficiariesSection = () => {
 
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
+  // Determine if there are any children (from client or spouse)
+  const hasChildren = formData.children.length > 0;
+
+  // Determine if there are any beneficiaries at all (children, other beneficiaries, or charities)
+  const hasAnyBeneficiaries =
+    formData.children.length > 0 ||
+    formData.otherBeneficiaries.length > 0 ||
+    formData.charities.length > 0;
+
   // Modal state management
   const [modalState, setModalState] = useState<ModalState>({
     type: null,
@@ -164,219 +173,15 @@ const BeneficiariesSection = () => {
             onAdd={() => openAddModal('child')}
           />
         </Box>
-
-        {/* Children Health Questions - only show if there are children */}
-        {formData.children.length > 0 && (
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <FormControl component="fieldset">
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel component="legend">Are all of your children in good health?</FormLabel>
-                  <HelpIcon helpId={30} onClick={() => openHelp(30)} />
-                </Box>
-                <RadioGroup
-                  row
-                  value={formData.allChildrenHealthy ? 'yes' : 'no'}
-                  onChange={handleRadioChange('allChildrenHealthy')}
-                >
-                  <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                  <FormControlLabel value="no" control={<Radio />} label="No" />
-                </RadioGroup>
-              </FormControl>
-            </Grid>
-
-            {!formData.allChildrenHealthy && (
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Please explain"
-                  value={formData.childrenHealthExplanation}
-                  onChange={handleChange('childrenHealthExplanation')}
-                  variant="outlined"
-                  multiline
-                  rows={2}
-                />
-              </Grid>
-            )}
-
-            <Grid item xs={12} md={6}>
-              <FormControl component="fieldset">
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel component="legend">Are any of your children under the age of 21?</FormLabel>
-                  <HelpIcon helpId={31} onClick={() => openHelp(31)} />
-                </Box>
-                <RadioGroup
-                  row
-                  value={formData.anyChildrenMinors ? 'yes' : 'no'}
-                  onChange={handleRadioChange('anyChildrenMinors')}
-                >
-                  <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                  <FormControlLabel value="no" control={<Radio />} label="No" />
-                </RadioGroup>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControl component="fieldset">
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel component="legend">Are any of your children disabled or blind?</FormLabel>
-                  <HelpIcon helpId={32} onClick={() => openHelp(32)} />
-                </Box>
-                <RadioGroup
-                  row
-                  value={formData.anyChildrenDisabled ? 'yes' : 'no'}
-                  onChange={handleRadioChange('anyChildrenDisabled')}
-                >
-                  <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                  <FormControlLabel value="no" control={<Radio />} label="No" />
-                </RadioGroup>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControl component="fieldset">
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel component="legend">Have all of your children completed their education?</FormLabel>
-                  <HelpIcon helpId={33} onClick={() => openHelp(33)} />
-                </Box>
-                <RadioGroup
-                  row
-                  value={formData.allChildrenEducated ? 'yes' : 'no'}
-                  onChange={handleRadioChange('allChildrenEducated')}
-                >
-                  <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                  <FormControlLabel value="no" control={<Radio />} label="No" />
-                </RadioGroup>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControl component="fieldset">
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel component="legend">Do any of your children have marital problems?</FormLabel>
-                  <HelpIcon helpId={34} onClick={() => openHelp(34)} />
-                </Box>
-                <RadioGroup
-                  row
-                  value={formData.anyChildrenMaritalProblems ? 'yes' : 'no'}
-                  onChange={handleRadioChange('anyChildrenMaritalProblems')}
-                >
-                  <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                  <FormControlLabel value="no" control={<Radio />} label="No" />
-                </RadioGroup>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControl component="fieldset">
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel component="legend">
-                    Are any of your children receiving SSI or other government entitlement?
-                  </FormLabel>
-                  <HelpIcon helpId={35} onClick={() => openHelp(35)} />
-                </Box>
-                <RadioGroup
-                  row
-                  value={formData.anyChildrenReceivingSSI ? 'yes' : 'no'}
-                  onChange={handleRadioChange('anyChildrenReceivingSSI')}
-                >
-                  <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                  <FormControlLabel value="no" control={<Radio />} label="No" />
-                </RadioGroup>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControl component="fieldset">
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel component="legend">Drug Addiction?</FormLabel>
-                  <HelpIcon helpId={36} onClick={() => openHelp(36)} />
-                </Box>
-                <RadioGroup
-                  row
-                  value={formData.drugAddiction ? 'yes' : 'no'}
-                  onChange={handleRadioChange('drugAddiction')}
-                >
-                  <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                  <FormControlLabel value="no" control={<Radio />} label="No" />
-                </RadioGroup>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControl component="fieldset">
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel component="legend">Alcoholism?</FormLabel>
-                  <HelpIcon helpId={37} onClick={() => openHelp(37)} />
-                </Box>
-                <RadioGroup
-                  row
-                  value={formData.alcoholism ? 'yes' : 'no'}
-                  onChange={handleRadioChange('alcoholism')}
-                >
-                  <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                  <FormControlLabel value="no" control={<Radio />} label="No" />
-                </RadioGroup>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControl component="fieldset">
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel component="legend">Does any child have financial problems?</FormLabel>
-                  <HelpIcon helpId={38} onClick={() => openHelp(38)} />
-                </Box>
-                <RadioGroup
-                  row
-                  value={formData.spendthrift ? 'yes' : 'no'}
-                  onChange={handleRadioChange('spendthrift')}
-                >
-                  <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                  <FormControlLabel value="no" control={<Radio />} label="No" />
-                </RadioGroup>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControl component="fieldset" fullWidth>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel component="legend">Other</FormLabel>
-                  <HelpIcon helpId={39} onClick={() => openHelp(39)} />
-                </Box>
-                <TextField
-                  fullWidth
-                  value={formData.childrenOtherConcerns}
-                  onChange={handleChange('childrenOtherConcerns')}
-                  variant="outlined"
-                  size="small"
-                  placeholder="Any other concerns..."
-                />
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Notes about your children"
-                value={formData.childrenNotes}
-                onChange={handleChange('childrenNotes')}
-                variant="outlined"
-                multiline
-                rows={3}
-                placeholder="Enter any additional comments or information about your children..."
-              />
-            </Grid>
-          </Grid>
-        )}
       </Box>
 
       <Divider sx={{ my: 4 }} />
 
-      {/* Category 2: Other Beneficiaries */}
+      {/* Category 2: Other Beneficiaries (or just "Beneficiaries" if no children) */}
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 500 }}>
-            2. Other Beneficiaries
+            2. {hasChildren ? 'Other Beneficiaries' : 'Beneficiaries'}
           </Typography>
           <VideoHelpIcon helpId={102} onClick={() => openHelp(102)} size="small" />
         </Box>
@@ -390,25 +195,300 @@ const BeneficiariesSection = () => {
         />
       </Box>
 
-      <Divider sx={{ my: 4 }} />
+      {/* Category 3: Charities - only show if user desires to leave to charity */}
+      {formData.leaveToCharity && (
+        <>
+          <Divider sx={{ my: 4 }} />
+          <Box sx={{ mb: 4 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 500 }}>
+                3. Charities
+              </Typography>
+              <VideoHelpIcon helpId={103} onClick={() => openHelp(103)} size="small" />
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Include any charitable organizations you wish to name as beneficiaries.
+            </Typography>
+            <CharitiesSummaryTable
+              charities={formData.charities}
+              onEditCharity={(index) => openEditModal('charity', index)}
+              onAddCharity={() => openAddModal('charity')}
+            />
+          </Box>
+        </>
+      )}
 
-      {/* Category 3: Charities */}
-      <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 500 }}>
-            3. Charities
-          </Typography>
-          <VideoHelpIcon helpId={103} onClick={() => openHelp(103)} size="small" />
-        </Box>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Include any charitable organizations you wish to name as beneficiaries.
-        </Typography>
-        <CharitiesSummaryTable
-          charities={formData.charities}
-          onEditCharity={(index) => openEditModal('charity', index)}
-          onAddCharity={() => openAddModal('charity')}
-        />
-      </Box>
+      {/* Beneficiary Concerns - only show if there are any beneficiaries */}
+      {hasAnyBeneficiaries && (
+        <>
+          <Divider sx={{ my: 4 }} />
+          <Box sx={{ mb: 4 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 500 }}>
+                Beneficiary Concerns
+              </Typography>
+              <HelpIcon helpId={30} onClick={() => openHelp(30)} />
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              Please answer the following questions about any of your beneficiaries (children, other individuals, etc.).
+            </Typography>
+
+            <Grid container spacing={3}>
+              {/* Row 1: Minors and Disabled */}
+              <Grid item xs={12} md={6}>
+                <FormControl component="fieldset">
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <FormLabel component="legend">Are any of your beneficiaries under the age of 21?</FormLabel>
+                    <HelpIcon helpId={31} onClick={() => openHelp(31)} />
+                  </Box>
+                  <RadioGroup
+                    row
+                    value={formData.anyBeneficiariesMinors ? 'yes' : 'no'}
+                    onChange={handleRadioChange('anyBeneficiariesMinors')}
+                  >
+                    <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                    <FormControlLabel value="no" control={<Radio />} label="No" />
+                  </RadioGroup>
+                </FormControl>
+                {formData.anyBeneficiariesMinors && (
+                  <TextField
+                    fullWidth
+                    label="Who is under 21 and their ages"
+                    value={formData.beneficiaryMinorsExplanation}
+                    onChange={handleChange('beneficiaryMinorsExplanation')}
+                    variant="outlined"
+                    multiline
+                    rows={2}
+                    sx={{ mt: 1 }}
+                  />
+                )}
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <FormControl component="fieldset">
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <FormLabel component="legend">Are any of your beneficiaries disabled or blind?</FormLabel>
+                    <HelpIcon helpId={32} onClick={() => openHelp(32)} />
+                  </Box>
+                  <RadioGroup
+                    row
+                    value={formData.anyBeneficiariesDisabled ? 'yes' : 'no'}
+                    onChange={handleRadioChange('anyBeneficiariesDisabled')}
+                  >
+                    <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                    <FormControlLabel value="no" control={<Radio />} label="No" />
+                  </RadioGroup>
+                </FormControl>
+                {formData.anyBeneficiariesDisabled && (
+                  <TextField
+                    fullWidth
+                    label="Who is disabled or blind and describe the condition"
+                    value={formData.beneficiaryDisabledExplanation}
+                    onChange={handleChange('beneficiaryDisabledExplanation')}
+                    variant="outlined"
+                    multiline
+                    rows={2}
+                    sx={{ mt: 1 }}
+                  />
+                )}
+              </Grid>
+
+              {/* Row 2: Marital Problems and SSI */}
+              <Grid item xs={12} md={6}>
+                <FormControl component="fieldset">
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <FormLabel component="legend">Do any of your beneficiaries have marital problems?</FormLabel>
+                    <HelpIcon helpId={34} onClick={() => openHelp(34)} />
+                  </Box>
+                  <RadioGroup
+                    row
+                    value={formData.anyBeneficiariesMaritalProblems ? 'yes' : 'no'}
+                    onChange={handleRadioChange('anyBeneficiariesMaritalProblems')}
+                  >
+                    <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                    <FormControlLabel value="no" control={<Radio />} label="No" />
+                  </RadioGroup>
+                </FormControl>
+                {formData.anyBeneficiariesMaritalProblems && (
+                  <TextField
+                    fullWidth
+                    label="Who has marital problems and describe the situation"
+                    value={formData.beneficiaryMaritalProblemsExplanation}
+                    onChange={handleChange('beneficiaryMaritalProblemsExplanation')}
+                    variant="outlined"
+                    multiline
+                    rows={2}
+                    sx={{ mt: 1 }}
+                  />
+                )}
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <FormControl component="fieldset">
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <FormLabel component="legend">
+                      Are any of your beneficiaries receiving SSI or other government entitlement?
+                    </FormLabel>
+                    <HelpIcon helpId={35} onClick={() => openHelp(35)} />
+                  </Box>
+                  <RadioGroup
+                    row
+                    value={formData.anyBeneficiariesReceivingSSI ? 'yes' : 'no'}
+                    onChange={handleRadioChange('anyBeneficiariesReceivingSSI')}
+                  >
+                    <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                    <FormControlLabel value="no" control={<Radio />} label="No" />
+                  </RadioGroup>
+                </FormControl>
+                {formData.anyBeneficiariesReceivingSSI && (
+                  <TextField
+                    fullWidth
+                    label="Who receives benefits and what type"
+                    value={formData.beneficiarySSIExplanation}
+                    onChange={handleChange('beneficiarySSIExplanation')}
+                    variant="outlined"
+                    multiline
+                    rows={2}
+                    sx={{ mt: 1 }}
+                  />
+                )}
+              </Grid>
+
+              {/* Row 3: Drug Addiction and Alcoholism */}
+              <Grid item xs={12} md={6}>
+                <FormControl component="fieldset">
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <FormLabel component="legend">Does any beneficiary have a drug addiction?</FormLabel>
+                    <HelpIcon helpId={36} onClick={() => openHelp(36)} />
+                  </Box>
+                  <RadioGroup
+                    row
+                    value={formData.anyBeneficiaryDrugAddiction ? 'yes' : 'no'}
+                    onChange={handleRadioChange('anyBeneficiaryDrugAddiction')}
+                  >
+                    <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                    <FormControlLabel value="no" control={<Radio />} label="No" />
+                  </RadioGroup>
+                </FormControl>
+                {formData.anyBeneficiaryDrugAddiction && (
+                  <TextField
+                    fullWidth
+                    label="Who is affected and any relevant details"
+                    value={formData.beneficiaryDrugAddictionExplanation}
+                    onChange={handleChange('beneficiaryDrugAddictionExplanation')}
+                    variant="outlined"
+                    multiline
+                    rows={2}
+                    sx={{ mt: 1 }}
+                  />
+                )}
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <FormControl component="fieldset">
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <FormLabel component="legend">Does any beneficiary have alcoholism?</FormLabel>
+                    <HelpIcon helpId={37} onClick={() => openHelp(37)} />
+                  </Box>
+                  <RadioGroup
+                    row
+                    value={formData.anyBeneficiaryAlcoholism ? 'yes' : 'no'}
+                    onChange={handleRadioChange('anyBeneficiaryAlcoholism')}
+                  >
+                    <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                    <FormControlLabel value="no" control={<Radio />} label="No" />
+                  </RadioGroup>
+                </FormControl>
+                {formData.anyBeneficiaryAlcoholism && (
+                  <TextField
+                    fullWidth
+                    label="Who is affected and any relevant details"
+                    value={formData.beneficiaryAlcoholismExplanation}
+                    onChange={handleChange('beneficiaryAlcoholismExplanation')}
+                    variant="outlined"
+                    multiline
+                    rows={2}
+                    sx={{ mt: 1 }}
+                  />
+                )}
+              </Grid>
+
+              {/* Row 4: Financial Problems and Other Concerns */}
+              <Grid item xs={12} md={6}>
+                <FormControl component="fieldset">
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <FormLabel component="legend">Does any beneficiary have financial problems?</FormLabel>
+                    <HelpIcon helpId={38} onClick={() => openHelp(38)} />
+                  </Box>
+                  <RadioGroup
+                    row
+                    value={formData.anyBeneficiaryFinancialProblems ? 'yes' : 'no'}
+                    onChange={handleRadioChange('anyBeneficiaryFinancialProblems')}
+                  >
+                    <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                    <FormControlLabel value="no" control={<Radio />} label="No" />
+                  </RadioGroup>
+                </FormControl>
+                {formData.anyBeneficiaryFinancialProblems && (
+                  <TextField
+                    fullWidth
+                    label="Who has financial issues and describe the situation"
+                    value={formData.beneficiaryFinancialProblemsExplanation}
+                    onChange={handleChange('beneficiaryFinancialProblemsExplanation')}
+                    variant="outlined"
+                    multiline
+                    rows={2}
+                    sx={{ mt: 1 }}
+                  />
+                )}
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <FormControl component="fieldset">
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <FormLabel component="legend">Are there any other concerns about your beneficiaries?</FormLabel>
+                    <HelpIcon helpId={39} onClick={() => openHelp(39)} />
+                  </Box>
+                  <RadioGroup
+                    row
+                    value={formData.hasOtherBeneficiaryConcerns ? 'yes' : 'no'}
+                    onChange={handleRadioChange('hasOtherBeneficiaryConcerns')}
+                  >
+                    <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                    <FormControlLabel value="no" control={<Radio />} label="No" />
+                  </RadioGroup>
+                </FormControl>
+                {formData.hasOtherBeneficiaryConcerns && (
+                  <TextField
+                    fullWidth
+                    label="Describe any other concerns"
+                    value={formData.beneficiaryOtherConcerns}
+                    onChange={handleChange('beneficiaryOtherConcerns')}
+                    variant="outlined"
+                    multiline
+                    rows={2}
+                    sx={{ mt: 1 }}
+                  />
+                )}
+              </Grid>
+
+              {/* Notes */}
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Additional notes about your beneficiaries"
+                  value={formData.beneficiaryNotes}
+                  onChange={handleChange('beneficiaryNotes')}
+                  variant="outlined"
+                  multiline
+                  rows={3}
+                  placeholder="Enter any additional comments or information about your beneficiaries..."
+                />
+              </Grid>
+            </Grid>
+          </Box>
+        </>
+      )}
 
       {/* Child Modal */}
       <ChildModal

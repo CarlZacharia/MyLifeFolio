@@ -144,6 +144,14 @@ const educationItems = [
     readTime: '5 min read',
   },
   {
+    id: 'how-assets-pass',
+    title: 'How Assets Pass at Death',
+    type: 'article',
+    description: 'Understanding probate, joint ownership, beneficiary designations, and life estates.',
+    readTime: '7 min read',
+    pdfUrl: '/articles/HowAssetsPass.pdf',
+  },
+  {
     id: 'wills-vs-trusts',
     title: 'Wills vs. Trusts: Understanding the Difference',
     type: 'article',
@@ -198,6 +206,7 @@ const educationItems = [
     type: 'article',
     description: 'Understanding federal and state estate taxes.',
     readTime: '9 min read',
+    pdfUrl: '/articles/EstateTaxation.pdf',
   },
   {
     id: 'special-needs-planning',
@@ -566,7 +575,13 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                       return (
                         <ListItem key={item.id} disablePadding sx={{ mb: 0.5 }}>
                           <ListItemButton
-                            onClick={() => onEducationItemClick?.(item.id)}
+                            onClick={() => {
+                              if (item.pdfUrl) {
+                                window.open(item.pdfUrl, '_blank', 'noopener,noreferrer');
+                              } else {
+                                onEducationItemClick?.(item.id);
+                              }
+                            }}
                             onMouseEnter={() => setHoveredItem(item.id)}
                             onMouseLeave={() => setHoveredItem(null)}
                             sx={{

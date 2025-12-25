@@ -50,7 +50,7 @@ const US_STATES = [
 ];
 
 // Document type definitions
-type DocumentType = 'will' | 'trust' | 'financialPOA' | 'healthCarePOA' | 'livingWill';
+type DocumentType = 'will' | 'trust' | 'irrevocableTrust' | 'financialPOA' | 'healthCarePOA' | 'livingWill';
 
 interface DocumentTypeConfig {
   key: DocumentType;
@@ -64,9 +64,23 @@ interface DocumentTypeConfig {
 const DOCUMENT_TYPES: DocumentTypeConfig[] = [
   { key: 'will', label: 'Will (Last Will and Testament)', uploadField: 'willUploadedFiles', dateField: 'willDateSigned', stateField: 'willStateSigned', hasField: 'hasWill' },
   { key: 'trust', label: 'Trust (Revocable Living Trust)', uploadField: 'trustUploadedFiles', dateField: 'trustDateSigned', stateField: 'trustStateSigned', hasField: 'hasTrust' },
+  { key: 'irrevocableTrust', label: 'Irrevocable Trust', uploadField: 'irrevocableTrustUploadedFiles', dateField: 'irrevocableTrustDateSigned', stateField: 'trustStateSigned', hasField: 'hasIrrevocableTrust' },
   { key: 'financialPOA', label: 'Financial Power of Attorney', uploadField: 'financialPOAUploadedFiles', dateField: 'financialPOADateSigned', stateField: 'financialPOAStateSigned', hasField: 'hasFinancialPOA' },
   { key: 'healthCarePOA', label: 'Health Care Power of Attorney', uploadField: 'healthCarePOAUploadedFiles', dateField: 'healthCarePOADateSigned', stateField: 'healthCarePOAStateSigned', hasField: 'hasHealthCarePOA' },
   { key: 'livingWill', label: 'Living Will (Advance Directive)', uploadField: 'livingWillUploadedFiles', dateField: 'livingWillDateSigned', stateField: 'livingWillStateSigned', hasField: 'hasLivingWill' },
+];
+
+// Common reasons for irrevocable trusts
+const IRREVOCABLE_TRUST_REASONS = [
+  'Asset Protection',
+  'Medicaid Planning',
+  'Estate Tax Planning',
+  'Special Needs Planning',
+  'Life Insurance Trust (ILIT)',
+  'Charitable Trust',
+  'Generation-Skipping Trust',
+  'Qualified Personal Residence Trust (QPRT)',
+  'Other',
 ];
 
 // Document Upload Modal
@@ -280,6 +294,7 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
     const isChecked = data[docType.hasField] as boolean;
     const uploadedFiles = getUploadedFiles(docType.uploadField);
     const isTrust = docType.key === 'trust';
+    const isIrrevocableTrust = docType.key === 'irrevocableTrust';
 
     return (
       <Box key={docType.key} sx={{ mb: 2 }}>
@@ -312,7 +327,7 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
         <Collapse in={isChecked}>
           <Box sx={{ ml: 4, mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, borderLeft: `3px solid ${headerColor}` }}>
             <Grid container spacing={2} alignItems="center">
-              {/* Joint Trust option for married couples */}
+              {/* Joint Trust option for married couples - Revocable Trust */}
               {isTrust && showSpouse && (
                 <Grid item xs={12}>
                   <FormControlLabel
@@ -326,16 +341,128 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
                   />
                 </Grid>
               )}
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Approximate Date Signed"
-                  value={data[docType.dateField] as string || ''}
-                  onChange={(e) => onChange(docType.dateField, e.target.value)}
-                  size="small"
-                  placeholder="e.g., March 2020, 2019, 05/15/2018"
-                />
-              </Grid>
+              {/* Trust-specific fields: Name, Date, and State Resided */}
+              {isTrust && (
+                <>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Name of the Trust"
+                      value={data.trustName || ''}
+                      onChange={(e) => onChange('trustName', e.target.value)}
+                      size="small"
+                      placeholder="e.g., The John Smith Revocable Living Trust"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Approximate Date Signed"
+                      value={data[docType.dateField] as string || ''}
+                      onChange={(e) => onChange(docType.dateField, e.target.value)}
+                      size="small"
+                      placeholder="e.g., March 2020, 2019"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      select
+                      fullWidth
+                      label="State Where You Resided When Signed"
+                      value={data.trustStateResided || ''}
+                      onChange={(e) => onChange('trustStateResided', e.target.value)}
+                      size="small"
+                    >
+                      <MenuItem value="">Select State</MenuItem>
+                      {US_STATES.map((state) => (
+                        <MenuItem key={state} value={state}>{state}</MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                </>
+              )}
+              {/* Irrevocable Trust-specific fields */}
+              {isIrrevocableTrust && (
+                <>
+                  {/* Joint Irrevocable Trust option for married couples */}
+                  {showSpouse && (
+                    <Grid item xs={12}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={data.isJointIrrevocableTrust}
+                            onChange={(e) => onChange('isJointIrrevocableTrust', e.target.checked)}
+                          />
+                        }
+                        label="This is a joint irrevocable trust with my spouse"
+                      />
+                    </Grid>
+                  )}
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Name of the Irrevocable Trust"
+                      value={data.irrevocableTrustName || ''}
+                      onChange={(e) => onChange('irrevocableTrustName', e.target.value)}
+                      size="small"
+                      placeholder="e.g., The Smith Family Irrevocable Trust"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      select
+                      fullWidth
+                      label="Reason for Irrevocable Trust"
+                      value={data.irrevocableTrustReason || ''}
+                      onChange={(e) => onChange('irrevocableTrustReason', e.target.value)}
+                      size="small"
+                    >
+                      <MenuItem value="">Select Reason</MenuItem>
+                      {IRREVOCABLE_TRUST_REASONS.map((reason) => (
+                        <MenuItem key={reason} value={reason}>{reason}</MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Approximate Date Signed"
+                      value={data.irrevocableTrustDateSigned || ''}
+                      onChange={(e) => onChange('irrevocableTrustDateSigned', e.target.value)}
+                      size="small"
+                      placeholder="e.g., March 2020, 2019"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      select
+                      fullWidth
+                      label="State Where You Resided When Signed"
+                      value={data.irrevocableTrustStateResided || ''}
+                      onChange={(e) => onChange('irrevocableTrustStateResided', e.target.value)}
+                      size="small"
+                    >
+                      <MenuItem value="">Select State</MenuItem>
+                      {US_STATES.map((state) => (
+                        <MenuItem key={state} value={state}>{state}</MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                </>
+              )}
+              {/* Date field for non-trust documents */}
+              {!isTrust && !isIrrevocableTrust && (
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Approximate Date Signed"
+                    value={data[docType.dateField] as string || ''}
+                    onChange={(e) => onChange(docType.dateField, e.target.value)}
+                    size="small"
+                    placeholder="e.g., March 2020, 2019, 05/15/2018"
+                  />
+                </Grid>
+              )}
             </Grid>
           </Box>
         </Collapse>
@@ -390,6 +517,8 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
                       hasWill: false,
                       hasTrust: false,
                       isJointTrust: false,
+                      hasIrrevocableTrust: false,
+                      isJointIrrevocableTrust: false,
                       hasFinancialPOA: false,
                       hasHealthCarePOA: false,
                       hasLivingWill: false,
@@ -444,6 +573,8 @@ const getDefaultEstatePlanData = (): CurrentEstatePlanData => ({
   hasWill: false,
   hasTrust: false,
   isJointTrust: false,
+  hasIrrevocableTrust: false,
+  isJointIrrevocableTrust: false,
   hasFinancialPOA: false,
   hasHealthCarePOA: false,
   hasLivingWill: false,
@@ -452,6 +583,12 @@ const getDefaultEstatePlanData = (): CurrentEstatePlanData => ({
   willStateSigned: '',
   trustDateSigned: '',
   trustStateSigned: '',
+  trustName: '',
+  trustStateResided: '',
+  irrevocableTrustName: '',
+  irrevocableTrustDateSigned: '',
+  irrevocableTrustStateResided: '',
+  irrevocableTrustReason: '',
   financialPOADateSigned: '',
   financialPOAStateSigned: '',
   healthCarePOADateSigned: '',
@@ -464,6 +601,7 @@ const getDefaultEstatePlanData = (): CurrentEstatePlanData => ({
   uploadedFiles: [],
   willUploadedFiles: [],
   trustUploadedFiles: [],
+  irrevocableTrustUploadedFiles: [],
   financialPOAUploadedFiles: [],
   healthCarePOAUploadedFiles: [],
   livingWillUploadedFiles: [],
@@ -563,7 +701,7 @@ const CurrentEstatePlanSection: React.FC = () => {
         <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
           Current Estate Plan
         </Typography>
-        <VideoHelpIcon videoId="current-estate-plan" />
+        <VideoHelpIcon helpId={209} onClick={() => openHelp(209)} />
       </Box>
 
       <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>

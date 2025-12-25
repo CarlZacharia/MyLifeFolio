@@ -89,6 +89,8 @@ export interface CurrentEstatePlanData {
   hasWill: boolean;
   hasTrust: boolean;
   isJointTrust: boolean; // For married couples - is the trust joint with spouse?
+  hasIrrevocableTrust: boolean;
+  isJointIrrevocableTrust: boolean; // For married couples - is the irrevocable trust joint with spouse?
   hasFinancialPOA: boolean;
   hasHealthCarePOA: boolean;
   hasLivingWill: boolean;
@@ -99,6 +101,12 @@ export interface CurrentEstatePlanData {
   willStateSigned: string;
   trustDateSigned: string;
   trustStateSigned: string;
+  trustName: string; // Name of the trust
+  trustStateResided: string; // State where the person resided when trust was signed
+  irrevocableTrustName: string;
+  irrevocableTrustDateSigned: string;
+  irrevocableTrustStateResided: string;
+  irrevocableTrustReason: string; // Reason for the irrevocable trust
   financialPOADateSigned: string;
   financialPOAStateSigned: string;
   healthCarePOADateSigned: string;
@@ -115,6 +123,7 @@ export interface CurrentEstatePlanData {
   uploadedFiles: string[]; // Legacy - kept for backwards compatibility
   willUploadedFiles: string[];
   trustUploadedFiles: string[];
+  irrevocableTrustUploadedFiles: string[];
   financialPOAUploadedFiles: string[];
   healthCarePOAUploadedFiles: string[];
   livingWillUploadedFiles: string[];
@@ -333,18 +342,24 @@ export interface FormData {
     disinherit: boolean;
     comments: string;
   }>;
-  allChildrenHealthy: boolean;
-  childrenHealthExplanation: string;
-  anyChildrenMinors: boolean;
-  anyChildrenDisabled: boolean;
-  allChildrenEducated: boolean;
-  anyChildrenMaritalProblems: boolean;
-  anyChildrenReceivingSSI: boolean;
-  drugAddiction: boolean;
-  alcoholism: boolean;
-  spendthrift: boolean;
-  childrenOtherConcerns: string;
-  childrenNotes: string;
+  // Beneficiary Concerns (applies to all beneficiaries, not just children)
+  anyBeneficiariesMinors: boolean;
+  beneficiaryMinorsExplanation: string;
+  anyBeneficiariesDisabled: boolean;
+  beneficiaryDisabledExplanation: string;
+  anyBeneficiariesMaritalProblems: boolean;
+  beneficiaryMaritalProblemsExplanation: string;
+  anyBeneficiariesReceivingSSI: boolean;
+  beneficiarySSIExplanation: string;
+  anyBeneficiaryDrugAddiction: boolean;
+  beneficiaryDrugAddictionExplanation: string;
+  anyBeneficiaryAlcoholism: boolean;
+  beneficiaryAlcoholismExplanation: string;
+  anyBeneficiaryFinancialProblems: boolean;
+  beneficiaryFinancialProblemsExplanation: string;
+  hasOtherBeneficiaryConcerns: boolean;
+  beneficiaryOtherConcerns: string;
+  beneficiaryNotes: string;
 
   // Dispositive Intentions
   provideForSpouseThenChildren: boolean;
@@ -742,18 +757,24 @@ const initialFormData: FormData = {
   priorMarriage: false,
   childrenFromPriorMarriage: false,
   children: [],
-  allChildrenHealthy: true,
-  childrenHealthExplanation: '',
-  anyChildrenMinors: false,
-  anyChildrenDisabled: false,
-  allChildrenEducated: true,
-  anyChildrenMaritalProblems: false,
-  anyChildrenReceivingSSI: false,
-  drugAddiction: false,
-  alcoholism: false,
-  spendthrift: false,
-  childrenOtherConcerns: '',
-  childrenNotes: '',
+  // Beneficiary Concerns
+  anyBeneficiariesMinors: false,
+  beneficiaryMinorsExplanation: '',
+  anyBeneficiariesDisabled: false,
+  beneficiaryDisabledExplanation: '',
+  anyBeneficiariesMaritalProblems: false,
+  beneficiaryMaritalProblemsExplanation: '',
+  anyBeneficiariesReceivingSSI: false,
+  beneficiarySSIExplanation: '',
+  anyBeneficiaryDrugAddiction: false,
+  beneficiaryDrugAddictionExplanation: '',
+  anyBeneficiaryAlcoholism: false,
+  beneficiaryAlcoholismExplanation: '',
+  anyBeneficiaryFinancialProblems: false,
+  beneficiaryFinancialProblemsExplanation: '',
+  hasOtherBeneficiaryConcerns: false,
+  beneficiaryOtherConcerns: '',
+  beneficiaryNotes: '',
   provideForSpouseThenChildren: true,
   treatAllChildrenEqually: true,
   childrenEqualityExplanation: '',

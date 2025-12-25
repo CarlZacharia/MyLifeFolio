@@ -221,23 +221,6 @@ const SummarySection = () => {
             </Table>
           </TableContainer>
 
-          <Box sx={{ mt: 2 }}>
-            <Grid container spacing={1}>
-              <InfoRow label="All Children Healthy" value={formData.allChildrenHealthy} />
-              {!formData.allChildrenHealthy && (
-                <InfoRow label="Health Explanation" value={formData.childrenHealthExplanation} />
-              )}
-              <InfoRow label="Any Children Under 21" value={formData.anyChildrenMinors} />
-              <InfoRow label="Any Children Disabled" value={formData.anyChildrenDisabled} />
-              <InfoRow label="All Children Educated" value={formData.allChildrenEducated} />
-              <InfoRow label="Any Marital Problems" value={formData.anyChildrenMaritalProblems} />
-              <InfoRow label="Any Receiving SSI" value={formData.anyChildrenReceivingSSI} />
-              <InfoRow label="Drug Addiction" value={formData.drugAddiction} />
-              <InfoRow label="Alcoholism" value={formData.alcoholism} />
-              <InfoRow label="Financial Problems" value={formData.spendthrift} />
-              <InfoRow label="Other Concerns" value={formData.childrenOtherConcerns} />
-            </Grid>
-          </Box>
           </>
         ) : (
           <Typography variant="body2" color="text.secondary">
@@ -305,6 +288,50 @@ const SummarySection = () => {
               </TableBody>
             </Table>
           </TableContainer>
+        </Paper>
+      )}
+
+      {/* Beneficiary Concerns - show if any beneficiaries exist */}
+      {(formData.children.length > 0 || formData.otherBeneficiaries.length > 0 || formData.charities.length > 0) && (
+        <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+          <SectionHeader title="Beneficiary Concerns" />
+          <Grid container spacing={1}>
+            <InfoRow label="Any Beneficiaries Under 21" value={formData.anyBeneficiariesMinors} />
+            {formData.anyBeneficiariesMinors && formData.beneficiaryMinorsExplanation && (
+              <InfoRow label="Minors Explanation" value={formData.beneficiaryMinorsExplanation} />
+            )}
+            <InfoRow label="Any Beneficiaries Disabled" value={formData.anyBeneficiariesDisabled} />
+            {formData.anyBeneficiariesDisabled && formData.beneficiaryDisabledExplanation && (
+              <InfoRow label="Disabled Explanation" value={formData.beneficiaryDisabledExplanation} />
+            )}
+            <InfoRow label="Any Marital Problems" value={formData.anyBeneficiariesMaritalProblems} />
+            {formData.anyBeneficiariesMaritalProblems && formData.beneficiaryMaritalProblemsExplanation && (
+              <InfoRow label="Marital Problems Explanation" value={formData.beneficiaryMaritalProblemsExplanation} />
+            )}
+            <InfoRow label="Any Receiving SSI" value={formData.anyBeneficiariesReceivingSSI} />
+            {formData.anyBeneficiariesReceivingSSI && formData.beneficiarySSIExplanation && (
+              <InfoRow label="SSI Explanation" value={formData.beneficiarySSIExplanation} />
+            )}
+            <InfoRow label="Drug Addiction" value={formData.anyBeneficiaryDrugAddiction} />
+            {formData.anyBeneficiaryDrugAddiction && formData.beneficiaryDrugAddictionExplanation && (
+              <InfoRow label="Drug Addiction Explanation" value={formData.beneficiaryDrugAddictionExplanation} />
+            )}
+            <InfoRow label="Alcoholism" value={formData.anyBeneficiaryAlcoholism} />
+            {formData.anyBeneficiaryAlcoholism && formData.beneficiaryAlcoholismExplanation && (
+              <InfoRow label="Alcoholism Explanation" value={formData.beneficiaryAlcoholismExplanation} />
+            )}
+            <InfoRow label="Financial Problems" value={formData.anyBeneficiaryFinancialProblems} />
+            {formData.anyBeneficiaryFinancialProblems && formData.beneficiaryFinancialProblemsExplanation && (
+              <InfoRow label="Financial Problems Explanation" value={formData.beneficiaryFinancialProblemsExplanation} />
+            )}
+            <InfoRow label="Other Concerns" value={formData.hasOtherBeneficiaryConcerns} />
+            {formData.hasOtherBeneficiaryConcerns && formData.beneficiaryOtherConcerns && (
+              <InfoRow label="Other Concerns Details" value={formData.beneficiaryOtherConcerns} />
+            )}
+            {formData.beneficiaryNotes && (
+              <InfoRow label="Notes" value={formData.beneficiaryNotes} />
+            )}
+          </Grid>
         </Paper>
       )}
 
@@ -708,8 +735,8 @@ const SummarySection = () => {
           );
         })()}
 
-        {/* Guardians (Client) - only show if there are minor children */}
-        {formData.anyChildrenMinors && (
+        {/* Guardians (Client) - only show if there are minor beneficiaries */}
+        {formData.anyBeneficiariesMinors && (
           <>
             <Divider sx={{ my: 2 }} />
             {(() => {

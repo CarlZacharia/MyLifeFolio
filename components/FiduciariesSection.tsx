@@ -536,8 +536,8 @@ const FiduciariesSection = () => {
         </>
       )}
 
-      {/* Guardian - only show if there are minor children */}
-      {formData.anyChildrenMinors && (
+      {/* Guardian - only show if there are minor beneficiaries */}
+      {formData.anyBeneficiariesMinors && (
         <>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 500 }}>

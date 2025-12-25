@@ -472,87 +472,93 @@ export const helpAnswers: HelpAnswer[] = [
       <p><em>Note: You can only have one domicile at a time, even if you own homes in multiple states.</em></p>
     `,
   },
-  // Children Section Fields (IDs 30-45)
+  // Beneficiary Concerns Section Fields (IDs 30-45)
   {
     id: 30,
     type: "Text",
-    title: "Children in Good Health",
+    title: "Beneficiary Concerns",
     text: `
-      <p>This question asks about the <strong>overall health status</strong> of your children.</p>
-      <p>If any child has significant health issues, this may affect:</p>
+      <p>These questions help identify situations where an <strong>inheritance in trust</strong> may be more appropriate than an outright distribution.</p>
+      <p>When a beneficiary receives an inheritance outright, they have immediate and full control over those assets. However, in certain circumstances, this may not be in the beneficiary's best interest.</p>
+      <p><strong>Reasons to consider a trust distribution instead of outright:</strong></p>
       <ul>
-        <li>Special needs trust planning</li>
-        <li>Healthcare proxy designations</li>
-        <li>Distribution timing and conditions</li>
-        <li>Guardianship considerations for adult disabled children</li>
+        <li>Protection from creditors, lawsuits, or divorce claims</li>
+        <li>Preservation of government benefits eligibility</li>
+        <li>Management of funds for those who cannot manage money themselves</li>
+        <li>Protection from substance abuse or addiction issues</li>
+        <li>Structured distributions over time for young beneficiaries</li>
       </ul>
-      <p>Please provide details if any child has chronic illness, disability, or other health concerns.</p>
+      <p>Your answers to these questions will help us determine whether any of your beneficiaries might benefit from receiving their inheritance in a protective trust rather than outright.</p>
     `,
   },
   {
     id: 31,
     type: "Text",
-    title: "Children Under 21",
+    title: "Beneficiaries Under 21",
     text: `
-      <p>This identifies whether you have any <strong>minor children</strong>.</p>
-      <p>If you have children under 21, we need to address:</p>
+      <p>This identifies whether any of your <strong>beneficiaries are minors</strong> (under age 21).</p>
+      <p>Young beneficiaries typically cannot legally manage an inheritance on their own. If you have beneficiaries under 21:</p>
       <ul>
-        <li><strong>Guardianship</strong> - Who will care for them if you pass away</li>
-        <li><strong>Trust provisions</strong> - How their inheritance should be managed</li>
-        <li><strong>Age of distribution</strong> - When they should receive their inheritance</li>
-        <li><strong>Education funding</strong> - Provisions for school expenses</li>
+        <li><strong>Trust provisions</strong> - Their inheritance should be held and managed by a trustee</li>
+        <li><strong>Age of distribution</strong> - You can specify when they should receive their inheritance (e.g., at age 25, 30, or in stages)</li>
+        <li><strong>Education funding</strong> - The trust can provide for school and living expenses</li>
+        <li><strong>Guardianship</strong> - For minor children, you'll also want to name a guardian</li>
       </ul>
+      <p>Leaving assets outright to a minor is generally not recommended, as a court-appointed conservator would need to manage the funds.</p>
     `,
   },
   {
     id: 32,
     type: "Text",
-    title: "Children Disabled or Blind",
+    title: "Beneficiaries Disabled or Blind",
     text: `
-      <p>This question identifies children with <strong>disabilities</strong> that may require special planning.</p>
-      <p>If a child is disabled or blind:</p>
+      <p>This question identifies beneficiaries with <strong>disabilities</strong> that may require special planning.</p>
+      <p>If a beneficiary is disabled or blind:</p>
       <ul>
         <li><strong>Special Needs Trust</strong> may be needed to preserve government benefits</li>
         <li>Direct inheritances could disqualify them from SSI or Medicaid</li>
         <li>Careful trust language is required to provide for them without affecting benefits</li>
         <li>A trustee with experience managing special needs trusts may be advisable</li>
       </ul>
+      <p>An outright distribution to a disabled beneficiary could jeopardize their access to essential government programs. A properly structured trust protects both their benefits and their inheritance.</p>
     `,
   },
   {
     id: 33,
     type: "Text",
-    title: "Children Education Complete",
+    title: "Beneficiaries Education",
     text: `
       <p>This helps us understand if <strong>education funding</strong> should be part of your plan.</p>
-      <p>If children are still in school or planning higher education:</p>
+      <p>If beneficiaries are still in school or planning higher education:</p>
       <ul>
         <li>We may recommend specific provisions for education expenses</li>
         <li>Trust distributions can be structured around educational milestones</li>
         <li>529 plans and education savings may be coordinated with your estate plan</li>
       </ul>
+      <p>Holding an inheritance in trust during a beneficiary's educational years ensures funds are available for tuition and living expenses while preventing premature access to large sums.</p>
     `,
   },
   {
     id: 34,
     type: "Text",
-    title: "Children Marital Problems",
+    title: "Beneficiaries with Marital Problems",
     text: `
-      <p>This question addresses whether any children are experiencing <strong>marital difficulties</strong>.</p>
-      <p>If a child has marital problems or is going through divorce:</p>
+      <p>This question addresses whether any beneficiaries are experiencing <strong>marital difficulties</strong>.</p>
+      <p>If a beneficiary has marital problems or is going through divorce:</p>
       <ul>
         <li>Assets inherited outright could become marital property subject to division</li>
         <li>A <strong>spendthrift trust</strong> can protect inheritances from divorce claims</li>
         <li>Trust distributions can be structured to protect assets from spouses</li>
       </ul>
+      <p>An outright inheritance received during a divorce may be claimed by the beneficiary's spouse. A trust provides a layer of protection, ensuring your intended beneficiary retains the full benefit of their inheritance.</p>
     `,
   },
   {
     id: 35,
     type: "Text",
-    title: "Children Receiving SSI/Government Benefits",
+    title: "Beneficiaries Receiving SSI/Government Benefits",
     text: `
-      <p>This identifies children receiving <strong>government assistance</strong> such as SSI or Medicaid.</p>
+      <p>This identifies beneficiaries receiving <strong>government assistance</strong> such as SSI or Medicaid.</p>
       <p><strong>Important:</strong> Direct inheritances can disqualify beneficiaries from:</p>
       <ul>
         <li>Supplemental Security Income (SSI)</li>
@@ -560,30 +566,31 @@ export const helpAnswers: HelpAnswer[] = [
         <li>Housing assistance</li>
         <li>Food assistance programs</li>
       </ul>
-      <p>A <strong>Special Needs Trust</strong> can supplement government benefits without causing disqualification.</p>
+      <p>A <strong>Special Needs Trust</strong> can supplement government benefits without causing disqualification. This allows the inheritance to enhance the beneficiary's quality of life while preserving their eligibility for essential programs.</p>
     `,
   },
   {
     id: 36,
     type: "Text",
-    title: "Drug Addiction",
+    title: "Beneficiary Drug Addiction",
     text: `
-      <p>This question identifies children with <strong>substance abuse issues</strong>.</p>
-      <p>If a child struggles with drug addiction:</p>
+      <p>This question identifies beneficiaries with <strong>substance abuse issues</strong>.</p>
+      <p>If a beneficiary struggles with drug addiction:</p>
       <ul>
-        <li>Direct cash inheritances may not be appropriate</li>
+        <li>Direct cash inheritances may not be appropriate and could enable harmful behavior</li>
         <li>A <strong>discretionary trust</strong> allows a trustee to manage distributions</li>
         <li>Incentive provisions can encourage recovery and treatment</li>
         <li>The trustee can pay for necessities directly rather than providing cash</li>
       </ul>
+      <p>An outright distribution to someone struggling with addiction could worsen their situation. A trust allows you to still provide for your loved one while protecting them from themselves.</p>
     `,
   },
   {
     id: 37,
     type: "Text",
-    title: "Alcoholism",
+    title: "Beneficiary Alcoholism",
     text: `
-      <p>This question identifies children with <strong>alcohol dependency issues</strong>.</p>
+      <p>This question identifies beneficiaries with <strong>alcohol dependency issues</strong>.</p>
       <p>Similar to drug addiction, alcoholism may require:</p>
       <ul>
         <li>Structured trust distributions instead of lump sums</li>
@@ -591,37 +598,41 @@ export const helpAnswers: HelpAnswer[] = [
         <li>Provisions for treatment and rehabilitation</li>
         <li>Delayed distributions tied to sobriety milestones</li>
       </ul>
+      <p>An inheritance in trust rather than outright protects the beneficiary while still providing for their needs. The trustee can ensure funds support recovery rather than enable continued dependency.</p>
     `,
   },
   {
     id: 38,
     type: "Text",
-    title: "Financial Problems (Spendthrift)",
+    title: "Beneficiary Financial Problems",
     text: `
-      <p>This identifies children who may have <strong>difficulty managing money</strong>.</p>
-      <p>If a child has financial problems or is a spendthrift:</p>
+      <p>This identifies beneficiaries who may have <strong>difficulty managing money</strong> or who have creditor issues.</p>
+      <p>If a beneficiary has financial problems or is a spendthrift:</p>
       <ul>
         <li>Lump sum inheritances may be quickly depleted</li>
         <li>A <strong>spendthrift trust</strong> protects assets from creditors and poor decisions</li>
         <li>Distributions can be staggered over time (e.g., at ages 25, 30, 35)</li>
         <li>A trustee can manage funds and make distributions for specific needs</li>
       </ul>
+      <p>An outright distribution to someone with financial difficulties may be seized by creditors or quickly spent. A trust ensures the inheritance provides long-term benefit and protection from both creditors and the beneficiary's own spending habits.</p>
     `,
   },
   {
     id: 39,
     type: "Text",
-    title: "Other Concerns",
+    title: "Other Beneficiary Concerns",
     text: `
-      <p>Use this field to note any <strong>other concerns</strong> about your children that may affect estate planning.</p>
+      <p>Use this field to note any <strong>other concerns</strong> about your beneficiaries that may affect how they should receive their inheritance.</p>
       <p>Examples might include:</p>
       <ul>
         <li>Pending legal issues or lawsuits</li>
-        <li>Career instability</li>
-        <li>Relationship with specific family members</li>
+        <li>Career instability or risky profession</li>
+        <li>Strained relationships with specific family members</li>
         <li>Religious or lifestyle considerations</li>
+        <li>Concerns about a beneficiary's spouse or partner</li>
         <li>Any unique circumstances we should be aware of</li>
       </ul>
+      <p>Any situation where an outright distribution might create problems could warrant receiving the inheritance in trust instead. This gives you flexibility to provide for your beneficiaries while addressing your specific concerns.</p>
     `,
   },
   // Section Sub-headers with Video (IDs 50-60)
@@ -736,9 +747,8 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 103,
-    type: "Video",
+    type: "Text",
     title: "Charities Overview",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO", // Replace with your actual video URL
     text: `
       <p>This section allows you to include <strong>charitable organizations</strong> in your estate plan.</p>
       <p>You can designate gifts to:</p>
@@ -751,6 +761,7 @@ export const helpAnswers: HelpAnswer[] = [
         <li>Arts and cultural organizations</li>
       </ul>
       <p>Charitable giving can provide estate tax benefits while supporting causes you care about.</p>
+      <p>Choosing Yes will allow you to enter Charities as beneficiaries in the Beneficiaries section</p>
     `,
   },
   {

@@ -469,6 +469,26 @@ const PersonalDataSection = () => {
           </>
         )}
 
+        {/* Desire to Leave to Charity */}
+        <Grid item xs={12} md={4}>
+          <FormControl component="fieldset">
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
+                Do you desire to leave anything to charity?
+              </FormLabel>
+              <HelpIcon helpId={103} onClick={() => openHelp(103)} />
+            </Box>
+            <RadioGroup
+              row
+              value={formData.leaveToCharity ? 'yes' : 'no'}
+              onChange={(e) => updateFormData({ leaveToCharity: e.target.value === 'yes' })}
+            >
+              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+
         {/* Client's Military Service */}
         <Grid item xs={12}>
           <Divider sx={{ my: 2 }} />
