@@ -1052,6 +1052,9 @@ const EstatePlanAnalysis: React.FC = () => {
   const jointSpouseOtherTotal = calculateTotal(ticSpouseOther) + calculateTotal(jtwrosSpouseOther);
   const jointClientSpouseOtherTotal = calculateTotal(ticClientSpouseOther) + calculateTotal(jtwrosClientSpouseOther);
 
+  // Calculate Lady Bird / Life Estate total (these avoid probate via remainder beneficiaries)
+  const ladyBirdLifeEstateTotal = calculateTotal(ladyBirdDeedAssets);
+
   // Scenario-specific asset groupings
   // Helper to check if spouse is the primary beneficiary
   const hasSpouseAsPrimaryBeneficiary = (asset: CategorizedAsset): boolean => {
@@ -2079,6 +2082,24 @@ const EstatePlanAnalysis: React.FC = () => {
                     <Typography variant="body2" color="text.secondary">Joint Client, Spouse & Other</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 500, color: 'warning.main' }}>
                       {formatCurrency(jointClientSpouseOtherTotal)}
+                    </Typography>
+                  </Box>
+                </Box>
+              </>
+            )}
+
+            {/* Row 5: Lady Bird / Life Estate (Non-Probate) */}
+            {ladyBirdLifeEstateTotal > 0 && (
+              <>
+                <Divider sx={{ my: 2 }} />
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">Lady Bird / Life Estate</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 500, color: 'success.main' }}>
+                      {formatCurrency(ladyBirdLifeEstateTotal)}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Avoids Probate - Passes to Remainder Beneficiaries
                     </Typography>
                   </Box>
                 </Box>

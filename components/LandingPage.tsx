@@ -374,6 +374,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
       onClick: () => onNavigate('estate-administration'),
       disabled: true,
     },
+    {
+      title: 'Guardianships',
+      description:
+        'Protect vulnerable loved ones through guardianship proceedings. We assist families in establishing guardianship for incapacitated adults or minor children.',
+      icon: <ShieldIcon sx={{ fontSize: 32 }} />,
+      accentColor: '#0077b6',
+      onClick: () => onNavigate('guardianships'),
+      disabled: true,
+    },
   ];
 
   return (
@@ -389,12 +398,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
         {/* Navigation Bar */}
         <AppBar
           position="fixed"
-          elevation={scrolled ? 1 : 0}
+          elevation={1}
           sx={{
-            bgcolor: scrolled ? 'rgba(30, 58, 95, 0.98)' : 'transparent',
-            backdropFilter: scrolled ? 'blur(12px)' : 'none',
+            bgcolor: 'rgba(30, 58, 95, 0.98)',
+            backdropFilter: 'blur(12px)',
             transition: 'all 0.3s ease',
-            borderBottom: scrolled ? 'none' : '1px solid rgba(255,255,255,0.08)',
           }}
         >
           <Container maxWidth="lg">
@@ -405,7 +413,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                 minHeight: { xs: 64, md: 72 },
               }}
             >
-              {/* Logo - Clean and simple */}
+              {/* Logo and Firm Name */}
               <Box
                 sx={{
                   display: 'flex',
@@ -415,15 +423,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                 }}
                 onClick={() => onNavigate('home')}
               >
-                <BalanceIcon
+                <Box
+                  component="img"
+                  src="/logo.jpg"
+                  alt="Zacharia Brown & Bratkovich"
                   sx={{
-                    fontSize: { xs: 28, md: 32 },
-                    color: 'secondary.main',
+                    height: { xs: 36, md: 40 },
+                    width: { xs: 36, md: 40 },
+                    borderRadius: '50%',
+                    border: '2px solid',
+                    borderColor: 'secondary.main',
+                    objectFit: 'cover',
                   }}
                 />
                 <Typography
                   sx={{
-                    fontFamily: '"Playfair Display", serif',
+                    fontFamily: 'Georgia, "Times New Roman", serif',
                     fontWeight: 600,
                     fontSize: { xs: '1.1rem', md: '1.25rem' },
                     letterSpacing: '0.01em',

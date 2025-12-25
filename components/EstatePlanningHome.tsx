@@ -347,7 +347,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                 Back
               </Button>
 
-              {/* Logo */}
+              {/* Logo and Firm Name */}
               <Box
                 sx={{
                   display: 'flex',
@@ -355,15 +355,22 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                   gap: 1.5,
                 }}
               >
-                <BalanceIcon
+                <Box
+                  component="img"
+                  src="/logo.jpg"
+                  alt="Zacharia Brown & Bratkovich"
                   sx={{
-                    fontSize: { xs: 28, md: 32 },
-                    color: 'secondary.main',
+                    height: { xs: 36, md: 40 },
+                    width: { xs: 36, md: 40 },
+                    borderRadius: '50%',
+                    border: '2px solid',
+                    borderColor: 'secondary.main',
+                    objectFit: 'cover',
                   }}
                 />
                 <Typography
                   sx={{
-                    fontFamily: '"Playfair Display", serif',
+                    fontFamily: 'Georgia, "Times New Roman", serif',
                     fontWeight: 600,
                     fontSize: { xs: '1.1rem', md: '1.25rem' },
                     letterSpacing: '0.01em',
