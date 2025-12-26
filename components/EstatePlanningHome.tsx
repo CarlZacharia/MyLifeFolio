@@ -35,6 +35,8 @@ import BalanceIcon from '@mui/icons-material/Balance';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SchoolIcon from '@mui/icons-material/School';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useAuth } from '../lib/AuthContext';
 
 // Custom theme matching LandingPage
 const theme = createTheme({
@@ -273,6 +275,12 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
 }) => {
   const [scrolled, setScrolled] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const { user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    onNavigateBack();
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -393,43 +401,70 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
 
               {/* Auth Buttons */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
-                <Button
-                  color="inherit"
-                  onClick={onLogin}
-                  sx={{
-                    fontWeight: 500,
-                    fontSize: '0.9rem',
-                    px: { xs: 1.5, md: 2.5 },
-                    py: 1,
-                    minWidth: 'auto',
-                    opacity: 0.9,
-                    '&:hover': {
-                      opacity: 1,
-                      bgcolor: 'rgba(255,255,255,0.08)',
-                    },
-                  }}
-                >
-                  Sign In
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={onRegister}
-                  sx={{
-                    bgcolor: 'secondary.main',
-                    color: 'primary.dark',
-                    fontWeight: 600,
-                    fontSize: '0.9rem',
-                    px: { xs: 2, md: 3 },
-                    py: 1,
-                    boxShadow: 'none',
-                    '&:hover': {
-                      bgcolor: 'secondary.light',
-                      boxShadow: '0 4px 12px rgba(201, 162, 39, 0.3)',
-                    },
-                  }}
-                >
-                  Get Started
-                </Button>
+                {user ? (
+                  // User is logged in - show Logout button
+                  <Button
+                    variant="contained"
+                    onClick={handleLogout}
+                    startIcon={<LogoutIcon />}
+                    sx={{
+                      bgcolor: '#d32f2f',
+                      color: 'white',
+                      fontWeight: 600,
+                      fontSize: '0.9rem',
+                      px: { xs: 2, md: 3 },
+                      py: 1,
+                      boxShadow: 'none',
+                      '&:hover': {
+                        bgcolor: '#b71c1c',
+                        boxShadow: '0 4px 12px rgba(211, 47, 47, 0.3)',
+                      },
+                    }}
+                  >
+                    Logout
+                  </Button>
+                ) : (
+                  // User is not logged in - show Sign In and Get Started
+                  <>
+                    <Button
+                      color="inherit"
+                      onClick={onLogin}
+                      sx={{
+                        fontWeight: 500,
+                        fontSize: '0.9rem',
+                        px: { xs: 1.5, md: 2.5 },
+                        py: 1,
+                        minWidth: 'auto',
+                        opacity: 0.9,
+                        '&:hover': {
+                          opacity: 1,
+                          bgcolor: 'rgba(255,255,255,0.08)',
+                        },
+                      }}
+                    >
+                      Sign In
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={onRegister}
+                      sx={{
+                        bgcolor: 'secondary.main',
+                        color: 'primary.dark',
+                        fontWeight: 600,
+                        fontSize: '0.9rem',
+                        px: { xs: 2, md: 3 },
+                        py: 1,
+                        boxShadow: 'none',
+                        '&:hover': {
+                          bgcolor: 'secondary.light',
+                          boxShadow: '0 4px 12px rgba(201, 162, 39, 0.3)',
+                        },
+                      }}
+                    >
+                      Get Started
+                    </Button>
+                  </>
+                )}
               </Box>
             </Toolbar>
           </Container>

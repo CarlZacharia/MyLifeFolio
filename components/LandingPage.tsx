@@ -38,6 +38,7 @@ import GavelIcon from '@mui/icons-material/Gavel';
 import BalanceIcon from '@mui/icons-material/Balance';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../lib/AuthContext';
 
 // Custom theme with sophisticated typography and colors
@@ -336,7 +337,12 @@ interface LandingPageProps {
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegister }) => {
   const [scrolled, setScrolled] = useState(false);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    onNavigate('landing');
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -502,43 +508,70 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
 
               {/* Auth Buttons - Minimal and clean */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
-                <Button
-                  color="inherit"
-                  onClick={onLogin}
-                  sx={{
-                    fontWeight: 500,
-                    fontSize: '0.9rem',
-                    px: { xs: 1.5, md: 2.5 },
-                    py: 1,
-                    minWidth: 'auto',
-                    opacity: 0.9,
-                    '&:hover': {
-                      opacity: 1,
-                      bgcolor: 'rgba(255,255,255,0.08)',
-                    },
-                  }}
-                >
-                  Sign In
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={onRegister}
-                  sx={{
-                    bgcolor: 'secondary.main',
-                    color: 'primary.dark',
-                    fontWeight: 600,
-                    fontSize: '0.9rem',
-                    px: { xs: 2, md: 3 },
-                    py: 1,
-                    boxShadow: 'none',
-                    '&:hover': {
-                      bgcolor: 'secondary.light',
-                      boxShadow: '0 4px 12px rgba(201, 162, 39, 0.3)',
-                    },
-                  }}
-                >
-                  Get Started
-                </Button>
+                {user ? (
+                  // User is logged in - show Logout button
+                  <Button
+                    variant="contained"
+                    onClick={handleLogout}
+                    startIcon={<LogoutIcon />}
+                    sx={{
+                      bgcolor: '#d32f2f',
+                      color: 'white',
+                      fontWeight: 600,
+                      fontSize: '0.9rem',
+                      px: { xs: 2, md: 3 },
+                      py: 1,
+                      boxShadow: 'none',
+                      '&:hover': {
+                        bgcolor: '#b71c1c',
+                        boxShadow: '0 4px 12px rgba(211, 47, 47, 0.3)',
+                      },
+                    }}
+                  >
+                    Logout
+                  </Button>
+                ) : (
+                  // User is not logged in - show Sign In and Get Started
+                  <>
+                    <Button
+                      color="inherit"
+                      onClick={onLogin}
+                      sx={{
+                        fontWeight: 500,
+                        fontSize: '0.9rem',
+                        px: { xs: 1.5, md: 2.5 },
+                        py: 1,
+                        minWidth: 'auto',
+                        opacity: 0.9,
+                        '&:hover': {
+                          opacity: 1,
+                          bgcolor: 'rgba(255,255,255,0.08)',
+                        },
+                      }}
+                    >
+                      Sign In
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={onRegister}
+                      sx={{
+                        bgcolor: 'secondary.main',
+                        color: 'primary.dark',
+                        fontWeight: 600,
+                        fontSize: '0.9rem',
+                        px: { xs: 2, md: 3 },
+                        py: 1,
+                        boxShadow: 'none',
+                        '&:hover': {
+                          bgcolor: 'secondary.light',
+                          boxShadow: '0 4px 12px rgba(201, 162, 39, 0.3)',
+                        },
+                      }}
+                    >
+                      Get Started
+                    </Button>
+                  </>
+                )}
               </Box>
             </Toolbar>
           </Container>

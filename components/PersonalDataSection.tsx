@@ -15,7 +15,11 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Tabs,
+  Tab,
 } from '@mui/material';
+import PersonIcon from '@mui/icons-material/Person';
+import PeopleIcon from '@mui/icons-material/People';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useFormContext, MaritalStatus, Sex } from '../lib/FormContext';
 import PhoneInput from './PhoneInput';
@@ -51,8 +55,13 @@ const PersonalDataSection = () => {
   const [clientAge, setClientAge] = useState<string>('');
   const [spouseAge, setSpouseAge] = useState<string>('');
   const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
 
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
 
   const openHelp = (helpId: number) => setActiveHelpId(helpId);
   const closeHelp = () => setActiveHelpId(null);
@@ -95,6 +104,37 @@ const PersonalDataSection = () => {
         <VideoHelpIcon helpId={100} onClick={() => openHelp(100)} size="medium" />
       </Box>
 
+      {/* Tabs - only shown when married/partnered */}
+      {showSpouseInfo && (
+        <Tabs
+          value={activeTab}
+          onChange={handleTabChange}
+          sx={{
+            mb: 3,
+            borderBottom: 1,
+            borderColor: 'divider',
+            '& .MuiTab-root': {
+              textTransform: 'none',
+              fontWeight: 500,
+              fontSize: '1rem',
+            },
+          }}
+        >
+          <Tab
+            icon={<PersonIcon />}
+            iconPosition="start"
+            label="Client"
+          />
+          <Tab
+            icon={<PeopleIcon />}
+            iconPosition="start"
+            label="Spouse/Partner"
+          />
+        </Tabs>
+      )}
+
+      {/* CLIENT TAB (Tab 0) or Single Person View */}
+      {(!showSpouseInfo || activeTab === 0) && (
       <Grid container spacing={3}>
         {/* Client Information */}
         <Grid item xs={12}>
@@ -973,19 +1013,21 @@ const PersonalDataSection = () => {
             </Grid>
           </>
         )}
+      </Grid>
+      )}
 
-        {/* Spouse Information - Only shown for Married, Second Marriage, or Domestic Partnership */}
-        {showSpouseInfo && (
-          <>
-            <Grid item xs={12}>
-              <Divider sx={{ my: 2 }} />
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 500 }}>
-                  Spouse/Partner Information
-                </Typography>
-                <VideoHelpIcon helpId={51} onClick={() => openHelp(51)} />
-              </Box>
-            </Grid>
+      {/* SPOUSE TAB (Tab 1) - Only shown when married/partnered and on spouse tab */}
+      {showSpouseInfo && activeTab === 1 && (
+      <Grid container spacing={3}>
+        {/* Spouse Information Header */}
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              Spouse/Partner Information
+            </Typography>
+            <VideoHelpIcon helpId={51} onClick={() => openHelp(51)} />
+          </Box>
+        </Grid>
 
         <Grid item xs={12} md={6}>
           <Box>
@@ -1618,9 +1660,8 @@ const PersonalDataSection = () => {
             </RadioGroup>
           </FormControl>
         </Grid>
-          </>
-        )}
       </Grid>
+      )}
 
       {/* Help Modal */}
       <HelpModal

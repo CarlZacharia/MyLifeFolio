@@ -161,7 +161,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
       <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>
         <Paper sx={{ p: 4 }}>
           <Alert severity="success" sx={{ mb: 2 }}>
-            Registration successful! Please check your email to verify your account.
+            Registration successful! 
           </Alert>
           <Button fullWidth variant="outlined" onClick={onSwitchToLogin}>
             Go to Login
