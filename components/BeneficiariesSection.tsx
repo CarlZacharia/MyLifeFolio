@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Box,
   TextField,
@@ -23,6 +23,28 @@ import HelpModal from './HelpModal';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
+// Calculate age from birth date
+const calculateAge = (dateString: string | null | undefined): number | null => {
+  if (!dateString) return null;
+
+  const date = typeof dateString === 'string' ? dateString : String(dateString);
+  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+  if (!match) return null;
+
+  const birthDate = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age >= 0 ? age : null;
+};
+
 type ModalType = 'child' | 'beneficiary' | 'charity' | null;
 
 interface ModalState {
@@ -44,6 +66,45 @@ const BeneficiariesSection = () => {
     formData.children.length > 0 ||
     formData.otherBeneficiaries.length > 0 ||
     formData.charities.length > 0;
+
+  // Check if any child is under 21
+  const hasChildUnder21 = useMemo(() => {
+    return formData.children.some((child) => {
+      const age = calculateAge(child.birthDate);
+      return age !== null && age < 21;
+    });
+  }, [formData.children]);
+
+  // Get list of children under 21 with their ages
+  const childrenUnder21Text = useMemo(() => {
+    const childrenUnder21 = formData.children
+      .filter((child) => {
+        const age = calculateAge(child.birthDate);
+        return age !== null && age < 21;
+      })
+      .map((child) => {
+        const age = calculateAge(child.birthDate);
+        return `${child.name} (age ${age})`;
+      });
+    return childrenUnder21.join(', ');
+  }, [formData.children]);
+
+  // Automatically set anyBeneficiariesMinors to true and populate explanation if any child is under 21
+  useEffect(() => {
+    if (hasChildUnder21) {
+      const updates: Record<string, unknown> = {};
+      if (!formData.anyBeneficiariesMinors) {
+        updates.anyBeneficiariesMinors = true;
+      }
+      // Only auto-populate if the field is empty or if it was previously auto-populated
+      if (!formData.beneficiaryMinorsExplanation || formData.beneficiaryMinorsExplanation === '') {
+        updates.beneficiaryMinorsExplanation = childrenUnder21Text;
+      }
+      if (Object.keys(updates).length > 0) {
+        updateFormData(updates);
+      }
+    }
+  }, [hasChildUnder21, childrenUnder21Text, formData.anyBeneficiariesMinors, formData.beneficiaryMinorsExplanation, updateFormData]);
 
   // Modal state management
   const [modalState, setModalState] = useState<ModalState>({
@@ -325,11 +386,11 @@ const BeneficiariesSection = () => {
 
               <Grid item xs={12} md={6}>
                 <FormControl component="fieldset">
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <FormLabel component="legend">
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                    <FormLabel component="legend" sx={{ display: 'inline' }}>
                       Are any of your beneficiaries receiving SSI or other government entitlement?
+                      <HelpIcon helpId={35} onClick={() => openHelp(35)} />
                     </FormLabel>
-                    <HelpIcon helpId={35} onClick={() => openHelp(35)} />
                   </Box>
                   <RadioGroup
                     row

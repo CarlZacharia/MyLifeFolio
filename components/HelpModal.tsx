@@ -558,7 +558,7 @@ export const helpAnswers: HelpAnswer[] = [
     type: "Text",
     title: "Beneficiaries Receiving SSI/Government Benefits",
     text: `
-      <p>This identifies beneficiaries receiving <strong>government assistance</strong> such as SSI or Medicaid.</p>
+      <p>This identifies beneficiaries receiving <strong>government assistance</strong> such as SSI or Medicaid.  These benefits can be lost if the person has more than $2,000.00.  They can be protected with a Supplemental Needs Trust.</p>
       <p><strong>Important:</strong> Direct inheritances can disqualify beneficiaries from:</p>
       <ul>
         <li>Supplemental Security Income (SSI)</li>

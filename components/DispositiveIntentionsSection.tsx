@@ -34,8 +34,31 @@ import DistributionPlanSection from './DistributionPlanSection';
 import { SpecificGiftModal } from './SpecificGiftModal';
 import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
+import CurrencyInput from './CurrencyInput';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
+
+// Calculate age from birth date
+const calculateAge = (dateString: string | null | undefined): number | null => {
+  if (!dateString) return null;
+
+  const date = typeof dateString === 'string' ? dateString : String(dateString);
+  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+  if (!match) return null;
+
+  const birthDate = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age >= 0 ? age : null;
+};
 
 // Interface for available beneficiaries
 interface AvailableBeneficiary {
@@ -54,6 +77,14 @@ const DispositiveIntentionsSection = () => {
 
   // Check if there are any children from either spouse
   const hasChildren = formData.children.length > 0;
+
+  // Check if any child is under 21
+  const hasChildUnder21 = useMemo(() => {
+    return formData.children.some((child) => {
+      const age = calculateAge(child.birthDate);
+      return age !== null && age < 21;
+    });
+  }, [formData.children]);
 
   const openHelp = (helpId: number) => setActiveHelpId(helpId);
   const closeHelp = () => setActiveHelpId(null);
@@ -234,34 +265,22 @@ const DispositiveIntentionsSection = () => {
           </FormControl>
         </Grid>
 
-        {!formData.treatAllChildrenEqually && (
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="If not, why not?"
-              value={formData.childrenEqualityExplanation}
-              onChange={handleChange('childrenEqualityExplanation')}
-              variant="outlined"
-              multiline
-              rows={2}
-            />
-          </Grid>
-        )}
-
         {hasChildren && (
           <>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label={showSpouseInfo
-                  ? "After your spouse's death, at what age do you want to distribute to your children?"
-                  : "At what age do you want to distribute to your children?"}
-                value={formData.distributionAge}
-                onChange={handleChange('distributionAge')}
-                variant="outlined"
-                helperText="e.g., 1/3 at age 25, 1/3 at age 30 and 1/3 at age 35 or immediate"
-              />
-            </Grid>
+            {hasChildUnder21 && (
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label={showSpouseInfo
+                    ? "After your spouse's death, at what age do you want to distribute to your children?"
+                    : "At what age do you want to distribute to your children?"}
+                  value={formData.distributionAge}
+                  onChange={handleChange('distributionAge')}
+                  variant="outlined"
+                  helperText="e.g., 1/3 at age 25, 1/3 at age 30 and 1/3 at age 35 or immediate"
+                />
+              </Grid>
+            )}
 
             <Grid item xs={12}>
               <FormControl component="fieldset">
@@ -399,11 +418,11 @@ const DispositiveIntentionsSection = () => {
                         <TableCell>{ben.relationship}</TableCell>
                         <TableCell>
                           {isSelected && (
-                            <TextField
+                            <CurrencyInput
                               size="small"
                               value={getCashGiftAmount(ben.id)}
                               onChange={(e) => handleCashGiftAmountChange(ben.id, e.target.value)}
-                              placeholder="e.g., $10,000"
+                              name={`cashGift-${ben.id}`}
                               sx={{ width: '100%' }}
                             />
                           )}

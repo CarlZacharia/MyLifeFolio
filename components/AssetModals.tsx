@@ -21,6 +21,9 @@ import {
   Autocomplete,
   Typography,
   Divider,
+  Radio,
+  RadioGroup,
+  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { RealEstateOwner, OwnershipForm } from "../lib/FormContext";
@@ -902,16 +905,347 @@ export type DistributionType = 'Per Stirpes' | 'Per Capita' | '';
 
 export const DISTRIBUTION_TYPES: DistributionType[] = ['Per Stirpes', 'Per Capita'];
 
+// Disposition types for asset transfer
+export type DispositionType =
+  | 'beneficiary_designation' // Via existing beneficiary designation (POD/TOD)
+  | 'specific_bequest' // Via specific bequest in will
+  | 'residuary' // Through residuary of estate
+  | '';
+
+export type JointDispositionType =
+  | 'existing_beneficiary' // Via existing beneficiary designation
+  | 'specific_bequest' // Via specific bequest in surviving spouse's will
+  | 'residuary' // Through residuary of surviving spouse's estate
+  | '';
+
+// Helper to determine if owner is an individual (sole owner)
+const isIndividualOwner = (owner: string): boolean => {
+  return owner === 'Client' || owner === 'Spouse';
+};
+
+// Helper to determine if owner is joint with spouse only
+const isJointWithSpouseOnly = (owner: string): boolean => {
+  return owner === 'Client and Spouse';
+};
+
+// Helper to determine if owner includes "Other" (non-spouse joint owner)
+const hasOtherJointOwner = (owner: string): boolean => {
+  return owner === 'Client and Other' ||
+         owner === 'Spouse and Other' ||
+         owner === 'Client, Spouse and Other';
+};
+
+// Disposition Section Component for assets with ownership-based disposition logic
+interface DispositionSectionProps {
+  owner: string;
+  // Individual owner fields
+  hasBeneficiaryDesignation?: boolean;
+  onBeneficiaryDesignationChange?: (value: boolean) => void;
+  wantsSpecificBequest?: boolean;
+  onWantsSpecificBequestChange?: (value: boolean) => void;
+  // Joint with spouse fields
+  jointDisposition?: JointDispositionType;
+  onJointDispositionChange?: (value: JointDispositionType) => void;
+  // Joint with other fields
+  jointOwnerIntentConfirmed?: boolean;
+  onJointOwnerIntentChange?: (value: boolean) => void;
+  // Beneficiary/Legatee selection
+  primaryBeneficiaries: string[];
+  secondaryBeneficiaries: string[];
+  primaryLegatees: string[];
+  secondaryLegatees: string[];
+  onPrimaryBeneficiariesChange: (value: string[]) => void;
+  onSecondaryBeneficiariesChange: (value: string[]) => void;
+  onPrimaryLegateesChange: (value: string[]) => void;
+  onSecondaryLegateesChange: (value: string[]) => void;
+  primaryDistributionType: DistributionType;
+  secondaryDistributionType: DistributionType;
+  primaryLegateeDistributionType: DistributionType;
+  secondaryLegateeDistributionType: DistributionType;
+  onPrimaryDistributionTypeChange: (value: DistributionType) => void;
+  onSecondaryDistributionTypeChange: (value: DistributionType) => void;
+  onPrimaryLegateeDistributionTypeChange: (value: DistributionType) => void;
+  onSecondaryLegateeDistributionTypeChange: (value: DistributionType) => void;
+  beneficiaryOptions: BeneficiaryOption[];
+}
+
+const DispositionSection: React.FC<DispositionSectionProps> = ({
+  owner,
+  hasBeneficiaryDesignation,
+  onBeneficiaryDesignationChange,
+  wantsSpecificBequest,
+  onWantsSpecificBequestChange,
+  jointDisposition,
+  onJointDispositionChange,
+  jointOwnerIntentConfirmed,
+  onJointOwnerIntentChange,
+  primaryBeneficiaries,
+  secondaryBeneficiaries,
+  primaryLegatees,
+  secondaryLegatees,
+  onPrimaryBeneficiariesChange,
+  onSecondaryBeneficiariesChange,
+  onPrimaryLegateesChange,
+  onSecondaryLegateesChange,
+  primaryDistributionType,
+  secondaryDistributionType,
+  primaryLegateeDistributionType,
+  secondaryLegateeDistributionType,
+  onPrimaryDistributionTypeChange,
+  onSecondaryDistributionTypeChange,
+  onPrimaryLegateeDistributionTypeChange,
+  onSecondaryLegateeDistributionTypeChange,
+  beneficiaryOptions,
+}) => {
+  const filteredBeneficiaryOptions = filterBeneficiaryOptions(beneficiaryOptions, owner);
+
+  // Individual owner (Client or Spouse in sole name)
+  if (isIndividualOwner(owner)) {
+    return (
+      <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+        <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
+          Disposition of the Asset
+        </Typography>
+
+        <FormControl component="fieldset" sx={{ mb: 2 }}>
+          <FormLabel component="legend">
+            Is there a beneficiary designation on record for this asset? (POD, TOD)
+          </FormLabel>
+          <RadioGroup
+            row
+            value={hasBeneficiaryDesignation === true ? 'yes' : hasBeneficiaryDesignation === false ? 'no' : ''}
+            onChange={(e) => onBeneficiaryDesignationChange?.(e.target.value === 'yes')}
+          >
+            <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+            <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+          </RadioGroup>
+        </FormControl>
+
+        {hasBeneficiaryDesignation === true && (
+          <>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <BeneficiarySelector
+                  label="Primary Beneficiaries"
+                  selectedBeneficiaries={primaryBeneficiaries}
+                  options={filteredBeneficiaryOptions}
+                  onChange={onPrimaryBeneficiariesChange}
+                  showDistributionType={true}
+                  distributionType={primaryDistributionType}
+                  onDistributionTypeChange={onPrimaryDistributionTypeChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <BeneficiarySelector
+                  label="Secondary Beneficiaries"
+                  selectedBeneficiaries={secondaryBeneficiaries}
+                  options={filteredBeneficiaryOptions}
+                  onChange={onSecondaryBeneficiariesChange}
+                  showDistributionType={true}
+                  distributionType={secondaryDistributionType}
+                  onDistributionTypeChange={onSecondaryDistributionTypeChange}
+                />
+              </Grid>
+            </Grid>
+          </>
+        )}
+
+        {hasBeneficiaryDesignation === false && (
+          <>
+            <FormControl component="fieldset" sx={{ mb: 2 }}>
+              <FormLabel component="legend">
+                Do you want this as a specific bequest identified in your will?
+              </FormLabel>
+              <RadioGroup
+                row
+                value={wantsSpecificBequest === true ? 'yes' : wantsSpecificBequest === false ? 'no' : ''}
+                onChange={(e) => onWantsSpecificBequestChange?.(e.target.value === 'yes')}
+              >
+                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+              </RadioGroup>
+            </FormControl>
+
+            {wantsSpecificBequest === true && (
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <BeneficiarySelector
+                    label="Primary Legatees"
+                    selectedBeneficiaries={primaryLegatees}
+                    options={filteredBeneficiaryOptions}
+                    onChange={onPrimaryLegateesChange}
+                    showDistributionType={true}
+                    distributionType={primaryLegateeDistributionType}
+                    onDistributionTypeChange={onPrimaryLegateeDistributionTypeChange}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <BeneficiarySelector
+                    label="Secondary Legatees"
+                    selectedBeneficiaries={secondaryLegatees}
+                    options={filteredBeneficiaryOptions}
+                    onChange={onSecondaryLegateesChange}
+                    showDistributionType={true}
+                    distributionType={secondaryLegateeDistributionType}
+                    onDistributionTypeChange={onSecondaryLegateeDistributionTypeChange}
+                  />
+                </Grid>
+              </Grid>
+            )}
+          </>
+        )}
+      </Box>
+    );
+  }
+
+  // Joint with spouse only
+  if (isJointWithSpouseOnly(owner)) {
+    return (
+      <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+        <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
+          Disposition of the Asset
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 2, fontStyle: 'italic' }}>
+          At first death, this passes automatically to the surviving spouse. How should it pass when the second spouse dies?
+        </Typography>
+
+        <FormControl component="fieldset" sx={{ mb: 2 }}>
+          <RadioGroup
+            value={jointDisposition || ''}
+            onChange={(e) => onJointDispositionChange?.(e.target.value as JointDispositionType)}
+          >
+            <FormControlLabel
+              value="existing_beneficiary"
+              control={<Radio size="small" />}
+              label="Via existing beneficiary designation"
+            />
+            <FormControlLabel
+              value="specific_bequest"
+              control={<Radio size="small" />}
+              label="Via a specific bequest in the surviving spouse's will"
+            />
+            <FormControlLabel
+              value="residuary"
+              control={<Radio size="small" />}
+              label="Through the residuary of the surviving spouse's estate"
+            />
+          </RadioGroup>
+        </FormControl>
+
+        {jointDisposition === 'existing_beneficiary' && (
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <BeneficiarySelector
+                label="Primary Beneficiaries"
+                selectedBeneficiaries={primaryBeneficiaries}
+                options={filteredBeneficiaryOptions}
+                onChange={onPrimaryBeneficiariesChange}
+                showDistributionType={true}
+                distributionType={primaryDistributionType}
+                onDistributionTypeChange={onPrimaryDistributionTypeChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <BeneficiarySelector
+                label="Secondary Beneficiaries"
+                selectedBeneficiaries={secondaryBeneficiaries}
+                options={filteredBeneficiaryOptions}
+                onChange={onSecondaryBeneficiariesChange}
+                showDistributionType={true}
+                distributionType={secondaryDistributionType}
+                onDistributionTypeChange={onSecondaryDistributionTypeChange}
+              />
+            </Grid>
+          </Grid>
+        )}
+
+        {jointDisposition === 'specific_bequest' && (
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <BeneficiarySelector
+                label="Primary Legatees"
+                selectedBeneficiaries={primaryLegatees}
+                options={filteredBeneficiaryOptions}
+                onChange={onPrimaryLegateesChange}
+                showDistributionType={true}
+                distributionType={primaryLegateeDistributionType}
+                onDistributionTypeChange={onPrimaryLegateeDistributionTypeChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <BeneficiarySelector
+                label="Secondary Legatees"
+                selectedBeneficiaries={secondaryLegatees}
+                options={filteredBeneficiaryOptions}
+                onChange={onSecondaryLegateesChange}
+                showDistributionType={true}
+                distributionType={secondaryLegateeDistributionType}
+                onDistributionTypeChange={onSecondaryLegateeDistributionTypeChange}
+              />
+            </Grid>
+          </Grid>
+        )}
+      </Box>
+    );
+  }
+
+  // Joint with other (Client and Other, Spouse and Other, or Client, Spouse and Other)
+  if (hasOtherJointOwner(owner)) {
+    return (
+      <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+        <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
+          Disposition of the Asset
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 2 }}>
+          This asset passes to the joint owner upon death. Is this your intent?
+        </Typography>
+
+        <FormControl component="fieldset" sx={{ mb: 2 }}>
+          <RadioGroup
+            row
+            value={jointOwnerIntentConfirmed === true ? 'yes' : jointOwnerIntentConfirmed === false ? 'no' : ''}
+            onChange={(e) => onJointOwnerIntentChange?.(e.target.value === 'yes')}
+          >
+            <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+            <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+          </RadioGroup>
+        </FormControl>
+
+        {jointOwnerIntentConfirmed === false && (
+          <Alert severity="warning" sx={{ mt: 1 }}>
+            This asset should be reviewed, and retitling is possibly recommended.
+          </Alert>
+        )}
+      </Box>
+    );
+  }
+
+  return null;
+};
+
 export interface BankAccountData {
   owner: string;
   accountType: BankAccountType;
   institution: string;
   amount: string;
+  // Disposition fields
+  hasBeneficiaryDesignation?: boolean; // For sole owners: Is there a POD/TOD?
+  wantsSpecificBequest?: boolean; // For sole owners without POD/TOD: Do they want specific bequest?
+  jointDisposition?: JointDispositionType; // For joint with spouse: How should it pass at second death?
+  jointOwnerIntentConfirmed?: boolean; // For joint with other: Is passing to joint owner intended?
+  // Legacy field - kept for backward compatibility
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
   primaryDistributionType: DistributionType;
   secondaryBeneficiaries: string[];
   secondaryDistributionType: DistributionType;
+  // Legatee fields for specific bequests
+  primaryLegatees: string[];
+  primaryLegateeDistributionType: DistributionType;
+  secondaryLegatees: string[];
+  secondaryLegateeDistributionType: DistributionType;
   notes: string;
 }
 
@@ -920,11 +1254,19 @@ const emptyBankAccount: BankAccountData = {
   accountType: "",
   institution: "",
   amount: "",
+  hasBeneficiaryDesignation: undefined,
+  wantsSpecificBequest: undefined,
+  jointDisposition: undefined,
+  jointOwnerIntentConfirmed: undefined,
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   primaryDistributionType: "",
   secondaryBeneficiaries: [],
   secondaryDistributionType: "",
+  primaryLegatees: [],
+  primaryLegateeDistributionType: "",
+  secondaryLegatees: [],
+  secondaryLegateeDistributionType: "",
   notes: "",
 };
 
@@ -1069,52 +1411,61 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
               helperText={touched.amount && errors.amount ? "Required" : ""}
             />
           </Grid>
-          <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={data.hasBeneficiaries || false}
-                  onChange={(e) =>
-                    handleChange({ hasBeneficiaries: e.target.checked })
-                  }
-                />
-              }
-              label="Has Beneficiaries?"
-            />
-          </Grid>
-          {data.hasBeneficiaries && (
-            <>
-              <Grid item xs={12}>
-                <BeneficiarySelector
-                  label="Primary Beneficiaries"
-                  selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
-                  onChange={(selected) =>
-                    handleChange({ primaryBeneficiaries: selected })
-                  }
-                  showDistributionType={true}
-                  distributionType={data.primaryDistributionType}
-                  onDistributionTypeChange={(type) =>
-                    handleChange({ primaryDistributionType: type })
-                  }
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <BeneficiarySelector
-                  label="Secondary Beneficiaries"
-                  selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
-                  onChange={(selected) =>
-                    handleChange({ secondaryBeneficiaries: selected })
-                  }
-                  showDistributionType={true}
-                  distributionType={data.secondaryDistributionType}
-                  onDistributionTypeChange={(type) =>
-                    handleChange({ secondaryDistributionType: type })
-                  }
-                />
-              </Grid>
-            </>
+          {data.owner && (
+            <Grid item xs={12}>
+              <DispositionSection
+                owner={data.owner}
+                hasBeneficiaryDesignation={data.hasBeneficiaryDesignation}
+                onBeneficiaryDesignationChange={(value) =>
+                  handleChange({ hasBeneficiaryDesignation: value, hasBeneficiaries: value })
+                }
+                wantsSpecificBequest={data.wantsSpecificBequest}
+                onWantsSpecificBequestChange={(value) =>
+                  handleChange({ wantsSpecificBequest: value })
+                }
+                jointDisposition={data.jointDisposition}
+                onJointDispositionChange={(value) =>
+                  handleChange({ jointDisposition: value })
+                }
+                jointOwnerIntentConfirmed={data.jointOwnerIntentConfirmed}
+                onJointOwnerIntentChange={(value) =>
+                  handleChange({ jointOwnerIntentConfirmed: value })
+                }
+                primaryBeneficiaries={data.primaryBeneficiaries}
+                secondaryBeneficiaries={data.secondaryBeneficiaries}
+                primaryLegatees={data.primaryLegatees || []}
+                secondaryLegatees={data.secondaryLegatees || []}
+                onPrimaryBeneficiariesChange={(value) =>
+                  handleChange({ primaryBeneficiaries: value })
+                }
+                onSecondaryBeneficiariesChange={(value) =>
+                  handleChange({ secondaryBeneficiaries: value })
+                }
+                onPrimaryLegateesChange={(value) =>
+                  handleChange({ primaryLegatees: value })
+                }
+                onSecondaryLegateesChange={(value) =>
+                  handleChange({ secondaryLegatees: value })
+                }
+                primaryDistributionType={data.primaryDistributionType}
+                secondaryDistributionType={data.secondaryDistributionType}
+                primaryLegateeDistributionType={data.primaryLegateeDistributionType || ''}
+                secondaryLegateeDistributionType={data.secondaryLegateeDistributionType || ''}
+                onPrimaryDistributionTypeChange={(value) =>
+                  handleChange({ primaryDistributionType: value })
+                }
+                onSecondaryDistributionTypeChange={(value) =>
+                  handleChange({ secondaryDistributionType: value })
+                }
+                onPrimaryLegateeDistributionTypeChange={(value) =>
+                  handleChange({ primaryLegateeDistributionType: value })
+                }
+                onSecondaryLegateeDistributionTypeChange={(value) =>
+                  handleChange({ secondaryLegateeDistributionType: value })
+                }
+                beneficiaryOptions={beneficiaryOptions}
+              />
+            </Grid>
           )}
 
           <Grid item xs={12}>
@@ -1156,11 +1507,20 @@ export interface NonQualifiedInvestmentData {
   institution: string;
   description: string;
   value: string;
+  // Disposition fields
+  hasBeneficiaryDesignation?: boolean;
+  wantsSpecificBequest?: boolean;
+  jointDisposition?: JointDispositionType;
+  jointOwnerIntentConfirmed?: boolean;
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
   primaryDistributionType: DistributionType;
   secondaryBeneficiaries: string[];
   secondaryDistributionType: DistributionType;
+  primaryLegatees: string[];
+  primaryLegateeDistributionType: DistributionType;
+  secondaryLegatees: string[];
+  secondaryLegateeDistributionType: DistributionType;
   notes: string;
 }
 
@@ -1169,11 +1529,19 @@ const emptyNonQualifiedInvestment: NonQualifiedInvestmentData = {
   institution: "",
   description: "",
   value: "",
+  hasBeneficiaryDesignation: undefined,
+  wantsSpecificBequest: undefined,
+  jointDisposition: undefined,
+  jointOwnerIntentConfirmed: undefined,
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   primaryDistributionType: "",
   secondaryBeneficiaries: [],
   secondaryDistributionType: "",
+  primaryLegatees: [],
+  primaryLegateeDistributionType: "",
+  secondaryLegatees: [],
+  secondaryLegateeDistributionType: "",
   notes: "",
 };
 
@@ -1307,52 +1675,61 @@ export const NonQualifiedInvestmentModal: React.FC<
               helperText={touched.value && errors.value ? "Required" : ""}
             />
           </Grid>
-          <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={data.hasBeneficiaries || false}
-                  onChange={(e) =>
-                    handleChange({ hasBeneficiaries: e.target.checked })
-                  }
-                />
-              }
-              label="Has Beneficiaries?"
-            />
-          </Grid>
-          {data.hasBeneficiaries && (
-            <>
-              <Grid item xs={12}>
-                <BeneficiarySelector
-                  label="Primary Beneficiaries"
-                  selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
-                  onChange={(selected) =>
-                    handleChange({ primaryBeneficiaries: selected })
-                  }
-                  showDistributionType={true}
-                  distributionType={data.primaryDistributionType}
-                  onDistributionTypeChange={(type) =>
-                    handleChange({ primaryDistributionType: type })
-                  }
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <BeneficiarySelector
-                  label="Secondary Beneficiaries"
-                  selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
-                  onChange={(selected) =>
-                    handleChange({ secondaryBeneficiaries: selected })
-                  }
-                  showDistributionType={true}
-                  distributionType={data.secondaryDistributionType}
-                  onDistributionTypeChange={(type) =>
-                    handleChange({ secondaryDistributionType: type })
-                  }
-                />
-              </Grid>
-            </>
+          {data.owner && (
+            <Grid item xs={12}>
+              <DispositionSection
+                owner={data.owner}
+                hasBeneficiaryDesignation={data.hasBeneficiaryDesignation}
+                onBeneficiaryDesignationChange={(value) =>
+                  handleChange({ hasBeneficiaryDesignation: value, hasBeneficiaries: value })
+                }
+                wantsSpecificBequest={data.wantsSpecificBequest}
+                onWantsSpecificBequestChange={(value) =>
+                  handleChange({ wantsSpecificBequest: value })
+                }
+                jointDisposition={data.jointDisposition}
+                onJointDispositionChange={(value) =>
+                  handleChange({ jointDisposition: value })
+                }
+                jointOwnerIntentConfirmed={data.jointOwnerIntentConfirmed}
+                onJointOwnerIntentChange={(value) =>
+                  handleChange({ jointOwnerIntentConfirmed: value })
+                }
+                primaryBeneficiaries={data.primaryBeneficiaries}
+                secondaryBeneficiaries={data.secondaryBeneficiaries}
+                primaryLegatees={data.primaryLegatees || []}
+                secondaryLegatees={data.secondaryLegatees || []}
+                onPrimaryBeneficiariesChange={(value) =>
+                  handleChange({ primaryBeneficiaries: value })
+                }
+                onSecondaryBeneficiariesChange={(value) =>
+                  handleChange({ secondaryBeneficiaries: value })
+                }
+                onPrimaryLegateesChange={(value) =>
+                  handleChange({ primaryLegatees: value })
+                }
+                onSecondaryLegateesChange={(value) =>
+                  handleChange({ secondaryLegatees: value })
+                }
+                primaryDistributionType={data.primaryDistributionType}
+                secondaryDistributionType={data.secondaryDistributionType}
+                primaryLegateeDistributionType={data.primaryLegateeDistributionType || ''}
+                secondaryLegateeDistributionType={data.secondaryLegateeDistributionType || ''}
+                onPrimaryDistributionTypeChange={(value) =>
+                  handleChange({ primaryDistributionType: value })
+                }
+                onSecondaryDistributionTypeChange={(value) =>
+                  handleChange({ secondaryDistributionType: value })
+                }
+                onPrimaryLegateeDistributionTypeChange={(value) =>
+                  handleChange({ primaryLegateeDistributionType: value })
+                }
+                onSecondaryLegateeDistributionTypeChange={(value) =>
+                  handleChange({ secondaryLegateeDistributionType: value })
+                }
+                beneficiaryOptions={beneficiaryOptions}
+              />
+            </Grid>
           )}
 
           <Grid item xs={12}>
@@ -1394,11 +1771,20 @@ export interface RetirementAccountData {
   institution: string;
   accountType: string;
   value: string;
+  // Disposition fields
+  hasBeneficiaryDesignation?: boolean;
+  wantsSpecificBequest?: boolean;
+  jointDisposition?: JointDispositionType;
+  jointOwnerIntentConfirmed?: boolean;
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
   primaryDistributionType: DistributionType;
   secondaryBeneficiaries: string[];
   secondaryDistributionType: DistributionType;
+  primaryLegatees: string[];
+  primaryLegateeDistributionType: DistributionType;
+  secondaryLegatees: string[];
+  secondaryLegateeDistributionType: DistributionType;
   notes: string;
 }
 
@@ -1407,11 +1793,19 @@ const emptyRetirementAccount: RetirementAccountData = {
   institution: "",
   accountType: "",
   value: "",
+  hasBeneficiaryDesignation: undefined,
+  wantsSpecificBequest: undefined,
+  jointDisposition: undefined,
+  jointOwnerIntentConfirmed: undefined,
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   primaryDistributionType: "",
   secondaryBeneficiaries: [],
   secondaryDistributionType: "",
+  primaryLegatees: [],
+  primaryLegateeDistributionType: "",
+  secondaryLegatees: [],
+  secondaryLegateeDistributionType: "",
   notes: "",
 };
 
@@ -1547,52 +1941,61 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
               helperText={touched.value && errors.value ? "Required" : ""}
             />
           </Grid>
-          <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={data.hasBeneficiaries || false}
-                  onChange={(e) =>
-                    handleChange({ hasBeneficiaries: e.target.checked })
-                  }
-                />
-              }
-              label="Has Beneficiaries?"
-            />
-          </Grid>
-          {data.hasBeneficiaries && (
-            <>
-              <Grid item xs={12}>
-                <BeneficiarySelector
-                  label="Primary Beneficiaries"
-                  selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
-                  onChange={(selected) =>
-                    handleChange({ primaryBeneficiaries: selected })
-                  }
-                  showDistributionType={true}
-                  distributionType={data.primaryDistributionType}
-                  onDistributionTypeChange={(type) =>
-                    handleChange({ primaryDistributionType: type })
-                  }
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <BeneficiarySelector
-                  label="Secondary Beneficiaries"
-                  selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
-                  onChange={(selected) =>
-                    handleChange({ secondaryBeneficiaries: selected })
-                  }
-                  showDistributionType={true}
-                  distributionType={data.secondaryDistributionType}
-                  onDistributionTypeChange={(type) =>
-                    handleChange({ secondaryDistributionType: type })
-                  }
-                />
-              </Grid>
-            </>
+          {data.owner && (
+            <Grid item xs={12}>
+              <DispositionSection
+                owner={data.owner}
+                hasBeneficiaryDesignation={data.hasBeneficiaryDesignation}
+                onBeneficiaryDesignationChange={(value) =>
+                  handleChange({ hasBeneficiaryDesignation: value, hasBeneficiaries: value })
+                }
+                wantsSpecificBequest={data.wantsSpecificBequest}
+                onWantsSpecificBequestChange={(value) =>
+                  handleChange({ wantsSpecificBequest: value })
+                }
+                jointDisposition={data.jointDisposition}
+                onJointDispositionChange={(value) =>
+                  handleChange({ jointDisposition: value })
+                }
+                jointOwnerIntentConfirmed={data.jointOwnerIntentConfirmed}
+                onJointOwnerIntentChange={(value) =>
+                  handleChange({ jointOwnerIntentConfirmed: value })
+                }
+                primaryBeneficiaries={data.primaryBeneficiaries}
+                secondaryBeneficiaries={data.secondaryBeneficiaries}
+                primaryLegatees={data.primaryLegatees || []}
+                secondaryLegatees={data.secondaryLegatees || []}
+                onPrimaryBeneficiariesChange={(value) =>
+                  handleChange({ primaryBeneficiaries: value })
+                }
+                onSecondaryBeneficiariesChange={(value) =>
+                  handleChange({ secondaryBeneficiaries: value })
+                }
+                onPrimaryLegateesChange={(value) =>
+                  handleChange({ primaryLegatees: value })
+                }
+                onSecondaryLegateesChange={(value) =>
+                  handleChange({ secondaryLegatees: value })
+                }
+                primaryDistributionType={data.primaryDistributionType}
+                secondaryDistributionType={data.secondaryDistributionType}
+                primaryLegateeDistributionType={data.primaryLegateeDistributionType || ''}
+                secondaryLegateeDistributionType={data.secondaryLegateeDistributionType || ''}
+                onPrimaryDistributionTypeChange={(value) =>
+                  handleChange({ primaryDistributionType: value })
+                }
+                onSecondaryDistributionTypeChange={(value) =>
+                  handleChange({ secondaryDistributionType: value })
+                }
+                onPrimaryLegateeDistributionTypeChange={(value) =>
+                  handleChange({ primaryLegateeDistributionType: value })
+                }
+                onSecondaryLegateeDistributionTypeChange={(value) =>
+                  handleChange({ secondaryLegateeDistributionType: value })
+                }
+                beneficiaryOptions={beneficiaryOptions}
+              />
+            </Grid>
           )}
 
           <Grid item xs={12}>
@@ -1653,11 +2056,20 @@ export interface LifeInsuranceData {
   deathBenefit: string;
   cashValue: string;
   insured: string;
+  // Disposition fields
+  hasBeneficiaryDesignation?: boolean;
+  wantsSpecificBequest?: boolean;
+  jointDisposition?: JointDispositionType;
+  jointOwnerIntentConfirmed?: boolean;
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
   primaryDistributionType: DistributionType;
   secondaryBeneficiaries: string[];
   secondaryDistributionType: DistributionType;
+  primaryLegatees: string[];
+  primaryLegateeDistributionType: DistributionType;
+  secondaryLegatees: string[];
+  secondaryLegateeDistributionType: DistributionType;
   notes: string;
 }
 
@@ -1669,11 +2081,19 @@ const emptyLifeInsurance: LifeInsuranceData = {
   deathBenefit: "",
   cashValue: "",
   insured: "",
+  hasBeneficiaryDesignation: undefined,
+  wantsSpecificBequest: undefined,
+  jointDisposition: undefined,
+  jointOwnerIntentConfirmed: undefined,
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   primaryDistributionType: "",
   secondaryBeneficiaries: [],
   secondaryDistributionType: "",
+  primaryLegatees: [],
+  primaryLegateeDistributionType: "",
+  secondaryLegatees: [],
+  secondaryLegateeDistributionType: "",
   notes: "",
 };
 
@@ -1899,52 +2319,61 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
                 />
               </Grid>
             )}
-          <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={data.hasBeneficiaries || false}
-                  onChange={(e) =>
-                    handleChange({ hasBeneficiaries: e.target.checked })
-                  }
-                />
-              }
-              label="Has Beneficiaries?"
-            />
-          </Grid>
-          {data.hasBeneficiaries && (
-            <>
-              <Grid item xs={12}>
-                <BeneficiarySelector
-                  label="Primary Beneficiaries"
-                  selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
-                  onChange={(selected) =>
-                    handleChange({ primaryBeneficiaries: selected })
-                  }
-                  showDistributionType={true}
-                  distributionType={data.primaryDistributionType}
-                  onDistributionTypeChange={(type) =>
-                    handleChange({ primaryDistributionType: type })
-                  }
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <BeneficiarySelector
-                  label="Secondary Beneficiaries"
-                  selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
-                  onChange={(selected) =>
-                    handleChange({ secondaryBeneficiaries: selected })
-                  }
-                  showDistributionType={true}
-                  distributionType={data.secondaryDistributionType}
-                  onDistributionTypeChange={(type) =>
-                    handleChange({ secondaryDistributionType: type })
-                  }
-                />
-              </Grid>
-            </>
+          {data.owner && (
+            <Grid item xs={12}>
+              <DispositionSection
+                owner={data.owner}
+                hasBeneficiaryDesignation={data.hasBeneficiaryDesignation}
+                onBeneficiaryDesignationChange={(value) =>
+                  handleChange({ hasBeneficiaryDesignation: value, hasBeneficiaries: value })
+                }
+                wantsSpecificBequest={data.wantsSpecificBequest}
+                onWantsSpecificBequestChange={(value) =>
+                  handleChange({ wantsSpecificBequest: value })
+                }
+                jointDisposition={data.jointDisposition}
+                onJointDispositionChange={(value) =>
+                  handleChange({ jointDisposition: value })
+                }
+                jointOwnerIntentConfirmed={data.jointOwnerIntentConfirmed}
+                onJointOwnerIntentChange={(value) =>
+                  handleChange({ jointOwnerIntentConfirmed: value })
+                }
+                primaryBeneficiaries={data.primaryBeneficiaries}
+                secondaryBeneficiaries={data.secondaryBeneficiaries}
+                primaryLegatees={data.primaryLegatees || []}
+                secondaryLegatees={data.secondaryLegatees || []}
+                onPrimaryBeneficiariesChange={(value) =>
+                  handleChange({ primaryBeneficiaries: value })
+                }
+                onSecondaryBeneficiariesChange={(value) =>
+                  handleChange({ secondaryBeneficiaries: value })
+                }
+                onPrimaryLegateesChange={(value) =>
+                  handleChange({ primaryLegatees: value })
+                }
+                onSecondaryLegateesChange={(value) =>
+                  handleChange({ secondaryLegatees: value })
+                }
+                primaryDistributionType={data.primaryDistributionType}
+                secondaryDistributionType={data.secondaryDistributionType}
+                primaryLegateeDistributionType={data.primaryLegateeDistributionType || ''}
+                secondaryLegateeDistributionType={data.secondaryLegateeDistributionType || ''}
+                onPrimaryDistributionTypeChange={(value) =>
+                  handleChange({ primaryDistributionType: value })
+                }
+                onSecondaryDistributionTypeChange={(value) =>
+                  handleChange({ secondaryDistributionType: value })
+                }
+                onPrimaryLegateeDistributionTypeChange={(value) =>
+                  handleChange({ primaryLegateeDistributionType: value })
+                }
+                onSecondaryLegateeDistributionTypeChange={(value) =>
+                  handleChange({ secondaryLegateeDistributionType: value })
+                }
+                beneficiaryOptions={beneficiaryOptions}
+              />
+            </Grid>
           )}
 
           <Grid item xs={12}>
@@ -1985,11 +2414,20 @@ export interface VehicleData {
   owner: string;
   yearMakeModel: string;
   value: string;
+  // Disposition fields
+  hasBeneficiaryDesignation?: boolean;
+  wantsSpecificBequest?: boolean;
+  jointDisposition?: JointDispositionType;
+  jointOwnerIntentConfirmed?: boolean;
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
   primaryDistributionType: DistributionType;
   secondaryBeneficiaries: string[];
   secondaryDistributionType: DistributionType;
+  primaryLegatees: string[];
+  primaryLegateeDistributionType: DistributionType;
+  secondaryLegatees: string[];
+  secondaryLegateeDistributionType: DistributionType;
   notes: string;
 }
 
@@ -1997,11 +2435,19 @@ const emptyVehicle: VehicleData = {
   owner: "",
   yearMakeModel: "",
   value: "",
+  hasBeneficiaryDesignation: undefined,
+  wantsSpecificBequest: undefined,
+  jointDisposition: undefined,
+  jointOwnerIntentConfirmed: undefined,
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   primaryDistributionType: "",
   secondaryBeneficiaries: [],
   secondaryDistributionType: "",
+  primaryLegatees: [],
+  primaryLegateeDistributionType: "",
+  secondaryLegatees: [],
+  secondaryLegateeDistributionType: "",
   notes: "",
 };
 
@@ -2119,52 +2565,61 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
               helperText={touched.value && errors.value ? "Required" : ""}
             />
           </Grid>
-          <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={data.hasBeneficiaries || false}
-                  onChange={(e) =>
-                    handleChange({ hasBeneficiaries: e.target.checked })
-                  }
-                />
-              }
-              label="Has Beneficiaries?"
-            />
-          </Grid>
-          {data.hasBeneficiaries && (
-            <>
-              <Grid item xs={12}>
-                <BeneficiarySelector
-                  label="Primary Beneficiaries"
-                  selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
-                  onChange={(selected) =>
-                    handleChange({ primaryBeneficiaries: selected })
-                  }
-                  showDistributionType={true}
-                  distributionType={data.primaryDistributionType}
-                  onDistributionTypeChange={(type) =>
-                    handleChange({ primaryDistributionType: type })
-                  }
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <BeneficiarySelector
-                  label="Secondary Beneficiaries"
-                  selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
-                  onChange={(selected) =>
-                    handleChange({ secondaryBeneficiaries: selected })
-                  }
-                  showDistributionType={true}
-                  distributionType={data.secondaryDistributionType}
-                  onDistributionTypeChange={(type) =>
-                    handleChange({ secondaryDistributionType: type })
-                  }
-                />
-              </Grid>
-            </>
+          {data.owner && (
+            <Grid item xs={12}>
+              <DispositionSection
+                owner={data.owner}
+                hasBeneficiaryDesignation={data.hasBeneficiaryDesignation}
+                onBeneficiaryDesignationChange={(value) =>
+                  handleChange({ hasBeneficiaryDesignation: value, hasBeneficiaries: value })
+                }
+                wantsSpecificBequest={data.wantsSpecificBequest}
+                onWantsSpecificBequestChange={(value) =>
+                  handleChange({ wantsSpecificBequest: value })
+                }
+                jointDisposition={data.jointDisposition}
+                onJointDispositionChange={(value) =>
+                  handleChange({ jointDisposition: value })
+                }
+                jointOwnerIntentConfirmed={data.jointOwnerIntentConfirmed}
+                onJointOwnerIntentChange={(value) =>
+                  handleChange({ jointOwnerIntentConfirmed: value })
+                }
+                primaryBeneficiaries={data.primaryBeneficiaries}
+                secondaryBeneficiaries={data.secondaryBeneficiaries}
+                primaryLegatees={data.primaryLegatees || []}
+                secondaryLegatees={data.secondaryLegatees || []}
+                onPrimaryBeneficiariesChange={(value) =>
+                  handleChange({ primaryBeneficiaries: value })
+                }
+                onSecondaryBeneficiariesChange={(value) =>
+                  handleChange({ secondaryBeneficiaries: value })
+                }
+                onPrimaryLegateesChange={(value) =>
+                  handleChange({ primaryLegatees: value })
+                }
+                onSecondaryLegateesChange={(value) =>
+                  handleChange({ secondaryLegatees: value })
+                }
+                primaryDistributionType={data.primaryDistributionType}
+                secondaryDistributionType={data.secondaryDistributionType}
+                primaryLegateeDistributionType={data.primaryLegateeDistributionType || ''}
+                secondaryLegateeDistributionType={data.secondaryLegateeDistributionType || ''}
+                onPrimaryDistributionTypeChange={(value) =>
+                  handleChange({ primaryDistributionType: value })
+                }
+                onSecondaryDistributionTypeChange={(value) =>
+                  handleChange({ secondaryDistributionType: value })
+                }
+                onPrimaryLegateeDistributionTypeChange={(value) =>
+                  handleChange({ primaryLegateeDistributionType: value })
+                }
+                onSecondaryLegateeDistributionTypeChange={(value) =>
+                  handleChange({ secondaryLegateeDistributionType: value })
+                }
+                beneficiaryOptions={beneficiaryOptions}
+              />
+            </Grid>
           )}
 
           <Grid item xs={12}>
@@ -2205,11 +2660,20 @@ export interface OtherAssetData {
   owner: string;
   description: string;
   value: string;
+  // Disposition fields
+  hasBeneficiaryDesignation?: boolean;
+  wantsSpecificBequest?: boolean;
+  jointDisposition?: JointDispositionType;
+  jointOwnerIntentConfirmed?: boolean;
   hasBeneficiaries: boolean;
   primaryBeneficiaries: string[];
   primaryDistributionType: DistributionType;
   secondaryBeneficiaries: string[];
   secondaryDistributionType: DistributionType;
+  primaryLegatees: string[];
+  primaryLegateeDistributionType: DistributionType;
+  secondaryLegatees: string[];
+  secondaryLegateeDistributionType: DistributionType;
   addToPersonalPropertyMemo: boolean;
   notes: string;
 }
@@ -2218,11 +2682,19 @@ const emptyOtherAsset: OtherAssetData = {
   owner: "",
   description: "",
   value: "",
+  hasBeneficiaryDesignation: undefined,
+  wantsSpecificBequest: undefined,
+  jointDisposition: undefined,
+  jointOwnerIntentConfirmed: undefined,
   hasBeneficiaries: false,
   primaryBeneficiaries: [],
   primaryDistributionType: "",
   secondaryBeneficiaries: [],
   secondaryDistributionType: "",
+  primaryLegatees: [],
+  primaryLegateeDistributionType: "",
+  secondaryLegatees: [],
+  secondaryLegateeDistributionType: "",
   addToPersonalPropertyMemo: false,
   notes: "",
 };
@@ -2343,55 +2815,64 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
               helperText={touched.value && errors.value ? "Required" : ""}
             />
           </Grid>
-          <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={data.hasBeneficiaries || false}
-                  onChange={(e) =>
-                    handleChange({ hasBeneficiaries: e.target.checked })
-                  }
-                />
-              }
-              label="Has Beneficiaries?"
-            />
-          </Grid>
-          {data.hasBeneficiaries && (
-            <>
-              <Grid item xs={12}>
-                <BeneficiarySelector
-                  label="Primary Beneficiaries"
-                  selectedBeneficiaries={data.primaryBeneficiaries}
-                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
-                  onChange={(selected) =>
-                    handleChange({ primaryBeneficiaries: selected })
-                  }
-                  showDistributionType={true}
-                  distributionType={data.primaryDistributionType}
-                  onDistributionTypeChange={(type) =>
-                    handleChange({ primaryDistributionType: type })
-                  }
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <BeneficiarySelector
-                  label="Secondary Beneficiaries"
-                  selectedBeneficiaries={data.secondaryBeneficiaries}
-                  options={filterBeneficiaryOptions(beneficiaryOptions, data.owner)}
-                  onChange={(selected) =>
-                    handleChange({ secondaryBeneficiaries: selected })
-                  }
-                  showDistributionType={true}
-                  distributionType={data.secondaryDistributionType}
-                  onDistributionTypeChange={(type) =>
-                    handleChange({ secondaryDistributionType: type })
-                  }
-                />
-              </Grid>
-            </>
+          {data.owner && (
+            <Grid item xs={12}>
+              <DispositionSection
+                owner={data.owner}
+                hasBeneficiaryDesignation={data.hasBeneficiaryDesignation}
+                onBeneficiaryDesignationChange={(value) =>
+                  handleChange({ hasBeneficiaryDesignation: value, hasBeneficiaries: value })
+                }
+                wantsSpecificBequest={data.wantsSpecificBequest}
+                onWantsSpecificBequestChange={(value) =>
+                  handleChange({ wantsSpecificBequest: value })
+                }
+                jointDisposition={data.jointDisposition}
+                onJointDispositionChange={(value) =>
+                  handleChange({ jointDisposition: value })
+                }
+                jointOwnerIntentConfirmed={data.jointOwnerIntentConfirmed}
+                onJointOwnerIntentChange={(value) =>
+                  handleChange({ jointOwnerIntentConfirmed: value })
+                }
+                primaryBeneficiaries={data.primaryBeneficiaries}
+                secondaryBeneficiaries={data.secondaryBeneficiaries}
+                primaryLegatees={data.primaryLegatees || []}
+                secondaryLegatees={data.secondaryLegatees || []}
+                onPrimaryBeneficiariesChange={(value) =>
+                  handleChange({ primaryBeneficiaries: value })
+                }
+                onSecondaryBeneficiariesChange={(value) =>
+                  handleChange({ secondaryBeneficiaries: value })
+                }
+                onPrimaryLegateesChange={(value) =>
+                  handleChange({ primaryLegatees: value })
+                }
+                onSecondaryLegateesChange={(value) =>
+                  handleChange({ secondaryLegatees: value })
+                }
+                primaryDistributionType={data.primaryDistributionType}
+                secondaryDistributionType={data.secondaryDistributionType}
+                primaryLegateeDistributionType={data.primaryLegateeDistributionType || ''}
+                secondaryLegateeDistributionType={data.secondaryLegateeDistributionType || ''}
+                onPrimaryDistributionTypeChange={(value) =>
+                  handleChange({ primaryDistributionType: value })
+                }
+                onSecondaryDistributionTypeChange={(value) =>
+                  handleChange({ secondaryDistributionType: value })
+                }
+                onPrimaryLegateeDistributionTypeChange={(value) =>
+                  handleChange({ primaryLegateeDistributionType: value })
+                }
+                onSecondaryLegateeDistributionTypeChange={(value) =>
+                  handleChange({ secondaryLegateeDistributionType: value })
+                }
+                beneficiaryOptions={beneficiaryOptions}
+              />
+            </Grid>
           )}
 
-          <Grid item xs={12}>
+          <Grid item xs={12} sx={{ ml:2 }}>
             <FormControlLabel
               control={
                 <Checkbox

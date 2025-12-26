@@ -38,6 +38,7 @@ export interface ChildData {
   hasMinorChildren: boolean;
   distributionType: 'Per Stirpes' | 'Per Capita' | '';
   disinherit: boolean;
+  isDeceased: boolean;
   comments: string;
 }
 
@@ -74,6 +75,7 @@ const getDefaultChildData = (): ChildData => ({
   hasMinorChildren: false,
   distributionType: '',
   disinherit: false,
+  isDeceased: false,
   comments: '',
 });
 
@@ -185,6 +187,7 @@ export const ChildModal: React.FC<ChildModalProps> = ({
       <DialogContent>
         <Box sx={{ pt: 1 }}>
           <Grid container spacing={2}>
+            {/* Row 1: Name, Relationship, Marital Status */}
             <Grid item xs={12} md={5}>
               <TextField
                 fullWidth
@@ -213,18 +216,22 @@ export const ChildModal: React.FC<ChildModalProps> = ({
               </FormControl>
             </Grid>
             <Grid item xs={12} md={3}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.disinherit || false}
-                    onChange={handleCheckboxChange('disinherit')}
-                    sx={{ color: 'error.main', '&.Mui-checked': { color: 'error.main' } }}
-                  />
-                }
-                label="Disinherit this child"
-                sx={{ color: 'error.main' }}
-              />
+              <FormControl fullWidth size="small">
+                <InputLabel>Marital Status</InputLabel>
+                <Select
+                  value={formData.maritalStatus}
+                  label="Marital Status"
+                  onChange={(e) => setFormData((prev) => ({ ...prev, maritalStatus: e.target.value as ChildMaritalStatus }))}
+                >
+                  {CHILD_MARITAL_STATUS_OPTIONS.map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
+            {/* Row 2: Address, Date of Birth */}
             <Grid item xs={12} md={8}>
               <TextField
                 fullWidth
@@ -252,22 +259,7 @@ export const ChildModal: React.FC<ChildModalProps> = ({
                 </Typography>
               )}
             </Grid>
-            <Grid item xs={12} md={4}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Marital Status</InputLabel>
-                <Select
-                  value={formData.maritalStatus}
-                  label="Marital Status"
-                  onChange={(e) => setFormData((prev) => ({ ...prev, maritalStatus: e.target.value as ChildMaritalStatus }))}
-                >
-                  {CHILD_MARITAL_STATUS_OPTIONS.map((status) => (
-                    <MenuItem key={status} value={status}>
-                      {status}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
+            {/* Row 3: Has Children, Disinherit, Is Deceased */}
             <Grid item xs={12} md={4}>
               <Box sx={{ display: 'flex', alignItems: 'center', height: '40px' }}>
                 <Typography variant="body2" sx={{ mr: 2 }}>
@@ -283,6 +275,32 @@ export const ChildModal: React.FC<ChildModalProps> = ({
                   <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
                 </RadioGroup>
               </Box>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.disinherit || false}
+                    onChange={handleCheckboxChange('disinherit')}
+                    sx={{ color: 'error.main', '&.Mui-checked': { color: 'error.main' } }}
+                  />
+                }
+                label="Disinherit this child"
+                sx={{ color: 'error.main' }}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.isDeceased || false}
+                    onChange={handleCheckboxChange('isDeceased')}
+                    sx={{ color: 'error.main', '&.Mui-checked': { color: 'error.main' } }}
+                  />
+                }
+                label="Is Deceased?"
+                sx={{ color: 'error.main' }}
+              />
             </Grid>
             {formData.hasChildren && (
               <>
