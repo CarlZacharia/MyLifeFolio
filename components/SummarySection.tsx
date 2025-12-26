@@ -20,7 +20,7 @@ import { useFormContext, MaritalStatus } from '../lib/FormContext';
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
 const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
-  <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a237e', mb: 2, mt: 3 }}>
+  <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a237e', mb: 1, mt: 2 }}>
     {title}
   </Typography>
 );
@@ -39,7 +39,7 @@ const InfoRow: React.FC<{ label: string; value: string | number | boolean | Date
 
   return (
     <Grid item xs={12} md={6}>
-      <Box sx={{ display: 'flex', py: 0.5 }}>
+      <Box sx={{ display: 'flex', py: 0.25 }}>
         <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 200, color: 'text.secondary' }}>
           {label}:
         </Typography>
