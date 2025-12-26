@@ -7,7 +7,6 @@ import {
   Typography,
   Card,
   CardContent,
-  CardActionArea,
   Grid,
   AppBar,
   Toolbar,
@@ -22,7 +21,6 @@ import {
   Divider,
   Chip,
   Fade,
-  Link,
 } from '@mui/material';
 import { ThemeProvider, createTheme, alpha } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -615,10 +613,12 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                               </Box>
                             </ListItemIcon>
                             <ListItemText
+                              disableTypography
                               primary={
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
                                   <Typography
                                     variant="body1"
+                                    component="span"
                                     sx={{
                                       fontWeight: 600,
                                       color: 'text.primary',
@@ -645,7 +645,8 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                                 <Box>
                                   <Typography
                                     variant="body2"
-                                    sx={{ color: 'text.secondary', mb: 0.5 }}
+                                    component="span"
+                                    sx={{ color: 'text.secondary', mb: 0.5, display: 'block' }}
                                   >
                                     {item.description}
                                   </Typography>
@@ -653,6 +654,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                                     <AccessTimeIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
                                     <Typography
                                       variant="caption"
+                                      component="span"
                                       sx={{ color: 'text.disabled' }}
                                     >
                                       {item.readTime}
@@ -698,124 +700,123 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                     },
                   }}
                 >
-                  <CardActionArea onClick={onStartQuestionnaire} sx={{ flexGrow: 1 }}>
+                  <Box
+                    sx={{
+                      height: 180,
+                      background: 'linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {/* Decorative circles */}
                     <Box
                       sx={{
+                        position: 'absolute',
+                        top: -60,
+                        right: -60,
+                        width: 180,
                         height: 180,
-                        background: 'linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%)',
+                        borderRadius: '50%',
+                        background: 'radial-gradient(circle, rgba(201, 162, 39, 0.15) 0%, transparent 70%)',
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        bottom: -40,
+                        left: -40,
+                        width: 140,
+                        height: 140,
+                        borderRadius: '50%',
+                        background: 'radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%)',
+                      }}
+                    />
+
+                    {/* Icon container */}
+                    <Box
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: '50%',
+                        bgcolor: alpha('#ffffff', 0.1),
+                        border: `2px solid ${alpha('#c9a227', 0.3)}`,
                         display: 'flex',
-                        alignItems: 'center',
                         justifyContent: 'center',
-                        position: 'relative',
-                        overflow: 'hidden',
+                        alignItems: 'center',
+                        zIndex: 1,
                       }}
                     >
-                      {/* Decorative circles */}
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: -60,
-                          right: -60,
-                          width: 180,
-                          height: 180,
-                          borderRadius: '50%',
-                          background: 'radial-gradient(circle, rgba(201, 162, 39, 0.15) 0%, transparent 70%)',
-                        }}
-                      />
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          bottom: -40,
-                          left: -40,
-                          width: 140,
-                          height: 140,
-                          borderRadius: '50%',
-                          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%)',
-                        }}
-                      />
-
-                      {/* Icon container */}
-                      <Box
-                        sx={{
-                          width: 80,
-                          height: 80,
-                          borderRadius: '50%',
-                          bgcolor: alpha('#ffffff', 0.1),
-                          border: `2px solid ${alpha('#c9a227', 0.3)}`,
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          zIndex: 1,
-                        }}
-                      >
-                        <DescriptionIcon sx={{ fontSize: 40, color: 'secondary.main' }} />
-                      </Box>
+                      <DescriptionIcon sx={{ fontSize: 40, color: 'secondary.main' }} />
                     </Box>
+                  </Box>
 
-                    <CardContent sx={{ p: 4 }}>
-                      <Typography
-                        variant="h5"
-                        component="h2"
+                  <CardContent sx={{ p: 4 }}>
+                    <Typography
+                      variant="h5"
+                      component="h2"
+                      sx={{
+                        color: 'primary.main',
+                        mb: 1.5,
+                        fontSize: '1.4rem',
+                      }}
+                    >
+                      {hasExistingData ? 'Continue Your Intake' : 'Start Your Intake'}
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mb: 2, lineHeight: 1.7 }}
+                    >
+                      {hasExistingData
+                        ? 'Pick up where you left off on your estate planning questionnaire.'
+                        : 'Begin your estate planning questionnaire to help us understand your needs and goals.'}
+                    </Typography>
+
+                    {hasExistingData && createdAt && (
+                      <Box
                         sx={{
-                          color: 'primary.main',
-                          mb: 1.5,
-                          fontSize: '1.4rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          mb: 3,
+                          p: 1.5,
+                          borderRadius: 1,
+                          bgcolor: alpha('#c9a227', 0.08),
                         }}
                       >
-                        {hasExistingData ? 'Continue Your Intake' : 'Start Your Intake'}
-                      </Typography>
+                        <AccessTimeIcon sx={{ fontSize: 18, color: 'secondary.dark' }} />
+                        <Typography variant="body2" sx={{ color: 'secondary.dark', fontWeight: 500 }}>
+                          Started on {formatDate(createdAt)}
+                        </Typography>
+                      </Box>
+                    )}
 
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mb: 2, lineHeight: 1.7 }}
-                      >
-                        {hasExistingData
-                          ? 'Pick up where you left off on your estate planning questionnaire.'
-                          : 'Begin your estate planning questionnaire to help us understand your needs and goals.'}
-                      </Typography>
-
-                      {hasExistingData && createdAt && (
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 1,
-                            mb: 3,
-                            p: 1.5,
-                            borderRadius: 1,
-                            bgcolor: alpha('#c9a227', 0.08),
-                          }}
-                        >
-                          <AccessTimeIcon sx={{ fontSize: 18, color: 'secondary.dark' }} />
-                          <Typography variant="body2" sx={{ color: 'secondary.dark', fontWeight: 500 }}>
-                            Started on {formatDate(createdAt)}
-                          </Typography>
-                        </Box>
-                      )}
-
-                      <Button
-                        variant="contained"
-                        fullWidth
-                        size="large"
-                        endIcon={hasExistingData ? <EditIcon /> : <ArrowForwardIcon />}
-                        sx={{
-                          bgcolor: 'secondary.main',
-                          color: 'primary.dark',
-                          py: 1.5,
-                          fontSize: '1rem',
-                          fontWeight: 600,
-                          boxShadow: 'none',
-                          '&:hover': {
-                            bgcolor: 'secondary.light',
-                            boxShadow: '0 8px 24px rgba(201, 162, 39, 0.3)',
-                          },
-                        }}
-                      >
-                        {hasExistingData ? 'Continue Questionnaire' : 'Begin Questionnaire'}
-                      </Button>
-                    </CardContent>
-                  </CardActionArea>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      size="large"
+                      onClick={onStartQuestionnaire}
+                      endIcon={hasExistingData ? <EditIcon /> : <ArrowForwardIcon />}
+                      sx={{
+                        bgcolor: 'secondary.main',
+                        color: 'primary.dark',
+                        py: 1.5,
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                        boxShadow: 'none',
+                        '&:hover': {
+                          bgcolor: 'secondary.light',
+                          boxShadow: '0 8px 24px rgba(201, 162, 39, 0.3)',
+                        },
+                      }}
+                    >
+                      {hasExistingData ? 'Continue Questionnaire' : 'Begin Questionnaire'}
+                    </Button>
+                  </CardContent>
                 </Card>
               </AnimatedSection>
 

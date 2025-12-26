@@ -15,8 +15,12 @@ import {
   CircularProgress,
   AppBar,
   Toolbar,
+  Dialog,
+  DialogContent,
+  IconButton,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CloseIcon from '@mui/icons-material/Close';
 import { useFormContext } from '../lib/FormContext';
 import PersonalDataSection from '../components/PersonalDataSection';
 import BeneficiariesSection from '../components/BeneficiariesSection';
@@ -29,6 +33,8 @@ import SummarySection from '../components/SummarySection';
 import EstatePlanAnalysis from '../components/EstatePlanAnalysis';
 import LandingPage from '../components/LandingPage';
 import EstatePlanningHome from '../components/EstatePlanningHome';
+import Login from '../components/Login';
+import Register from '../components/Register';
 import { VideoHelpIcon } from '../components/FieldWithHelp';
 import HelpModal from '../components/HelpModal';
 import axios from 'axios';
@@ -370,6 +376,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
 
 export default function MainPage() {
   const [currentPage, setCurrentPage] = useState<PageType>('landing');
+  const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
 
   const handleNavigate = (page: string) => {
     setCurrentPage(page as PageType);
@@ -377,13 +384,25 @@ export default function MainPage() {
   };
 
   const handleLogin = () => {
-    // TODO: Implement login functionality
-    console.log('Login clicked');
+    setShowAuthModal('login');
   };
 
   const handleRegister = () => {
-    // TODO: Implement register functionality
-    console.log('Register clicked');
+    setShowAuthModal('register');
+  };
+
+  const handleAuthSuccess = () => {
+    setShowAuthModal(null);
+    // Navigate to estate planning home after successful authentication
+    handleNavigate('estate-planning-home');
+  };
+
+  const handleSwitchToLogin = () => {
+    setShowAuthModal('login');
+  };
+
+  const handleSwitchToRegister = () => {
+    setShowAuthModal('register');
   };
 
   const handleEducationItemClick = (itemId: string) => {
@@ -391,59 +410,107 @@ export default function MainPage() {
     console.log('Education item clicked:', itemId);
   };
 
-  switch (currentPage) {
-    case 'landing':
-      return (
-        <LandingPage
-          onNavigate={handleNavigate}
-          onLogin={handleLogin}
-          onRegister={handleRegister}
-        />
-      );
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'landing':
+        return (
+          <LandingPage
+            onNavigate={handleNavigate}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+          />
+        );
 
-    case 'estate-planning-home':
-      return (
-        <EstatePlanningHome
-          onNavigateBack={() => handleNavigate('landing')}
-          onStartQuestionnaire={() => handleNavigate('estate-planning-questionnaire')}
-          onEducationItemClick={handleEducationItemClick}
-          onLogin={handleLogin}
-          onRegister={handleRegister}
-        />
-      );
+      case 'estate-planning-home':
+        return (
+          <EstatePlanningHome
+            onNavigateBack={() => handleNavigate('landing')}
+            onStartQuestionnaire={() => handleNavigate('estate-planning-questionnaire')}
+            onEducationItemClick={handleEducationItemClick}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+          />
+        );
 
-    case 'estate-planning-questionnaire':
-      return (
-        <QuestionnaireContent
-          onNavigateBack={() => handleNavigate('estate-planning-home')}
-        />
-      );
+      case 'estate-planning-questionnaire':
+        return (
+          <QuestionnaireContent
+            onNavigateBack={() => handleNavigate('estate-planning-home')}
+          />
+        );
 
-    // Placeholder pages for future services
-    case 'long-term-care':
-    case 'medicaid':
-    case 'estate-administration':
-      return (
-        <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Paper sx={{ p: 4, textAlign: 'center' }}>
-            <Typography variant="h4" gutterBottom>Coming Soon</Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              This service is currently under development.
-            </Typography>
-            <Button variant="contained" onClick={() => handleNavigate('landing')}>
-              Return to Home
-            </Button>
-          </Paper>
-        </Box>
-      );
+      // Placeholder pages for future services
+      case 'long-term-care':
+      case 'medicaid':
+      case 'estate-administration':
+        return (
+          <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Paper sx={{ p: 4, textAlign: 'center' }}>
+              <Typography variant="h4" gutterBottom>Coming Soon</Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                This service is currently under development.
+              </Typography>
+              <Button variant="contained" onClick={() => handleNavigate('landing')}>
+                Return to Home
+              </Button>
+            </Paper>
+          </Box>
+        );
 
-    default:
-      return (
-        <LandingPage
-          onNavigate={handleNavigate}
-          onLogin={handleLogin}
-          onRegister={handleRegister}
-        />
-      );
-  }
+      default:
+        return (
+          <LandingPage
+            onNavigate={handleNavigate}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+          />
+        );
+    }
+  };
+
+  return (
+    <>
+      {renderPage()}
+
+      {/* Authentication Modal */}
+      <Dialog
+        open={showAuthModal !== null}
+        onClose={() => setShowAuthModal(null)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            overflow: 'visible',
+          },
+        }}
+      >
+        <IconButton
+          onClick={() => setShowAuthModal(null)}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            zIndex: 1,
+            color: 'text.secondary',
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogContent sx={{ p: 0 }}>
+          {showAuthModal === 'login' ? (
+            <Login
+              onSwitchToRegister={handleSwitchToRegister}
+              onSuccess={handleAuthSuccess}
+            />
+          ) : showAuthModal === 'register' ? (
+            <Register
+              onSwitchToLogin={handleSwitchToLogin}
+              onSuccess={handleAuthSuccess}
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }

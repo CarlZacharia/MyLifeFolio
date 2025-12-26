@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Box,
   Container,
@@ -17,6 +17,10 @@ import {
   Divider,
   IconButton,
   Link,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import { ThemeProvider, createTheme, alpha } from '@mui/material/styles';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -32,6 +36,9 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ShieldIcon from '@mui/icons-material/Shield';
 import GavelIcon from '@mui/icons-material/Gavel';
 import BalanceIcon from '@mui/icons-material/Balance';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import CloseIcon from '@mui/icons-material/Close';
+import { useAuth } from '../lib/AuthContext';
 
 // Custom theme with sophisticated typography and colors
 const theme = createTheme({
@@ -328,6 +335,8 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegister }) => {
   const [scrolled, setScrolled] = useState(false);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -336,6 +345,45 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Check if user has existing estate planning data in localStorage
+  const hasExistingData = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const hasStep = localStorage.getItem('estate-planning-current-step') !== null;
+      const hasData = localStorage.getItem('estate-planning-form-data') !== null;
+      const hasVersion = localStorage.getItem('estate-planning-schema-version') !== null;
+      return hasStep && hasData && hasVersion;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  // Determine button text and action based on auth state and localStorage
+  const primaryButtonConfig = useMemo(() => {
+    if (user) {
+      // User is authenticated - go to estate planning overview
+      return {
+        text: 'Continue to Your Estate Plan',
+        icon: <ArrowForwardIcon />,
+        onClick: () => onNavigate('estate-planning-home'),
+      };
+    } else if (hasExistingData) {
+      // Not logged in but has existing data - prompt to login
+      return {
+        text: 'Login to Your Account',
+        icon: <LoginIcon />,
+        onClick: onLogin,
+      };
+    } else {
+      // No data and not logged in - prompt to register
+      return {
+        text: 'Signup for New Account',
+        icon: <PersonAddIcon />,
+        onClick: onRegister,
+      };
+    }
+  }, [user, hasExistingData, onNavigate, onLogin, onRegister]);
 
   const services = [
     {
@@ -607,8 +655,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                     <Button
                       variant="contained"
                       size="large"
-                      onClick={() => onNavigate('estate-planning-home')}
-                      endIcon={<ArrowForwardIcon />}
+                      onClick={primaryButtonConfig.onClick}
+                      endIcon={primaryButtonConfig.icon}
                       sx={{
                         bgcolor: 'secondary.main',
                         color: 'primary.dark',
@@ -623,11 +671,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                         transition: 'all 0.3s ease',
                       }}
                     >
-                      Start Your Estate Plan
+                      {primaryButtonConfig.text}
                     </Button>
                     <Button
                       variant="outlined"
                       size="large"
+                      onClick={() => setVideoModalOpen(true)}
+                      startIcon={<PlayCircleOutlineIcon />}
                       sx={{
                         borderColor: 'rgba(255,255,255,0.4)',
                         color: 'white',
@@ -639,7 +689,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                         },
                       }}
                     >
-                      Schedule Consultation
+                      Show Demonstration
                     </Button>
                   </Box>
                 </AnimatedSection>
@@ -1054,6 +1104,79 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
             </Box>
           </Container>
         </Box>
+
+        {/* Video Demonstration Modal */}
+        <Dialog
+          open={videoModalOpen}
+          onClose={() => setVideoModalOpen(false)}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: {
+              bgcolor: 'background.paper',
+              borderRadius: 2,
+            },
+          }}
+        >
+          <DialogTitle
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              bgcolor: 'primary.main',
+              color: 'white',
+              py: 2,
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <PlayCircleOutlineIcon />
+              <Typography variant="h6" component="span">
+                Estate Planning Demonstration
+              </Typography>
+            </Box>
+            <IconButton
+              onClick={() => setVideoModalOpen(false)}
+              sx={{ color: 'white' }}
+              size="small"
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent sx={{ p: 0 }}>
+            <Box
+              sx={{
+                position: 'relative',
+                paddingTop: '56.25%', // 16:9 aspect ratio
+                bgcolor: '#000',
+              }}
+            >
+              {/* Video placeholder - replace src with actual video URL */}
+              <Box
+                component="video"
+                controls
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                }}
+                poster="/video-poster.jpg"
+              >
+                <source src="/demo-video.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </Box>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
+            <Typography variant="body2" color="text.secondary">
+              Learn how our estate planning process works
+            </Typography>
+            <Button onClick={() => setVideoModalOpen(false)} variant="outlined">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </ThemeProvider>
   );
