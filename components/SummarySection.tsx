@@ -1240,8 +1240,15 @@ const SummarySection = () => {
           <InfoRow label="Legal Issues (Client)" value={formData.legalIssues} />
           {showSpouseInfo && <InfoRow label="Legal Issues (Spouse)" value={formData.spouseLegalIssues} />}
           <InfoRow label="Important Papers Location" value={formData.importantPapersLocation} />
-          <InfoRow label="Has Safe Deposit Box" value={formData.hasSafeDepositBox} />
-          {formData.hasSafeDepositBox && (
+          <InfoRow
+            label="Has Safe Deposit Box"
+            value={formData.hasSafeDepositBox
+              ? (formData.safeDepositBoxNumber
+                  ? `Yes - Box #${formData.safeDepositBoxNumber}`
+                  : 'Yes')
+              : 'No'}
+          />
+          {formData.hasSafeDepositBox && formData.safeDepositBoxLocation && (
             <InfoRow label="Safe Deposit Box Location" value={formData.safeDepositBoxLocation} />
           )}
         </Grid>

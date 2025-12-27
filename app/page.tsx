@@ -39,8 +39,8 @@ import Login from '../components/Login';
 import Register from '../components/Register';
 import { VideoHelpIcon } from '../components/FieldWithHelp';
 import HelpModal from '../components/HelpModal';
-import axios from 'axios';
 import { MaritalStatus } from '../lib/FormContext';
+import { analyzeEstatePlan, ANALYSIS_PROMPTS } from '../lib/claudeApi';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -72,6 +72,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
 
   const openHelp = (helpId: number) => setActiveHelpId(helpId);
   const closeHelp = () => setActiveHelpId(null);
@@ -140,28 +141,25 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setSubmitError('');
+    setAnalysisResult(null);
 
     try {
-      const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
-
-      if (!webhookUrl) {
-        throw new Error('n8n webhook URL not configured');
-      }
-
-      // Submit to n8n webhook
-      const response = await axios.post(webhookUrl, {
-        formData,
-        submittedAt: new Date().toISOString(),
+      // Submit to Claude API for analysis
+      const result = await analyzeEstatePlan({
+        formData: formData as unknown as Record<string, unknown>,
+        prompt: ANALYSIS_PROMPTS.comprehensive,
       });
 
-      if (response.status === 200) {
+      if (result.success && result.analysis) {
+        setAnalysisResult(result.analysis);
         setSubmitSuccess(true);
-        clearFormData(); // Clear localStorage after successful submission
-        setCurrentStep(currentStep + 1);
+        setCurrentStep(currentStep + 1); // Move to results page
+      } else {
+        throw new Error(result.error || 'Failed to analyze estate plan');
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      setSubmitError('Failed to submit form. Please try again or contact support.');
+      setSubmitError('Failed to analyze your estate plan. Please try again or contact support.');
     } finally {
       setIsSubmitting(false);
     }
@@ -209,20 +207,65 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
           </Box>
         );
       default:
-        // Success page (after submit)
-        if (currentStep === totalSteps) {
+        // Analysis Results page (after submit)
+        if (currentStep === totalSteps && analysisResult) {
           return (
-            <Box sx={{ textAlign: 'center', py: 4 }}>
-              <Typography variant="h4" gutterBottom sx={{ color: '#1e3a5f' }}>
-                Thank You!
+            <Box sx={{ py: 2 }}>
+              <Typography variant="h4" gutterBottom sx={{ color: '#1e3a5f', fontWeight: 600, textAlign: 'center' }}>
+                Estate Planning Analysis
               </Typography>
-              <Typography variant="h6" sx={{ mb: 3 }}>
-                Your estate planning questionnaire has been successfully submitted.
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Our team will review your information and contact you shortly.
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+              <Alert severity="info" sx={{ mb: 3 }}>
+                This AI-generated analysis is for informational purposes only and does not constitute legal advice.
+                Please review this with an attorney from Zacharia Brown & Bratkovich.
+              </Alert>
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 3,
+                  mb: 3,
+                  bgcolor: '#fafafa',
+                  '& p': { mb: 2 },
+                  '& h1, & h2, & h3, & h4, & h5, & h6': {
+                    color: '#1e3a5f',
+                    fontWeight: 600,
+                    mt: 3,
+                    mb: 1.5
+                  },
+                  '& ul, & ol': { pl: 3, mb: 2 },
+                  '& li': { mb: 0.5 },
+                }}
+              >
+                <Typography
+                  component="div"
+                  sx={{
+                    whiteSpace: 'pre-wrap',
+                    lineHeight: 1.7,
+                    '& strong': { fontWeight: 600 }
+                  }}
+                >
+                  {analysisResult}
+                </Typography>
+              </Paper>
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setCurrentStep(0);
+                    setSubmitSuccess(false);
+                    setAnalysisResult(null);
+                  }}
+                >
+                  Start New Questionnaire
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{ bgcolor: '#1e3a5f' }}
+                  onClick={() => window.print()}
+                >
+                  Print Analysis
+                </Button>
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 4, textAlign: 'center' }}>
                 Zacharia Brown & Bratkovich
                 <br />
                 26811 South Bay Dr. Ste 260
