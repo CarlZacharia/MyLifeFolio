@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -18,6 +18,7 @@ import {
   Button,
   ButtonGroup,
   Divider,
+  Alert,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useFormContext, MaritalStatus, RealEstateOwner, OwnershipForm, DistributionPlan, ResiduaryBeneficiary } from '../lib/FormContext';
@@ -45,6 +46,8 @@ interface CategorizedAsset {
   calculatedValue?: number;
   // For scenario display - how asset passes (e.g., "Joint with Spouse", "Beneficiary Designation")
   passageMethod?: string;
+  // For personal property memorandum items - beneficiaries are called "legatees"
+  isPersonalPropertyMemo?: boolean;
 }
 
 // Beneficiary share from a specific asset
@@ -287,6 +290,53 @@ const aggregateHeirInheritance = (
   return Array.from(heirMap.values()).sort((a, b) => b.total - a.total);
 };
 
+// Child type definition for filtering
+interface ChildInfo {
+  name: string;
+  relationship: string;
+}
+
+// Filter children based on whose Will is being used for distribution
+// When the surviving spouse dies, their Will distributes to "their children" which by default
+// only includes children of that spouse (Child of Both + Child of Spouse Only)
+// However, if stepchildren inclusion flags are checked, we include those stepchildren too
+const getChildrenForWill = (
+  allChildren: ChildInfo[],
+  willOwner: 'client' | 'spouse',
+  includeClientStepchildrenInSpouseWill: boolean,
+  includeSpouseStepchildrenInClientWill: boolean
+): ChildInfo[] => {
+  return allChildren.filter(child => {
+    const rel = child.relationship;
+
+    if (willOwner === 'client') {
+      // Client's Will includes:
+      // - Child of Client Only (client's biological/adopted children from prior relationship)
+      // - Child of Both (shared children)
+      // - Child of Spouse Only if includeSpouseStepchildrenInClientWill is true
+      if (rel === 'Child of Client Only' || rel === 'Child of Both') {
+        return true;
+      }
+      if (rel === 'Child of Spouse Only' && includeSpouseStepchildrenInClientWill) {
+        return true;
+      }
+      return false;
+    } else {
+      // Spouse's Will includes:
+      // - Child of Spouse Only (spouse's biological/adopted children from prior relationship)
+      // - Child of Both (shared children)
+      // - Child of Client Only if includeClientStepchildrenInSpouseWill is true
+      if (rel === 'Child of Spouse Only' || rel === 'Child of Both') {
+        return true;
+      }
+      if (rel === 'Child of Client Only' && includeClientStepchildrenInSpouseWill) {
+        return true;
+      }
+      return false;
+    }
+  });
+};
+
 // Calculate the proportional value for TIC assets based on client+spouse ownership percentages
 const calculateTICValue = (
   totalValue: string,
@@ -347,7 +397,7 @@ const CategoryAccordion: React.FC<{ category: AssetCategory; defaultExpanded?: b
                 <TableCell sx={{ fontWeight: 600 }}>Asset Type</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Owner</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Beneficiaries</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Beneficiaries/Legatees</TableCell>
                 <TableCell sx={{ fontWeight: 600 }} align="right">Value</TableCell>
               </TableRow>
             </TableHead>
@@ -358,12 +408,20 @@ const CategoryAccordion: React.FC<{ category: AssetCategory; defaultExpanded?: b
                   ? asset.calculatedValue
                   : asset.value;
 
+                // Determine beneficiary/legatee display text
+                let beneficiaryText = 'No';
+                if (asset.isPersonalPropertyMemo) {
+                  beneficiaryText = 'Legatees';
+                } else if (asset.hasBeneficiaries) {
+                  beneficiaryText = 'Yes';
+                }
+
                 return (
                   <TableRow key={index}>
                     <TableCell>{asset.type}</TableCell>
                     <TableCell>{asset.description}</TableCell>
                     <TableCell>{asset.owner}</TableCell>
-                    <TableCell>{asset.hasBeneficiaries ? 'Yes' : 'No'}</TableCell>
+                    <TableCell>{beneficiaryText}</TableCell>
                     <TableCell align="right">{formatCurrency(displayValue)}</TableCell>
                   </TableRow>
                 );
@@ -570,6 +628,34 @@ const EstatePlanAnalysis: React.FC = () => {
   const { formData } = useFormContext();
   const showSpouse = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
   const [analysisView, setAnalysisView] = useState<AnalysisView>('summary');
+
+  // Blended family detection for warning alerts
+  const blendedFamilyInfo = useMemo(() => {
+    const clientOnlyChildren = formData.children.filter(
+      (child) => child.relationship === 'Child of Client Only'
+    );
+    const spouseOnlyChildren = formData.children.filter(
+      (child) => child.relationship === 'Child of Spouse Only'
+    );
+
+    const hasClientStepchildren = clientOnlyChildren.length > 0;
+    const hasSpouseStepchildren = spouseOnlyChildren.length > 0;
+    const isBlendedFamily = hasClientStepchildren || hasSpouseStepchildren;
+
+    // Determine if any stepchildren are excluded from the other spouse's Will
+    const clientStepchildrenExcludedFromSpouseWill = hasClientStepchildren && !formData.includeClientStepchildrenInSpouseWill;
+    const spouseStepchildrenExcludedFromClientWill = hasSpouseStepchildren && !formData.includeSpouseStepchildrenInClientWill;
+
+    return {
+      isBlendedFamily,
+      hasClientStepchildren,
+      hasSpouseStepchildren,
+      clientOnlyChildrenNames: clientOnlyChildren.map(c => c.name),
+      spouseOnlyChildrenNames: spouseOnlyChildren.map(c => c.name),
+      clientStepchildrenExcludedFromSpouseWill,
+      spouseStepchildrenExcludedFromClientWill,
+    };
+  }, [formData.children, formData.includeClientStepchildrenInSpouseWill, formData.includeSpouseStepchildrenInClientWill]);
 
   // Helper to check if asset is client-only (sole ownership)
   const isClientSole = (owner: string, ownershipForm?: string): boolean => {
@@ -785,16 +871,26 @@ const EstatePlanAnalysis: React.FC = () => {
   const categorizeOtherAssets = (): CategorizedAsset[] => {
     return formData.otherAssets.map(asset => {
       const hasBeneficiaries = asset.hasBeneficiaries && asset.primaryBeneficiaries.length > 0;
+      const isPersonalPropertyMemo = asset.addToPersonalPropertyMemo === true;
+      // Personal property memo items pass via the memo (non-probate), with legatees as beneficiaries
+      const effectiveHasBeneficiaries = hasBeneficiaries || isPersonalPropertyMemo;
+
+      let passageMethod = getPassageMethod(asset.owner, undefined, hasBeneficiaries);
+      if (isPersonalPropertyMemo) {
+        passageMethod = 'Personal Property Memorandum';
+      }
+
       return {
         type: 'Other Asset',
         description: asset.description,
         value: asset.value,
         owner: asset.owner,
-        hasBeneficiaries,
+        hasBeneficiaries: effectiveHasBeneficiaries,
         primaryBeneficiaries: asset.primaryBeneficiaries,
         secondaryBeneficiaries: asset.secondaryBeneficiaries,
         secondaryDistributionType: asset.secondaryDistributionType,
-        passageMethod: getPassageMethod(asset.owner, undefined, hasBeneficiaries),
+        passageMethod,
+        isPersonalPropertyMemo,
       };
     });
   };
@@ -1272,6 +1368,21 @@ const EstatePlanAnalysis: React.FC = () => {
           After Client&apos;s death, Spouse will own all joint assets plus any assets inherited from Client. The following shows the complete estate distribution when Spouse subsequently dies.
         </Typography>
 
+        {/* Blended Family Warning - Client's stepchildren excluded from Spouse's Will */}
+        {blendedFamilyInfo.clientStepchildrenExcludedFromSpouseWill && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+              Blended Family Consideration
+            </Typography>
+            <Typography variant="body2">
+              {formData.name}&apos;s children from a prior relationship ({blendedFamilyInfo.clientOnlyChildrenNames.join(', ')}) are not included in {formData.spouseName}&apos;s Will distribution. When {formData.spouseName} dies, these stepchildren will not inherit from {formData.spouseName}&apos;s estate unless designated as beneficiaries on specific assets.
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+              To include these children in {formData.spouseName}&apos;s Will, enable the option in the New Plan Provisions section.
+            </Typography>
+          </Alert>
+        )}
+
         {/* Calculate total estate at spouse's death - includes:
             1. Spouse's original assets (probate and non-probate)
             2. Joint assets that passed to spouse
@@ -1298,11 +1409,18 @@ const EstatePlanAnalysis: React.FC = () => {
 
           // Get spouse's Will distribution plan for probate assets
           const spouseDistPlan = formData.spouseDistributionPlan;
+          // For blended families: filter children based on whose Will is being used
+          const childrenForSpouseWill = getChildrenForWill(
+            formData.children,
+            'spouse',
+            formData.includeClientStepchildrenInSpouseWill,
+            formData.includeSpouseStepchildrenInClientWill
+          );
           const spouseWillBeneficiaries = formatResiduaryBeneficiaries(
             spouseDistPlan.residuaryBeneficiaries,
             spouseDistPlan.residuaryShareType,
             spouseDistPlan,
-            formData.children
+            childrenForSpouseWill
           );
 
           // Spouse's original non-probate assets - these pass to their designated secondary beneficiaries
@@ -1395,7 +1513,7 @@ const EstatePlanAnalysis: React.FC = () => {
               spouseDistPlan.residuaryBeneficiaries,
               spouseDistPlan.residuaryShareType,
               spouseDistPlan,
-              formData.children,
+              childrenForSpouseWill, // Use filtered children for spouse's Will
               bothDeceased
             );
 
@@ -1404,6 +1522,13 @@ const EstatePlanAnalysis: React.FC = () => {
 
           // Also include assets that passed to other beneficiaries at client's death (first death)
           // These need to be added to the final heir summary
+          // For first death (client), use client's children for client's will distribution
+          const childrenForClientWillFirstDeath = getChildrenForWill(
+            formData.children,
+            'client',
+            formData.includeClientStepchildrenInSpouseWill,
+            formData.includeSpouseStepchildrenInClientWill
+          );
           const firstDeathAssetsWithShares = assetsToOtherBeneficiaries.map(asset => {
             const displayValue = asset.calculatedValue !== undefined
               ? asset.calculatedValue
@@ -1417,7 +1542,7 @@ const EstatePlanAnalysis: React.FC = () => {
               formData.clientDistributionPlan.residuaryBeneficiaries,
               formData.clientDistributionPlan.residuaryShareType,
               formData.clientDistributionPlan,
-              formData.children,
+              childrenForClientWillFirstDeath, // Use filtered children for client's Will
               [formData.name] // Only client was deceased at first death
             );
 
@@ -1695,6 +1820,21 @@ const EstatePlanAnalysis: React.FC = () => {
           After Spouse&apos;s death, Client will own all joint assets plus any assets inherited from Spouse. The following shows the complete estate distribution when Client subsequently dies.
         </Typography>
 
+        {/* Blended Family Warning - Spouse's stepchildren excluded from Client's Will */}
+        {blendedFamilyInfo.spouseStepchildrenExcludedFromClientWill && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+              Blended Family Consideration
+            </Typography>
+            <Typography variant="body2">
+              {formData.spouseName}&apos;s children from a prior relationship ({blendedFamilyInfo.spouseOnlyChildrenNames.join(', ')}) are not included in {formData.name}&apos;s Will distribution. When {formData.name} dies, these stepchildren will not inherit from {formData.name}&apos;s estate unless designated as beneficiaries on specific assets.
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+              To include these children in {formData.name}&apos;s Will, enable the option in the New Plan Provisions section.
+            </Typography>
+          </Alert>
+        )}
+
         {/* Calculate total estate at client's death - includes:
             1. Client's original assets (probate and non-probate)
             2. Joint assets that passed to client
@@ -1721,11 +1861,18 @@ const EstatePlanAnalysis: React.FC = () => {
 
           // Get client's Will distribution plan for probate assets
           const clientDistPlan = formData.clientDistributionPlan;
+          // For blended families: filter children based on whose Will is being used
+          const childrenForClientWill = getChildrenForWill(
+            formData.children,
+            'client',
+            formData.includeClientStepchildrenInSpouseWill,
+            formData.includeSpouseStepchildrenInClientWill
+          );
           const clientWillBeneficiaries = formatResiduaryBeneficiaries(
             clientDistPlan.residuaryBeneficiaries,
             clientDistPlan.residuaryShareType,
             clientDistPlan,
-            formData.children
+            childrenForClientWill
           );
 
           // Client's original non-probate assets - these pass to their designated secondary beneficiaries
@@ -1818,7 +1965,7 @@ const EstatePlanAnalysis: React.FC = () => {
               clientDistPlan.residuaryBeneficiaries,
               clientDistPlan.residuaryShareType,
               clientDistPlan,
-              formData.children,
+              childrenForClientWill, // Use filtered children for client's Will
               bothDeceased
             );
 
@@ -1827,6 +1974,13 @@ const EstatePlanAnalysis: React.FC = () => {
 
           // Also include assets that passed to other beneficiaries at spouse's death (first death)
           // These need to be added to the final heir summary
+          // For first death (spouse), use spouse's children for spouse's will distribution
+          const childrenForSpouseWillFirstDeath = getChildrenForWill(
+            formData.children,
+            'spouse',
+            formData.includeClientStepchildrenInSpouseWill,
+            formData.includeSpouseStepchildrenInClientWill
+          );
           const firstDeathAssetsWithShares = assetsToOtherBeneficiaries.map(asset => {
             const displayValue = asset.calculatedValue !== undefined
               ? asset.calculatedValue
@@ -1840,7 +1994,7 @@ const EstatePlanAnalysis: React.FC = () => {
               formData.spouseDistributionPlan.residuaryBeneficiaries,
               formData.spouseDistributionPlan.residuaryShareType,
               formData.spouseDistributionPlan,
-              formData.children,
+              childrenForSpouseWillFirstDeath, // Use filtered children for spouse's Will
               [formData.spouseName] // Only spouse was deceased at first death
             );
 
@@ -2066,24 +2220,30 @@ const EstatePlanAnalysis: React.FC = () => {
                       {formatCurrency(jointClientSpouseTotal)}
                     </Typography>
                   </Box>
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">Joint Client-Other</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 500, color: 'warning.main' }}>
-                      {formatCurrency(jointClientOtherTotal)}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">Joint Spouse-Other</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 500, color: 'warning.main' }}>
-                      {formatCurrency(jointSpouseOtherTotal)}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">Joint Client, Spouse & Other</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 500, color: 'warning.main' }}>
-                      {formatCurrency(jointClientSpouseOtherTotal)}
-                    </Typography>
-                  </Box>
+                  {jointClientOtherTotal > 0 && (
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">Joint Client-Other</Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 500, color: 'warning.main' }}>
+                        {formatCurrency(jointClientOtherTotal)}
+                      </Typography>
+                    </Box>
+                  )}
+                  {jointSpouseOtherTotal > 0 && (
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">Joint Spouse-Other</Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 500, color: 'warning.main' }}>
+                        {formatCurrency(jointSpouseOtherTotal)}
+                      </Typography>
+                    </Box>
+                  )}
+                  {jointClientSpouseOtherTotal > 0 && (
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">Joint Client, Spouse & Other</Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 500, color: 'warning.main' }}>
+                        {formatCurrency(jointClientSpouseOtherTotal)}
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
               </>
             )}

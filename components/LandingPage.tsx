@@ -459,14 +459,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
             transition: 'all 0.3s ease',
           }}
         >
-          <Container maxWidth="lg">
-            <Toolbar
-              disableGutters
-              sx={{
-                py: { xs: 1, md: 1.5 },
-                minHeight: { xs: 64, md: 72 },
-              }}
-            >
+          <Toolbar
+            sx={{
+              py: { xs: 1, md: 1.5 },
+              px: { xs: 2, md: 3 },
+              minHeight: { xs: 64, md: 72 },
+            }}
+          >
               {/* Logo and Firm Name */}
               <Box
                 sx={{
@@ -574,7 +573,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                 )}
               </Box>
             </Toolbar>
-          </Container>
         </AppBar>
 
         {/* Hero Section */}

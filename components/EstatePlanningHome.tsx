@@ -336,21 +336,21 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
             transition: 'all 0.3s ease',
           }}
         >
-          <Container maxWidth="lg">
-            <Toolbar
-              disableGutters
-              sx={{
-                py: { xs: 1, md: 1.5 },
-                minHeight: { xs: 64, md: 72 },
-              }}
-            >
+          <Toolbar
+            sx={{
+              py: { xs: 1, md: 1.5 },
+              px: { xs: 2, md: 3 },
+              minHeight: { xs: 64, md: 72 },
+            }}
+          >
               {/* Back Button */}
               <Button
                 color="inherit"
                 startIcon={<ArrowBackIcon />}
                 onClick={onNavigateBack}
                 sx={{
-                  mr: 3,
+                  position: 'absolute',
+                  left: 16,
                   fontWeight: 500,
                   opacity: 0.9,
                   '&:hover': {
@@ -362,11 +362,13 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                 Back
               </Button>
 
-              {/* Logo and Firm Name */}
+              {/* Logo and Firm Name - Centered */}
               <Box
                 sx={{
+                  flexGrow: 1,
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: 1.5,
                 }}
               >
@@ -396,11 +398,8 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                 </Typography>
               </Box>
 
-              {/* Spacer */}
-              <Box sx={{ flexGrow: 1 }} />
-
               {/* Auth Buttons */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
+              <Box sx={{ position: 'absolute', right: 16, display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
                 {user ? (
                   // User is logged in - show Logout button
                   <Button
@@ -467,7 +466,6 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                 )}
               </Box>
             </Toolbar>
-          </Container>
         </AppBar>
 
         {/* Page Header */}

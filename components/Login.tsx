@@ -137,8 +137,20 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
   return (
     <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4 }}>
       <Paper sx={{ p: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+          <Box
+            component="img"
+            src="/logo.jpg"
+            alt="Zacharia Brown & Bratkovich"
+            sx={{
+              height: 80,
+              width: 'auto',
+              borderRadius: 1,
+            }}
+          />
+        </Box>
         <Typography variant="h5" sx={{ mb: 3, textAlign: 'center', fontWeight: 600 }}>
-          Sign In
+          Sign In to ZacBrownPortal
         </Typography>
 
         {error && (
@@ -215,6 +227,20 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
           <Button variant="text" onClick={onSwitchToRegister} sx={{ textTransform: 'none', p: 0 }}>
             Register
           </Button>
+        </Typography>
+
+        <Typography
+          variant="caption"
+          sx={{
+            display: 'block',
+            textAlign: 'center',
+            mt: 3,
+            color: 'text.secondary',
+            fontSize: '0.7rem',
+            lineHeight: 1.4,
+          }}
+        >
+          © 2026 Zacharia Brown & Bratkovich. All rights reserved. Access to this website is strictly limited to individuals for personal use in connection with Estate Planning and Elder Law matters. Any other use is expressly prohibited. This application may utilize artificial intelligence to assist in the preparation of materials; all AI-generated content is subject to attorney review before it may be relied upon.
         </Typography>
       </Paper>
     </Box>

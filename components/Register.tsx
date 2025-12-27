@@ -14,6 +14,8 @@ import {
   Select,
   MenuItem,
   CircularProgress,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import { supabase } from '../lib/supabase';
@@ -43,6 +45,8 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
     telephone: '',
     password: '',
     confirmPassword: '',
+    agreedToTerms: false,
+    signatureName: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,6 +97,14 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
       setError('Passwords do not match');
       return false;
     }
+    if (!formData.agreedToTerms) {
+      setError('You must agree to the terms and disclaimer to create an account');
+      return false;
+    }
+    if (!formData.signatureName.trim()) {
+      setError('Please type your name to acknowledge the agreement');
+      return false;
+    }
     return true;
   };
 
@@ -114,6 +126,9 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
             address: formData.address,
             state_of_domicile: formData.stateOfDomicile,
             telephone: formData.telephone,
+            agreed_to_terms: true,
+            agreed_to_terms_at: new Date().toISOString(),
+            agreed_to_terms_signature: formData.signatureName.trim(),
           },
         },
       });
@@ -174,8 +189,20 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
   return (
     <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>
       <Paper sx={{ p: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+          <Box
+            component="img"
+            src="/logo.jpg"
+            alt="Zacharia Brown & Bratkovich"
+            sx={{
+              height: 80,
+              width: 'auto',
+              borderRadius: 1,
+            }}
+          />
+        </Box>
         <Typography variant="h5" sx={{ mb: 3, textAlign: 'center', fontWeight: 600 }}>
-          Create Account
+          Create Account on ZacBrownPortal
         </Typography>
 
         {error && (
@@ -282,11 +309,60 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
             required
           />
 
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formData.agreedToTerms}
+                onChange={(e) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    agreedToTerms: e.target.checked,
+                    signatureName: e.target.checked ? prev.signatureName : ''
+                  }));
+                  setError(null);
+                }}
+                sx={{ alignSelf: 'flex-start', mt: -0.5 }}
+              />
+            }
+            label={
+              <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.5 }}>
+                I agree that all content, videos, and forms on this website are for educational purposes only and do not constitute legal advice. I understand that no attorney-client relationship exists with Zacharia Brown & Bratkovich unless mutually agreed to in writing. I acknowledge that I may not rely on any information provided through this website without first obtaining review and advice from an attorney.
+              </Typography>
+            }
+            sx={{
+              mt: 2,
+              alignItems: 'flex-start',
+              '& .MuiFormControlLabel-label': { ml: 0.5 }
+            }}
+          />
+
+          {formData.agreedToTerms && (
+            <TextField
+              fullWidth
+              label="Type your full name to acknowledge"
+              value={formData.signatureName}
+              onChange={(e) => {
+                setFormData((prev) => ({ ...prev, signatureName: e.target.value }));
+                setError(null);
+              }}
+              margin="normal"
+              size="small"
+              required
+              placeholder="Your full legal name"
+              sx={{
+                mt: 1,
+                '& .MuiOutlinedInput-root': {
+                  fontStyle: 'italic',
+                }
+              }}
+            />
+          )}
+
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            disabled={loading}
+            disabled={loading || !formData.agreedToTerms || !formData.signatureName.trim()}
             sx={{ mt: 3, mb: 2 }}
           >
             {loading ? <CircularProgress size={24} /> : 'Create Account'}
@@ -298,6 +374,20 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
           <Button variant="text" onClick={onSwitchToLogin} sx={{ textTransform: 'none', p: 0 }}>
             Sign in
           </Button>
+        </Typography>
+
+        <Typography
+          variant="caption"
+          sx={{
+            display: 'block',
+            textAlign: 'center',
+            mt: 3,
+            color: 'text.secondary',
+            fontSize: '0.7rem',
+            lineHeight: 1.4,
+          }}
+        >
+          © 2026 Zacharia Brown & Bratkovich. All rights reserved. Access to this website is strictly limited to individuals for personal use in connection with Estate Planning and Elder Law matters. Any other use is expressly prohibited.  This application may utilize artificial intelligence to assist in the preparation of materials; all AI-generated content is subject to attorney review before it may be relied upon.
         </Typography>
       </Paper>
     </Box>

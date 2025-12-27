@@ -364,6 +364,9 @@ export interface FormData {
   // Dispositive Intentions
   provideForSpouseThenChildren: boolean;
   treatAllChildrenEqually: boolean;
+  // For blended families: should stepchildren be included in Will distributions?
+  includeClientStepchildrenInSpouseWill: boolean; // Should Spouse's Will include Client's children from prior relationship?
+  includeSpouseStepchildrenInClientWill: boolean; // Should Client's Will include Spouse's children from prior relationship?
   childrenEqualityExplanation: string;
   distributionAge: string;
   childrenPredeceasedBeneficiaries: boolean;
@@ -777,6 +780,8 @@ const initialFormData: FormData = {
   beneficiaryNotes: '',
   provideForSpouseThenChildren: true,
   treatAllChildrenEqually: true,
+  includeClientStepchildrenInSpouseWill: false,
+  includeSpouseStepchildrenInClientWill: false,
   childrenEqualityExplanation: '',
   distributionAge: '',
   childrenPredeceasedBeneficiaries: true,

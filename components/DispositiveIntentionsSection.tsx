@@ -86,6 +86,31 @@ const DispositiveIntentionsSection = () => {
     });
   }, [formData.children]);
 
+  // Blended family detection - check for stepchildren
+  const blendedFamilyInfo = useMemo(() => {
+    // Children of Client only (not both, not spouse only)
+    const clientOnlyChildren = formData.children.filter(
+      (child) => child.relationship === 'Child of Client Only'
+    );
+    // Children of Spouse only (not both, not client only)
+    const spouseOnlyChildren = formData.children.filter(
+      (child) => child.relationship === 'Child of Spouse Only'
+    );
+    // Children of both
+    const sharedChildren = formData.children.filter(
+      (child) => child.relationship === 'Child of Both'
+    );
+
+    return {
+      hasClientStepchildren: clientOnlyChildren.length > 0, // Client has children that are stepchildren to Spouse
+      hasSpouseStepchildren: spouseOnlyChildren.length > 0, // Spouse has children that are stepchildren to Client
+      clientOnlyChildrenNames: clientOnlyChildren.map(c => c.name),
+      spouseOnlyChildrenNames: spouseOnlyChildren.map(c => c.name),
+      sharedChildrenNames: sharedChildren.map(c => c.name),
+      isBlendedFamily: clientOnlyChildren.length > 0 || spouseOnlyChildren.length > 0,
+    };
+  }, [formData.children]);
+
   const openHelp = (helpId: number) => setActiveHelpId(helpId);
   const closeHelp = () => setActiveHelpId(null);
 
@@ -264,6 +289,57 @@ const DispositiveIntentionsSection = () => {
             </RadioGroup>
           </FormControl>
         </Grid>
+
+        {/* Blended Family Stepchildren Inclusion Options */}
+        {showSpouseInfo && formData.treatAllChildrenEqually && blendedFamilyInfo.isBlendedFamily && (
+          <Grid item xs={12}>
+            <Box sx={{ p: 2, bgcolor: '#fff3e0', borderRadius: 1, border: '1px solid #ffcc80' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#e65100' }}>
+                Blended Family Considerations
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Since you have a blended family, please indicate whether stepchildren should be included
+                in each spouse&apos;s Will/Trust distribution when treating children equally.
+              </Typography>
+
+              {/* Client's stepchildren (children of Client only) - should Spouse's Will include them? */}
+              {blendedFamilyInfo.hasClientStepchildren && (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formData.includeClientStepchildrenInSpouseWill}
+                      onChange={(e) => updateFormData({ includeClientStepchildrenInSpouseWill: e.target.checked })}
+                    />
+                  }
+                  label={
+                    <Typography variant="body2">
+                      Include {formData.name}&apos;s children from a prior relationship ({blendedFamilyInfo.clientOnlyChildrenNames.join(', ')}) in {formData.spouseName}&apos;s Will/Trust?
+                    </Typography>
+                  }
+                  sx={{ display: 'block', mb: 1 }}
+                />
+              )}
+
+              {/* Spouse's stepchildren (children of Spouse only) - should Client's Will include them? */}
+              {blendedFamilyInfo.hasSpouseStepchildren && (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formData.includeSpouseStepchildrenInClientWill}
+                      onChange={(e) => updateFormData({ includeSpouseStepchildrenInClientWill: e.target.checked })}
+                    />
+                  }
+                  label={
+                    <Typography variant="body2">
+                      Include {formData.spouseName}&apos;s children from a prior relationship ({blendedFamilyInfo.spouseOnlyChildrenNames.join(', ')}) in {formData.name}&apos;s Will/Trust?
+                    </Typography>
+                  }
+                  sx={{ display: 'block' }}
+                />
+              )}
+            </Box>
+          </Grid>
+        )}
 
         {hasChildren && (
           <>

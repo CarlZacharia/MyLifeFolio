@@ -21,7 +21,9 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloseIcon from '@mui/icons-material/Close';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useFormContext } from '../lib/FormContext';
+import { useAuth } from '../lib/AuthContext';
 import PersonalDataSection from '../components/PersonalDataSection';
 import BeneficiariesSection from '../components/BeneficiariesSection';
 import DispositiveIntentionsSection from '../components/DispositiveIntentionsSection';
@@ -60,10 +62,12 @@ type PageType = 'landing' | 'estate-planning-home' | 'estate-planning-questionna
 
 interface QuestionnaireContentProps {
   onNavigateBack: () => void;
+  onLogout: () => void;
 }
 
-const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateBack }) => {
+const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateBack, onLogout }) => {
   const { formData, currentStep, setCurrentStep, clearFormData } = useFormContext();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -189,7 +193,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
       case 'Review & Submit':
         return (
           <Box>
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1e3a5f', mb: 3 }}>
               Review & Submit
             </Typography>
             <Alert severity="info" sx={{ mb: 3 }}>
@@ -209,7 +213,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
         if (currentStep === totalSteps) {
           return (
             <Box sx={{ textAlign: 'center', py: 4 }}>
-              <Typography variant="h4" gutterBottom sx={{ color: '#1a237e' }}>
+              <Typography variant="h4" gutterBottom sx={{ color: '#1e3a5f' }}>
                 Thank You!
               </Typography>
               <Typography variant="h6" sx={{ mb: 3 }}>
@@ -235,21 +239,51 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#e8eef4' }}>
       {/* Navigation Bar */}
-      <AppBar position="static" sx={{ bgcolor: '#1a237e' }}>
+      <AppBar position="static" sx={{ bgcolor: '#1e3a5f' }}>
         <Toolbar>
           <Button
             color="inherit"
             startIcon={<ArrowBackIcon />}
             onClick={onNavigateBack}
-            sx={{ mr: 2 }}
+            sx={{ position: 'absolute', left: 16 }}
           >
-            Back to Estate Planning
+            Back to Main
           </Button>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            Estate Planning Questionnaire
-          </Typography>
+          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
+            <Box
+              component="img"
+              src="/logo.jpg"
+              alt="Zacharia Brown & Bratkovich Logo"
+              sx={{ height: 40, width: 'auto', borderRadius: 1 }}
+            />
+            <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
+              Zacharia Brown &amp; Bratkovich
+            </Typography>
+          </Box>
+          {user && (
+            <Button
+              variant="contained"
+              onClick={onLogout}
+              startIcon={<LogoutIcon />}
+              sx={{
+                position: 'absolute',
+                right: 16,
+                bgcolor: '#d32f2f',
+                color: 'white',
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                boxShadow: 'none',
+                '&:hover': {
+                  bgcolor: '#b71c1c',
+                  boxShadow: '0 4px 12px rgba(211, 47, 47, 0.3)',
+                },
+              }}
+            >
+              Logout
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
 
@@ -258,7 +292,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
           {/* Header */}
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-              <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 0 }} onClick={debugFormData}>
+              <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#1e3a5f', mb: 0 }} onClick={debugFormData}>
                 Estate Planning Questionnaire
               </Typography>
               <VideoHelpIcon helpId={0} onClick={() => openHelp(0)} size="large" />
@@ -312,7 +346,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
                           transform: disabled ? 'none' : 'scale(1.1)',
                         },
                         '&:hover .MuiStepIcon-root': {
-                          color: disabled ? undefined : '#1a237e',
+                          color: disabled ? undefined : '#1e3a5f',
                         },
                       }}
                     >
@@ -343,13 +377,13 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
                     variant="contained"
                     onClick={handleSubmit}
                     disabled={isSubmitting}
-                    sx={{ bgcolor: '#1a237e' }}
+                    sx={{ bgcolor: '#1e3a5f' }}
                     startIcon={isSubmitting && <CircularProgress size={20} color="inherit" />}
                   >
                     {isSubmitting ? 'Submitting...' : 'Submit Questionnaire'}
                   </Button>
                 ) : (
-                  <Button variant="contained" onClick={handleNext} sx={{ bgcolor: '#1a237e' }}>
+                  <Button variant="contained" onClick={handleNext} sx={{ bgcolor: '#1e3a5f' }}>
                     Continue
                   </Button>
                 )}
@@ -377,10 +411,16 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
 export default function MainPage() {
   const [currentPage, setCurrentPage] = useState<PageType>('landing');
   const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
+  const { signOut } = useAuth();
 
   const handleNavigate = (page: string) => {
     setCurrentPage(page as PageType);
     window.scrollTo(0, 0);
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    handleNavigate('landing');
   };
 
   const handleLogin = () => {
@@ -436,6 +476,7 @@ export default function MainPage() {
         return (
           <QuestionnaireContent
             onNavigateBack={() => handleNavigate('estate-planning-home')}
+            onLogout={handleLogout}
           />
         );
 

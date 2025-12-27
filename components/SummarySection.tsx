@@ -914,7 +914,7 @@ const SummarySection = () => {
                     <TableRow sx={{ bgcolor: '#f5f5f5' }}>
                       <TableCell sx={{ fontWeight: 600 }}>Address</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Owner</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Ownership</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Ownership Form</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Value</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Mortgage</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Remainder Interest</TableCell>
