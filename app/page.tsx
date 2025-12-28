@@ -18,10 +18,16 @@ import {
   Dialog,
   DialogContent,
   IconButton,
+  Backdrop,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloseIcon from '@mui/icons-material/Close';
 import LogoutIcon from '@mui/icons-material/Logout';
+import DownloadIcon from '@mui/icons-material/Download';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
+import { saveAs } from 'file-saver';
 import { useFormContext } from '../lib/FormContext';
 import { useAuth } from '../lib/AuthContext';
 import PersonalDataSection from '../components/PersonalDataSection';
@@ -41,8 +47,298 @@ import { VideoHelpIcon } from '../components/FieldWithHelp';
 import HelpModal from '../components/HelpModal';
 import { MaritalStatus } from '../lib/FormContext';
 import { analyzeEstatePlan, ANALYSIS_PROMPTS } from '../lib/claudeApi';
+import { categorizeAssets } from '../lib/assetCategorization';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
+
+// Helper function to parse text with bold markdown into TextRuns
+const parseTextWithBold = (text: string, baseBold = false): TextRun[] => {
+  const parts: TextRun[] = [];
+  const boldRegex = /\*\*(.*?)\*\*/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = boldRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(new TextRun({ text: text.slice(lastIndex, match.index), bold: baseBold }));
+    }
+    parts.push(new TextRun({ text: match[1], bold: true }));
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(new TextRun({ text: text.slice(lastIndex), bold: baseBold }));
+  }
+
+  if (parts.length === 0) {
+    parts.push(new TextRun({ text, bold: baseBold }));
+  }
+
+  return parts;
+};
+
+// Helper function to parse a markdown table row
+const parseTableRow = (line: string): string[] => {
+  return line
+    .split('|')
+    .map(cell => cell.trim())
+    .filter((cell, index, arr) => index > 0 && index < arr.length - 1 || (index === 0 && cell) || (index === arr.length - 1 && cell));
+};
+
+// Helper function to check if a line is a table separator
+const isTableSeparator = (line: string): boolean => {
+  return /^\|?\s*[-:]+\s*\|/.test(line) && line.includes('-');
+};
+
+// Helper function to convert markdown to Word document
+const markdownToDocx = (markdown: string, clientName: string): Document => {
+  const lines = markdown.split('\n');
+  const children: (Paragraph | Table)[] = [];
+
+  // Add header
+  children.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: 'ESTATE PLANNING ANALYSIS',
+          bold: true,
+          size: 32,
+        }),
+      ],
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 200 },
+    })
+  );
+
+  children.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: `Prepared for: ${clientName}`,
+          size: 24,
+        }),
+      ],
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 200 },
+    })
+  );
+
+  children.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: `Date: ${new Date().toLocaleDateString()}`,
+          size: 24,
+        }),
+      ],
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 400 },
+    })
+  );
+
+  let inList = false;
+  let i = 0;
+
+  while (i < lines.length) {
+    const trimmedLine = lines[i].trim();
+
+    if (!trimmedLine) {
+      children.push(new Paragraph({ text: '' }));
+      i++;
+      continue;
+    }
+
+    // Check if this is the start of a table
+    if (trimmedLine.startsWith('|') && i + 1 < lines.length && isTableSeparator(lines[i + 1])) {
+      const tableRows: TableRow[] = [];
+      const headerCells = parseTableRow(trimmedLine);
+
+      // Create header row with shading
+      tableRows.push(
+        new TableRow({
+          children: headerCells.map(cell =>
+            new TableCell({
+              children: [new Paragraph({ children: parseTextWithBold(cell, true) })],
+              shading: { fill: 'E8E8E8' },
+            })
+          ),
+        })
+      );
+
+      i += 2; // Skip header and separator lines
+
+      // Parse data rows
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        const rowCells = parseTableRow(lines[i].trim());
+        if (rowCells.length > 0) {
+          tableRows.push(
+            new TableRow({
+              children: rowCells.map(cell =>
+                new TableCell({
+                  children: [new Paragraph({ children: parseTextWithBold(cell) })],
+                })
+              ),
+            })
+          );
+        }
+        i++;
+      }
+
+      // Create the table
+      if (tableRows.length > 0) {
+        children.push(
+          new Table({
+            rows: tableRows,
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 1, color: '999999' },
+              bottom: { style: BorderStyle.SINGLE, size: 1, color: '999999' },
+              left: { style: BorderStyle.SINGLE, size: 1, color: '999999' },
+              right: { style: BorderStyle.SINGLE, size: 1, color: '999999' },
+              insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: '999999' },
+              insideVertical: { style: BorderStyle.SINGLE, size: 1, color: '999999' },
+            },
+          })
+        );
+        children.push(new Paragraph({ text: '' })); // Add spacing after table
+      }
+      continue;
+    }
+
+    // Handle headings
+    if (trimmedLine.startsWith('### ')) {
+      const headingText = trimmedLine.replace('### ', '').replace(/\*\*/g, '');
+      children.push(
+        new Paragraph({
+          children: [new TextRun({ text: headingText, bold: true })],
+          heading: HeadingLevel.HEADING_3,
+          spacing: { before: 240, after: 120 },
+        })
+      );
+    } else if (trimmedLine.startsWith('## ')) {
+      const headingText = trimmedLine.replace('## ', '').replace(/\*\*/g, '');
+      children.push(
+        new Paragraph({
+          children: [new TextRun({ text: headingText, bold: true })],
+          heading: HeadingLevel.HEADING_2,
+          spacing: { before: 300, after: 150 },
+        })
+      );
+    } else if (trimmedLine.startsWith('# ')) {
+      const headingText = trimmedLine.replace('# ', '').replace(/\*\*/g, '');
+      children.push(
+        new Paragraph({
+          children: [new TextRun({ text: headingText, bold: true })],
+          heading: HeadingLevel.HEADING_1,
+          spacing: { before: 400, after: 200 },
+        })
+      );
+    }
+    // Handle bullet points
+    else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
+      const text = trimmedLine.replace(/^[-*]\s/, '');
+      const bulletRuns = parseTextWithBold(text);
+      children.push(
+        new Paragraph({
+          children: [new TextRun({ text: '• ' }), ...bulletRuns],
+          indent: { left: 720 },
+          spacing: { after: 60 },
+        })
+      );
+      inList = true;
+    }
+    // Handle numbered lists
+    else if (/^\d+\.\s/.test(trimmedLine)) {
+      const text = trimmedLine.replace(/^\d+\.\s/, '');
+      const num = trimmedLine.match(/^(\d+)\./)?.[1] || '1';
+      const listRuns = parseTextWithBold(text);
+      children.push(
+        new Paragraph({
+          children: [new TextRun({ text: `${num}. ` }), ...listRuns],
+          indent: { left: 720 },
+          spacing: { after: 60 },
+        })
+      );
+      inList = true;
+    }
+    // Handle regular paragraphs with bold text
+    else {
+      children.push(
+        new Paragraph({
+          children: parseTextWithBold(trimmedLine),
+          spacing: { after: inList ? 60 : 120 },
+        })
+      );
+      inList = false;
+    }
+
+    i++;
+  }
+
+  // Add footer
+  children.push(
+    new Paragraph({
+      text: '',
+      spacing: { before: 400 },
+    })
+  );
+
+  children.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: 'This analysis is for informational purposes only and does not constitute legal advice.',
+          italics: true,
+          size: 20,
+        }),
+      ],
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 200 },
+    })
+  );
+
+  children.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: 'Zacharia Brown & Bratkovich',
+          bold: true,
+        }),
+      ],
+      alignment: AlignmentType.CENTER,
+    })
+  );
+
+  children.push(
+    new Paragraph({
+      text: '26811 South Bay Dr. Ste 260',
+      alignment: AlignmentType.CENTER,
+    })
+  );
+
+  children.push(
+    new Paragraph({
+      text: 'Bonita Springs, Florida 34134',
+      alignment: AlignmentType.CENTER,
+    })
+  );
+
+  children.push(
+    new Paragraph({
+      text: 'Tel: (239) 345-4545',
+      alignment: AlignmentType.CENTER,
+    })
+  );
+
+  return new Document({
+    sections: [
+      {
+        properties: {},
+        children,
+      },
+    ],
+  });
+};
 
 const ALL_STEPS = [
   'Personal Data',
@@ -113,6 +409,14 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
   const steps = ALL_STEPS;
   const totalSteps = steps.length;
 
+  // Reset step if it's beyond valid range (e.g., after page reload when analysisResult is lost)
+  React.useEffect(() => {
+    if (currentStep >= totalSteps && !analysisResult) {
+      // Reset to the last valid step (Review & Submit)
+      setCurrentStep(totalSteps - 1);
+    }
+  }, [currentStep, totalSteps, analysisResult, setCurrentStep]);
+
   // No steps are disabled - Beneficiaries section handles empty states
   const isStepDisabled = (_stepName: string) => {
     return false;
@@ -144,9 +448,13 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
     setAnalysisResult(null);
 
     try {
-      // Submit to Claude API for analysis
+      // Pre-compute asset categorization for consistency
+      const assetCategorySummary = categorizeAssets(formData);
+
+      // Submit to Claude API for analysis with pre-computed categories
       const result = await analyzeEstatePlan({
         formData: formData as unknown as Record<string, unknown>,
+        assetCategorySummary,
         prompt: ANALYSIS_PROMPTS.comprehensive,
       });
 
@@ -209,6 +517,14 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
       default:
         // Analysis Results page (after submit)
         if (currentStep === totalSteps && analysisResult) {
+          const handleDownloadWord = async () => {
+            const clientName = formData.name || 'Client';
+            const doc = markdownToDocx(analysisResult, clientName);
+            const blob = await Packer.toBlob(doc);
+            const fileName = `Estate_Planning_Analysis_${clientName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.docx`;
+            saveAs(blob, fileName);
+          };
+
           return (
             <Box sx={{ py: 2 }}>
               <Typography variant="h4" gutterBottom sx={{ color: '#1e3a5f', fontWeight: 600, textAlign: 'center' }}>
@@ -224,29 +540,24 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
                   p: 3,
                   mb: 3,
                   bgcolor: '#fafafa',
-                  '& p': { mb: 2 },
-                  '& h1, & h2, & h3, & h4, & h5, & h6': {
-                    color: '#1e3a5f',
-                    fontWeight: 600,
-                    mt: 3,
-                    mb: 1.5
-                  },
+                  '& h1': { fontSize: '1.8rem', color: '#1e3a5f', fontWeight: 600, mt: 3, mb: 1.5, borderBottom: '2px solid #1e3a5f', pb: 1 },
+                  '& h2': { fontSize: '1.5rem', color: '#1e3a5f', fontWeight: 600, mt: 3, mb: 1.5 },
+                  '& h3': { fontSize: '1.25rem', color: '#1e3a5f', fontWeight: 600, mt: 2, mb: 1 },
+                  '& h4': { fontSize: '1.1rem', color: '#1e3a5f', fontWeight: 600, mt: 2, mb: 1 },
+                  '& p': { mb: 2, lineHeight: 1.7 },
                   '& ul, & ol': { pl: 3, mb: 2 },
-                  '& li': { mb: 0.5 },
+                  '& li': { mb: 0.5, lineHeight: 1.6 },
+                  '& strong, & b': { fontWeight: 700, color: '#1e3a5f' },
+                  '& p strong, & li strong, & td strong': { fontWeight: 700 },
+                  '& table': { width: '100%', borderCollapse: 'collapse', mb: 2 },
+                  '& th, & td': { border: '1px solid #ddd', p: 1, textAlign: 'left' },
+                  '& th': { bgcolor: '#f5f5f5', fontWeight: 600 },
+                  '& hr': { my: 3, borderColor: '#ddd' },
                 }}
               >
-                <Typography
-                  component="div"
-                  sx={{
-                    whiteSpace: 'pre-wrap',
-                    lineHeight: 1.7,
-                    '& strong': { fontWeight: 600 }
-                  }}
-                >
-                  {analysisResult}
-                </Typography>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{analysisResult}</ReactMarkdown>
               </Paper>
-              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4, flexWrap: 'wrap' }}>
                 <Button
                   variant="outlined"
                   onClick={() => {
@@ -256,6 +567,14 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
                   }}
                 >
                   Start New Questionnaire
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{ bgcolor: '#2e7d32', '&:hover': { bgcolor: '#1b5e20' } }}
+                  onClick={handleDownloadWord}
+                  startIcon={<DownloadIcon />}
+                >
+                  Download as Word
                 </Button>
                 <Button
                   variant="contained"
@@ -446,6 +765,26 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
             {submitError}
           </Alert>
         </Snackbar>
+
+        {/* Loading Overlay */}
+        <Backdrop
+          sx={{
+            color: '#fff',
+            zIndex: (theme) => theme.zIndex.drawer + 1,
+            backgroundColor: 'rgba(30, 58, 95, 0.85)',
+            flexDirection: 'column',
+            gap: 2,
+          }}
+          open={isSubmitting}
+        >
+          <CircularProgress color="inherit" size={80} thickness={4} />
+          <Typography variant="h6" sx={{ mt: 2, fontWeight: 500 }}>
+            Analyzing Your Estate Plan...
+          </Typography>
+          <Typography variant="body2" sx={{ opacity: 0.8 }}>
+            This may take a moment
+          </Typography>
+        </Backdrop>
       </Container>
     </Box>
   );

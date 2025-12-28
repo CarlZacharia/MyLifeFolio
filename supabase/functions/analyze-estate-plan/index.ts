@@ -4,6 +4,9 @@
 // @ts-ignore - Deno imports work in Supabase Edge Functions runtime
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
+// @ts-ignore - Deno global available in Edge Functions runtime
+declare const Deno: { env: { get(key: string): string | undefined } };
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -14,7 +17,7 @@ interface RequestBody {
   prompt?: string;
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });

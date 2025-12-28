@@ -69,7 +69,7 @@ export const BeneficiariesSummaryTable: React.FC<BeneficiariesSummaryTableProps>
             <TableRow sx={{ bgcolor: '#f5f5f5' }}>
               <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Distribution</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Age</TableCell>
               <TableCell sx={{ fontWeight: 600, width: 60 }}>Edit</TableCell>
             </TableRow>
           </TableHead>
@@ -88,9 +88,9 @@ export const BeneficiariesSummaryTable: React.FC<BeneficiariesSummaryTableProps>
                     ? beneficiary.relationshipOther
                     : beneficiary.relationship || '-'}
                 </TableCell>
-                <TableCell>{beneficiary.distributionType || '-'}</TableCell>
+                <TableCell>{beneficiary.age|| '-'}</TableCell>
                 <TableCell>
-                  <IconButton
+                  <IconButton 
                     size="small"
                     onClick={(e) => {
                       e.stopPropagation();

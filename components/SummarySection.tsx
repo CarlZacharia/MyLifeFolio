@@ -16,6 +16,7 @@ import {
   Chip,
 } from '@mui/material';
 import { useFormContext, MaritalStatus } from '../lib/FormContext';
+import { categorizeAssets, calculateCategoryTotal, CategorizedAsset } from '../lib/assetCategorization';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -96,6 +97,10 @@ const SummarySection = () => {
     if (isNaN(num)) return value;
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
   };
+
+  // Use the shared asset categorization utility
+  const assetCategorySummary = categorizeAssets(formData);
+  const assetCategories = assetCategorySummary.categories;
 
   // Helper to format fiduciary names - handles dropdown values and "Other" fields
   const formatFiduciaryName = (dropdownValue: string, otherValue: string): string | null => {
@@ -195,7 +200,7 @@ const SummarySection = () => {
                   <TableCell sx={{ fontWeight: 600 }}>Birth Date</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Marital Status</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Has Children</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Distribution</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Age</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                 </TableRow>
               </TableHead>
@@ -207,7 +212,7 @@ const SummarySection = () => {
                     <TableCell>{child.birthDate || '-'}</TableCell>
                     <TableCell>{child.maritalStatus || '-'}</TableCell>
                     <TableCell>{child.hasChildren && child.numberOfChildren > 0 ? `Yes (${child.numberOfChildren})` : 'No'}</TableCell>
-                    <TableCell>{child.distributionType || '-'}</TableCell>
+                    <TableCell>{child.age || '-'}</TableCell>
                     <TableCell>
                       {child.disinherit ? (
                         <Chip label="Disinherited" color="error" size="small" />
@@ -240,7 +245,7 @@ const SummarySection = () => {
                   <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Address</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Distribution</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Age</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Notes</TableCell>
                 </TableRow>
               </TableHead>
@@ -254,7 +259,7 @@ const SummarySection = () => {
                         : beneficiary.relationship}
                     </TableCell>
                     <TableCell>{beneficiary.address || '-'}</TableCell>
-                    <TableCell>{beneficiary.distributionType || '-'}</TableCell>
+                    <TableCell>{beneficiary.age || '-'}</TableCell>
                     <TableCell>{beneficiary.notes || '-'}</TableCell>
                   </TableRow>
                 ))}
@@ -1026,7 +1031,7 @@ const SummarySection = () => {
                     <TableRow sx={{ bgcolor: '#f5f5f5' }}>
                       <TableCell sx={{ fontWeight: 600 }}>Company</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Insured</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Face Amount</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Death Benefit</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Cash Value</TableCell>
                     </TableRow>
                   </TableHead>
@@ -1035,7 +1040,7 @@ const SummarySection = () => {
                       <TableRow key={index}>
                         <TableCell>{policy.company}</TableCell>
                         <TableCell>{policy.insured}</TableCell>
-                        <TableCell>{formatCurrency(policy.faceAmount)}</TableCell>
+                        <TableCell>{formatCurrency(policy.deathBenefit)}</TableCell>
                         <TableCell>{formatCurrency(policy.cashValue)}</TableCell>
                       </TableRow>
                     ))}
@@ -1099,6 +1104,229 @@ const SummarySection = () => {
                 </Table>
               </TableContainer>
             </>
+          )}
+
+          {/* Assets by Ownership Category */}
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}>
+            Assets by Ownership Category
+          </Typography>
+
+          {/* Category Summary Table */}
+          <TableContainer sx={{ mb: 3 }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor: '#e3f2fd' }}>
+                  <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">Total Value</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {assetCategories.clientProbate.length > 0 && (
+                  <TableRow>
+                    <TableCell>Client Probate Assets</TableCell>
+                    <TableCell align="right">
+                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(calculateCategoryTotal(assetCategories.clientProbate))}
+                    </TableCell>
+                  </TableRow>
+                )}
+                {assetCategories.clientNonProbate.length > 0 && (
+                  <TableRow>
+                    <TableCell>Client Non-Probate Assets</TableCell>
+                    <TableCell align="right">
+                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(calculateCategoryTotal(assetCategories.clientNonProbate))}
+                    </TableCell>
+                  </TableRow>
+                )}
+                {showSpouseInfo && assetCategories.spouseProbate.length > 0 && (
+                  <TableRow>
+                    <TableCell>Spouse Probate Assets</TableCell>
+                    <TableCell align="right">
+                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(calculateCategoryTotal(assetCategories.spouseProbate))}
+                    </TableCell>
+                  </TableRow>
+                )}
+                {showSpouseInfo && assetCategories.spouseNonProbate.length > 0 && (
+                  <TableRow>
+                    <TableCell>Spouse Non-Probate Assets</TableCell>
+                    <TableCell align="right">
+                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(calculateCategoryTotal(assetCategories.spouseNonProbate))}
+                    </TableCell>
+                  </TableRow>
+                )}
+                {assetCategories.jointNonProbate.length > 0 && (
+                  <TableRow>
+                    <TableCell>Joint Non-Probate Assets</TableCell>
+                    <TableCell align="right">
+                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(calculateCategoryTotal(assetCategories.jointNonProbate))}
+                    </TableCell>
+                  </TableRow>
+                )}
+                <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                  <TableCell sx={{ fontWeight: 600 }}>Total Estate Value</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 600 }}>
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+                      calculateCategoryTotal(assetCategories.clientProbate) +
+                      calculateCategoryTotal(assetCategories.clientNonProbate) +
+                      calculateCategoryTotal(assetCategories.spouseProbate) +
+                      calculateCategoryTotal(assetCategories.spouseNonProbate) +
+                      calculateCategoryTotal(assetCategories.jointNonProbate)
+                    )}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* Detailed Category Listings */}
+          {assetCategories.clientProbate.length > 0 && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#d32f2f', mb: 1 }}>
+                Client Probate Assets ({assetCategories.clientProbate.length})
+              </Typography>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#ffebee' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Value</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {assetCategories.clientProbate.map((asset, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{asset.description}</TableCell>
+                        <TableCell>{asset.assetType}{asset.ownershipForm ? ` (${asset.ownershipForm})` : ''}</TableCell>
+                        <TableCell align="right">
+                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(asset.value)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+
+          {assetCategories.clientNonProbate.length > 0 && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#2e7d32', mb: 1 }}>
+                Client Non-Probate Assets ({assetCategories.clientNonProbate.length})
+              </Typography>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#e8f5e9' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Value</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {assetCategories.clientNonProbate.map((asset, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{asset.description}</TableCell>
+                        <TableCell>{asset.assetType}{asset.ownershipForm ? ` (${asset.ownershipForm})` : ''}</TableCell>
+                        <TableCell align="right">
+                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(asset.value)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+
+          {showSpouseInfo && assetCategories.spouseProbate.length > 0 && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#d32f2f', mb: 1 }}>
+                Spouse Probate Assets ({assetCategories.spouseProbate.length})
+              </Typography>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#ffebee' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Value</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {assetCategories.spouseProbate.map((asset, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{asset.description}</TableCell>
+                        <TableCell>{asset.assetType}{asset.ownershipForm ? ` (${asset.ownershipForm})` : ''}</TableCell>
+                        <TableCell align="right">
+                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(asset.value)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+
+          {showSpouseInfo && assetCategories.spouseNonProbate.length > 0 && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#2e7d32', mb: 1 }}>
+                Spouse Non-Probate Assets ({assetCategories.spouseNonProbate.length})
+              </Typography>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#e8f5e9' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Value</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {assetCategories.spouseNonProbate.map((asset, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{asset.description}</TableCell>
+                        <TableCell>{asset.assetType}{asset.ownershipForm ? ` (${asset.ownershipForm})` : ''}</TableCell>
+                        <TableCell align="right">
+                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(asset.value)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+
+          {assetCategories.jointNonProbate.length > 0 && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#1565c0', mb: 1 }}>
+                Joint Non-Probate Assets ({assetCategories.jointNonProbate.length})
+              </Typography>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#e3f2fd' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Value</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {assetCategories.jointNonProbate.map((asset, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{asset.description}</TableCell>
+                        <TableCell>{asset.assetType}{asset.ownershipForm ? ` (${asset.ownershipForm})` : ''}</TableCell>
+                        <TableCell align="right">
+                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(asset.value)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
           )}
         </Paper>
       )}

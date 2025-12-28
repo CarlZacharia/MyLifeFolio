@@ -413,7 +413,14 @@ const CategoryAccordion: React.FC<{ category: AssetCategory; defaultExpanded?: b
                 if (asset.isPersonalPropertyMemo) {
                   beneficiaryText = 'Legatees';
                 } else if (asset.hasBeneficiaries) {
-                  beneficiaryText = 'Yes';
+                  // For Lady Bird Deed or Life Estate, show the deed type
+                  if (asset.ownershipForm === 'Lady Bird Deed') {
+                    beneficiaryText = 'Yes - Lady Bird Deed';
+                  } else if (asset.ownershipForm === 'Life Estate') {
+                    beneficiaryText = 'Yes - Life Estate';
+                  } else {
+                    beneficiaryText = 'Yes';
+                  }
                 }
 
                 return (
@@ -624,6 +631,125 @@ const HeirSummary: React.FC<HeirSummaryProps> = ({ title, heirs }) => {
   );
 };
 
+// Asset liquidity priority for cash bequest deductions
+// Cash bequests are paid from residuary/probate assets in order of liquidity
+const ASSET_LIQUIDITY_PRIORITY: { [key: string]: number } = {
+  'Checking': 1,
+  'Savings': 2,
+  'Money Market': 3,
+  'Certificate of Deposit': 4,
+  'Health Savings Account': 5,
+  'Other': 6,
+  'Bank Account': 7, // Generic bank account
+  'Non-Qualified Investment': 10,
+  'Retirement Account': 20,
+  'Life Insurance': 30,
+  'Vehicle': 40,
+  'Other Asset': 50,
+  'Business Interest': 60,
+  'Real Estate': 100, // Least liquid
+};
+
+// Get liquidity priority for an asset (lower = more liquid)
+const getAssetLiquidityPriority = (assetType: string, accountType?: string): number => {
+  // For bank accounts, use the specific account type
+  if (assetType === 'Bank Account' && accountType) {
+    return ASSET_LIQUIDITY_PRIORITY[accountType] || ASSET_LIQUIDITY_PRIORITY['Bank Account'];
+  }
+  return ASSET_LIQUIDITY_PRIORITY[assetType] || 1000;
+};
+
+// Interface for tracking cash bequest deductions
+interface CashBequestDeduction {
+  assetDescription: string;
+  assetType: string;
+  originalValue: number;
+  deductedAmount: number;
+  remainingValue: number;
+}
+
+// Calculate total cash bequests and determine deductions from probate assets
+const calculateCashBequestDeductions = (
+  cashGifts: { beneficiaryName: string; amount: string }[],
+  probateAssets: CategorizedAsset[]
+): {
+  totalCashBequests: number;
+  deductions: CashBequestDeduction[];
+  adjustedProbateAssets: CategorizedAsset[];
+  remainingBequest: number;
+} => {
+  const totalCashBequests = cashGifts.reduce(
+    (sum, gift) => sum + parseCurrency(gift.amount),
+    0
+  );
+
+  if (totalCashBequests === 0 || probateAssets.length === 0) {
+    return {
+      totalCashBequests,
+      deductions: [],
+      adjustedProbateAssets: probateAssets,
+      remainingBequest: 0,
+    };
+  }
+
+  // Sort probate assets by liquidity (most liquid first)
+  const sortedAssets = [...probateAssets].sort((a, b) => {
+    const priorityA = getAssetLiquidityPriority(a.type, a.type === 'Bank Account' ? a.description : undefined);
+    const priorityB = getAssetLiquidityPriority(b.type, b.type === 'Bank Account' ? b.description : undefined);
+    return priorityA - priorityB;
+  });
+
+  const deductions: CashBequestDeduction[] = [];
+  const adjustedAssets: CategorizedAsset[] = [];
+  let remainingBequest = totalCashBequests;
+
+  for (const asset of sortedAssets) {
+    const assetValue = parseCurrency(asset.value);
+
+    if (remainingBequest <= 0) {
+      // No more deductions needed, keep asset as-is
+      adjustedAssets.push(asset);
+      continue;
+    }
+
+    if (assetValue <= remainingBequest) {
+      // Fully consume this asset
+      deductions.push({
+        assetDescription: asset.description,
+        assetType: asset.type,
+        originalValue: assetValue,
+        deductedAmount: assetValue,
+        remainingValue: 0,
+      });
+      remainingBequest -= assetValue;
+      // Don't add to adjustedAssets since it's fully consumed
+    } else {
+      // Partially consume this asset
+      deductions.push({
+        assetDescription: asset.description,
+        assetType: asset.type,
+        originalValue: assetValue,
+        deductedAmount: remainingBequest,
+        remainingValue: assetValue - remainingBequest,
+      });
+      // Add adjusted asset with remaining value
+      adjustedAssets.push({
+        ...asset,
+        value: formatCurrency(assetValue - remainingBequest),
+        calculatedValue: assetValue - remainingBequest,
+      });
+      remainingBequest = 0;
+    }
+  }
+
+  return {
+    totalCashBequests,
+    deductions,
+    adjustedProbateAssets: adjustedAssets,
+    remainingBequest,
+  };
+};
+
 const EstatePlanAnalysis: React.FC = () => {
   const { formData } = useFormContext();
   const showSpouse = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
@@ -657,17 +783,23 @@ const EstatePlanAnalysis: React.FC = () => {
     };
   }, [formData.children, formData.includeClientStepchildrenInSpouseWill, formData.includeSpouseStepchildrenInClientWill]);
 
-  // Helper to check if asset is client-only (sole ownership)
+  // Helper to check if asset is client-only (sole ownership or Lady Bird/Life Estate owned by Client)
   const isClientSole = (owner: string, ownershipForm?: string): boolean => {
-    return owner === 'Client' && (!ownershipForm || ownershipForm === 'Sole');
+    if (owner !== 'Client') return false;
+    // Lady Bird Deed and Life Estate owned by Client are considered Client assets (non-probate)
+    if (ownershipForm === 'Lady Bird Deed' || ownershipForm === 'Life Estate') return true;
+    return !ownershipForm || ownershipForm === 'Sole';
   };
 
-  // Helper to check if asset is spouse-only (sole ownership)
+  // Helper to check if asset is spouse-only (sole ownership or Lady Bird/Life Estate owned by Spouse)
   const isSpouseSole = (owner: string, ownershipForm?: string): boolean => {
-    return owner === 'Spouse' && (!ownershipForm || ownershipForm === 'Sole');
+    if (owner !== 'Spouse') return false;
+    // Lady Bird Deed and Life Estate owned by Spouse are considered Spouse assets (non-probate)
+    if (ownershipForm === 'Lady Bird Deed' || ownershipForm === 'Life Estate') return true;
+    return !ownershipForm || ownershipForm === 'Sole';
   };
 
-  // Helper to check if joint client+spouse with TBE, JTWROS, or Lady Bird Deed
+  // Helper to check if joint client+spouse with TBE, JTWROS, Lady Bird Deed, or Life Estate
   // For assets without ownershipForm (like bank accounts), treat "Client and Spouse" as joint
   const isJointClientSpouse = (owner: string, ownershipForm?: string): boolean => {
     if (owner !== 'Client and Spouse') return false;
@@ -675,7 +807,8 @@ const EstatePlanAnalysis: React.FC = () => {
     if (!ownershipForm) return true;
     return ownershipForm === 'Tenants by Entirety' ||
            ownershipForm === 'JTWROS' ||
-           ownershipForm === 'Lady Bird Deed';
+           ownershipForm === 'Lady Bird Deed' ||
+           ownershipForm === 'Life Estate';
   };
 
   // Helper to check if Lady Bird Deed or Life Estate (has remainder beneficiaries)
@@ -829,16 +962,16 @@ const EstatePlanAnalysis: React.FC = () => {
     });
   };
 
-  // Categorize life insurance (cash value only)
+  // Categorize life insurance (death benefit - the amount passing to beneficiaries)
   const categorizeLifeInsurance = (): CategorizedAsset[] => {
     return formData.lifeInsurance
-      .filter(policy => policy.cashValue && parseCurrency(policy.cashValue) > 0)
+      .filter(policy => policy.deathBenefit && parseCurrency(policy.deathBenefit) > 0)
       .map(policy => {
         const hasBeneficiaries = policy.hasBeneficiaries && policy.primaryBeneficiaries.length > 0;
         return {
-          type: 'Life Insurance (Cash Value)',
+          type: 'Life Insurance',
           description: `${policy.company} - ${policy.policyType}`,
-          value: policy.cashValue,
+          value: policy.deathBenefit,
           owner: policy.owner,
           hasBeneficiaries,
           primaryBeneficiaries: policy.primaryBeneficiaries,
@@ -959,24 +1092,17 @@ const EstatePlanAnalysis: React.FC = () => {
     isSpouseSole(asset.owner, asset.ownershipForm) && asset.hasBeneficiaries
   );
 
-  // Category 3: Joint Client+Spouse (TBE/JTWROS) without beneficiaries - excludes Lady Bird Deeds
+  // Category 3: Joint Client+Spouse (TBE/JTWROS/Lady Bird/Life Estate) without beneficiaries
   const jointNoBeneficiaries = allAssets.filter(asset =>
     isJointClientSpouse(asset.owner, asset.ownershipForm) &&
-    !asset.hasBeneficiaries &&
-    !isLadyBirdOrLifeEstate(asset.ownershipForm)
+    !asset.hasBeneficiaries
   );
 
-  // Category 4: Joint Client+Spouse (TBE/JTWROS) with beneficiaries - excludes Lady Bird Deeds
+  // Category 4: Joint Client+Spouse (TBE/JTWROS/Lady Bird/Life Estate) with beneficiaries
+  // Lady Bird Deed and Life Estate assets with joint ownership are now included here
   const jointWithBeneficiaries = allAssets.filter(asset =>
     isJointClientSpouse(asset.owner, asset.ownershipForm) &&
-    asset.hasBeneficiaries &&
-    !isLadyBirdOrLifeEstate(asset.ownershipForm)
-  );
-
-  // Lady Bird Deed / Life Estate assets - joint ownership with remainder beneficiaries
-  // These have special handling: life estate continues to survivor, remainder passes at second death
-  const ladyBirdDeedAssets = allAssets.filter(asset =>
-    isLadyBirdOrLifeEstate(asset.ownershipForm)
+    asset.hasBeneficiaries
   );
 
   // Category 5: Tenants in Common - Client and Other
@@ -1067,55 +1193,48 @@ const EstatePlanAnalysis: React.FC = () => {
     {
       id: 'joint-with-beneficiaries',
       title: '6. Joint (Client & Spouse) - With Beneficiaries',
-      description: 'Assets owned jointly by Client and Spouse as Tenants by Entirety or JTWROS with designated beneficiaries. These pass to the surviving spouse, then to beneficiaries.',
+      description: 'Assets owned jointly by Client and Spouse (TBE, JTWROS, Lady Bird Deed, or Life Estate) with designated beneficiaries. These pass to the surviving spouse, then to beneficiaries or remainder interest holders.',
       assets: jointWithBeneficiaries,
       totalValue: calculateTotal(jointWithBeneficiaries),
     },
     {
-      id: 'lady-bird-deed',
-      title: '7. Lady Bird Deed / Life Estate',
-      description: 'Assets held via Lady Bird Deed or Life Estate. Life tenant(s) retain use during lifetime; remainder passes to designated beneficiaries at death of last life tenant.',
-      assets: ladyBirdDeedAssets,
-      totalValue: calculateTotal(ladyBirdDeedAssets),
-    },
-    {
       id: 'tic-client-other',
-      title: '8. Tenants in Common - Client & Other',
+      title: '7. Tenants in Common - Client & Other',
       description: 'Assets owned by Client and another party as Tenants in Common. Client\'s share passes through their estate.',
       assets: ticClientOther,
       totalValue: calculateTotal(ticClientOther),
     },
     {
       id: 'tic-spouse-other',
-      title: '9. Tenants in Common - Spouse & Other',
+      title: '8. Tenants in Common - Spouse & Other',
       description: 'Assets owned by Spouse and another party as Tenants in Common. Spouse\'s share passes through their estate.',
       assets: ticSpouseOther,
       totalValue: calculateTotal(ticSpouseOther),
     },
     {
       id: 'tic-client-spouse-other',
-      title: '10. Tenants in Common - Client, Spouse & Other',
+      title: '9. Tenants in Common - Client, Spouse & Other',
       description: 'Assets owned by Client, Spouse, and another party as Tenants in Common. Each owner\'s share passes through their estate.',
       assets: ticClientSpouseOther,
       totalValue: calculateTotal(ticClientSpouseOther),
     },
     {
       id: 'jtwros-client-other',
-      title: '11. JTWROS - Client & Other',
+      title: '10. JTWROS - Client & Other',
       description: 'Assets owned by Client and another party as Joint Tenants with Rights of Survivorship. Passes to surviving owner(s).',
       assets: jtwrosClientOther,
       totalValue: calculateTotal(jtwrosClientOther),
     },
     {
       id: 'jtwros-spouse-other',
-      title: '12. JTWROS - Spouse & Other',
+      title: '11. JTWROS - Spouse & Other',
       description: 'Assets owned by Spouse and another party as Joint Tenants with Rights of Survivorship. Passes to surviving owner(s).',
       assets: jtwrosSpouseOther,
       totalValue: calculateTotal(jtwrosSpouseOther),
     },
     {
       id: 'jtwros-client-spouse-other',
-      title: '13. JTWROS - Client, Spouse & Other',
+      title: '12. JTWROS - Client, Spouse & Other',
       description: 'Assets owned by Client, Spouse, and another party as Joint Tenants with Rights of Survivorship. Passes to surviving owner(s).',
       assets: jtwrosClientSpouseOther,
       totalValue: calculateTotal(jtwrosClientSpouseOther),
@@ -1148,8 +1267,6 @@ const EstatePlanAnalysis: React.FC = () => {
   const jointSpouseOtherTotal = calculateTotal(ticSpouseOther) + calculateTotal(jtwrosSpouseOther);
   const jointClientSpouseOtherTotal = calculateTotal(ticClientSpouseOther) + calculateTotal(jtwrosClientSpouseOther);
 
-  // Calculate Lady Bird / Life Estate total (these avoid probate via remainder beneficiaries)
-  const ladyBirdLifeEstateTotal = calculateTotal(ladyBirdDeedAssets);
 
   // Scenario-specific asset groupings
   // Helper to check if spouse is the primary beneficiary
@@ -1167,6 +1284,7 @@ const EstatePlanAnalysis: React.FC = () => {
   };
 
   // Assets that pass to spouse on first death (joint assets)
+  // Lady Bird/Life Estate assets are included here as they function similarly for estate planning purposes
   const jointToSurvivor = allAssets.filter(asset =>
     isJointClientSpouse(asset.owner, asset.ownershipForm)
   );
@@ -1227,20 +1345,10 @@ const EstatePlanAnalysis: React.FC = () => {
         : []),
     ];
 
-    // Lady Bird Deed assets where spouse is joint life tenant - life estate continues to spouse
-    const ladyBirdJointAssets = ladyBirdDeedAssets.filter(a =>
-      a.owner === 'Client and Spouse'
-    ).map(a => ({ ...a, passageMethod: 'Life Estate Continues to Spouse' }));
-
-    // Lady Bird Deed assets where client is sole life tenant - remainder passes to beneficiaries
-    const ladyBirdClientSoleAssets = ladyBirdDeedAssets.filter(a =>
-      a.owner === 'Client'
-    );
-
     // Assets that pass to other beneficiaries (not spouse)
+    // Note: Lady Bird/Life Estate assets are now included in jointToSurvivor (assetsToSpouse)
     const assetsToOtherBeneficiaries = [
       ...clientAssetsWithOtherBeneficiaries,
-      ...ladyBirdClientSoleAssets, // Client-only Lady Bird remainder passes at client's death
     ];
 
     // Probate assets only shown separately if NOT providing for spouse first
@@ -1255,8 +1363,7 @@ const EstatePlanAnalysis: React.FC = () => {
     // Calculate total assets available to spouse after client dies
     const totalToSpouse = calculateTotal(assetsToSpouse);
     const totalSpouseOwn = calculateTotal(spouseOwnAssets);
-    const totalLadyBirdLifeEstate = calculateTotal(ladyBirdJointAssets);
-    const totalAvailableToSpouse = totalToSpouse + totalSpouseOwn + totalLadyBirdLifeEstate;
+    const totalAvailableToSpouse = totalToSpouse + totalSpouseOwn;
 
     return (
       <Box>
@@ -1276,14 +1383,6 @@ const EstatePlanAnalysis: React.FC = () => {
           assets={spouseOwnAssets}
           totalValue={totalSpouseOwn}
           color="success.main"
-        />
-
-        <ScenarioSection
-          title="Lady Bird Deed / Life Estate (Life Estate Continues)"
-          assets={ladyBirdJointAssets}
-          totalValue={totalLadyBirdLifeEstate}
-          color="success.main"
-          subtitle="Spouse retains life estate in these properties. Remainder will pass to designated beneficiaries when Spouse dies."
         />
 
         {/* Total Available to Spouse Summary */}
@@ -1445,17 +1544,6 @@ const EstatePlanAnalysis: React.FC = () => {
             }),
           ];
 
-          // Lady Bird Deed / Life Estate assets - remainder passes to designated beneficiaries at second death
-          const ladyBirdRemainderAssets: CategorizedAsset[] = [
-            ...ladyBirdJointAssets.map(a => {
-              const remainderBenefs = formatBeneficiaryList(a.primaryBeneficiaries || []);
-              return {
-                ...a,
-                passageMethod: remainderBenefs ? `Remainder to ${remainderBenefs}` : 'Remainder Beneficiaries'
-              };
-            }),
-          ];
-
           // Assets subject to beneficiary redesignation - inherited from client with beneficiary designations
           // Spouse may keep original secondary beneficiaries OR designate new ones after rollover
           const assetsSubjectToRedesignation: CategorizedAsset[] = [
@@ -1470,7 +1558,7 @@ const EstatePlanAnalysis: React.FC = () => {
 
           // Assets going to probate - show Will beneficiaries with their percentages
           // Also include TIC assets where spouse's share goes through probate
-          const assetsToSpouseProbate: CategorizedAsset[] = [
+          const rawAssetsToSpouseProbate: CategorizedAsset[] = [
             ...spouseProbateAssets.map(a => ({ ...a, passageMethod: spouseWillBeneficiaries })),
             ...jointNoBeneficiaries.map(a => ({ ...a, passageMethod: spouseWillBeneficiaries })),
             ...(provideForSpouseFirst
@@ -1488,11 +1576,19 @@ const EstatePlanAnalysis: React.FC = () => {
             })),
           ];
 
+          // Apply cash bequest deductions from probate assets (paid before residuary distribution)
+          const cashBequestResult = calculateCashBequestDeductions(
+            formData.cashGiftsToBeneficiaries,
+            rawAssetsToSpouseProbate
+          );
+          const assetsToSpouseProbate = cashBequestResult.adjustedProbateAssets;
+          const totalCashBequestsDeducted = cashBequestResult.totalCashBequests;
+
           // Collect all assets with their beneficiary shares for heir summary
+          // Note: Lady Bird/Life Estate assets are now included in jointAssetsWithBenef
           const allDistributedAssets = [
             ...spouseOriginalNonProbate,
             ...jointAssetsWithBenef,
-            ...ladyBirdRemainderAssets,
             ...assetsSubjectToRedesignation,
             ...assetsToSpouseProbate,
           ];
@@ -1611,18 +1707,6 @@ const EstatePlanAnalysis: React.FC = () => {
               />
 
               <ScenarioSection
-                title="Lady Bird Deed / Life Estate (Remainder Passing)"
-                assets={ladyBirdRemainderAssets}
-                totalValue={calculateTotal(ladyBirdRemainderAssets)}
-                color="info.main"
-                subtitle="Life estate has ended. Remainder now passes to the designated remainder beneficiaries."
-                distributionPlan={spouseDistPlan}
-                children={formData.children}
-                showBeneficiaryBreakdown={true}
-                deceasedPersonNames={[formData.name, formData.spouseName].filter(Boolean)}
-              />
-
-              <ScenarioSection
                 title="Assets Subject to Beneficiary Redesignation"
                 assets={assetsSubjectToRedesignation}
                 totalValue={calculateTotal(assetsSubjectToRedesignation)}
@@ -1641,11 +1725,61 @@ const EstatePlanAnalysis: React.FC = () => {
                 color="warning.main"
               />
 
+              {/* Cash Bequests Section - show deductions from probate estate */}
+              {totalCashBequestsDeducted > 0 && (
+                <Paper variant="outlined" sx={{ p: 2, mb: 2, borderColor: cashBequestResult.remainingBequest > 0 ? 'error.main' : 'secondary.main' }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, color: cashBequestResult.remainingBequest > 0 ? 'error.main' : 'secondary.main', mb: 1 }}>
+                    Cash Bequests (Paid from Probate Estate)
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    These specific cash gifts are paid from the probate estate before the residuary is distributed to the Will beneficiaries.
+                  </Typography>
+                  <TableContainer>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 600 }}>Beneficiary</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }} align="right">Amount</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {formData.cashGiftsToBeneficiaries.map((gift, idx) => (
+                          <TableRow key={idx}>
+                            <TableCell>{gift.beneficiaryName}</TableCell>
+                            <TableCell align="right">{formatCurrency(parseCurrency(gift.amount))}</TableCell>
+                          </TableRow>
+                        ))}
+                        <TableRow sx={{ bgcolor: 'grey.100' }}>
+                          <TableCell sx={{ fontWeight: 600 }}>Total Cash Bequests</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 600 }}>
+                            {formatCurrency(totalCashBequestsDeducted)}
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                  {/* Warning if insufficient probate assets to cover cash bequests */}
+                  {cashBequestResult.remainingBequest > 0 && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                        Insufficient Probate Assets for Cash Bequests
+                      </Typography>
+                      <Typography variant="body2">
+                        The probate estate does not have enough assets to fully fund the cash bequests.
+                        There is a shortfall of {formatCurrency(cashBequestResult.remainingBequest)}.
+                        The cash bequest beneficiaries may receive reduced amounts or nothing, as probate assets are insufficient.
+                      </Typography>
+                    </Alert>
+                  )}
+                </Paper>
+              )}
+
               <ScenarioSection
                 title="Assets Subject to Probate (Distributed per Will)"
                 assets={assetsToSpouseProbate}
                 totalValue={calculateTotal(assetsToSpouseProbate)}
                 color="error.main"
+                subtitle={totalCashBequestsDeducted > 0 ? `After deducting ${formatCurrency(totalCashBequestsDeducted)} for cash bequests, the remaining probate assets are distributed per the Will.` : undefined}
                 distributionPlan={spouseDistPlan}
                 children={formData.children}
                 showBeneficiaryBreakdown={true}
@@ -1679,20 +1813,10 @@ const EstatePlanAnalysis: React.FC = () => {
         : []),
     ];
 
-    // Lady Bird Deed assets where client is joint life tenant - life estate continues to client
-    const ladyBirdJointAssetsSpouseFirst = ladyBirdDeedAssets.filter(a =>
-      a.owner === 'Client and Spouse'
-    ).map(a => ({ ...a, passageMethod: 'Life Estate Continues to Client' }));
-
-    // Lady Bird Deed assets where spouse is sole life tenant - remainder passes to beneficiaries
-    const ladyBirdSpouseSoleAssets = ladyBirdDeedAssets.filter(a =>
-      a.owner === 'Spouse'
-    );
-
     // Assets that pass to other beneficiaries (not client)
+    // Note: Lady Bird/Life Estate assets are now included in jointToSurvivor (assetsToClient)
     const assetsToOtherBeneficiaries = [
       ...spouseAssetsWithOtherBeneficiaries,
-      ...ladyBirdSpouseSoleAssets, // Spouse-only Lady Bird remainder passes at spouse's death
     ];
 
     // Probate assets only shown separately if NOT providing for spouse first
@@ -1707,8 +1831,7 @@ const EstatePlanAnalysis: React.FC = () => {
     // Calculate total assets available to client after spouse dies
     const totalToClient = calculateTotal(assetsToClient);
     const totalClientOwn = calculateTotal(clientOwnAssets);
-    const totalLadyBirdLifeEstateSpouseFirst = calculateTotal(ladyBirdJointAssetsSpouseFirst);
-    const totalAvailableToClient = totalToClient + totalClientOwn + totalLadyBirdLifeEstateSpouseFirst;
+    const totalAvailableToClient = totalToClient + totalClientOwn;
 
     return (
       <Box>
@@ -1728,14 +1851,6 @@ const EstatePlanAnalysis: React.FC = () => {
           assets={clientOwnAssets}
           totalValue={totalClientOwn}
           color="success.main"
-        />
-
-        <ScenarioSection
-          title="Lady Bird Deed / Life Estate (Life Estate Continues)"
-          assets={ladyBirdJointAssetsSpouseFirst}
-          totalValue={totalLadyBirdLifeEstateSpouseFirst}
-          color="success.main"
-          subtitle="Client retains life estate in these properties. Remainder will pass to designated beneficiaries when Client dies."
         />
 
         {/* Total Available to Client Summary */}
@@ -1897,17 +2012,6 @@ const EstatePlanAnalysis: React.FC = () => {
             }),
           ];
 
-          // Lady Bird Deed / Life Estate assets - remainder passes to designated beneficiaries at second death
-          const ladyBirdRemainderAssetsSpouseFirst: CategorizedAsset[] = [
-            ...ladyBirdJointAssetsSpouseFirst.map(a => {
-              const remainderBenefs = formatBeneficiaryList(a.primaryBeneficiaries || []);
-              return {
-                ...a,
-                passageMethod: remainderBenefs ? `Remainder to ${remainderBenefs}` : 'Remainder Beneficiaries'
-              };
-            }),
-          ];
-
           // Assets subject to beneficiary redesignation - inherited from spouse with beneficiary designations
           // Client may keep original secondary beneficiaries OR designate new ones after rollover
           const assetsSubjectToRedesignation: CategorizedAsset[] = [
@@ -1922,7 +2026,7 @@ const EstatePlanAnalysis: React.FC = () => {
 
           // Assets going to probate - show Will beneficiaries with their percentages
           // Also include TIC assets where client's share goes through probate
-          const assetsToClientProbate: CategorizedAsset[] = [
+          const rawAssetsToClientProbate: CategorizedAsset[] = [
             ...clientProbateAssets.map(a => ({ ...a, passageMethod: clientWillBeneficiaries })),
             ...jointNoBeneficiaries.map(a => ({ ...a, passageMethod: clientWillBeneficiaries })),
             ...(provideForSpouseFirst
@@ -1940,11 +2044,19 @@ const EstatePlanAnalysis: React.FC = () => {
             })),
           ];
 
+          // Apply cash bequest deductions from probate assets (paid before residuary distribution)
+          const cashBequestResultClient = calculateCashBequestDeductions(
+            formData.cashGiftsToBeneficiaries,
+            rawAssetsToClientProbate
+          );
+          const assetsToClientProbate = cashBequestResultClient.adjustedProbateAssets;
+          const totalCashBequestsDeductedClient = cashBequestResultClient.totalCashBequests;
+
           // Collect all assets with their beneficiary shares for heir summary
+          // Note: Lady Bird/Life Estate assets are now included in jointAssetsWithBenef
           const allDistributedAssets = [
             ...clientOriginalNonProbate,
             ...jointAssetsWithBenef,
-            ...ladyBirdRemainderAssetsSpouseFirst,
             ...assetsSubjectToRedesignation,
             ...assetsToClientProbate,
           ];
@@ -2063,18 +2175,6 @@ const EstatePlanAnalysis: React.FC = () => {
               />
 
               <ScenarioSection
-                title="Lady Bird Deed / Life Estate (Remainder Passing)"
-                assets={ladyBirdRemainderAssetsSpouseFirst}
-                totalValue={calculateTotal(ladyBirdRemainderAssetsSpouseFirst)}
-                color="info.main"
-                subtitle="Life estate has ended. Remainder now passes to the designated remainder beneficiaries."
-                distributionPlan={clientDistPlan}
-                children={formData.children}
-                showBeneficiaryBreakdown={true}
-                deceasedPersonNames={[formData.name, formData.spouseName].filter(Boolean)}
-              />
-
-              <ScenarioSection
                 title="Assets Subject to Beneficiary Redesignation"
                 assets={assetsSubjectToRedesignation}
                 totalValue={calculateTotal(assetsSubjectToRedesignation)}
@@ -2093,11 +2193,61 @@ const EstatePlanAnalysis: React.FC = () => {
                 color="warning.main"
               />
 
+              {/* Cash Bequests Section - show deductions from probate estate */}
+              {totalCashBequestsDeductedClient > 0 && (
+                <Paper variant="outlined" sx={{ p: 2, mb: 2, borderColor: cashBequestResultClient.remainingBequest > 0 ? 'error.main' : 'secondary.main' }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, color: cashBequestResultClient.remainingBequest > 0 ? 'error.main' : 'secondary.main', mb: 1 }}>
+                    Cash Bequests (Paid from Probate Estate)
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    These specific cash gifts are paid from the probate estate before the residuary is distributed to the Will beneficiaries.
+                  </Typography>
+                  <TableContainer>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 600 }}>Beneficiary</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }} align="right">Amount</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {formData.cashGiftsToBeneficiaries.map((gift, idx) => (
+                          <TableRow key={idx}>
+                            <TableCell>{gift.beneficiaryName}</TableCell>
+                            <TableCell align="right">{formatCurrency(parseCurrency(gift.amount))}</TableCell>
+                          </TableRow>
+                        ))}
+                        <TableRow sx={{ bgcolor: 'grey.100' }}>
+                          <TableCell sx={{ fontWeight: 600 }}>Total Cash Bequests</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 600 }}>
+                            {formatCurrency(totalCashBequestsDeductedClient)}
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                  {/* Warning if insufficient probate assets to cover cash bequests */}
+                  {cashBequestResultClient.remainingBequest > 0 && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                        Insufficient Probate Assets for Cash Bequests
+                      </Typography>
+                      <Typography variant="body2">
+                        The probate estate does not have enough assets to fully fund the cash bequests.
+                        There is a shortfall of {formatCurrency(cashBequestResultClient.remainingBequest)}.
+                        The cash bequest beneficiaries may receive reduced amounts or nothing, as probate assets are insufficient.
+                      </Typography>
+                    </Alert>
+                  )}
+                </Paper>
+              )}
+
               <ScenarioSection
                 title="Assets Subject to Probate (Distributed per Will)"
                 assets={assetsToClientProbate}
                 totalValue={calculateTotal(assetsToClientProbate)}
                 color="error.main"
+                subtitle={totalCashBequestsDeductedClient > 0 ? `After deducting ${formatCurrency(totalCashBequestsDeductedClient)} for cash bequests, the remaining probate assets are distributed per the Will.` : undefined}
                 distributionPlan={clientDistPlan}
                 children={formData.children}
                 showBeneficiaryBreakdown={true}
@@ -2248,23 +2398,6 @@ const EstatePlanAnalysis: React.FC = () => {
               </>
             )}
 
-            {/* Row 5: Lady Bird / Life Estate (Non-Probate) */}
-            {ladyBirdLifeEstateTotal > 0 && (
-              <>
-                <Divider sx={{ my: 2 }} />
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">Lady Bird / Life Estate</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 500, color: 'success.main' }}>
-                      {formatCurrency(ladyBirdLifeEstateTotal)}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Avoids Probate - Passes to Remainder Beneficiaries
-                    </Typography>
-                  </Box>
-                </Box>
-              </>
-            )}
           </Paper>
 
       {/* Probate Warning */}
