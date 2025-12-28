@@ -48,6 +48,13 @@ import HelpModal from '../components/HelpModal';
 import { MaritalStatus } from '../lib/FormContext';
 import { analyzeEstatePlan, ANALYSIS_PROMPTS } from '../lib/claudeApi';
 import { categorizeAssets } from '../lib/assetCategorization';
+import { saveIntakeRaw } from '../lib/supabaseIntake';
+import {
+  generateClientFolderName,
+  saveAnalysisReports,
+  updateIntakeAnalysis,
+  updateIntakeStorageInfo,
+} from '../lib/supabaseStorage';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -448,10 +455,23 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
     setAnalysisResult(null);
 
     try {
-      // Pre-compute asset categorization for consistency
+      // Step 1: Generate client folder name for storage
+      const clientName = formData.name || 'Unknown Client';
+      const clientFolderName = generateClientFolderName(clientName);
+
+      // Step 2: Save form data to Supabase (raw JSON)
+      const saveResult = await saveIntakeRaw(formData, 'EstatePlanning');
+      if (!saveResult.success || !saveResult.intakeRawId) {
+        console.error('Failed to save intake to Supabase:', saveResult.error);
+        // Continue with analysis even if save fails - we don't want to block the user
+      }
+
+      const intakeId = saveResult.intakeRawId;
+
+      // Step 3: Pre-compute asset categorization for consistency
       const assetCategorySummary = categorizeAssets(formData);
 
-      // Submit to Claude API for analysis with pre-computed categories
+      // Step 4: Submit to Claude API for analysis with pre-computed categories
       const result = await analyzeEstatePlan({
         formData: formData as unknown as Record<string, unknown>,
         assetCategorySummary,
@@ -461,6 +481,39 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
       if (result.success && result.analysis) {
         setAnalysisResult(result.analysis);
         setSubmitSuccess(true);
+
+        // Step 5: If we have an intake ID, save the analysis and reports
+        if (intakeId) {
+          // Save Claude analysis to the intake record
+          await updateIntakeAnalysis(
+            intakeId,
+            result.analysis,
+            result.usage ? {
+              input_tokens: result.usage.input_tokens,
+              output_tokens: result.usage.output_tokens,
+            } : undefined
+          );
+
+          // Save analysis reports to storage (both txt and docx)
+          const reportsResult = await saveAnalysisReports(
+            result.analysis,
+            clientFolderName,
+            clientName
+          );
+
+          if (reportsResult.success) {
+            // Update intake with storage folder and report files
+            await updateIntakeStorageInfo(
+              intakeId,
+              clientFolderName,
+              undefined, // uploaded_files (handled elsewhere during document upload)
+              reportsResult.reports
+            );
+          } else if (reportsResult.errors.length > 0) {
+            console.warn('Some reports failed to save:', reportsResult.errors);
+          }
+        }
+
         setCurrentStep(currentStep + 1); // Move to results page
       } else {
         throw new Error(result.error || 'Failed to analyze estate plan');

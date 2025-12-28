@@ -1476,6 +1476,9 @@ const SummarySection = () => {
                   : 'Yes')
               : 'No'}
           />
+          {formData.hasSafeDepositBox && formData.safeDepositBoxBank && (
+            <InfoRow label="Safe Deposit Box Bank" value={formData.safeDepositBoxBank} />
+          )}
           {formData.hasSafeDepositBox && formData.safeDepositBoxLocation && (
             <InfoRow label="Safe Deposit Box Location" value={formData.safeDepositBoxLocation} />
           )}
