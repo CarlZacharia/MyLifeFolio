@@ -22,6 +22,7 @@ import {
   TableRow,
   Paper,
   IconButton,
+  Alert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -580,7 +581,41 @@ const DispositiveIntentionsSection = () => {
               </Box>
             }
           />
+          {/* Warning if mirror plans checked but distribution types differ */}
+          {formData.mirrorDistributionPlans &&
+           formData.clientDistributionPlan.distributionType !== formData.spouseDistributionPlan.distributionType && (
+            <Alert severity="warning" sx={{ mt: 2 }}>
+              <Typography variant="body2">
+                <strong>Inconsistency Detected:</strong> Mirror Plans is checked, but Client&apos;s distribution type
+                ({formData.clientDistributionPlan.distributionType || 'sweetheart'}) differs from Spouse&apos;s
+                ({formData.spouseDistributionPlan.distributionType || 'sweetheart'}).
+                Please uncheck Mirror Plans to set different distribution plans, or ensure both plans match.
+              </Typography>
+            </Alert>
+          )}
         </Box>
+      )}
+
+      {/* Blended Family Warning for Sweetheart Plan */}
+      {showSpouseInfo &&
+       (formData.clientHasChildrenFromPrior || formData.spouseHasChildrenFromPrior) &&
+       formData.provideForSpouseThenChildren && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            <strong>Blended Family with Sweetheart Plan:</strong> You have indicated a sweetheart plan
+            (all to spouse first) in a blended family situation.
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            With a sweetheart plan, the surviving spouse receives all assets outright with no legal obligation
+            to provide for the deceased spouse&apos;s children from a prior relationship. The surviving spouse
+            can change beneficiaries on accounts or leave assets to their own family.
+          </Typography>
+          <Typography variant="body2">
+            <strong>Consider discussing alternatives with your attorney:</strong> QTIP Trust (income to spouse,
+            remainder to your children), Disclaimer Trust, Hybrid approach, or Life Insurance payable directly
+            to children from prior relationship.
+          </Typography>
+        </Alert>
       )}
 
       {/* Client's Distribution Plan */}

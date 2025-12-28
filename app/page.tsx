@@ -376,7 +376,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
   // Debug function to log all form data
   const debugFormData = () => {
     console.log('=== FORM DATA DEBUG ===');
-    console.log('Full formData object:', formData);
+    console.log('Full formData object:', JSON.stringify(formData));
     console.log('--- Personal Data ---');
     console.log('Name:', formData.name);
     console.log('Spouse:', formData.spouseName);

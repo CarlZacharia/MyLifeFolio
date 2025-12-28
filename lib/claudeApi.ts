@@ -124,6 +124,95 @@ You MUST check:
 4. Even if probate assets are sufficient, note if the cash bequests consume a significant portion (>50%) of probate assets, as this may leave little for residuary beneficiaries
 5. Note the timing setting in your analysis and explain when cash bequests will be paid
 
+IMPORTANT - Blended Family Analysis:
+A blended family exists when "clientHasChildrenFromPrior: true" OR "spouseHasChildrenFromPrior: true".
+Children with relationship "Son of Client" or "Daughter of Client" are Client's children from a prior relationship.
+Children with relationship "Son of Spouse" or "Daughter of Spouse" are Spouse's children from a prior relationship.
+Children with relationship "Son of Both" or "Daughter of Both" are children of both spouses together.
+
+When a blended family is detected, you MUST analyze:
+
+1. SWEETHEART PLAN VULNERABILITY:
+   If "provideForSpouseThenChildren: true" (sweetheart plan) AND this is a blended family:
+   - Flag this as a HIGH CONCERN
+   - Explain that all assets pass to surviving spouse outright
+   - The surviving spouse has full control with NO legal obligation to provide for the deceased spouse's children from prior marriage
+   - Surviving spouse can spend, give away, or leave assets to their own family
+   - Recommend discussing alternative structures: QTIP Trust, Disclaimer Trust, Hybrid approach, or Life Insurance offset
+
+2. RETIREMENT ACCOUNT VULNERABILITY:
+   If blended family AND total retirement accounts > $500,000 OR > 50% of total estate:
+   - Flag as HIGH VULNERABILITY
+   - Retirement accounts pass by beneficiary designation, NOT by Will/Trust
+   - After first spouse's death, surviving spouse can change beneficiaries to exclude deceased spouse's children
+   - Recommend reviewing beneficiary designations to protect children from prior marriage
+
+3. PRIOR-MARRIAGE CHILD BENEFICIARY EXCLUSION:
+   For each child from a prior marriage, check if they are named in their parent's:
+   - Retirement account beneficiary designations (primary or secondary)
+   - Life insurance beneficiary designations (primary or secondary)
+   If a prior-marriage child is NOT named as a beneficiary on parent's accounts, flag this:
+   - It may be intentional (document the reasoning)
+   - If unintentional, recommend updating designations with financial institutions
+
+4. STEPCHILD INCLUSION FLAGS:
+   Check for consistency between the flags and actual distribution:
+   - "includeClientStepchildrenInSpouseWill": Should Spouse's Will include Client's children from prior?
+   - "includeSpouseStepchildrenInClientWill": Should Client's Will include Spouse's children from prior?
+   If flag is true but stepchildren are not in the distribution plan, or vice versa, flag the inconsistency.
+
+IMPORTANT - Domicile Change Document Review:
+If "lookingToChangeDomicile: true" AND "newDomicileState" differs from "stateOfDomicile":
+
+1. Check if existing documents need review:
+   - If "clientCurrentEstatePlan.hasTrust: true", note the trust was executed under original state law
+   - If "clientCurrentEstatePlan.hasWill: true", Will may need to be re-executed to comply with new state
+   - Check POA and healthcare documents for state-specific language
+
+2. For moves TO FLORIDA specifically, highlight:
+   - Florida homestead restrictions on devise (married clients cannot devise away from spouse)
+   - Florida Personal Representative residency requirements (F.S. § 733.304)
+   - Two-witness requirement for Wills
+   - Healthcare surrogate vs. healthcare POA terminology differences
+
+3. Recommend executing new state-compliant documents after establishing domicile.
+
+IMPORTANT - Minor Beneficiaries Without Trust Provisions:
+Check "otherBeneficiaries" array for anyone with age < 18 (relationship often "Grandchild").
+Also check if any children in the "children" array are minors.
+
+If minor beneficiaries are named in:
+- "cashGiftsToBeneficiaries" (cash bequests)
+- Real estate remainder interests (Lady Bird Deed or Life Estate)
+- Beneficiary designations on accounts
+
+Flag this as an issue requiring trust provisions:
+- Minors cannot legally receive or manage inherited assets
+- Without trust provisions, court-supervised guardianship of property is required
+- Recommend including trust provisions in Will/Trust for gifts to minors
+- Suggest appropriate distribution age (e.g., 25 or 30, not 18)
+
+IMPORTANT - Missing Incapacity Planning Documents (CRITICAL):
+Check "clientCurrentEstatePlan" and "spouseCurrentEstatePlan" for:
+- hasFinancialPOA: false - Flag as CRITICAL
+- hasHealthCarePOA: false - Flag as CRITICAL
+- hasLivingWill: false - Flag as important
+
+If ANY of these are false, this is a CRITICAL gap:
+- Without these documents, court guardianship proceeding required if incapacitated
+- Guardianship is expensive ($5,000-$15,000+), time-consuming, and public record
+- Recommend immediate execution of POA and healthcare documents for both spouses
+
+IMPORTANT - Guardian Nomination for Minor Children:
+Check if any children in "children" array have age < 18.
+If minor children exist, check if "guardianFirst" is set.
+If no guardian is nominated when minor children are present, flag this as an issue requiring attention.
+
+IMPORTANT - Mirror Distribution Plan Consistency:
+If "mirrorDistributionPlans: true", verify that:
+- clientDistributionPlan.distributionType matches spouseDistributionPlan.distributionType
+If they differ but mirror is set to true, flag this as a data inconsistency that should be clarified.
+
 Please be certain to include:
 1. Family profile analysis
 2. Asset inventory tables with ownership breakdown (use the pre-computed categories)

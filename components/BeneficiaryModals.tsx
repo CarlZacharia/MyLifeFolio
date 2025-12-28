@@ -109,12 +109,13 @@ export const BeneficiaryModal: React.FC<BeneficiaryModalProps> = ({
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Name"
+                label="Legal Name"
                 value={formData.name}
                 onChange={handleChange('name')}
                 variant="outlined"
                 size="small"
                 required
+                helperText="Enter full legal name, not nickname (e.g., James P. Jones, not Jimmy)"
               />
             </Grid>
             <Grid item xs={12} md={6}>

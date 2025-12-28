@@ -197,6 +197,7 @@ export const ChildModal: React.FC<ChildModalProps> = ({
                 variant="outlined"
                 size="small"
                 required
+                helperText="Enter full legal name, not nickname (e.g., James P. Jones, not Jimmy)"
               />
             </Grid>
             <Grid item xs={12} md={4}>

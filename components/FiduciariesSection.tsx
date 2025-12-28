@@ -9,6 +9,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Alert,
 } from '@mui/material';
 import { useFormContext, FormData, MaritalStatus } from '../lib/FormContext';
 import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
@@ -605,6 +606,17 @@ const FiduciariesSection = () => {
               </>
             )}
           </Grid>
+
+          {/* Warning if minors exist but no guardian nominated */}
+          {!formData.guardianFirst && !formData.guardianFirstOther && (
+            <Alert severity="warning" sx={{ mt: 2 }}>
+              <Typography variant="body2">
+                <strong>Guardian Required:</strong> You have indicated there are minor beneficiaries,
+                but no guardian has been nominated. Please select a guardian to care for minor children
+                if both parents pass away.
+              </Typography>
+            </Alert>
+          )}
         </>
       )}
 
