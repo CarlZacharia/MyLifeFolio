@@ -26,6 +26,16 @@ export type CarePreference = '' | 'Age in place at home as long as possible' | '
 // Current Estate Plan Types
 export type DocumentReviewOption = '' | 'Upload' | 'Answer Questions';
 
+// Uploaded document metadata for Supabase Storage
+export interface UploadedDocumentInfo {
+  name: string;           // Unique filename in storage
+  originalName: string;   // Original filename from user
+  path: string;           // Full path in Supabase storage
+  type: string;           // MIME type
+  size: number;           // File size in bytes
+  uploadedAt: string;     // ISO timestamp
+}
+
 export interface SpecificGift {
   recipientName: string;
   relationship: string;
@@ -119,14 +129,14 @@ export interface CurrentEstatePlanData {
   documentDate: string;
   reviewOption: DocumentReviewOption;
 
-  // File uploads per document type (store file names/references)
-  uploadedFiles: string[]; // Legacy - kept for backwards compatibility
-  willUploadedFiles: string[];
-  trustUploadedFiles: string[];
-  irrevocableTrustUploadedFiles: string[];
-  financialPOAUploadedFiles: string[];
-  healthCarePOAUploadedFiles: string[];
-  livingWillUploadedFiles: string[];
+  // File uploads per document type (store file metadata from Supabase Storage)
+  uploadedFiles: UploadedDocumentInfo[]; // Legacy - kept for backwards compatibility
+  willUploadedFiles: UploadedDocumentInfo[];
+  trustUploadedFiles: UploadedDocumentInfo[];
+  irrevocableTrustUploadedFiles: UploadedDocumentInfo[];
+  financialPOAUploadedFiles: UploadedDocumentInfo[];
+  healthCarePOAUploadedFiles: UploadedDocumentInfo[];
+  livingWillUploadedFiles: UploadedDocumentInfo[];
 
   // Legacy fiduciary fields - kept for backwards compatibility but no longer shown in UI
   willPersonalRep: string;
@@ -246,7 +256,33 @@ export interface LongTermCareData {
   importantTherapiesActivities: string;
 }
 
+// Office and Attorney selection
+export interface OfficeInfo {
+  id: string;
+  name: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  telephone?: string;
+  fax?: string;
+}
+
+export interface AttorneyInfo {
+  id: string;
+  name: string;
+  email: string;
+  primaryOfficeId?: string;
+  clioId?: string;
+}
+
 export interface FormData {
+  // Office and Attorney Assignment
+  officeId: string;
+  officeName: string;
+  attorneyId: string;
+  attorneyName: string;
+
   // Personal Data
   date: string;
   appointmentDate: string;
@@ -697,6 +733,12 @@ export const useFormContext = () => {
 };
 
 const initialFormData: FormData = {
+  // Office and Attorney Assignment
+  officeId: '',
+  officeName: '',
+  attorneyId: '',
+  attorneyName: '',
+
   date: '',
   appointmentDate: '',
   name: '',

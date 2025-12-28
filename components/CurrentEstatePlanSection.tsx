@@ -20,6 +20,8 @@ import {
   DialogContent,
   DialogActions,
   MenuItem,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import PeopleIcon from '@mui/icons-material/People';
@@ -31,9 +33,18 @@ import {
   useFormContext,
   MaritalStatus,
   CurrentEstatePlanData,
+  UploadedDocumentInfo,
 } from '../lib/FormContext';
 import { VideoHelpIcon, HelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
+import {
+  uploadEstatePlanDocuments,
+  deleteEstatePlanDocument,
+  generateClientFolderName,
+  getDownloadUrl,
+  PersonType,
+  DocumentType,
+} from '../lib/supabaseStorage';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -49,9 +60,7 @@ const US_STATES = [
   'Wisconsin', 'Wyoming', 'District of Columbia'
 ];
 
-// Document type definitions
-type DocumentType = 'will' | 'trust' | 'irrevocableTrust' | 'financialPOA' | 'healthCarePOA' | 'livingWill';
-
+// Document type config interface (uses DocumentType from supabaseStorage)
 interface DocumentTypeConfig {
   key: DocumentType;
   label: string;
@@ -88,8 +97,11 @@ interface DocumentUploadModalProps {
   open: boolean;
   onClose: () => void;
   documentType: string;
-  uploadedFiles: string[];
-  onFilesChange: (files: string[]) => void;
+  documentTypeKey: DocumentType;
+  personType: PersonType;
+  clientFolderName: string;
+  uploadedFiles: UploadedDocumentInfo[];
+  onFilesChange: (files: UploadedDocumentInfo[]) => void;
   headerColor: string;
 }
 
@@ -97,16 +109,52 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
   open,
   onClose,
   documentType,
+  documentTypeKey,
+  personType,
+  clientFolderName,
   uploadedFiles,
   onFilesChange,
   headerColor,
 }) => {
   const [dragOver, setDragOver] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [deletingFile, setDeletingFile] = useState<string | null>(null);
 
-  const handleFileSelect = (files: FileList | null) => {
-    if (files) {
-      const fileNames = Array.from(files).map((f) => f.name);
-      onFilesChange([...uploadedFiles, ...fileNames]);
+  const handleFileSelect = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    setUploadError(null);
+
+    try {
+      const result = await uploadEstatePlanDocuments(
+        Array.from(files),
+        clientFolderName,
+        personType,
+        documentTypeKey
+      );
+
+      if (result.uploaded.length > 0) {
+        // Convert UploadedDocumentMetadata to UploadedDocumentInfo
+        const newFiles: UploadedDocumentInfo[] = result.uploaded.map((meta) => ({
+          name: meta.name,
+          originalName: meta.originalName,
+          path: meta.path,
+          type: meta.type,
+          size: meta.size,
+          uploadedAt: meta.uploadedAt,
+        }));
+        onFilesChange([...uploadedFiles, ...newFiles]);
+      }
+
+      if (result.errors.length > 0) {
+        setUploadError(`Some files failed to upload: ${result.errors.join(', ')}`);
+      }
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Failed to upload files');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -126,9 +174,40 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
     handleFileSelect(e.dataTransfer.files);
   };
 
-  const handleRemoveFile = (index: number) => {
-    const updated = uploadedFiles.filter((_, i) => i !== index);
-    onFilesChange(updated);
+  const handleRemoveFile = async (index: number) => {
+    const fileToRemove = uploadedFiles[index];
+    setDeletingFile(fileToRemove.path);
+
+    try {
+      const success = await deleteEstatePlanDocument(fileToRemove.path);
+      if (success) {
+        const updated = uploadedFiles.filter((_, i) => i !== index);
+        onFilesChange(updated);
+      } else {
+        setUploadError('Failed to delete file from storage');
+      }
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Failed to delete file');
+    } finally {
+      setDeletingFile(null);
+    }
+  };
+
+  const handleDownloadFile = async (file: UploadedDocumentInfo) => {
+    try {
+      const result = await getDownloadUrl(file.path);
+      if (result.success && result.url) {
+        window.open(result.url, '_blank');
+      }
+    } catch (err) {
+      console.error('Failed to get download URL:', err);
+    }
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   return (
@@ -157,6 +236,12 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
         </IconButton>
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
+        {uploadError && (
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setUploadError(null)}>
+            {uploadError}
+          </Alert>
+        )}
+
         <Box
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -168,35 +253,48 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
             textAlign: 'center',
             bgcolor: dragOver ? 'action.hover' : 'grey.50',
             transition: 'all 0.2s ease',
-            cursor: 'pointer',
+            cursor: isUploading ? 'wait' : 'pointer',
             mt: 2,
+            opacity: isUploading ? 0.7 : 1,
           }}
         >
-          <CloudUploadIcon sx={{ fontSize: 48, color: dragOver ? headerColor : 'grey.500', mb: 1 }} />
-          <Typography variant="body1" color="text.secondary" gutterBottom>
-            Drag and drop your {documentType} document here
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            or
-          </Typography>
-          <Button
-            variant="contained"
-            component="label"
-            startIcon={<AttachFileIcon />}
-            sx={{ bgcolor: headerColor }}
-          >
-            Browse Files
-            <input
-              type="file"
-              hidden
-              multiple
-              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-              onChange={(e) => handleFileSelect(e.target.files)}
-            />
-          </Button>
-          <Typography variant="caption" display="block" sx={{ mt: 2, color: 'text.secondary' }}>
-            Accepted formats: PDF, DOC, DOCX, JPG, PNG
-          </Typography>
+          {isUploading ? (
+            <>
+              <CircularProgress size={48} sx={{ mb: 1, color: headerColor }} />
+              <Typography variant="body1" color="text.secondary">
+                Uploading files...
+              </Typography>
+            </>
+          ) : (
+            <>
+              <CloudUploadIcon sx={{ fontSize: 48, color: dragOver ? headerColor : 'grey.500', mb: 1 }} />
+              <Typography variant="body1" color="text.secondary" gutterBottom>
+                Drag and drop your {documentType} document here
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                or
+              </Typography>
+              <Button
+                variant="contained"
+                component="label"
+                startIcon={<AttachFileIcon />}
+                sx={{ bgcolor: headerColor }}
+                disabled={isUploading}
+              >
+                Browse Files
+                <input
+                  type="file"
+                  hidden
+                  multiple
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  onChange={(e) => handleFileSelect(e.target.files)}
+                />
+              </Button>
+              <Typography variant="caption" display="block" sx={{ mt: 2, color: 'text.secondary' }}>
+                Accepted formats: PDF, DOC, DOCX, JPG, PNG (max 50MB each)
+              </Typography>
+            </>
+          )}
         </Box>
 
         {uploadedFiles.length > 0 && (
@@ -207,7 +305,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
             <Paper variant="outlined" sx={{ p: 1 }}>
               {uploadedFiles.map((file, index) => (
                 <Box
-                  key={index}
+                  key={file.path}
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -218,16 +316,31 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
                     borderColor: 'divider',
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box
+                    sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, cursor: 'pointer' }}
+                    onClick={() => handleDownloadFile(file)}
+                  >
                     <AttachFileIcon fontSize="small" color="action" />
-                    <Typography variant="body2">{file}</Typography>
+                    <Box>
+                      <Typography variant="body2" sx={{ '&:hover': { textDecoration: 'underline' } }}>
+                        {file.originalName}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {formatFileSize(file.size)}
+                      </Typography>
+                    </Box>
                   </Box>
                   <IconButton
                     size="small"
                     onClick={() => handleRemoveFile(index)}
                     color="error"
+                    disabled={deletingFile === file.path}
                   >
-                    <DeleteIcon fontSize="small" />
+                    {deletingFile === file.path ? (
+                      <CircularProgress size={16} />
+                    ) : (
+                      <DeleteIcon fontSize="small" />
+                    )}
                   </IconButton>
                 </Box>
               ))}
@@ -249,6 +362,8 @@ interface PersonCurrentEstatePlanProps {
   onChange: (field: keyof CurrentEstatePlanData, value: CurrentEstatePlanData[keyof CurrentEstatePlanData]) => void;
   onChangeMultiple: (updates: Partial<CurrentEstatePlanData>) => void;
   personLabel: string;
+  personType: PersonType;
+  clientFolderName: string;
   headerColor?: string;
   openHelp: (helpId: number) => void;
   showSpouse: boolean;
@@ -259,6 +374,8 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
   onChange,
   onChangeMultiple,
   personLabel,
+  personType,
+  clientFolderName,
   headerColor = '#1a237e',
   openHelp,
   showSpouse,
@@ -276,12 +393,31 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
     setActiveDocumentType(null);
   };
 
-  const getUploadedFiles = (field: keyof CurrentEstatePlanData): string[] => {
+  const getUploadedFiles = (field: keyof CurrentEstatePlanData): UploadedDocumentInfo[] => {
     const value = data[field];
-    return Array.isArray(value) ? value as string[] : [];
+    if (!Array.isArray(value)) return [];
+    if (value.length === 0) return [];
+    // Handle backwards compatibility - old data may have string arrays
+    const firstItem = value[0];
+    if (typeof firstItem === 'string') {
+      // Convert old string format to new format (these won't have paths, just display names)
+      return (value as unknown as string[]).map((name) => ({
+        name,
+        originalName: name,
+        path: '',
+        type: 'unknown',
+        size: 0,
+        uploadedAt: '',
+      }));
+    }
+    // Check if it looks like UploadedDocumentInfo (has path property)
+    if (typeof firstItem === 'object' && firstItem !== null && 'path' in firstItem) {
+      return value as unknown as UploadedDocumentInfo[];
+    }
+    return [];
   };
 
-  const handleFilesChange = (files: string[]) => {
+  const handleFilesChange = (files: UploadedDocumentInfo[]) => {
     if (activeDocumentType) {
       onChange(activeDocumentType.uploadField, files);
     }
@@ -559,6 +695,9 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
           open={uploadModalOpen}
           onClose={handleCloseUploadModal}
           documentType={activeDocumentType.label}
+          documentTypeKey={activeDocumentType.key}
+          personType={personType}
+          clientFolderName={clientFolderName}
           uploadedFiles={getUploadedFiles(activeDocumentType.uploadField)}
           onFilesChange={handleFilesChange}
           headerColor={headerColor}
@@ -695,6 +834,9 @@ const CurrentEstatePlanSection: React.FC = () => {
   const clientName = formData.name || 'Client';
   const spouseName = formData.spouseName || 'Spouse';
 
+  // Generate the client folder name for storage
+  const clientFolderName = generateClientFolderName(clientName);
+
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -742,6 +884,8 @@ const CurrentEstatePlanSection: React.FC = () => {
               onChange={handleClientChange}
               onChangeMultiple={handleClientChangeMultiple}
               personLabel={clientName}
+              personType="client"
+              clientFolderName={clientFolderName}
               headerColor="#1a237e"
               openHelp={openHelp}
               showSpouse={showSpouse}
@@ -754,6 +898,8 @@ const CurrentEstatePlanSection: React.FC = () => {
               onChange={handleSpouseChange}
               onChangeMultiple={handleSpouseChangeMultiple}
               personLabel={spouseName}
+              personType="spouse"
+              clientFolderName={clientFolderName}
               headerColor="#2e7d32"
               openHelp={openHelp}
               showSpouse={showSpouse}
@@ -766,6 +912,8 @@ const CurrentEstatePlanSection: React.FC = () => {
           onChange={handleClientChange}
           onChangeMultiple={handleClientChangeMultiple}
           personLabel={clientName}
+          personType="client"
+          clientFolderName={clientFolderName}
           headerColor="#1a237e"
           openHelp={openHelp}
           showSpouse={showSpouse}

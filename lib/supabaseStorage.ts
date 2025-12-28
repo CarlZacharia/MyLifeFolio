@@ -25,6 +25,18 @@ export const FOLDERS = {
 
 export type FolderType = typeof FOLDERS[keyof typeof FOLDERS];
 
+// Person types for document organization
+export type PersonType = 'client' | 'spouse';
+
+// Document types that can be uploaded
+export type DocumentType = 'will' | 'trust' | 'irrevocableTrust' | 'financialPOA' | 'healthCarePOA' | 'livingWill';
+
+export interface UploadedDocumentMetadata extends FileMetadata {
+  personType: PersonType;
+  documentType: DocumentType;
+  originalName: string;
+}
+
 export interface FileMetadata {
   name: string;
   path: string;
@@ -184,6 +196,113 @@ export async function uploadExistingEstatePlanFiles(
     uploaded,
     errors,
   };
+}
+
+/**
+ * Upload a single estate plan document with person and document type organization
+ * Path structure: {user_id}/{clientFolderName}/existing-estate-plan/{personType}/{documentType}/{filename}
+ */
+export async function uploadEstatePlanDocument(
+  file: File,
+  clientFolderName: string,
+  personType: PersonType,
+  documentType: DocumentType
+): Promise<{ success: boolean; metadata?: UploadedDocumentMetadata; error?: string }> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { success: false, error: 'User not authenticated' };
+    }
+
+    // Generate unique filename to avoid collisions
+    const timestamp = Date.now();
+    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const uniqueName = `${timestamp}-${cleanFileName}`;
+
+    // Organize by person type and document type
+    const filePath = `${user.id}/${clientFolderName}/${FOLDERS.EXISTING_ESTATE_PLAN}/${personType}/${documentType}/${uniqueName}`;
+
+    const { data, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (error) {
+      console.error('Error uploading estate plan document:', error);
+      return { success: false, error: error.message };
+    }
+
+    const metadata: UploadedDocumentMetadata = {
+      name: uniqueName,
+      originalName: file.name,
+      path: data.path,
+      type: file.type,
+      size: file.size,
+      uploadedAt: new Date().toISOString(),
+      personType,
+      documentType,
+    };
+
+    return { success: true, metadata };
+  } catch (err) {
+    console.error('Error in uploadEstatePlanDocument:', err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Upload multiple estate plan documents for a specific person and document type
+ */
+export async function uploadEstatePlanDocuments(
+  files: File[],
+  clientFolderName: string,
+  personType: PersonType,
+  documentType: DocumentType
+): Promise<{ success: boolean; uploaded: UploadedDocumentMetadata[]; errors: string[] }> {
+  const uploaded: UploadedDocumentMetadata[] = [];
+  const errors: string[] = [];
+
+  for (const file of files) {
+    const result = await uploadEstatePlanDocument(file, clientFolderName, personType, documentType);
+
+    if (result.success && result.metadata) {
+      uploaded.push(result.metadata);
+    } else {
+      errors.push(`${file.name}: ${result.error || 'Unknown error'}`);
+    }
+  }
+
+  return {
+    success: errors.length === 0,
+    uploaded,
+    errors,
+  };
+}
+
+/**
+ * Delete an uploaded estate plan document
+ */
+export async function deleteEstatePlanDocument(filePath: string): Promise<boolean> {
+  try {
+    const { error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .remove([filePath]);
+
+    if (error) {
+      console.error('Error deleting estate plan document:', error);
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Error in deleteEstatePlanDocument:', err);
+    return false;
+  }
 }
 
 // ============================================================================

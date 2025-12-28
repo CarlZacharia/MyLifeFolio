@@ -30,6 +30,7 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Tabl
 import { saveAs } from 'file-saver';
 import { useFormContext } from '../lib/FormContext';
 import { useAuth } from '../lib/AuthContext';
+import AttorneyOfficeSection from '../components/AttorneyOfficeSection';
 import PersonalDataSection from '../components/PersonalDataSection';
 import BeneficiariesSection from '../components/BeneficiariesSection';
 import DispositiveIntentionsSection from '../components/DispositiveIntentionsSection';
@@ -348,6 +349,7 @@ const markdownToDocx = (markdown: string, clientName: string): Document => {
 };
 
 const ALL_STEPS = [
+  'Office & Attorney',
   'Personal Data',
   'Beneficiaries',
   'Assets',
@@ -531,6 +533,8 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
     const stepName = steps[currentStep];
 
     switch (stepName) {
+      case 'Office & Attorney':
+        return <AttorneyOfficeSection />;
       case 'Personal Data':
         return <PersonalDataSection />;
       case 'Beneficiaries':
