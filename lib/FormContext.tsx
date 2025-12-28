@@ -381,6 +381,10 @@ export interface FormData {
   hasGeneralBequests: boolean;
   generalBequestsDescription: string;
   cashGiftsToBeneficiaries: CashGiftToBeneficiary[];
+  // When should cash bequests be paid? Only relevant for married couples
+  // 'atFirstDeath' = paid when the first spouse dies
+  // 'atSurvivorDeath' = paid when the surviving spouse dies (after both deceased)
+  cashBequestTiming: 'atFirstDeath' | 'atSurvivorDeath';
   dispositiveIntentionsComments: string;
 
   // Charities
@@ -796,6 +800,7 @@ const initialFormData: FormData = {
   hasGeneralBequests: false,
   generalBequestsDescription: '',
   cashGiftsToBeneficiaries: [],
+  cashBequestTiming: 'atSurvivorDeath', // Default: pay at survivor's death (most common for married couples)
   dispositiveIntentionsComments: '',
   leaveToCharity: false,
   charities: [],

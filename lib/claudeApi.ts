@@ -103,15 +103,26 @@ The "totals" object contains pre-calculated totals for each category and the tot
 USE THESE PRE-COMPUTED VALUES in your analysis rather than recalculating. This ensures consistency with what the user sees on screen.
 
 IMPORTANT - Cash Bequests and Insufficient Residuary Assets:
-If the client has specified cash bequests (in "cashGiftsToBeneficiaries"), these are paid from the PROBATE estate BEFORE the residuary is distributed. You MUST check:
+If the client has specified cash bequests (in "cashGiftsToBeneficiaries"), these are paid from the PROBATE estate BEFORE the residuary is distributed.
+
+The field "cashBequestTiming" determines WHEN these bequests are paid:
+- "atSurvivorDeath": Cash bequests are paid after BOTH spouses have died (from the combined estate)
+- "atFirstDeath": Cash bequests are paid when the FIRST spouse dies (from that spouse's probate estate only)
+
+For married couples with "provideForSpouseThenChildren: true" (sweetheart plan), the timing is typically "atSurvivorDeath".
+
+You MUST check:
 1. Calculate the total cash bequests requested
-2. Compare against the total PROBATE assets (categories.clientProbate + categories.spouseProbate)
+2. Based on timing, compare against the appropriate probate assets:
+   - If "atSurvivorDeath" or single: Compare against combined probate (categories.clientProbate + categories.spouseProbate)
+   - If "atFirstDeath": Compare against EACH spouse's probate separately (either could die first)
 3. If the total cash bequests EXCEED the available probate assets, this is a CRITICAL ISSUE that must be flagged:
    - Identify the shortfall amount
    - Explain that cash bequest beneficiaries may receive reduced amounts or nothing
    - Explain that the residuary beneficiaries would receive nothing if cash bequests consume all probate assets
    - Recommend either: reducing cash bequests, increasing probate assets, or converting some non-probate assets to probate
 4. Even if probate assets are sufficient, note if the cash bequests consume a significant portion (>50%) of probate assets, as this may leave little for residuary beneficiaries
+5. Note the timing setting in your analysis and explain when cash bequests will be paid
 
 Please be certain to include:
 1. Family profile analysis

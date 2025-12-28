@@ -1423,6 +1423,61 @@ const EstatePlanAnalysis: React.FC = () => {
           color="warning.main"
         />
 
+        {/* Cash Bequests at First Death - only if timing is 'atFirstDeath' */}
+        {showSpouse && formData.cashBequestTiming === 'atFirstDeath' && formData.cashGiftsToBeneficiaries.length > 0 && (() => {
+          // Calculate deductions from client's probate assets
+          const firstDeathCashBequestResult = calculateCashBequestDeductions(
+            formData.cashGiftsToBeneficiaries,
+            clientProbateAssets
+          );
+
+          return (
+            <Paper variant="outlined" sx={{ p: 2, mb: 2, borderColor: firstDeathCashBequestResult.remainingBequest > 0 ? 'error.main' : 'secondary.main' }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, color: firstDeathCashBequestResult.remainingBequest > 0 ? 'error.main' : 'secondary.main', mb: 1 }}>
+                Cash Bequests (Paid at Client&apos;s Death)
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                These cash gifts are paid from the Client&apos;s probate estate at first death.
+              </Typography>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600 }}>Beneficiary</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Amount</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {formData.cashGiftsToBeneficiaries.map((gift, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>{gift.beneficiaryName}</TableCell>
+                        <TableCell align="right">{formatCurrency(parseCurrency(gift.amount))}</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow sx={{ bgcolor: 'grey.100' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Total Cash Bequests</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>
+                        {formatCurrency(firstDeathCashBequestResult.totalCashBequests)}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              {firstDeathCashBequestResult.remainingBequest > 0 && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    Insufficient Probate Assets for Cash Bequests
+                  </Typography>
+                  <Typography variant="body2">
+                    The Client&apos;s probate estate does not have enough assets to fully fund the cash bequests.
+                    There is a shortfall of {formatCurrency(firstDeathCashBequestResult.remainingBequest)}.
+                  </Typography>
+                </Alert>
+              )}
+            </Paper>
+          );
+        })()}
+
         {/* First Death Heir Summary - for assets going to non-spouse beneficiaries */}
         {(() => {
           // Calculate shares for assets going to other beneficiaries at first death
@@ -1577,10 +1632,18 @@ const EstatePlanAnalysis: React.FC = () => {
           ];
 
           // Apply cash bequest deductions from probate assets (paid before residuary distribution)
-          const cashBequestResult = calculateCashBequestDeductions(
-            formData.cashGiftsToBeneficiaries,
-            rawAssetsToSpouseProbate
-          );
+          // Only apply at survivor's death if timing is 'atSurvivorDeath' (or for single/unmarried people)
+          // If timing is 'atFirstDeath', cash bequests were already paid when client died
+          const shouldApplyCashBequestsAtSecondDeath =
+            !showSpouse || formData.cashBequestTiming === 'atSurvivorDeath';
+
+          const cashBequestResult = shouldApplyCashBequestsAtSecondDeath
+            ? calculateCashBequestDeductions(
+                formData.cashGiftsToBeneficiaries,
+                rawAssetsToSpouseProbate
+              )
+            : { totalCashBequests: 0, deductions: [], adjustedProbateAssets: rawAssetsToSpouseProbate, remainingBequest: 0 };
+
           const assetsToSpouseProbate = cashBequestResult.adjustedProbateAssets;
           const totalCashBequestsDeducted = cashBequestResult.totalCashBequests;
 
@@ -1891,6 +1954,61 @@ const EstatePlanAnalysis: React.FC = () => {
           color="warning.main"
         />
 
+        {/* Cash Bequests at First Death - only if timing is 'atFirstDeath' */}
+        {showSpouse && formData.cashBequestTiming === 'atFirstDeath' && formData.cashGiftsToBeneficiaries.length > 0 && (() => {
+          // Calculate deductions from spouse's probate assets
+          const firstDeathCashBequestResult = calculateCashBequestDeductions(
+            formData.cashGiftsToBeneficiaries,
+            spouseProbateAssets
+          );
+
+          return (
+            <Paper variant="outlined" sx={{ p: 2, mb: 2, borderColor: firstDeathCashBequestResult.remainingBequest > 0 ? 'error.main' : 'secondary.main' }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, color: firstDeathCashBequestResult.remainingBequest > 0 ? 'error.main' : 'secondary.main', mb: 1 }}>
+                Cash Bequests (Paid at Spouse&apos;s Death)
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                These cash gifts are paid from the Spouse&apos;s probate estate at first death.
+              </Typography>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600 }}>Beneficiary</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Amount</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {formData.cashGiftsToBeneficiaries.map((gift, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>{gift.beneficiaryName}</TableCell>
+                        <TableCell align="right">{formatCurrency(parseCurrency(gift.amount))}</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow sx={{ bgcolor: 'grey.100' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Total Cash Bequests</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>
+                        {formatCurrency(firstDeathCashBequestResult.totalCashBequests)}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              {firstDeathCashBequestResult.remainingBequest > 0 && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    Insufficient Probate Assets for Cash Bequests
+                  </Typography>
+                  <Typography variant="body2">
+                    The Spouse&apos;s probate estate does not have enough assets to fully fund the cash bequests.
+                    There is a shortfall of {formatCurrency(firstDeathCashBequestResult.remainingBequest)}.
+                  </Typography>
+                </Alert>
+              )}
+            </Paper>
+          );
+        })()}
+
         {/* First Death Heir Summary - for assets going to non-client beneficiaries */}
         {(() => {
           // Calculate shares for assets going to other beneficiaries at first death
@@ -2045,10 +2163,18 @@ const EstatePlanAnalysis: React.FC = () => {
           ];
 
           // Apply cash bequest deductions from probate assets (paid before residuary distribution)
-          const cashBequestResultClient = calculateCashBequestDeductions(
-            formData.cashGiftsToBeneficiaries,
-            rawAssetsToClientProbate
-          );
+          // Only apply at survivor's death if timing is 'atSurvivorDeath' (or for single/unmarried people)
+          // If timing is 'atFirstDeath', cash bequests were already paid when spouse died
+          const shouldApplyCashBequestsAtClientDeath =
+            !showSpouse || formData.cashBequestTiming === 'atSurvivorDeath';
+
+          const cashBequestResultClient = shouldApplyCashBequestsAtClientDeath
+            ? calculateCashBequestDeductions(
+                formData.cashGiftsToBeneficiaries,
+                rawAssetsToClientProbate
+              )
+            : { totalCashBequests: 0, deductions: [], adjustedProbateAssets: rawAssetsToClientProbate, remainingBequest: 0 };
+
           const assetsToClientProbate = cashBequestResultClient.adjustedProbateAssets;
           const totalCashBequestsDeductedClient = cashBequestResultClient.totalCashBequests;
 

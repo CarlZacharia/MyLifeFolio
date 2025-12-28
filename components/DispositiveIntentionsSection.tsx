@@ -510,6 +510,37 @@ const DispositiveIntentionsSection = () => {
               </Table>
             </TableContainer>
           )}
+
+          {/* Cash Bequest Timing - only show for married couples with cash gifts */}
+          {showSpouseInfo && formData.cashGiftsToBeneficiaries.length > 0 && (
+            <Box sx={{ mt: 2, p: 2, bgcolor: '#fff3e0', borderRadius: 1, border: '1px solid #ffcc80' }}>
+              <FormControl component="fieldset">
+                <FormLabel component="legend" sx={{ fontWeight: 600, color: '#e65100' }}>
+                  When should these cash bequests be paid?
+                </FormLabel>
+                <RadioGroup
+                  value={formData.cashBequestTiming}
+                  onChange={(e) => updateFormData({ cashBequestTiming: e.target.value as 'atFirstDeath' | 'atSurvivorDeath' })}
+                >
+                  <FormControlLabel
+                    value="atSurvivorDeath"
+                    control={<Radio />}
+                    label="After the surviving spouse passes away (recommended for sweetheart plans)"
+                  />
+                  <FormControlLabel
+                    value="atFirstDeath"
+                    control={<Radio />}
+                    label="At the death of the first spouse"
+                  />
+                </RadioGroup>
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                  {formData.cashBequestTiming === 'atSurvivorDeath'
+                    ? 'Cash bequests will be paid from the combined estate after both spouses have passed.'
+                    : 'Cash bequests will be paid from the deceased spouse\'s probate estate immediately upon their death.'}
+                </Typography>
+              </FormControl>
+            </Box>
+          )}
         </>
       )}
 
