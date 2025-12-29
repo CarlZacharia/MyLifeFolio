@@ -19,6 +19,8 @@ import {
   DialogContent,
   IconButton,
   Backdrop,
+  TextField,
+  MenuItem,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloseIcon from '@mui/icons-material/Close';
@@ -28,9 +30,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
 import { saveAs } from 'file-saver';
-import { useFormContext } from '../lib/FormContext';
+import { useFormContext, OfficeInfo, AttorneyInfo } from '../lib/FormContext';
 import { useAuth } from '../lib/AuthContext';
-import AttorneyOfficeSection from '../components/AttorneyOfficeSection';
 import PersonalDataSection from '../components/PersonalDataSection';
 import BeneficiariesSection from '../components/BeneficiariesSection';
 import DispositiveIntentionsSection from '../components/DispositiveIntentionsSection';
@@ -49,13 +50,14 @@ import HelpModal from '../components/HelpModal';
 import { MaritalStatus } from '../lib/FormContext';
 import { analyzeEstatePlan, ANALYSIS_PROMPTS } from '../lib/claudeApi';
 import { categorizeAssets } from '../lib/assetCategorization';
-import { saveIntakeRaw } from '../lib/supabaseIntake';
+import { saveIntakeFull } from '../lib/supabaseIntake';
 import {
   generateClientFolderName,
   saveAnalysisReports,
   updateIntakeAnalysis,
   updateIntakeStorageInfo,
 } from '../lib/supabaseStorage';
+import { getActiveOffices, getActiveAttorneys } from '../lib/supabaseOfficesAttorneys';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -349,7 +351,6 @@ const markdownToDocx = (markdown: string, clientName: string): Document => {
 };
 
 const ALL_STEPS = [
-  'Office & Attorney',
   'Personal Data',
   'Beneficiaries',
   'Assets',
@@ -371,13 +372,42 @@ interface QuestionnaireContentProps {
 }
 
 const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateBack, onLogout }) => {
-  const { formData, currentStep, setCurrentStep, clearFormData } = useFormContext();
+  const { formData, updateFormData, currentStep, setCurrentStep, clearFormData } = useFormContext();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+
+  // Office and Attorney state for Review & Submit page
+  const [offices, setOffices] = useState<OfficeInfo[]>([]);
+  const [attorneys, setAttorneys] = useState<AttorneyInfo[]>([]);
+  const [loadingOfficesAttorneys, setLoadingOfficesAttorneys] = useState(false);
+
+  // Load offices and attorneys when component mounts
+  React.useEffect(() => {
+    const loadOfficesAndAttorneys = async () => {
+      setLoadingOfficesAttorneys(true);
+      try {
+        const [officesResult, attorneysResult] = await Promise.all([
+          getActiveOffices(),
+          getActiveAttorneys(),
+        ]);
+        if (officesResult.success) {
+          setOffices(officesResult.offices);
+        }
+        if (attorneysResult.success) {
+          setAttorneys(attorneysResult.attorneys);
+        }
+      } catch (err) {
+        console.error('Failed to load offices/attorneys:', err);
+      } finally {
+        setLoadingOfficesAttorneys(false);
+      }
+    };
+    loadOfficesAndAttorneys();
+  }, []);
 
   const openHelp = (helpId: number) => setActiveHelpId(helpId);
   const closeHelp = () => setActiveHelpId(null);
@@ -461,9 +491,9 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
       const clientName = formData.name || 'Unknown Client';
       const clientFolderName = generateClientFolderName(clientName);
 
-      // Step 2: Save form data to Supabase (raw JSON)
-      const saveResult = await saveIntakeRaw(formData, 'EstatePlanning');
-      if (!saveResult.success || !saveResult.intakeRawId) {
+      // Step 2: Save form data to Supabase (both raw JSON and normalized tables)
+      const saveResult = await saveIntakeFull(formData, 'EstatePlanning');
+      if (!saveResult.success) {
         console.error('Failed to save intake to Supabase:', saveResult.error);
         // Continue with analysis even if save fails - we don't want to block the user
       }
@@ -533,8 +563,6 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
     const stepName = steps[currentStep];
 
     switch (stepName) {
-      case 'Office & Attorney':
-        return <AttorneyOfficeSection />;
       case 'Personal Data':
         return <PersonalDataSection />;
       case 'Beneficiaries':
@@ -566,9 +594,84 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
               Thank you for completing the Estate Planning Questionnaire. By clicking "Submit",
               your information will be securely sent to Zacharia Brown & Bratkovich for review.
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
               We will contact you shortly to schedule or confirm your consultation appointment.
             </Typography>
+
+            {/* Office Selection */}
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                select
+                fullWidth
+                label="Office *"
+                value={formData.officeId}
+                onChange={(e) => {
+                  const selectedOffice = offices.find((o) => o.id === e.target.value);
+                  updateFormData({
+                    officeId: e.target.value,
+                    officeName: selectedOffice?.name || '',
+                  });
+                }}
+                disabled={loadingOfficesAttorneys}
+                error={!formData.officeId}
+                helperText={!formData.officeId ? 'Please select an office' : ''}
+              >
+                <MenuItem value="">
+                  <em>Select an office...</em>
+                </MenuItem>
+                {offices.map((office) => (
+                  <MenuItem key={office.id} value={office.id}>
+                    {office.name}{office.city && office.state ? ` - ${office.city}, ${office.state}` : ''}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
+
+            {/* Attorney Selection */}
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                select
+                fullWidth
+                label="Attorney *"
+                value={formData.attorneyId}
+                onChange={(e) => {
+                  const selectedAttorney = attorneys.find((a) => a.id === e.target.value);
+                  updateFormData({
+                    attorneyId: e.target.value,
+                    attorneyName: selectedAttorney?.name || '',
+                  });
+                }}
+                disabled={loadingOfficesAttorneys}
+                error={!formData.attorneyId}
+                helperText={!formData.attorneyId ? 'Please select an attorney' : ''}
+              >
+                <MenuItem value="">
+                  <em>Select an attorney...</em>
+                </MenuItem>
+                {attorneys.map((attorney) => (
+                  <MenuItem key={attorney.id} value={attorney.id}>
+                    {attorney.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
+
+            {/* Comments Section */}
+            <Box sx={{ mt: 4 }}>
+              <Typography variant="h6" sx={{ mb: 2, color: '#1e3a5f' }}>
+                Comments & Notes
+              </Typography>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Additional Comments (Optional)"
+                placeholder="Enter any additional comments, questions, or explanatory notes for the law firm..."
+                value={formData.submissionComments}
+                onChange={(e) => updateFormData({ submissionComments: e.target.value })}
+                helperText="Use this space to provide any additional information or context that may be helpful for your estate planning consultation."
+              />
+            </Box>
           </Box>
         );
       default:
@@ -795,7 +898,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
                   <Button
                     variant="contained"
                     onClick={handleSubmit}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !formData.officeId || !formData.attorneyId}
                     sx={{ bgcolor: '#1e3a5f' }}
                     startIcon={isSubmitting && <CircularProgress size={20} color="inherit" />}
                   >

@@ -25,7 +25,7 @@ export interface IntakeRawRecord {
   intake_type: IntakeType;
   form_data: FormData;
   client_name: string | null;
-  spouse_name: string | null;
+  spouse_name: string | null; 
   created_at: string;
   updated_at: string;
 }
@@ -78,6 +78,9 @@ export async function saveIntakeRaw(
         .update({
           form_data: jsonFormData,
           intake_type: intakeType,
+          submission_comments: formData.submissionComments || null,
+          office_id: formData.officeId || null,
+          attorney_id: formData.attorneyId || null,
         })
         .eq('id', existingId)
         .eq('user_id', user.id)
@@ -98,6 +101,9 @@ export async function saveIntakeRaw(
           user_id: user.id,
           intake_type: intakeType,
           form_data: jsonFormData,
+          submission_comments: formData.submissionComments || null,
+          office_id: formData.officeId || null,
+          attorney_id: formData.attorneyId || null,
         })
         .select('id')
         .single();

@@ -282,6 +282,7 @@ export interface FormData {
   officeName: string;
   attorneyId: string;
   attorneyName: string;
+  submissionComments: string;
 
   // Personal Data
   date: string;
@@ -738,6 +739,7 @@ const initialFormData: FormData = {
   officeName: '',
   attorneyId: '',
   attorneyName: '',
+  submissionComments: '',
 
   date: '',
   appointmentDate: '',

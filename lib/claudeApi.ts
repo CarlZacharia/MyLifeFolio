@@ -192,16 +192,28 @@ Flag this as an issue requiring trust provisions:
 - Recommend including trust provisions in Will/Trust for gifts to minors
 - Suggest appropriate distribution age (e.g., 25 or 30, not 18)
 
-IMPORTANT - Missing Incapacity Planning Documents (CRITICAL):
-Check "clientCurrentEstatePlan" and "spouseCurrentEstatePlan" for:
-- hasFinancialPOA: false - Flag as CRITICAL
-- hasHealthCarePOA: false - Flag as CRITICAL
-- hasLivingWill: false - Flag as important
+IMPORTANT - Missing Incapacity Planning Designations (CRITICAL):
+Check whether agents have been NAMED for incapacity planning - this is what matters, NOT whether existing documents exist.
+The relevant fields are at the root level of the form data (NOT in clientCurrentEstatePlan):
 
-If ANY of these are false, this is a CRITICAL gap:
-- Without these documents, court guardianship proceeding required if incapacitated
+For Client:
+- "healthCareAgentName" - The designated healthcare agent. If empty string, flag as CRITICAL.
+- "financialAgentName" - The designated financial POA agent. If empty string, flag as CRITICAL.
+
+For Spouse (if married):
+- "spouseHealthCareAgentName" - Spouse's designated healthcare agent. If empty string, flag as CRITICAL.
+- "spouseFinancialAgentName" - Spouse's designated financial POA agent. If empty string, flag as CRITICAL.
+
+ONLY flag as missing if the agent name field is EMPTY. If an agent has been designated (name field is not empty),
+the client has made their incapacity planning decisions and new documents will be prepared as part of this engagement.
+
+Do NOT check the "hasFinancialPOA", "hasHealthCarePOA", or "hasLivingWill" fields in clientCurrentEstatePlan -
+those indicate whether EXISTING documents exist, which is irrelevant. What matters is whether agents have been NAMED for the NEW documents.
+
+If agent names ARE missing, this is a CRITICAL gap:
+- Without POA documents, court guardianship proceeding required if incapacitated
 - Guardianship is expensive ($5,000-$15,000+), time-consuming, and public record
-- Recommend immediate execution of POA and healthcare documents for both spouses
+- Recommend that the client complete the fiduciary designations section
 
 IMPORTANT - Guardian Nomination for Minor Children:
 Check if any children in "children" array have age < 18.
