@@ -2664,7 +2664,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ open, onClose, helpId }) => {
             variant="caption"
             sx={{ color: "text.secondary", fontSize: "0.7rem" }}
           >
-            Zaacharia Brown & Bratkovich &copy; 2026
+            Zacharia Brown & Bratkovich &copy; 2026
           </Typography>
         </Box>
         <Button

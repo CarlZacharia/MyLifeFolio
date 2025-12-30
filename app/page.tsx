@@ -26,6 +26,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloseIcon from '@mui/icons-material/Close';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DownloadIcon from '@mui/icons-material/Download';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import PersonIcon from '@mui/icons-material/Person';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
@@ -43,6 +45,8 @@ import SummarySection from '../components/SummarySection';
 import EstatePlanAnalysis from '../components/EstatePlanAnalysis';
 import LandingPage from '../components/LandingPage';
 import EstatePlanningHome from '../components/EstatePlanningHome';
+import AdminDashboard from '../components/AdminDashboard';
+import Profile from '../components/Profile';
 import Login from '../components/Login';
 import Register from '../components/Register';
 import { VideoHelpIcon } from '../components/FieldWithHelp';
@@ -364,14 +368,23 @@ const ALL_STEPS = [
 ];
 
 // Page type for routing
-type PageType = 'landing' | 'estate-planning-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration';
+type PageType = 'landing' | 'estate-planning-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'profile';
+
+// Helper to check if user is an admin (email domain is zacbrownlaw.com)
+const isAdminUser = (email: string | undefined): boolean => {
+  if (!email) return false;
+  const domain = email.split('@')[1];
+  return domain === 'zacbrownlaw.com';
+};
 
 interface QuestionnaireContentProps {
   onNavigateBack: () => void;
   onLogout: () => void;
+  onAdmin?: () => void;
+  onProfile?: () => void;
 }
 
-const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateBack, onLogout }) => {
+const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateBack, onLogout, onAdmin, onProfile }) => {
   const { formData, updateFormData, currentStep, setCurrentStep, clearFormData } = useFormContext();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -785,26 +798,64 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
             </Typography>
           </Box>
           {user && (
-            <Button
-              variant="contained"
-              onClick={onLogout}
-              startIcon={<LogoutIcon />}
-              sx={{
-                position: 'absolute',
-                right: 16,
-                bgcolor: '#d32f2f',
-                color: 'white',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-                boxShadow: 'none',
-                '&:hover': {
-                  bgcolor: '#b71c1c',
-                  boxShadow: '0 4px 12px rgba(211, 47, 47, 0.3)',
-                },
-              }}
-            >
-              Logout
-            </Button>
+            <Box sx={{ position: 'absolute', right: 16, display: 'flex', alignItems: 'center', gap: 1 }}>
+              {onProfile && (
+                <Button
+                  variant="outlined"
+                  onClick={onProfile}
+                  startIcon={<PersonIcon />}
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    '&:hover': {
+                      borderColor: 'white',
+                      bgcolor: 'rgba(255,255,255,0.1)',
+                    },
+                  }}
+                >
+                  Profile
+                </Button>
+              )}
+              {isAdminUser(user.email) && onAdmin && (
+                <Button
+                  variant="outlined"
+                  onClick={onAdmin}
+                  startIcon={<AdminPanelSettingsIcon />}
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    '&:hover': {
+                      borderColor: 'white',
+                      bgcolor: 'rgba(255,255,255,0.1)',
+                    },
+                  }}
+                >
+                  Admin
+                </Button>
+              )}
+              <Button
+                variant="contained"
+                onClick={onLogout}
+                startIcon={<LogoutIcon />}
+                sx={{
+                  bgcolor: '#d32f2f',
+                  color: 'white',
+                  fontWeight: 600,
+                  fontSize: '0.9rem',
+                  boxShadow: 'none',
+                  '&:hover': {
+                    bgcolor: '#b71c1c',
+                    boxShadow: '0 4px 12px rgba(211, 47, 47, 0.3)',
+                  },
+                }}
+              >
+                Logout
+              </Button>
+            </Box>
           )}
         </Toolbar>
       </AppBar>
@@ -952,11 +1003,31 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
 
 export default function MainPage() {
   const [currentPage, setCurrentPage] = useState<PageType>('landing');
+  const [previousPage, setPreviousPage] = useState<PageType>('landing');
   const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
 
   const handleNavigate = (page: string) => {
+    setPreviousPage(currentPage);
     setCurrentPage(page as PageType);
+    window.scrollTo(0, 0);
+  };
+
+  const handleAdminClick = () => {
+    handleNavigate('admin');
+  };
+
+  const handleAdminBack = () => {
+    setCurrentPage(previousPage);
+    window.scrollTo(0, 0);
+  };
+
+  const handleProfileClick = () => {
+    handleNavigate('profile');
+  };
+
+  const handleProfileBack = () => {
+    setCurrentPage(previousPage);
     window.scrollTo(0, 0);
   };
 
@@ -1000,6 +1071,8 @@ export default function MainPage() {
             onNavigate={handleNavigate}
             onLogin={handleLogin}
             onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
           />
         );
 
@@ -1011,6 +1084,8 @@ export default function MainPage() {
             onEducationItemClick={handleEducationItemClick}
             onLogin={handleLogin}
             onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
           />
         );
 
@@ -1019,6 +1094,36 @@ export default function MainPage() {
           <QuestionnaireContent
             onNavigateBack={() => handleNavigate('estate-planning-home')}
             onLogout={handleLogout}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+          />
+        );
+
+      // Admin Dashboard (only accessible to admin users)
+      case 'admin':
+        if (isAdminUser(user?.email)) {
+          return <AdminDashboard onBack={handleAdminBack} />;
+        }
+        // Redirect non-admin users to landing
+        return (
+          <LandingPage
+            onNavigate={handleNavigate}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+          />
+        );
+
+      // Profile page (only accessible to logged-in users)
+      case 'profile':
+        if (user) {
+          return <Profile onBack={handleProfileBack} />;
+        }
+        // Redirect non-logged-in users to landing
+        return (
+          <LandingPage
+            onNavigate={handleNavigate}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
           />
         );
 

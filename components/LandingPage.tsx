@@ -39,7 +39,16 @@ import BalanceIcon from '@mui/icons-material/Balance';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import LogoutIcon from '@mui/icons-material/Logout';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import PersonIcon from '@mui/icons-material/Person';
 import { useAuth } from '../lib/AuthContext';
+
+// Helper to check if user is an admin (email domain is zacbrownlaw.com)
+const isAdminUser = (email: string | undefined): boolean => {
+  if (!email) return false;
+  const domain = email.split('@')[1];
+  return domain === 'zacbrownlaw.com';
+};
 
 // Custom theme with sophisticated typography and colors
 const theme = createTheme({
@@ -332,9 +341,11 @@ interface LandingPageProps {
   onNavigate: (page: string) => void;
   onLogin?: () => void;
   onRegister?: () => void;
+  onAdmin?: () => void;
+  onProfile?: () => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegister }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }) => {
   const [scrolled, setScrolled] = useState(false);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const { user, signOut } = useAuth();
@@ -508,27 +519,71 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
               {/* Auth Buttons - Minimal and clean */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
                 {user ? (
-                  // User is logged in - show Logout button
-                  <Button
-                    variant="contained"
-                    onClick={handleLogout}
-                    startIcon={<LogoutIcon />}
-                    sx={{
-                      bgcolor: '#d32f2f',
-                      color: 'white',
-                      fontWeight: 600,
-                      fontSize: '0.9rem',
-                      px: { xs: 2, md: 3 },
-                      py: 1,
-                      boxShadow: 'none',
-                      '&:hover': {
-                        bgcolor: '#b71c1c',
-                        boxShadow: '0 4px 12px rgba(211, 47, 47, 0.3)',
-                      },
-                    }}
-                  >
-                    Logout
-                  </Button>
+                  // User is logged in - show Profile, Admin (if admin), and Logout buttons
+                  <>
+                    {onProfile && (
+                      <Button
+                        variant="outlined"
+                        onClick={onProfile}
+                        startIcon={<PersonIcon />}
+                        sx={{
+                          borderColor: 'rgba(255,255,255,0.5)',
+                          color: 'white',
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
+                          px: { xs: 2, md: 3 },
+                          py: 1,
+                          '&:hover': {
+                            borderColor: 'white',
+                            bgcolor: 'rgba(255,255,255,0.1)',
+                          },
+                        }}
+                      >
+                        Profile
+                      </Button>
+                    )}
+                    {isAdminUser(user.email) && onAdmin && (
+                      <Button
+                        variant="outlined"
+                        onClick={onAdmin}
+                        startIcon={<AdminPanelSettingsIcon />}
+                        sx={{
+                          borderColor: 'rgba(255,255,255,0.5)',
+                          color: 'white',
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
+                          px: { xs: 2, md: 3 },
+                          py: 1,
+                          '&:hover': {
+                            borderColor: 'white',
+                            bgcolor: 'rgba(255,255,255,0.1)',
+                          },
+                        }}
+                      >
+                        Admin
+                      </Button>
+                    )}
+                    <Button
+                      variant="contained"
+                      onClick={handleLogout}
+                      startIcon={<LogoutIcon />}
+                      sx={{
+                        bgcolor: '#d32f2f',
+                        color: 'white',
+                        fontWeight: 600,
+                        fontSize: '0.9rem',
+                        px: { xs: 2, md: 3 },
+                        py: 1,
+                        boxShadow: 'none',
+                        '&:hover': {
+                          bgcolor: '#b71c1c',
+                          boxShadow: '0 4px 12px rgba(211, 47, 47, 0.3)',
+                        },
+                      }}
+                    >
+                      Logout
+                    </Button>
+                  </>
                 ) : (
                   // User is not logged in - show Sign In and Get Started
                   <>
@@ -636,7 +691,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                       mb: 2,
                     }}
                   >
-                    Trusted Counsel Since 1990
+                    Trusted Counsel Since 1995
                   </Typography>
                 </AnimatedSection>
 
@@ -734,7 +789,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                   />
                   <TrustIndicator
                     icon={<GavelIcon sx={{ fontSize: 20 }} />}
-                    text="Florida & Pennsylvania Licensed"
+                    text="Offices in Florida & Pennsylvania"
                     delay={600}
                   />
                 </Box>
@@ -1077,7 +1132,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                         Email
                       </Typography>
                       <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        info@zbblaw.com
+                        info@zacbrownlaw.com
                       </Typography>
                     </Box>
                   </Box>

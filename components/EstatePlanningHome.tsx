@@ -36,7 +36,16 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SchoolIcon from '@mui/icons-material/School';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LogoutIcon from '@mui/icons-material/Logout';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import PersonIcon from '@mui/icons-material/Person';
 import { useAuth } from '../lib/AuthContext';
+
+// Helper to check if user is an admin (email domain is zacbrownlaw.com)
+const isAdminUser = (email: string | undefined): boolean => {
+  if (!email) return false;
+  const domain = email.split('@')[1];
+  return domain === 'zacbrownlaw.com';
+};
 
 // Custom theme matching LandingPage
 const theme = createTheme({
@@ -264,6 +273,8 @@ interface EstatePlanningHomeProps {
   onEducationItemClick?: (itemId: string) => void;
   onLogin?: () => void;
   onRegister?: () => void;
+  onAdmin?: () => void;
+  onProfile?: () => void;
 }
 
 const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
@@ -272,6 +283,8 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
   onEducationItemClick,
   onLogin,
   onRegister,
+  onAdmin,
+  onProfile,
 }) => {
   const [scrolled, setScrolled] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
@@ -401,27 +414,71 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
               {/* Auth Buttons */}
               <Box sx={{ position: 'absolute', right: 16, display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
                 {user ? (
-                  // User is logged in - show Logout button
-                  <Button
-                    variant="contained"
-                    onClick={handleLogout}
-                    startIcon={<LogoutIcon />}
-                    sx={{
-                      bgcolor: '#d32f2f',
-                      color: 'white',
-                      fontWeight: 600,
-                      fontSize: '0.9rem',
-                      px: { xs: 2, md: 3 },
-                      py: 1,
-                      boxShadow: 'none',
-                      '&:hover': {
-                        bgcolor: '#b71c1c',
-                        boxShadow: '0 4px 12px rgba(211, 47, 47, 0.3)',
-                      },
-                    }}
-                  >
-                    Logout
-                  </Button>
+                  // User is logged in - show Profile, Admin (if admin), and Logout buttons
+                  <>
+                    {onProfile && (
+                      <Button
+                        variant="outlined"
+                        onClick={onProfile}
+                        startIcon={<PersonIcon />}
+                        sx={{
+                          borderColor: 'rgba(255,255,255,0.5)',
+                          color: 'white',
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
+                          px: { xs: 2, md: 3 },
+                          py: 1,
+                          '&:hover': {
+                            borderColor: 'white',
+                            bgcolor: 'rgba(255,255,255,0.1)',
+                          },
+                        }}
+                      >
+                        Profile
+                      </Button>
+                    )}
+                    {isAdminUser(user.email) && onAdmin && (
+                      <Button
+                        variant="outlined"
+                        onClick={onAdmin}
+                        startIcon={<AdminPanelSettingsIcon />}
+                        sx={{
+                          borderColor: 'rgba(255,255,255,0.5)',
+                          color: 'white',
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
+                          px: { xs: 2, md: 3 },
+                          py: 1,
+                          '&:hover': {
+                            borderColor: 'white',
+                            bgcolor: 'rgba(255,255,255,0.1)',
+                          },
+                        }}
+                      >
+                        Admin
+                      </Button>
+                    )}
+                    <Button
+                      variant="contained"
+                      onClick={handleLogout}
+                      startIcon={<LogoutIcon />}
+                      sx={{
+                        bgcolor: '#d32f2f',
+                        color: 'white',
+                        fontWeight: 600,
+                        fontSize: '0.9rem',
+                        px: { xs: 2, md: 3 },
+                        py: 1,
+                        boxShadow: 'none',
+                        '&:hover': {
+                          bgcolor: '#b71c1c',
+                          boxShadow: '0 4px 12px rgba(211, 47, 47, 0.3)',
+                        },
+                      }}
+                    >
+                      Logout
+                    </Button>
+                  </>
                 ) : (
                   // User is not logged in - show Sign In and Get Started
                   <>

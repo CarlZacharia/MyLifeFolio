@@ -22,6 +22,8 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
+  Chip,
+  Tooltip,
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import PeopleIcon from '@mui/icons-material/People';
@@ -29,6 +31,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
   useFormContext,
   MaritalStatus,
@@ -91,6 +94,67 @@ const IRREVOCABLE_TRUST_REASONS = [
   'Qualified Personal Residence Trust (QPRT)',
   'Other',
 ];
+
+// Inline file chip component for displaying uploaded files
+interface InlineFileChipProps {
+  file: UploadedDocumentInfo;
+  headerColor: string;
+  onView: () => void;
+  onDelete: () => void;
+  isDeleting?: boolean;
+}
+
+const InlineFileChip: React.FC<InlineFileChipProps> = ({ file, headerColor, onView, onDelete, isDeleting }) => {
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const sizeText = formatFileSize(file.size);
+  const label = sizeText ? `${file.originalName} (${sizeText})` : file.originalName;
+
+  return (
+    <Chip
+      icon={<AttachFileIcon fontSize="small" />}
+      label={label}
+      size="small"
+      sx={{
+        bgcolor: 'white',
+        border: '1px solid',
+        borderColor: 'divider',
+        '& .MuiChip-label': { maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' },
+      }}
+      onDelete={onDelete}
+      deleteIcon={
+        isDeleting ? (
+          <CircularProgress size={16} />
+        ) : (
+          <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+            <Tooltip title="View document">
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onView();
+                }}
+                sx={{ p: 0.25 }}
+              >
+                <VisibilityIcon fontSize="small" sx={{ color: headerColor }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete document">
+              <IconButton size="small" sx={{ p: 0.25 }}>
+                <DeleteIcon fontSize="small" color="error" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )
+      }
+    />
+  );
+};
 
 // Document Upload Modal
 interface DocumentUploadModalProps {
@@ -423,6 +487,40 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
     }
   };
 
+  // State for tracking inline file deletion
+  const [deletingFilePath, setDeletingFilePath] = useState<string | null>(null);
+
+  // Handle viewing a file inline
+  const handleViewFile = async (file: UploadedDocumentInfo) => {
+    if (!file.path) return;
+    try {
+      const result = await getDownloadUrl(file.path);
+      if (result.success && result.url) {
+        window.open(result.url, '_blank');
+      }
+    } catch (err) {
+      console.error('Failed to get download URL:', err);
+    }
+  };
+
+  // Handle deleting a file inline
+  const handleDeleteFile = async (docType: DocumentTypeConfig, file: UploadedDocumentInfo) => {
+    if (!file.path) return;
+    setDeletingFilePath(file.path);
+    try {
+      const success = await deleteEstatePlanDocument(file.path);
+      if (success) {
+        const currentFiles = getUploadedFiles(docType.uploadField);
+        const updatedFiles = currentFiles.filter((f) => f.path !== file.path);
+        onChange(docType.uploadField, updatedFiles);
+      }
+    } catch (err) {
+      console.error('Failed to delete file:', err);
+    } finally {
+      setDeletingFilePath(null);
+    }
+  };
+
   // Check if any documents are selected
   const hasAnyDocuments = data.hasWill || data.hasTrust || data.hasFinancialPOA || data.hasHealthCarePOA || data.hasLivingWill;
 
@@ -600,6 +698,27 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
                 </Grid>
               )}
             </Grid>
+
+            {/* Inline uploaded files display */}
+            {uploadedFiles.length > 0 && (
+              <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="caption" sx={{ fontWeight: 500, color: 'text.secondary', display: 'block', mb: 1 }}>
+                  Uploaded Documents:
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {uploadedFiles.map((file) => (
+                    <InlineFileChip
+                      key={file.path || file.name}
+                      file={file}
+                      headerColor={headerColor}
+                      onView={() => handleViewFile(file)}
+                      onDelete={() => handleDeleteFile(docType, file)}
+                      isDeleting={deletingFilePath === file.path}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
           </Box>
         </Collapse>
       </Box>
