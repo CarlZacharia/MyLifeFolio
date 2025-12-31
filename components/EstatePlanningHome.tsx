@@ -38,6 +38,10 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PersonIcon from '@mui/icons-material/Person';
+import ExploreIcon from '@mui/icons-material/Explore';
+import QuizIcon from '@mui/icons-material/Quiz';
+import CalculateIcon from '@mui/icons-material/Calculate';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useAuth } from '../lib/AuthContext';
 
 // Helper to check if user is an admin (email domain is zacbrownlaw.com)
@@ -275,6 +279,7 @@ interface EstatePlanningHomeProps {
   onRegister?: () => void;
   onAdmin?: () => void;
   onProfile?: () => void;
+  onNavigate?: (page: string) => void;
 }
 
 const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
@@ -285,6 +290,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
   onRegister,
   onAdmin,
   onProfile,
+  onNavigate,
 }) => {
   const [scrolled, setScrolled] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
@@ -606,57 +612,201 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
           </Container>
         </Box>
 
-        {/* Main Content */}
+        {/* Main Content - Three Column Layout */}
         <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, mt: -4 }}>
-          <Grid container spacing={4}>
-            {/* Left Column - Education Center */}
-            <Grid item xs={12} md={7}>
+          <Grid container spacing={3}>
+            {/* Column 1: Start or Continue Intake */}
+            <Grid item xs={12} md={4}>
               <AnimatedSection delay={400}>
-                <Paper
+                <Card
                   elevation={0}
                   sx={{
-                    p: { xs: 3, md: 4 },
                     height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
                     border: '1px solid',
                     borderColor: alpha('#1e3a5f', 0.08),
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: `0 20px 40px ${alpha('#1e3a5f', 0.12)}`,
+                      borderColor: alpha('#1e3a5f', 0.3),
+                    },
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: `linear-gradient(90deg, #1e3a5f, ${alpha('#1e3a5f', 0.6)})`,
+                    },
                   }}
+                  onClick={onStartQuestionnaire}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                  <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                     <Box
                       sx={{
-                        width: 48,
-                        height: 48,
+                        width: 56,
+                        height: 56,
                         borderRadius: 2,
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
+                        mb: 2,
                         background: `linear-gradient(135deg, ${alpha('#1e3a5f', 0.1)}, ${alpha('#1e3a5f', 0.05)})`,
-                        border: `1px solid ${alpha('#1e3a5f', 0.1)}`,
+                        border: `1px solid ${alpha('#1e3a5f', 0.15)}`,
                       }}
                     >
-                      <SchoolIcon sx={{ color: 'primary.main', fontSize: 24 }} />
+                      <AssignmentIcon sx={{ fontSize: 28, color: '#1e3a5f' }} />
                     </Box>
-                    <Box>
-                      <Typography
-                        variant="h5"
+
+                    <Typography
+                      variant="h6"
+                      component="h3"
+                      sx={{
+                        color: 'primary.main',
+                        fontSize: '1.2rem',
+                        mb: 1,
+                      }}
+                    >
+                      {hasExistingData ? 'Continue Your Intake' : 'Start Your Intake'}
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                        flexGrow: 1,
+                        mb: 2,
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {hasExistingData
+                        ? 'Pick up where you left off on your estate planning questionnaire.'
+                        : 'Begin your estate planning questionnaire to help us understand your needs and goals.'}
+                    </Typography>
+
+                    {hasExistingData && createdAt && (
+                      <Box
                         sx={{
-                          color: 'primary.main',
-                          fontSize: '1.5rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          mb: 2,
+                          p: 1.5,
+                          borderRadius: 1,
+                          bgcolor: alpha('#c9a227', 0.08),
                         }}
                       >
-                        Education Center
-                      </Typography>
+                        <AccessTimeIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
+                        <Typography variant="body2" sx={{ color: 'secondary.dark', fontWeight: 500, fontSize: '0.8rem' }}>
+                          Started {formatDate(createdAt)}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        color: '#1e3a5f',
+                        fontWeight: 600,
+                        fontSize: '0.875rem',
+                      }}
+                    >
+                      {hasExistingData ? 'Continue Questionnaire' : 'Begin Questionnaire'}
+                      <ArrowForwardIcon sx={{ fontSize: 18 }} />
                     </Box>
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+
+              {/* Data Privacy Notice */}
+              <AnimatedSection delay={450}>
+                <Alert
+                  severity="info"
+                  icon={<LockIcon sx={{ color: 'primary.main', fontSize: 20 }} />}
+                  sx={{
+                    mt: 2,
+                    bgcolor: alpha('#1e3a5f', 0.04),
+                    border: '1px solid',
+                    borderColor: alpha('#1e3a5f', 0.1),
+                    borderRadius: 2,
+                    py: 1,
+                    '& .MuiAlert-message': {
+                      width: '100%',
+                    },
+                  }}
+                >
+                  <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8rem', lineHeight: 1.5 }}>
+                    Your data is stored locally and securely until you submit.
+                  </Typography>
+                </Alert>
+              </AnimatedSection>
+            </Grid>
+
+            {/* Column 2: Education Center */}
+            <Grid item xs={12} md={4}>
+              <AnimatedSection delay={500}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    height: '100%',
+                    border: '1px solid',
+                    borderColor: alpha('#2d6a4f', 0.08),
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: `linear-gradient(90deg, #2d6a4f, ${alpha('#2d6a4f', 0.6)})`,
+                    },
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                    <Box
+                      sx={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: 2,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        background: `linear-gradient(135deg, ${alpha('#2d6a4f', 0.1)}, ${alpha('#2d6a4f', 0.05)})`,
+                        border: `1px solid ${alpha('#2d6a4f', 0.15)}`,
+                      }}
+                    >
+                      <SchoolIcon sx={{ color: '#2d6a4f', fontSize: 28 }} />
+                    </Box>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: '#2d6a4f',
+                        fontSize: '1.2rem',
+                      }}
+                    >
+                      Education Center
+                    </Typography>
                   </Box>
 
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3, ml: 8 }}>
-                    Explore our resources to better understand estate planning concepts
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: '0.85rem' }}>
+                    Explore resources to understand estate planning concepts
                   </Typography>
 
-                  <Divider sx={{ mb: 2 }} />
+                  <Divider sx={{ mb: 1 }} />
 
-                  <List sx={{ maxHeight: 520, overflow: 'auto', mx: -1 }}>
-                    {educationItems.map((item) => {
+                  <List sx={{ maxHeight: 380, overflow: 'auto', mx: -1 }}>
+                    {educationItems.slice(0, 6).map((item) => {
                       const typeConfig = getTypeConfig(item.type);
                       const isHovered = hoveredItem === item.id;
 
@@ -673,23 +823,23 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                             onMouseEnter={() => setHoveredItem(item.id)}
                             onMouseLeave={() => setHoveredItem(null)}
                             sx={{
-                              borderRadius: 2,
-                              py: 2,
-                              px: 2,
+                              borderRadius: 1.5,
+                              py: 1.5,
+                              px: 1.5,
                               transition: 'all 0.2s ease',
                               border: '1px solid transparent',
                               '&:hover': {
-                                bgcolor: alpha('#1e3a5f', 0.03),
-                                borderColor: alpha('#1e3a5f', 0.08),
+                                bgcolor: alpha('#2d6a4f', 0.03),
+                                borderColor: alpha('#2d6a4f', 0.08),
                               },
                             }}
                           >
-                            <ListItemIcon sx={{ minWidth: 44 }}>
+                            <ListItemIcon sx={{ minWidth: 36 }}>
                               <Box
                                 sx={{
-                                  width: 36,
-                                  height: 36,
-                                  borderRadius: 1.5,
+                                  width: 28,
+                                  height: 28,
+                                  borderRadius: 1,
                                   display: 'flex',
                                   justifyContent: 'center',
                                   alignItems: 'center',
@@ -697,6 +847,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                                   color: typeConfig.color,
                                   transition: 'transform 0.2s ease',
                                   transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+                                  '& svg': { fontSize: 16 },
                                 }}
                               >
                                 {getTypeIcon(item.type)}
@@ -705,238 +856,190 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                             <ListItemText
                               disableTypography
                               primary={
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
-                                  <Typography
-                                    variant="body1"
-                                    component="span"
-                                    sx={{
-                                      fontWeight: 600,
-                                      color: 'text.primary',
-                                      fontSize: '0.95rem',
-                                    }}
-                                  >
-                                    {item.title}
-                                  </Typography>
-                                  <Chip
-                                    label={typeConfig.label}
-                                    size="small"
-                                    sx={{
-                                      height: 22,
-                                      fontSize: '0.7rem',
-                                      fontWeight: 600,
-                                      bgcolor: typeConfig.bgColor,
-                                      color: typeConfig.color,
-                                      border: 'none',
-                                    }}
-                                  />
-                                </Box>
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    fontWeight: 600,
+                                    color: 'text.primary',
+                                    fontSize: '0.85rem',
+                                    lineHeight: 1.3,
+                                  }}
+                                >
+                                  {item.title}
+                                </Typography>
                               }
                               secondary={
-                                <Box>
-                                  <Typography
-                                    variant="body2"
-                                    component="span"
-                                    sx={{ color: 'text.secondary', mb: 0.5, display: 'block' }}
-                                  >
-                                    {item.description}
-                                  </Typography>
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                    <AccessTimeIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
-                                    <Typography
-                                      variant="caption"
-                                      component="span"
-                                      sx={{ color: 'text.disabled' }}
-                                    >
-                                      {item.readTime}
-                                    </Typography>
-                                  </Box>
-                                </Box>
+                                <Typography
+                                  variant="caption"
+                                  sx={{ color: 'text.disabled', fontSize: '0.7rem' }}
+                                >
+                                  {item.readTime}
+                                </Typography>
                               }
-                            />
-                            <ArrowForwardIcon
-                              sx={{
-                                fontSize: 18,
-                                color: 'text.disabled',
-                                opacity: isHovered ? 1 : 0,
-                                transform: isHovered ? 'translateX(0)' : 'translateX(-8px)',
-                                transition: 'all 0.2s ease',
-                              }}
                             />
                           </ListItemButton>
                         </ListItem>
                       );
                     })}
                   </List>
+
+                  <Button
+                    fullWidth
+                    variant="text"
+                    onClick={() => onNavigate?.('education-center')}
+                    endIcon={<ArrowForwardIcon sx={{ fontSize: 16 }} />}
+                    sx={{
+                      mt: 1,
+                      color: '#2d6a4f',
+                      fontWeight: 600,
+                      fontSize: '0.85rem',
+                      '&:hover': {
+                        bgcolor: alpha('#2d6a4f', 0.05),
+                      },
+                    }}
+                  >
+                    View All Resources
+                  </Button>
                 </Paper>
               </AnimatedSection>
             </Grid>
 
-            {/* Right Column - Intake Questionnaire Card */}
-            <Grid item xs={12} md={5}>
-              <AnimatedSection delay={500}>
+            {/* Column 3: Planning Pathfinder */}
+            <Grid item xs={12} md={4}>
+              <AnimatedSection delay={600}>
                 <Card
                   elevation={0}
                   sx={{
+                    height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     border: '1px solid',
-                    borderColor: alpha('#1e3a5f', 0.08),
+                    borderColor: alpha('#7b2cbf', 0.08),
                     overflow: 'hidden',
+                    cursor: 'pointer',
                     transition: 'all 0.3s ease',
+                    position: 'relative',
                     '&:hover': {
                       transform: 'translateY(-4px)',
-                      boxShadow: `0 20px 40px ${alpha('#1e3a5f', 0.12)}`,
-                      borderColor: alpha('#c9a227', 0.3),
+                      boxShadow: `0 20px 40px ${alpha('#7b2cbf', 0.12)}`,
+                      borderColor: alpha('#7b2cbf', 0.3),
+                    },
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: `linear-gradient(90deg, #7b2cbf, ${alpha('#7b2cbf', 0.6)})`,
                     },
                   }}
+                  onClick={() => onNavigate?.('planning-pathfinder')}
                 >
-                  <Box
-                    sx={{
-                      height: 180,
-                      background: 'linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      position: 'relative',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {/* Decorative circles */}
+                  <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                     <Box
                       sx={{
-                        position: 'absolute',
-                        top: -60,
-                        right: -60,
-                        width: 180,
-                        height: 180,
-                        borderRadius: '50%',
-                        background: 'radial-gradient(circle, rgba(201, 162, 39, 0.15) 0%, transparent 70%)',
-                      }}
-                    />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        bottom: -40,
-                        left: -40,
-                        width: 140,
-                        height: 140,
-                        borderRadius: '50%',
-                        background: 'radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%)',
-                      }}
-                    />
-
-                    {/* Icon container */}
-                    <Box
-                      sx={{
-                        width: 80,
-                        height: 80,
-                        borderRadius: '50%',
-                        bgcolor: alpha('#ffffff', 0.1),
-                        border: `2px solid ${alpha('#c9a227', 0.3)}`,
+                        width: 56,
+                        height: 56,
+                        borderRadius: 2,
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        zIndex: 1,
+                        mb: 2,
+                        background: `linear-gradient(135deg, ${alpha('#7b2cbf', 0.1)}, ${alpha('#7b2cbf', 0.05)})`,
+                        border: `1px solid ${alpha('#7b2cbf', 0.15)}`,
                       }}
                     >
-                      <DescriptionIcon sx={{ fontSize: 40, color: 'secondary.main' }} />
+                      <ExploreIcon sx={{ fontSize: 28, color: '#7b2cbf' }} />
                     </Box>
-                  </Box>
 
-                  <CardContent sx={{ p: 4 }}>
                     <Typography
-                      variant="h5"
-                      component="h2"
+                      variant="h6"
+                      component="h3"
                       sx={{
-                        color: 'primary.main',
-                        mb: 1.5,
-                        fontSize: '1.4rem',
+                        color: '#7b2cbf',
+                        fontSize: '1.2rem',
+                        mb: 1,
                       }}
                     >
-                      {hasExistingData ? 'Continue Your Intake' : 'Start Your Intake'}
+                      Planning Pathfinder
                     </Typography>
 
                     <Typography
                       variant="body2"
-                      color="text.secondary"
-                      sx={{ mb: 2, lineHeight: 1.7 }}
+                      sx={{
+                        color: 'text.secondary',
+                        mb: 2,
+                        lineHeight: 1.6,
+                      }}
                     >
-                      {hasExistingData
-                        ? 'Pick up where you left off on your estate planning questionnaire.'
-                        : 'Begin your estate planning questionnaire to help us understand your needs and goals.'}
+                      Interactive tools to help guide your planning decisions:
                     </Typography>
 
-                    {hasExistingData && createdAt && (
+                    <Box sx={{ flexGrow: 1 }}>
                       <Box
                         sx={{
                           display: 'flex',
                           alignItems: 'center',
-                          gap: 1,
-                          mb: 3,
+                          gap: 1.5,
+                          mb: 2,
                           p: 1.5,
-                          borderRadius: 1,
-                          bgcolor: alpha('#c9a227', 0.08),
+                          borderRadius: 1.5,
+                          bgcolor: alpha('#7b2cbf', 0.04),
+                          border: `1px solid ${alpha('#7b2cbf', 0.1)}`,
                         }}
                       >
-                        <AccessTimeIcon sx={{ fontSize: 18, color: 'secondary.dark' }} />
-                        <Typography variant="body2" sx={{ color: 'secondary.dark', fontWeight: 500 }}>
-                          Started on {formatDate(createdAt)}
-                        </Typography>
+                        <QuizIcon sx={{ fontSize: 20, color: '#7b2cbf' }} />
+                        <Box>
+                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.85rem' }}>
+                            Do I Need a Trust?
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem' }}>
+                            5-7 questions to find out
+                          </Typography>
+                        </Box>
                       </Box>
-                    )}
 
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      size="large"
-                      onClick={onStartQuestionnaire}
-                      endIcon={hasExistingData ? <EditIcon /> : <ArrowForwardIcon />}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          mb: 2,
+                          p: 1.5,
+                          borderRadius: 1.5,
+                          bgcolor: alpha('#7b2cbf', 0.04),
+                          border: `1px solid ${alpha('#7b2cbf', 0.1)}`,
+                        }}
+                      >
+                        <CalculateIcon sx={{ fontSize: 20, color: '#7b2cbf' }} />
+                        <Box>
+                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.85rem' }}>
+                            IRA RMD Calculator
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem' }}>
+                            Required minimum distribution
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    <Box
                       sx={{
-                        bgcolor: 'secondary.main',
-                        color: 'primary.dark',
-                        py: 1.5,
-                        fontSize: '1rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        color: '#7b2cbf',
                         fontWeight: 600,
-                        boxShadow: 'none',
-                        '&:hover': {
-                          bgcolor: 'secondary.light',
-                          boxShadow: '0 8px 24px rgba(201, 162, 39, 0.3)',
-                        },
+                        fontSize: '0.875rem',
+                        mt: 'auto',
                       }}
                     >
-                      {hasExistingData ? 'Continue Questionnaire' : 'Begin Questionnaire'}
-                    </Button>
+                      Explore Tools
+                      <ArrowForwardIcon sx={{ fontSize: 18 }} />
+                    </Box>
                   </CardContent>
                 </Card>
-              </AnimatedSection>
-
-              {/* Data Privacy Notice */}
-              <AnimatedSection delay={600}>
-                <Alert
-                  severity="info"
-                  icon={<LockIcon sx={{ color: 'primary.main' }} />}
-                  sx={{
-                    mt: 3,
-                    bgcolor: alpha('#1e3a5f', 0.04),
-                    border: '1px solid',
-                    borderColor: alpha('#1e3a5f', 0.1),
-                    borderRadius: 2,
-                    '& .MuiAlert-message': {
-                      width: '100%',
-                    },
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: 600, mb: 0.5, color: 'primary.main' }}
-                  >
-                    Your Data is Secure
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
-                    Information is stored locally on this device only. Your data will not be
-                    transmitted until you complete and submit the questionnaire.
-                  </Typography>
-                </Alert>
               </AnimatedSection>
             </Grid>
           </Grid>

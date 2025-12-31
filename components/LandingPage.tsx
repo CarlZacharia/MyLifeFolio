@@ -41,6 +41,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PersonIcon from '@mui/icons-material/Person';
+import SchoolIcon from '@mui/icons-material/School';
+import ExploreIcon from '@mui/icons-material/Explore';
+import QuizIcon from '@mui/icons-material/Quiz';
+import CalculateIcon from '@mui/icons-material/Calculate';
 import { useAuth } from '../lib/AuthContext';
 
 // Helper to check if user is an admin (email domain is zacbrownlaw.com)
@@ -842,6 +846,328 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
             </Grid>
           </Container>
         </Box>
+
+        {/* Quick Access Section - Three Columns */}
+        <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
+          <Box sx={{ textAlign: 'center', mb: 6 }}>
+            <AnimatedSection delay={100}>
+              <Typography
+                component="span"
+                sx={{
+                  display: 'inline-block',
+                  color: 'secondary.dark',
+                  fontWeight: 600,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  fontSize: '0.75rem',
+                  mb: 2,
+                }}
+              >
+                Get Started
+              </Typography>
+            </AnimatedSection>
+
+            <AnimatedSection delay={200}>
+              <Typography
+                variant="h2"
+                component="h2"
+                sx={{
+                  color: 'primary.main',
+                  fontSize: { xs: '2rem', md: '2.75rem' },
+                  mb: 2,
+                }}
+              >
+                How Can We Help You Today?
+              </Typography>
+            </AnimatedSection>
+          </Box>
+
+          <Grid container spacing={4}>
+            {/* Column 1: Start or Continue Intake */}
+            <Grid item xs={12} md={4}>
+              <AnimatedSection delay={300}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    cursor: 'pointer',
+                    transition: 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)',
+                    border: '1px solid transparent',
+                    '&:hover': {
+                      borderColor: alpha('#1e3a5f', 0.3),
+                      transform: 'translateY(-8px)',
+                      boxShadow: `0 20px 40px ${alpha('#1e3a5f', 0.15)}`,
+                    },
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: `linear-gradient(90deg, #1e3a5f, ${alpha('#1e3a5f', 0.6)})`,
+                    },
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                  onClick={() => onNavigate('estate-planning-home')}
+                >
+                  <CardContent sx={{ p: 4, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        borderRadius: 2,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        mb: 3,
+                        background: `linear-gradient(135deg, ${alpha('#1e3a5f', 0.1)}, ${alpha('#1e3a5f', 0.05)})`,
+                        border: `1px solid ${alpha('#1e3a5f', 0.15)}`,
+                      }}
+                    >
+                      <AssignmentIcon sx={{ fontSize: 32, color: '#1e3a5f' }} />
+                    </Box>
+
+                    <Typography
+                      variant="h5"
+                      component="h3"
+                      gutterBottom
+                      sx={{
+                        color: 'text.primary',
+                        fontSize: '1.35rem',
+                        mb: 2,
+                      }}
+                    >
+                      Start or Continue Intake
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                        flexGrow: 1,
+                        mb: 3,
+                      }}
+                    >
+                      Begin your estate planning journey or pick up where you left off. Our guided intake process helps us understand your unique situation.
+                    </Typography>
+
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        color: '#1e3a5f',
+                        fontWeight: 600,
+                        fontSize: '0.875rem',
+                      }}
+                    >
+                      {user ? 'Continue Your Plan' : 'Get Started'}
+                      <ArrowForwardIcon sx={{ fontSize: 18 }} />
+                    </Box>
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+            </Grid>
+
+            {/* Column 2: Education Center */}
+            <Grid item xs={12} md={4}>
+              <AnimatedSection delay={400}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    cursor: 'pointer',
+                    transition: 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)',
+                    border: '1px solid transparent',
+                    '&:hover': {
+                      borderColor: alpha('#2d6a4f', 0.3),
+                      transform: 'translateY(-8px)',
+                      boxShadow: `0 20px 40px ${alpha('#2d6a4f', 0.15)}`,
+                    },
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: `linear-gradient(90deg, #2d6a4f, ${alpha('#2d6a4f', 0.6)})`,
+                    },
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                  onClick={() => onNavigate('education-center')}
+                >
+                  <CardContent sx={{ p: 4, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        borderRadius: 2,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        mb: 3,
+                        background: `linear-gradient(135deg, ${alpha('#2d6a4f', 0.1)}, ${alpha('#2d6a4f', 0.05)})`,
+                        border: `1px solid ${alpha('#2d6a4f', 0.15)}`,
+                      }}
+                    >
+                      <SchoolIcon sx={{ fontSize: 32, color: '#2d6a4f' }} />
+                    </Box>
+
+                    <Typography
+                      variant="h5"
+                      component="h3"
+                      gutterBottom
+                      sx={{
+                        color: 'text.primary',
+                        fontSize: '1.35rem',
+                        mb: 2,
+                      }}
+                    >
+                      Education Center
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                        flexGrow: 1,
+                        mb: 3,
+                      }}
+                    >
+                      Learn about estate planning concepts, watch educational videos, and explore frequently asked questions to make informed decisions.
+                    </Typography>
+
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        color: '#2d6a4f',
+                        fontWeight: 600,
+                        fontSize: '0.875rem',
+                      }}
+                    >
+                      Explore Resources
+                      <ArrowForwardIcon sx={{ fontSize: 18 }} />
+                    </Box>
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+            </Grid>
+
+            {/* Column 3: Planning Pathfinder */}
+            <Grid item xs={12} md={4}>
+              <AnimatedSection delay={500}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    cursor: 'pointer',
+                    transition: 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)',
+                    border: '1px solid transparent',
+                    '&:hover': {
+                      borderColor: alpha('#7b2cbf', 0.3),
+                      transform: 'translateY(-8px)',
+                      boxShadow: `0 20px 40px ${alpha('#7b2cbf', 0.15)}`,
+                    },
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: `linear-gradient(90deg, #7b2cbf, ${alpha('#7b2cbf', 0.6)})`,
+                    },
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                  onClick={() => onNavigate('planning-pathfinder')}
+                >
+                  <CardContent sx={{ p: 4, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        borderRadius: 2,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        mb: 3,
+                        background: `linear-gradient(135deg, ${alpha('#7b2cbf', 0.1)}, ${alpha('#7b2cbf', 0.05)})`,
+                        border: `1px solid ${alpha('#7b2cbf', 0.15)}`,
+                      }}
+                    >
+                      <ExploreIcon sx={{ fontSize: 32, color: '#7b2cbf' }} />
+                    </Box>
+
+                    <Typography
+                      variant="h5"
+                      component="h3"
+                      gutterBottom
+                      sx={{
+                        color: 'text.primary',
+                        fontSize: '1.35rem',
+                        mb: 2,
+                      }}
+                    >
+                      Planning Pathfinder
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                        flexGrow: 1,
+                        mb: 2,
+                      }}
+                    >
+                      Interactive tools to help guide your planning decisions:
+                    </Typography>
+
+                    <Box sx={{ mb: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <QuizIcon sx={{ fontSize: 16, color: '#7b2cbf' }} />
+                        <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
+                          Do I Need a Trust?
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CalculateIcon sx={{ fontSize: 16, color: '#7b2cbf' }} />
+                        <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
+                          IRA Required Minimum Distribution
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        color: '#7b2cbf',
+                        fontWeight: 600,
+                        fontSize: '0.875rem',
+                      }}
+                    >
+                      Explore Tools
+                      <ArrowForwardIcon sx={{ fontSize: 18 }} />
+                    </Box>
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+            </Grid>
+          </Grid>
+        </Container>
+
+        <Divider sx={{ mx: 'auto', maxWidth: 'lg' }} />
 
         {/* Services Section */}
         <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 } }}>

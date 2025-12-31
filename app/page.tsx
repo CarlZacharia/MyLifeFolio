@@ -47,6 +47,7 @@ import LandingPage from '../components/LandingPage';
 import EstatePlanningHome from '../components/EstatePlanningHome';
 import AdminDashboard from '../components/AdminDashboard';
 import Profile from '../components/Profile';
+import PlanningPathfinder from '../components/PlanningPathfinder';
 import Login from '../components/Login';
 import Register from '../components/Register';
 import { VideoHelpIcon } from '../components/FieldWithHelp';
@@ -368,7 +369,7 @@ const ALL_STEPS = [
 ];
 
 // Page type for routing
-type PageType = 'landing' | 'estate-planning-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'profile';
+type PageType = 'landing' | 'estate-planning-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'profile' | 'planning-pathfinder' | 'education-center';
 
 // Helper to check if user is an admin (email domain is zacbrownlaw.com)
 const isAdminUser = (email: string | undefined): boolean => {
@@ -1086,6 +1087,7 @@ export default function MainPage() {
             onRegister={handleRegister}
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
+            onNavigate={handleNavigate}
           />
         );
 
@@ -1127,10 +1129,23 @@ export default function MainPage() {
           />
         );
 
+      // Planning Pathfinder (interactive tools)
+      case 'planning-pathfinder':
+        return (
+          <PlanningPathfinder
+            onNavigateBack={() => handleNavigate('landing')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+          />
+        );
+
       // Placeholder pages for future services
       case 'long-term-care':
       case 'medicaid':
       case 'estate-administration':
+      case 'education-center':
         return (
           <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Paper sx={{ p: 4, textAlign: 'center' }}>

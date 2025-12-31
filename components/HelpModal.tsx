@@ -15,9 +15,10 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
+import SlidePlayer, { Slide } from "./SlidePlayer";
 
 // Help content types
-export type HelpContentType = "Text" | "Video" | "Link";
+export type HelpContentType = "Text" | "Video" | "Link" | "Slideshow";
 
 // Video provider types
 export type VideoProvider = "youtube" | "vimeo" | "mp4" | "other";
@@ -26,11 +27,13 @@ export interface HelpAnswer {
   id: number;
   type: HelpContentType;
   title: string;
-  text: string; // Can contain HTML - shown below video for Video type
+  text: string; // Can contain HTML - shown below video/slideshow for Video/Slideshow type
   videoUrl?: string; // For Video type: YouTube, Vimeo, or direct MP4 URL
   videoProvider?: VideoProvider; // Optional: auto-detected if not provided
   linkUrl?: string;
   linkText?: string;
+  slides?: Slide[]; // For Slideshow type: array of slides with image and audio paths
+  autoAdvance?: boolean; // For Slideshow type: auto-advance to next slide when audio ends
 }
 
 // Helper to detect video provider from URL
@@ -635,12 +638,14 @@ export const helpAnswers: HelpAnswer[] = [
       <p>Any situation where an outright distribution might create problems could warrant receiving the inheritance in trust instead. This gives you flexibility to provide for your beneficiaries while addressing your specific concerns.</p>
     `,
   },
-  // Section Sub-headers with Video (IDs 50-60)
+  // Section Sub-headers with Slideshow (IDs 50-60)
   {
     id: 50,
-    type: "Video",
+    type: "Slideshow",
     title: "Existing Trusts",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO",
+    slides: [
+      { image: "/slides/help/50/slide1.png", audio: "/slides/help/50/audio1.mp3" },
+    ],
     text: `
       <p>This section asks about any <strong>existing trusts</strong> you may have.</p>
       <p>Understanding your current trust structure helps us:</p>
@@ -654,9 +659,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 51,
-    type: "Video",
+    type: "Slideshow",
     title: "Spouse/Partner Information",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO",
+    slides: [
+      { image: "/slides/help/51/slide1.png", audio: "/slides/help/51/audio1.mp3" },
+    ],
     text: `
       <p>This section collects information about your <strong>spouse or domestic partner</strong>.</p>
       <p>Your partner's information is essential for:</p>
@@ -668,12 +675,14 @@ export const helpAnswers: HelpAnswer[] = [
       </ul>
     `,
   },
-  // Section Overview Videos (IDs 100+)
+  // Section Overview Slideshows (IDs 100+)
   {
     id: 0,
-    type: "Video",
+    type: "Slideshow",
     title: "Estate Planning Intake Overview",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO", // Replace with your actual video URL
+    slides: [
+      { image: "/slides/help/0/slide1.png", audio: "/slides/help/0/audio1.mp3" },
+    ],
     text: `
       <p>Welcome to the <strong>Zacharia Brown & Bratkovich Estate Planning Intake Questionnaire</strong>.</p>
       <p>This comprehensive questionnaire will guide you through providing all the information we need to prepare your estate plan. The process is divided into the following sections:</p>
@@ -688,14 +697,16 @@ export const helpAnswers: HelpAnswer[] = [
         <li><strong>Summary & Analysis:</strong> Review your information and receive personalized insights</li>
       </ul>
       <p>Your progress is automatically saved as you go. You can close this questionnaire at any time and return later to continue where you left off.</p>
-      <p>Look for the <strong>video icons</strong> throughout the questionnaire for helpful explanations of each section.</p>
+      <p>Look for the <strong>help icons</strong> throughout the questionnaire for helpful explanations of each section.</p>
     `,
   },
   {
     id: 100,
-    type: "Video",
+    type: "Slideshow",
     title: "Personal Data Overview",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO", // Replace with your actual video URL
+    slides: [
+      { image: "/slides/help/100/slide1.png", audio: "/slides/help/100/audio1.mp3" },
+    ],
     text: `
       <p>This section collects your <strong>personal information</strong> and that of your spouse (if applicable).</p>
       <p>Information gathered includes:</p>
@@ -705,15 +716,21 @@ export const helpAnswers: HelpAnswer[] = [
         <li>Date of birth and citizenship</li>
         <li>Marital status and spouse information</li>
         <li>Existing trusts and estate planning documents</li>
+        <li><strong>Income sources</strong> - Social Security, pensions, retirement distributions, and other regular income</li>
+        <li><strong>Medical insurance</strong> - Medicare coverage, supplemental plans, and monthly costs</li>
+        <li><strong>Military service</strong> - Branch, dates of service, and veteran status</li>
+        <li><strong>Funeral and burial plans</strong> - Pre-arrangements and final wishes</li>
       </ul>
-      <p>This information is essential for creating accurate and legally valid estate planning documents.</p>
+      <p>This information is essential for creating accurate and legally valid estate planning documents, as well as for assessing long-term care affordability and survivor income planning.</p>
     `,
   },
   {
     id: 101,
-    type: "Video",
+    type: "Slideshow",
     title: "Children Section Overview",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO", // Replace with your actual video URL
+    slides: [
+      { image: "/slides/help/101/slide1.png", audio: "/slides/help/101/audio1.mp3" },
+    ],
     text: `
       <p>This section captures information about your <strong>children and dependents</strong>.</p>
       <p>We'll collect details about:</p>
@@ -729,9 +746,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 102,
-    type: "Video",
+    type: "Slideshow",
     title: "Other Beneficiaries Overview",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO", // Replace with your actual video URL
+    slides: [
+      { image: "/slides/help/102/slide1.png", audio: "/slides/help/102/audio1.mp3" },
+    ],
     text: `
       <p>This section covers <strong>additional beneficiaries</strong> beyond your immediate family.</p>
       <p>You can designate:</p>
@@ -766,9 +785,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 104,
-    type: "Video",
+    type: "Slideshow",
     title: "Fiduciaries Overview",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO", // Replace with your actual video URL
+    slides: [
+      { image: "/slides/help/104/slide1.png", audio: "/slides/help/104/audio1.mp3" },
+    ],
     text: `
       <p>This section helps you designate <strong>trusted individuals</strong> to act on your behalf.</p>
       <p>Fiduciary roles include:</p>
@@ -784,9 +805,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 105,
-    type: "Video",
+    type: "Slideshow",
     title: "Dispositive Intentions Overview",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO", // Replace with your actual video URL
+    slides: [
+      { image: "/slides/help/105/slide1.png", audio: "/slides/help/105/audio1.mp3" },
+    ],
     text: `
       <p>This section captures your <strong>wishes for distributing your estate</strong>.</p>
       <p>You'll specify:</p>
@@ -802,9 +825,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 106,
-    type: "Video",
+    type: "Slideshow",
     title: "Assets Section Overview",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO", // Replace with your actual video URL
+    slides: [
+      { image: "/slides/help/106/slide1.png", audio: "/slides/help/106/audio1.mp3" },
+    ],
     text: `
       <p>This section helps you <strong>inventory all your assets</strong>.</p>
       <p>Asset categories include:</p>
@@ -822,9 +847,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 107,
-    type: "Video",
+    type: "Slideshow",
     title: "New Plan Provisions Overview",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO", // Replace with your actual video URL
+    slides: [
+      { image: "/slides/help/107/slide1.png", audio: "/slides/help/107/audio1.mp3" },
+    ],
     text: `
       <p>This section captures your <strong>wishes for your new estate plan</strong>.</p>
       <p>You'll specify:</p>
@@ -839,12 +866,14 @@ export const helpAnswers: HelpAnswer[] = [
       <p>These provisions form the heart of your estate plan and ensure your wishes are carried out exactly as you intend.</p>
     `,
   },
-  // Asset Category Videos (IDs 110-118)
+  // Asset Category Slideshows (IDs 110-118)
   {
     id: 110,
-    type: "Video",
+    type: "Slideshow",
     title: "Real Estate",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO",
+    slides: [
+      { image: "/slides/help/110/slide1.png", audio: "/slides/help/110/audio1.mp3" },
+    ],
     text: `
       <p>This category includes all <strong>real property</strong> you own.</p>
       <p>Types of real estate to include:</p>
@@ -861,9 +890,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 111,
-    type: "Video",
+    type: "Slideshow",
     title: "Cash, Bank Accounts and CDs",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO",
+    slides: [
+      { image: "/slides/help/111/slide1.png", audio: "/slides/help/111/audio1.mp3" },
+    ],
     text: `
       <p>Include all <strong>liquid cash accounts</strong> in this category.</p>
       <p>Types of accounts:</p>
@@ -879,9 +910,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 112,
-    type: "Video",
+    type: "Slideshow",
     title: "Non-Qualified Investment Accounts",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO",
+    slides: [
+      { image: "/slides/help/112/slide1.png", audio: "/slides/help/112/audio1.mp3" },
+    ],
     text: `
       <p>These are <strong>taxable investment accounts</strong> that are not retirement accounts.</p>
       <p>Examples include:</p>
@@ -897,9 +930,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 113,
-    type: "Video",
+    type: "Slideshow",
     title: "IRAs and Retirement Accounts",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO",
+    slides: [
+      { image: "/slides/help/113/slide1.png", audio: "/slides/help/113/audio1.mp3" },
+    ],
     text: `
       <p>Include all <strong>tax-advantaged retirement accounts</strong>.</p>
       <p>Types of retirement accounts:</p>
@@ -916,9 +951,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 114,
-    type: "Video",
+    type: "Slideshow",
     title: "Life Insurance",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO",
+    slides: [
+      { image: "/slides/help/114/slide1.png", audio: "/slides/help/114/audio1.mp3" },
+    ],
     text: `
       <p>Include all <strong>life insurance policies</strong> you own.</p>
       <p>Types of life insurance:</p>
@@ -934,9 +971,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 115,
-    type: "Video",
+    type: "Slideshow",
     title: "Vehicles",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO",
+    slides: [
+      { image: "/slides/help/115/slide1.png", audio: "/slides/help/115/audio1.mp3" },
+    ],
     text: `
       <p>Include all <strong>motor vehicles</strong> you own.</p>
       <p>Types of vehicles:</p>
@@ -953,9 +992,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 116,
-    type: "Video",
+    type: "Slideshow",
     title: "Other Assets",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO",
+    slides: [
+      { image: "/slides/help/116/slide1.png", audio: "/slides/help/116/audio1.mp3" },
+    ],
     text: `
       <p>Include any <strong>other valuable assets</strong> not covered by other categories.</p>
       <p>Examples include:</p>
@@ -972,9 +1013,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 117,
-    type: "Video",
+    type: "Slideshow",
     title: "Business Interests",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO",
+    slides: [
+      { image: "/slides/help/117/slide1.png", audio: "/slides/help/117/audio1.mp3" },
+    ],
     text: `
       <p>Include any <strong>ownership interests in businesses</strong>.</p>
       <p>Types of business interests:</p>
@@ -991,9 +1034,11 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 118,
-    type: "Video",
+    type: "Slideshow",
     title: "Digital Assets",
-    videoUrl: "https://www.youtube.com/watch?v=REPLACE_WITH_ACTUAL_VIDEO",
+    slides: [
+      { image: "/slides/help/118/slide1.png", audio: "/slides/help/118/audio1.mp3" },
+    ],
     text: `
       <p>Include <strong>digital and cryptocurrency assets</strong>.</p>
       <p>Types of digital assets:</p>
@@ -1133,8 +1178,11 @@ export const helpAnswers: HelpAnswer[] = [
   // Long-Term Care Section Help (ID 130)
   {
     id: 130,
-    type: "Video",
+    type: "Slideshow",
     title: "Long-Term Care Planning",
+    slides: [
+      { image: "/slides/help/130/slide1.png", audio: "/slides/help/130/audio1.mp3" },
+    ],
     text: `
       <p><strong>Long-Term Care Planning</strong> helps protect your assets while ensuring you receive quality care as you age.</p>
       <p>This section covers several important areas:</p>
@@ -2635,6 +2683,49 @@ const HelpModal: React.FC<HelpModalProps> = ({ open, onClose, helpId }) => {
           <Box>
             {renderVideoPlayer()}
             {/* Show text description below video if provided */}
+            {helpContent.text && (
+              <Box
+                dangerouslySetInnerHTML={{ __html: helpContent.text }}
+                sx={{
+                  "& p": { mb: 2, lineHeight: 1.7 },
+                  "& ul": { pl: 3, mb: 2 },
+                  "& li": { mb: 0.5, lineHeight: 1.6 },
+                  "& strong": { color: "#1a237e" },
+                }}
+              />
+            )}
+          </Box>
+        );
+
+      case "Slideshow":
+        return (
+          <Box>
+            {helpContent.slides && helpContent.slides.length > 0 ? (
+              <Box sx={{ mb: 2 }}>
+                <SlidePlayer
+                  slides={helpContent.slides}
+                  title={helpContent.title}
+                  autoAdvance={helpContent.autoAdvance ?? true}
+                />
+              </Box>
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 200,
+                  bgcolor: "#f5f5f5",
+                  borderRadius: 1,
+                  mb: 2,
+                }}
+              >
+                <Typography color="text.secondary">
+                  No slides available
+                </Typography>
+              </Box>
+            )}
+            {/* Show text description below slideshow if provided */}
             {helpContent.text && (
               <Box
                 dangerouslySetInnerHTML={{ __html: helpContent.text }}
