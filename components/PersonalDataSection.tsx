@@ -21,7 +21,7 @@ import {
 import PersonIcon from '@mui/icons-material/Person';
 import PeopleIcon from '@mui/icons-material/People';
 import { DatePicker } from '@mui/x-date-pickers';
-import { useFormContext, MaritalStatus, Sex } from '../lib/FormContext';
+import { useFormContext, MaritalStatus, Sex, IncomeSource, IncomeFrequency, MedicalInsurance, MedicareCoverageType } from '../lib/FormContext';
 import PhoneInput from './PhoneInput';
 import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
@@ -47,6 +47,77 @@ const MARITAL_STATUS_OPTIONS: MaritalStatus[] = [
 ];
 
 const SEX_OPTIONS: Sex[] = ['Male', 'Female', 'Other'];
+
+const INCOME_FREQUENCY_OPTIONS: { value: IncomeFrequency; label: string }[] = [
+  { value: 'Monthly', label: 'Monthly' },
+  { value: 'Quarterly', label: 'Quarterly' },
+  { value: 'Semi-Annually', label: 'Semi-Annually' },
+  { value: 'Annually', label: 'Annually' },
+  { value: 'Weekly', label: 'Weekly' },
+  { value: 'Bi-Weekly', label: 'Bi-Weekly' },
+];
+
+// Calculate monthly amount from income source
+const calculateMonthlyAmount = (amount: string, frequency: IncomeFrequency): number => {
+  const numAmount = parseFloat(amount.replace(/[^0-9.-]/g, ''));
+  if (isNaN(numAmount) || !frequency) return 0;
+
+  switch (frequency) {
+    case 'Monthly':
+      return numAmount;
+    case 'Quarterly':
+      return numAmount / 3;
+    case 'Semi-Annually':
+      return numAmount / 6;
+    case 'Annually':
+      return numAmount / 12;
+    case 'Weekly':
+      return numAmount * 52 / 12;
+    case 'Bi-Weekly':
+      return numAmount * 26 / 12;
+    default:
+      return 0;
+  }
+};
+
+// Format currency
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+};
+
+// Calculate total monthly income from income sources array
+const calculateTotalMonthlyIncome = (incomeSources: IncomeSource[]): number => {
+  return incomeSources.reduce((total, source) => {
+    return total + calculateMonthlyAmount(source.amount, source.frequency);
+  }, 0);
+};
+
+// Parse currency string to number
+const parseCurrency = (value: string): number => {
+  const num = parseFloat(value.replace(/[^0-9.-]/g, ''));
+  return isNaN(num) ? 0 : num;
+};
+
+// Calculate total monthly insurance cost
+const calculateTotalInsuranceCost = (insurance: MedicalInsurance): number => {
+  return (
+    parseCurrency(insurance.medicarePartBDeduction) +
+    parseCurrency(insurance.medicareCoverageCost) +
+    parseCurrency(insurance.privateInsuranceCost) +
+    parseCurrency(insurance.otherInsuranceCost)
+  );
+};
+
+const MEDICARE_COVERAGE_OPTIONS: { value: MedicareCoverageType; label: string }[] = [
+  { value: 'Medicare Advantage', label: 'Medicare Advantage' },
+  { value: 'Medicare Supplement', label: 'Medicare Supplement (Medigap)' },
+  { value: 'Neither', label: 'Neither' },
+];
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -148,7 +219,6 @@ const PersonalDataSection = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                 Full Legal Name
-                <Typography component="span" sx={{ color: 'error.main', ml: 0.5 }}>*</Typography>
               </Typography>
               <HelpIcon helpId={1} onClick={() => openHelp(1)} />
             </Box>
@@ -159,6 +229,20 @@ const PersonalDataSection = () => {
               variant="outlined"
               placeholder="Enter your full legal name"
               size="small"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#d32f2f',
+                    borderWidth: 2,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                },
+              }}
             />
           </Box>
         </Grid>
@@ -187,7 +271,6 @@ const PersonalDataSection = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                 Mailing Address
-                <Typography component="span" sx={{ color: 'error.main', ml: 0.5 }}>*</Typography>
               </Typography>
               <HelpIcon helpId={3} onClick={() => openHelp(3)} />
             </Box>
@@ -198,6 +281,20 @@ const PersonalDataSection = () => {
               variant="outlined"
               multiline
               rows={2}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#d32f2f',
+                    borderWidth: 2,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                },
+              }}
             />
           </Box>
         </Grid>
@@ -328,11 +425,28 @@ const PersonalDataSection = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                 Sex
-                <Typography component="span" sx={{ color: 'error.main', ml: 0.5 }}>*</Typography>
               </Typography>
               <HelpIcon helpId={9} onClick={() => openHelp(9)} />
             </Box>
-            <FormControl fullWidth variant="outlined" size="small">
+            <FormControl
+              fullWidth
+              variant="outlined"
+              size="small"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#d32f2f',
+                    borderWidth: 2,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                },
+              }}
+            >
               <Select
                 value={formData.sex}
                 onChange={handleSelectChange('sex')}
@@ -352,7 +466,6 @@ const PersonalDataSection = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                 Email Address
-                <Typography component="span" sx={{ color: 'error.main', ml: 0.5 }}>*</Typography>
               </Typography>
               <HelpIcon helpId={10} onClick={() => openHelp(10)} />
             </Box>
@@ -363,6 +476,20 @@ const PersonalDataSection = () => {
               variant="outlined"
               type="email"
               size="small"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#d32f2f',
+                    borderWidth: 2,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                },
+              }}
             />
           </Box>
         </Grid>
@@ -372,7 +499,6 @@ const PersonalDataSection = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                 Birth Date
-                <Typography component="span" sx={{ color: 'error.main', ml: 0.5 }}>*</Typography>
               </Typography>
               <HelpIcon helpId={11} onClick={() => openHelp(11)} />
             </Box>
@@ -385,6 +511,20 @@ const PersonalDataSection = () => {
                   variant: 'outlined',
                   size: 'small',
                   onBlur: handleBirthDateBlur,
+                  sx: {
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#d32f2f',
+                        borderWidth: 2,
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#d32f2f',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#d32f2f',
+                      },
+                    },
+                  },
                 },
               }}
             />
@@ -416,11 +556,28 @@ const PersonalDataSection = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                 Marital Status
-                <Typography component="span" sx={{ color: 'error.main', ml: 0.5 }}>*</Typography>
               </Typography>
               <HelpIcon helpId={12} onClick={() => openHelp(12)} />
             </Box>
-            <FormControl fullWidth variant="outlined" size="small">
+            <FormControl
+              fullWidth
+              variant="outlined"
+              size="small"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#d32f2f',
+                    borderWidth: 2,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                },
+              }}
+            >
               <Select
                 value={formData.maritalStatus}
                 onChange={handleSelectChange('maritalStatus')}
@@ -527,6 +684,308 @@ const PersonalDataSection = () => {
               <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
             </RadioGroup>
           </FormControl>
+        </Grid>
+
+        {/* Client's Income Sources */}
+        <Grid item xs={12}>
+          <Divider sx={{ my: 2 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              Income Sources
+            </Typography>
+          </Box>
+        </Grid>
+
+        {formData.clientIncomeSources.map((incomeSource, index) => (
+          <React.Fragment key={`client-income-${index}`}>
+            <Grid item xs={12} md={4}>
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+                  {index === 0 ? 'Income Source' : `Income Source ${index + 1}`}
+                </Typography>
+                <TextField
+                  fullWidth
+                  value={incomeSource.description}
+                  onChange={(e) => {
+                    const newSources = [...formData.clientIncomeSources];
+                    newSources[index] = { ...newSources[index], description: e.target.value };
+                    updateFormData({ clientIncomeSources: newSources });
+                  }}
+                  variant="outlined"
+                  size="small"
+                  placeholder={index === 0 ? 'Social Security' : 'e.g., Pension, Part-time work'}
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={6} md={2}>
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+                  Amount
+                </Typography>
+                <TextField
+                  fullWidth
+                  value={incomeSource.amount}
+                  onChange={(e) => {
+                    const newSources = [...formData.clientIncomeSources];
+                    newSources[index] = { ...newSources[index], amount: e.target.value };
+                    updateFormData({ clientIncomeSources: newSources });
+                  }}
+                  variant="outlined"
+                  size="small"
+                  placeholder="$0.00"
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+                  Frequency
+                </Typography>
+                <FormControl fullWidth variant="outlined" size="small">
+                  <Select
+                    value={incomeSource.frequency}
+                    onChange={(e) => {
+                      const newSources = [...formData.clientIncomeSources];
+                      newSources[index] = { ...newSources[index], frequency: e.target.value as IncomeFrequency };
+                      updateFormData({ clientIncomeSources: newSources });
+                    }}
+                    displayEmpty
+                  >
+                    <MenuItem value="" disabled>Select frequency</MenuItem>
+                    {INCOME_FREQUENCY_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+                  Monthly Amount
+                </Typography>
+                <TextField
+                  fullWidth
+                  value={incomeSource.amount && incomeSource.frequency
+                    ? formatCurrency(calculateMonthlyAmount(incomeSource.amount, incomeSource.frequency))
+                    : ''}
+                  variant="outlined"
+                  size="small"
+                  InputProps={{ readOnly: true }}
+                  sx={{ backgroundColor: 'action.hover' }}
+                  placeholder="Calculated"
+                />
+              </Box>
+            </Grid>
+          </React.Fragment>
+        ))}
+
+        {/* Total Monthly Income */}
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 1 }}>
+            <Typography variant="body1" sx={{ fontWeight: 600, mr: 2 }}>
+              Total Monthly Income:
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
+              {formatCurrency(calculateTotalMonthlyIncome(formData.clientIncomeSources))}
+            </Typography>
+          </Box>
+        </Grid>
+
+        {/* Client's Medical Insurance */}
+        <Grid item xs={12}>
+          <Divider sx={{ my: 2 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              Medical Insurance
+            </Typography>
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+              Medicare Part B Monthly Deduction
+            </Typography>
+            <TextField
+              fullWidth
+              value={formData.clientMedicalInsurance.medicarePartBDeduction}
+              onChange={(e) => {
+                updateFormData({
+                  clientMedicalInsurance: {
+                    ...formData.clientMedicalInsurance,
+                    medicarePartBDeduction: e.target.value,
+                  },
+                });
+              }}
+              variant="outlined"
+              size="small"
+              placeholder="$0.00"
+            />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={8} />
+
+        <Grid item xs={12} md={6}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1 }}>
+              Medicare Coverage Type
+            </FormLabel>
+            <RadioGroup
+              row
+              value={formData.clientMedicalInsurance.medicareCoverageType}
+              onChange={(e) => {
+                updateFormData({
+                  clientMedicalInsurance: {
+                    ...formData.clientMedicalInsurance,
+                    medicareCoverageType: e.target.value as MedicareCoverageType,
+                    medicareCoverageCost: e.target.value === 'Neither' ? '' : formData.clientMedicalInsurance.medicareCoverageCost,
+                  },
+                });
+              }}
+            >
+              {MEDICARE_COVERAGE_OPTIONS.map((option) => (
+                <FormControlLabel
+                  key={option.value}
+                  value={option.value}
+                  control={<Radio size="small" />}
+                  label={option.label}
+                />
+              ))}
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+
+        {formData.clientMedicalInsurance.medicareCoverageType && formData.clientMedicalInsurance.medicareCoverageType !== 'Neither' && (
+          <Grid item xs={12} md={3}>
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+                {formData.clientMedicalInsurance.medicareCoverageType} Monthly Cost
+              </Typography>
+              <TextField
+                fullWidth
+                value={formData.clientMedicalInsurance.medicareCoverageCost}
+                onChange={(e) => {
+                  updateFormData({
+                    clientMedicalInsurance: {
+                      ...formData.clientMedicalInsurance,
+                      medicareCoverageCost: e.target.value,
+                    },
+                  });
+                }}
+                variant="outlined"
+                size="small"
+                placeholder="$0.00"
+              />
+            </Box>
+          </Grid>
+        )}
+
+        <Grid item xs={12} md={6}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+              Private Insurance (if any)
+            </Typography>
+            <TextField
+              fullWidth
+              value={formData.clientMedicalInsurance.privateInsuranceDescription}
+              onChange={(e) => {
+                updateFormData({
+                  clientMedicalInsurance: {
+                    ...formData.clientMedicalInsurance,
+                    privateInsuranceDescription: e.target.value,
+                  },
+                });
+              }}
+              variant="outlined"
+              size="small"
+              placeholder="e.g., Employer-provided, Blue Cross"
+            />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={3}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+              Private Insurance Monthly Cost
+            </Typography>
+            <TextField
+              fullWidth
+              value={formData.clientMedicalInsurance.privateInsuranceCost}
+              onChange={(e) => {
+                updateFormData({
+                  clientMedicalInsurance: {
+                    ...formData.clientMedicalInsurance,
+                    privateInsuranceCost: e.target.value,
+                  },
+                });
+              }}
+              variant="outlined"
+              size="small"
+              placeholder="$0.00"
+            />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+              Other Insurance (if any)
+            </Typography>
+            <TextField
+              fullWidth
+              value={formData.clientMedicalInsurance.otherInsuranceDescription}
+              onChange={(e) => {
+                updateFormData({
+                  clientMedicalInsurance: {
+                    ...formData.clientMedicalInsurance,
+                    otherInsuranceDescription: e.target.value,
+                  },
+                });
+              }}
+              variant="outlined"
+              size="small"
+              placeholder="e.g., VA benefits, Medicaid"
+            />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={3}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+              Other Insurance Monthly Cost
+            </Typography>
+            <TextField
+              fullWidth
+              value={formData.clientMedicalInsurance.otherInsuranceCost}
+              onChange={(e) => {
+                updateFormData({
+                  clientMedicalInsurance: {
+                    ...formData.clientMedicalInsurance,
+                    otherInsuranceCost: e.target.value,
+                  },
+                });
+              }}
+              variant="outlined"
+              size="small"
+              placeholder="$0.00"
+            />
+          </Box>
+        </Grid>
+
+        {/* Total Monthly Insurance Cost */}
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 1 }}>
+            <Typography variant="body1" sx={{ fontWeight: 600, mr: 2 }}>
+              Total Monthly Insurance Cost:
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: 'error.main' }}>
+              {formatCurrency(calculateTotalInsuranceCost(formData.clientMedicalInsurance))}
+            </Typography>
+          </Box>
         </Grid>
 
         {/* Client's Military Service */}
@@ -1043,6 +1502,20 @@ const PersonalDataSection = () => {
               onChange={handleChange('spouseName')}
               variant="outlined"
               size="small"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#d32f2f',
+                    borderWidth: 2,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                },
+              }}
             />
           </Box>
         </Grid>
@@ -1151,7 +1624,25 @@ const PersonalDataSection = () => {
               </Typography>
               <HelpIcon helpId={23} onClick={() => openHelp(23)} />
             </Box>
-            <FormControl fullWidth variant="outlined" size="small">
+            <FormControl
+              fullWidth
+              variant="outlined"
+              size="small"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#d32f2f',
+                    borderWidth: 2,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                },
+              }}
+            >
               <Select
                 value={formData.spouseSex}
                 onChange={handleSelectChange('spouseSex')}
@@ -1181,6 +1672,20 @@ const PersonalDataSection = () => {
               variant="outlined"
               type="email"
               size="small"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#d32f2f',
+                    borderWidth: 2,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#d32f2f',
+                  },
+                },
+              }}
             />
           </Box>
         </Grid>
@@ -1202,6 +1707,20 @@ const PersonalDataSection = () => {
                   variant: 'outlined',
                   size: 'small',
                   onBlur: handleSpouseBirthDateBlur,
+                  sx: {
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#d32f2f',
+                        borderWidth: 2,
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#d32f2f',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#d32f2f',
+                      },
+                    },
+                  },
                 },
               }}
             />
@@ -1316,6 +1835,308 @@ const PersonalDataSection = () => {
             />
           </Grid>
         )}
+
+        {/* Spouse's Income Sources */}
+        <Grid item xs={12}>
+          <Divider sx={{ my: 2 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              Spouse&apos;s Income Sources
+            </Typography>
+          </Box>
+        </Grid>
+
+        {formData.spouseIncomeSources.map((incomeSource, index) => (
+          <React.Fragment key={`spouse-income-${index}`}>
+            <Grid item xs={12} md={4}>
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+                  {index === 0 ? 'Income Source' : `Income Source ${index + 1}`}
+                </Typography>
+                <TextField
+                  fullWidth
+                  value={incomeSource.description}
+                  onChange={(e) => {
+                    const newSources = [...formData.spouseIncomeSources];
+                    newSources[index] = { ...newSources[index], description: e.target.value };
+                    updateFormData({ spouseIncomeSources: newSources });
+                  }}
+                  variant="outlined"
+                  size="small"
+                  placeholder={index === 0 ? 'Social Security' : 'e.g., Pension, Part-time work'}
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={6} md={2}>
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+                  Amount
+                </Typography>
+                <TextField
+                  fullWidth
+                  value={incomeSource.amount}
+                  onChange={(e) => {
+                    const newSources = [...formData.spouseIncomeSources];
+                    newSources[index] = { ...newSources[index], amount: e.target.value };
+                    updateFormData({ spouseIncomeSources: newSources });
+                  }}
+                  variant="outlined"
+                  size="small"
+                  placeholder="$0.00"
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+                  Frequency
+                </Typography>
+                <FormControl fullWidth variant="outlined" size="small">
+                  <Select
+                    value={incomeSource.frequency}
+                    onChange={(e) => {
+                      const newSources = [...formData.spouseIncomeSources];
+                      newSources[index] = { ...newSources[index], frequency: e.target.value as IncomeFrequency };
+                      updateFormData({ spouseIncomeSources: newSources });
+                    }}
+                    displayEmpty
+                  >
+                    <MenuItem value="" disabled>Select frequency</MenuItem>
+                    {INCOME_FREQUENCY_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+                  Monthly Amount
+                </Typography>
+                <TextField
+                  fullWidth
+                  value={incomeSource.amount && incomeSource.frequency
+                    ? formatCurrency(calculateMonthlyAmount(incomeSource.amount, incomeSource.frequency))
+                    : ''}
+                  variant="outlined"
+                  size="small"
+                  InputProps={{ readOnly: true }}
+                  sx={{ backgroundColor: 'action.hover' }}
+                  placeholder="Calculated"
+                />
+              </Box>
+            </Grid>
+          </React.Fragment>
+        ))}
+
+        {/* Spouse Total Monthly Income */}
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 1 }}>
+            <Typography variant="body1" sx={{ fontWeight: 600, mr: 2 }}>
+              Spouse&apos;s Total Monthly Income:
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
+              {formatCurrency(calculateTotalMonthlyIncome(formData.spouseIncomeSources))}
+            </Typography>
+          </Box>
+        </Grid>
+
+        {/* Spouse's Medical Insurance */}
+        <Grid item xs={12}>
+          <Divider sx={{ my: 2 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              Spouse&apos;s Medical Insurance
+            </Typography>
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+              Medicare Part B Monthly Deduction
+            </Typography>
+            <TextField
+              fullWidth
+              value={formData.spouseMedicalInsurance.medicarePartBDeduction}
+              onChange={(e) => {
+                updateFormData({
+                  spouseMedicalInsurance: {
+                    ...formData.spouseMedicalInsurance,
+                    medicarePartBDeduction: e.target.value,
+                  },
+                });
+              }}
+              variant="outlined"
+              size="small"
+              placeholder="$0.00"
+            />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={8} />
+
+        <Grid item xs={12} md={6}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1 }}>
+              Medicare Coverage Type
+            </FormLabel>
+            <RadioGroup
+              row
+              value={formData.spouseMedicalInsurance.medicareCoverageType}
+              onChange={(e) => {
+                updateFormData({
+                  spouseMedicalInsurance: {
+                    ...formData.spouseMedicalInsurance,
+                    medicareCoverageType: e.target.value as MedicareCoverageType,
+                    medicareCoverageCost: e.target.value === 'Neither' ? '' : formData.spouseMedicalInsurance.medicareCoverageCost,
+                  },
+                });
+              }}
+            >
+              {MEDICARE_COVERAGE_OPTIONS.map((option) => (
+                <FormControlLabel
+                  key={option.value}
+                  value={option.value}
+                  control={<Radio size="small" />}
+                  label={option.label}
+                />
+              ))}
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+
+        {formData.spouseMedicalInsurance.medicareCoverageType && formData.spouseMedicalInsurance.medicareCoverageType !== 'Neither' && (
+          <Grid item xs={12} md={3}>
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+                {formData.spouseMedicalInsurance.medicareCoverageType} Monthly Cost
+              </Typography>
+              <TextField
+                fullWidth
+                value={formData.spouseMedicalInsurance.medicareCoverageCost}
+                onChange={(e) => {
+                  updateFormData({
+                    spouseMedicalInsurance: {
+                      ...formData.spouseMedicalInsurance,
+                      medicareCoverageCost: e.target.value,
+                    },
+                  });
+                }}
+                variant="outlined"
+                size="small"
+                placeholder="$0.00"
+              />
+            </Box>
+          </Grid>
+        )}
+
+        <Grid item xs={12} md={6}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+              Private Insurance (if any)
+            </Typography>
+            <TextField
+              fullWidth
+              value={formData.spouseMedicalInsurance.privateInsuranceDescription}
+              onChange={(e) => {
+                updateFormData({
+                  spouseMedicalInsurance: {
+                    ...formData.spouseMedicalInsurance,
+                    privateInsuranceDescription: e.target.value,
+                  },
+                });
+              }}
+              variant="outlined"
+              size="small"
+              placeholder="e.g., Employer-provided, Blue Cross"
+            />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={3}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+              Private Insurance Monthly Cost
+            </Typography>
+            <TextField
+              fullWidth
+              value={formData.spouseMedicalInsurance.privateInsuranceCost}
+              onChange={(e) => {
+                updateFormData({
+                  spouseMedicalInsurance: {
+                    ...formData.spouseMedicalInsurance,
+                    privateInsuranceCost: e.target.value,
+                  },
+                });
+              }}
+              variant="outlined"
+              size="small"
+              placeholder="$0.00"
+            />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+              Other Insurance (if any)
+            </Typography>
+            <TextField
+              fullWidth
+              value={formData.spouseMedicalInsurance.otherInsuranceDescription}
+              onChange={(e) => {
+                updateFormData({
+                  spouseMedicalInsurance: {
+                    ...formData.spouseMedicalInsurance,
+                    otherInsuranceDescription: e.target.value,
+                  },
+                });
+              }}
+              variant="outlined"
+              size="small"
+              placeholder="e.g., VA benefits, Medicaid"
+            />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={3}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
+              Other Insurance Monthly Cost
+            </Typography>
+            <TextField
+              fullWidth
+              value={formData.spouseMedicalInsurance.otherInsuranceCost}
+              onChange={(e) => {
+                updateFormData({
+                  spouseMedicalInsurance: {
+                    ...formData.spouseMedicalInsurance,
+                    otherInsuranceCost: e.target.value,
+                  },
+                });
+              }}
+              variant="outlined"
+              size="small"
+              placeholder="$0.00"
+            />
+          </Box>
+        </Grid>
+
+        {/* Spouse Total Monthly Insurance Cost */}
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 1 }}>
+            <Typography variant="body1" sx={{ fontWeight: 600, mr: 2 }}>
+              Spouse&apos;s Total Monthly Insurance Cost:
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: 'error.main' }}>
+              {formatCurrency(calculateTotalInsuranceCost(formData.spouseMedicalInsurance))}
+            </Typography>
+          </Box>
+        </Grid>
 
         {/* Spouse's Military Service */}
         <Grid item xs={12}>

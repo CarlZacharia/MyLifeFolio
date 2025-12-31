@@ -15,8 +15,70 @@ import {
   TableRow,
   Chip,
 } from '@mui/material';
-import { useFormContext, MaritalStatus } from '../lib/FormContext';
+import { useFormContext, MaritalStatus, IncomeSource, IncomeFrequency, MedicalInsurance } from '../lib/FormContext';
+import WarningIcon from '@mui/icons-material/Warning';
 import { categorizeAssets, calculateCategoryTotal, CategorizedAsset } from '../lib/assetCategorization';
+
+// Calculate monthly amount from income source
+const calculateMonthlyAmount = (amount: string, frequency: IncomeFrequency): number => {
+  const numAmount = parseFloat(amount.replace(/[^0-9.-]/g, ''));
+  if (isNaN(numAmount) || !frequency) return 0;
+
+  switch (frequency) {
+    case 'Monthly':
+      return numAmount;
+    case 'Quarterly':
+      return numAmount / 3;
+    case 'Semi-Annually':
+      return numAmount / 6;
+    case 'Annually':
+      return numAmount / 12;
+    case 'Weekly':
+      return numAmount * 52 / 12;
+    case 'Bi-Weekly':
+      return numAmount * 26 / 12;
+    default:
+      return 0;
+  }
+};
+
+// Calculate total monthly income from income sources array
+const calculateTotalMonthlyIncome = (incomeSources: IncomeSource[]): number => {
+  return incomeSources.reduce((total, source) => {
+    return total + calculateMonthlyAmount(source.amount, source.frequency);
+  }, 0);
+};
+
+// Check if income sources have any data
+const hasIncomeData = (incomeSources: IncomeSource[]): boolean => {
+  return incomeSources.some(source => source.description || source.amount);
+};
+
+// Parse currency string to number
+const parseCurrency = (value: string): number => {
+  const num = parseFloat(value.replace(/[^0-9.-]/g, ''));
+  return isNaN(num) ? 0 : num;
+};
+
+// Calculate total monthly insurance cost
+const calculateTotalInsuranceCost = (insurance: MedicalInsurance): number => {
+  return (
+    parseCurrency(insurance.medicarePartBDeduction) +
+    parseCurrency(insurance.medicareCoverageCost) +
+    parseCurrency(insurance.privateInsuranceCost) +
+    parseCurrency(insurance.otherInsuranceCost)
+  );
+};
+
+// Check if medical insurance has any data
+const hasMedicalInsuranceData = (insurance: MedicalInsurance): boolean => {
+  return !!(
+    insurance.medicarePartBDeduction ||
+    insurance.medicareCoverageType ||
+    insurance.privateInsuranceDescription ||
+    insurance.otherInsuranceDescription
+  );
+};
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -161,6 +223,275 @@ const SummarySection = () => {
           </>
         )}
       </Paper>
+
+      {/* Income Information */}
+      {(hasIncomeData(formData.clientIncomeSources) || (showSpouseInfo && hasIncomeData(formData.spouseIncomeSources))) && (
+        <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+          <SectionHeader title="Income Information" />
+
+          {/* Client Income */}
+          {hasIncomeData(formData.clientIncomeSources) && (
+            <>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                {showSpouseInfo ? "Client's Income" : 'Income Sources'}
+              </Typography>
+              <TableContainer sx={{ mb: 2 }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Frequency</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Monthly Amount</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {formData.clientIncomeSources
+                      .filter(source => source.description || source.amount)
+                      .map((source, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{source.description || '-'}</TableCell>
+                          <TableCell>{formatCurrency(source.amount)}</TableCell>
+                          <TableCell>{source.frequency || '-'}</TableCell>
+                          <TableCell align="right">
+                            {formatCurrency(calculateMonthlyAmount(source.amount, source.frequency).toFixed(2))}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    <TableRow sx={{ bgcolor: '#e3f2fd' }}>
+                      <TableCell colSpan={3} sx={{ fontWeight: 600 }}>Total Monthly Income</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>
+                        {formatCurrency(calculateTotalMonthlyIncome(formData.clientIncomeSources).toFixed(2))}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
+          )}
+
+          {/* Spouse Income */}
+          {showSpouseInfo && hasIncomeData(formData.spouseIncomeSources) && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                Spouse's Income
+              </Typography>
+              <TableContainer sx={{ mb: 2 }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Frequency</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Monthly Amount</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {formData.spouseIncomeSources
+                      .filter(source => source.description || source.amount)
+                      .map((source, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{source.description || '-'}</TableCell>
+                          <TableCell>{formatCurrency(source.amount)}</TableCell>
+                          <TableCell>{source.frequency || '-'}</TableCell>
+                          <TableCell align="right">
+                            {formatCurrency(calculateMonthlyAmount(source.amount, source.frequency).toFixed(2))}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    <TableRow sx={{ bgcolor: '#e3f2fd' }}>
+                      <TableCell colSpan={3} sx={{ fontWeight: 600 }}>Total Monthly Income</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>
+                        {formatCurrency(calculateTotalMonthlyIncome(formData.spouseIncomeSources).toFixed(2))}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
+          )}
+
+          {/* Combined Household Income */}
+          {showSpouseInfo && hasIncomeData(formData.clientIncomeSources) && hasIncomeData(formData.spouseIncomeSources) && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: '#e8f5e9', p: 1.5, borderRadius: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  Combined Household Monthly Income
+                </Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  {formatCurrency((calculateTotalMonthlyIncome(formData.clientIncomeSources) + calculateTotalMonthlyIncome(formData.spouseIncomeSources)).toFixed(2))}
+                </Typography>
+              </Box>
+            </>
+          )}
+        </Paper>
+      )}
+
+      {/* Medical Insurance Information */}
+      {(hasMedicalInsuranceData(formData.clientMedicalInsurance) || (showSpouseInfo && hasMedicalInsuranceData(formData.spouseMedicalInsurance))) && (
+        <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+          <SectionHeader title="Medical Insurance" />
+
+          {/* Medicare Advantage Warning for Multiple State Properties */}
+          {(() => {
+            const hasMedicareAdvantage = formData.clientMedicalInsurance.medicareCoverageType === 'Medicare Advantage' ||
+              (showSpouseInfo && formData.spouseMedicalInsurance.medicareCoverageType === 'Medicare Advantage');
+            const uniqueStates = new Set(formData.realEstate.map(p => p.state).filter(Boolean));
+            const hasMultipleStateProperties = uniqueStates.size > 1;
+
+            if (hasMedicareAdvantage && hasMultipleStateProperties) {
+              return (
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', bgcolor: '#fff3e0', p: 2, borderRadius: 1, mb: 2, border: '1px solid #ff9800' }}>
+                  <WarningIcon sx={{ color: '#ed6c02', mr: 1.5, mt: 0.25 }} />
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#e65100' }}>
+                      Medicare Advantage Coverage Warning
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      You have real estate in multiple states ({Array.from(uniqueStates).join(', ')}) and Medicare Advantage coverage.
+                      Medicare Advantage plans are typically network-based and may not provide full coverage when you are
+                      outside the plan&apos;s service area. If you spend extended time at properties in other states, you may
+                      encounter limited coverage for non-emergency care. Consider reviewing your plan&apos;s out-of-area coverage
+                      or evaluating whether a Medicare Supplement (Medigap) plan might better suit your lifestyle.
+                    </Typography>
+                  </Box>
+                </Box>
+              );
+            }
+            return null;
+          })()}
+
+          {/* Client Insurance */}
+          {hasMedicalInsuranceData(formData.clientMedicalInsurance) && (
+            <>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                {showSpouseInfo ? "Client's Medical Insurance" : 'Medical Insurance'}
+              </Typography>
+              <TableContainer sx={{ mb: 2 }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Coverage Type</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Monthly Cost</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {formData.clientMedicalInsurance.medicarePartBDeduction && (
+                      <TableRow>
+                        <TableCell>Medicare Part B</TableCell>
+                        <TableCell>Standard deduction</TableCell>
+                        <TableCell align="right">{formatCurrency(formData.clientMedicalInsurance.medicarePartBDeduction)}</TableCell>
+                      </TableRow>
+                    )}
+                    {formData.clientMedicalInsurance.medicareCoverageType && formData.clientMedicalInsurance.medicareCoverageType !== 'Neither' && (
+                      <TableRow>
+                        <TableCell>{formData.clientMedicalInsurance.medicareCoverageType}</TableCell>
+                        <TableCell>-</TableCell>
+                        <TableCell align="right">{formatCurrency(formData.clientMedicalInsurance.medicareCoverageCost)}</TableCell>
+                      </TableRow>
+                    )}
+                    {formData.clientMedicalInsurance.privateInsuranceDescription && (
+                      <TableRow>
+                        <TableCell>Private Insurance</TableCell>
+                        <TableCell>{formData.clientMedicalInsurance.privateInsuranceDescription}</TableCell>
+                        <TableCell align="right">{formatCurrency(formData.clientMedicalInsurance.privateInsuranceCost)}</TableCell>
+                      </TableRow>
+                    )}
+                    {formData.clientMedicalInsurance.otherInsuranceDescription && (
+                      <TableRow>
+                        <TableCell>Other Insurance</TableCell>
+                        <TableCell>{formData.clientMedicalInsurance.otherInsuranceDescription}</TableCell>
+                        <TableCell align="right">{formatCurrency(formData.clientMedicalInsurance.otherInsuranceCost)}</TableCell>
+                      </TableRow>
+                    )}
+                    <TableRow sx={{ bgcolor: '#ffebee' }}>
+                      <TableCell colSpan={2} sx={{ fontWeight: 600 }}>Total Monthly Insurance Cost</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>
+                        {formatCurrency(calculateTotalInsuranceCost(formData.clientMedicalInsurance).toFixed(2))}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
+          )}
+
+          {/* Spouse Insurance */}
+          {showSpouseInfo && hasMedicalInsuranceData(formData.spouseMedicalInsurance) && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                Spouse&apos;s Medical Insurance
+              </Typography>
+              <TableContainer sx={{ mb: 2 }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Coverage Type</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Monthly Cost</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {formData.spouseMedicalInsurance.medicarePartBDeduction && (
+                      <TableRow>
+                        <TableCell>Medicare Part B</TableCell>
+                        <TableCell>Standard deduction</TableCell>
+                        <TableCell align="right">{formatCurrency(formData.spouseMedicalInsurance.medicarePartBDeduction)}</TableCell>
+                      </TableRow>
+                    )}
+                    {formData.spouseMedicalInsurance.medicareCoverageType && formData.spouseMedicalInsurance.medicareCoverageType !== 'Neither' && (
+                      <TableRow>
+                        <TableCell>{formData.spouseMedicalInsurance.medicareCoverageType}</TableCell>
+                        <TableCell>-</TableCell>
+                        <TableCell align="right">{formatCurrency(formData.spouseMedicalInsurance.medicareCoverageCost)}</TableCell>
+                      </TableRow>
+                    )}
+                    {formData.spouseMedicalInsurance.privateInsuranceDescription && (
+                      <TableRow>
+                        <TableCell>Private Insurance</TableCell>
+                        <TableCell>{formData.spouseMedicalInsurance.privateInsuranceDescription}</TableCell>
+                        <TableCell align="right">{formatCurrency(formData.spouseMedicalInsurance.privateInsuranceCost)}</TableCell>
+                      </TableRow>
+                    )}
+                    {formData.spouseMedicalInsurance.otherInsuranceDescription && (
+                      <TableRow>
+                        <TableCell>Other Insurance</TableCell>
+                        <TableCell>{formData.spouseMedicalInsurance.otherInsuranceDescription}</TableCell>
+                        <TableCell align="right">{formatCurrency(formData.spouseMedicalInsurance.otherInsuranceCost)}</TableCell>
+                      </TableRow>
+                    )}
+                    <TableRow sx={{ bgcolor: '#ffebee' }}>
+                      <TableCell colSpan={2} sx={{ fontWeight: 600 }}>Total Monthly Insurance Cost</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>
+                        {formatCurrency(calculateTotalInsuranceCost(formData.spouseMedicalInsurance).toFixed(2))}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
+          )}
+
+          {/* Combined Household Insurance Cost */}
+          {showSpouseInfo && hasMedicalInsuranceData(formData.clientMedicalInsurance) && hasMedicalInsuranceData(formData.spouseMedicalInsurance) && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: '#ffebee', p: 1.5, borderRadius: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  Combined Household Monthly Insurance Cost
+                </Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  {formatCurrency((calculateTotalInsuranceCost(formData.clientMedicalInsurance) + calculateTotalInsuranceCost(formData.spouseMedicalInsurance)).toFixed(2))}
+                </Typography>
+              </Box>
+            </>
+          )}
+        </Paper>
+      )}
 
       {/* Children */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>

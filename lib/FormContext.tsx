@@ -26,6 +26,33 @@ export type CarePreference = '' | 'Age in place at home as long as possible' | '
 // Current Estate Plan Types
 export type DocumentReviewOption = '' | 'Upload' | 'Answer Questions';
 
+// Beneficiary Distribution Method - how assets are distributed to this beneficiary
+export type BeneficiaryDistributionMethod = '' | 'Outright' | 'Trust for Term of Years' | 'Trust for Life' | 'Unsure';
+
+// Income frequency options
+export type IncomeFrequency = '' | 'Monthly' | 'Quarterly' | 'Semi-Annually' | 'Annually' | 'Weekly' | 'Bi-Weekly';
+
+// Income source for client/spouse
+export interface IncomeSource {
+  description: string;
+  amount: string;
+  frequency: IncomeFrequency;
+}
+
+// Medicare coverage type options
+export type MedicareCoverageType = '' | 'Medicare Advantage' | 'Medicare Supplement' | 'Neither';
+
+// Medical insurance information
+export interface MedicalInsurance {
+  medicarePartBDeduction: string;  // Monthly Medicare Part B deduction
+  medicareCoverageType: MedicareCoverageType;
+  medicareCoverageCost: string;  // Monthly cost for Medicare Advantage or Supplement
+  privateInsuranceDescription: string;
+  privateInsuranceCost: string;  // Monthly cost
+  otherInsuranceDescription: string;
+  otherInsuranceCost: string;  // Monthly cost
+}
+
 // Uploaded document metadata for Supabase Storage
 export interface UploadedDocumentInfo {
   name: string;           // Unique filename in storage
@@ -316,6 +343,18 @@ export interface FormData {
   spouseHasChildrenFromPrior: boolean;
   spouseChildrenFromPrior: number;
 
+  // Income Sources - Client (up to 4)
+  clientIncomeSources: IncomeSource[];
+
+  // Income Sources - Spouse (up to 4)
+  spouseIncomeSources: IncomeSource[];
+
+  // Medical Insurance - Client
+  clientMedicalInsurance: MedicalInsurance;
+
+  // Medical Insurance - Spouse
+  spouseMedicalInsurance: MedicalInsurance;
+
   // Military Service - Client
   clientServedMilitary: boolean;
   clientMilitaryBranch: string;
@@ -376,6 +415,7 @@ export interface FormData {
     numberOfChildren: number;
     hasMinorChildren: boolean;
     distributionType: 'Per Stirpes' | 'Per Capita' | '';
+    distributionMethod: BeneficiaryDistributionMethod;
     disinherit: boolean;
     comments: string;
   }>;
@@ -771,6 +811,40 @@ const initialFormData: FormData = {
   childrenTogether: 0,
   spouseHasChildrenFromPrior: false,
   spouseChildrenFromPrior: 0,
+  // Default 4 income sources for client (first one defaults to Social Security)
+  clientIncomeSources: [
+    { description: 'Social Security', amount: '', frequency: '' },
+    { description: '', amount: '', frequency: '' },
+    { description: '', amount: '', frequency: '' },
+    { description: '', amount: '', frequency: '' },
+  ],
+  // Default 4 income sources for spouse (first one defaults to Social Security)
+  spouseIncomeSources: [
+    { description: 'Social Security', amount: '', frequency: '' },
+    { description: '', amount: '', frequency: '' },
+    { description: '', amount: '', frequency: '' },
+    { description: '', amount: '', frequency: '' },
+  ],
+  // Medical Insurance - Client
+  clientMedicalInsurance: {
+    medicarePartBDeduction: '',
+    medicareCoverageType: '',
+    medicareCoverageCost: '',
+    privateInsuranceDescription: '',
+    privateInsuranceCost: '',
+    otherInsuranceDescription: '',
+    otherInsuranceCost: '',
+  },
+  // Medical Insurance - Spouse
+  spouseMedicalInsurance: {
+    medicarePartBDeduction: '',
+    medicareCoverageType: '',
+    medicareCoverageCost: '',
+    privateInsuranceDescription: '',
+    privateInsuranceCost: '',
+    otherInsuranceDescription: '',
+    otherInsuranceCost: '',
+  },
   clientServedMilitary: false,
   clientMilitaryBranch: '',
   clientMilitaryStartDate: '',

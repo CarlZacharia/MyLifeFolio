@@ -225,16 +225,94 @@ If "mirrorDistributionPlans: true", verify that:
 - clientDistributionPlan.distributionType matches spouseDistributionPlan.distributionType
 If they differ but mirror is set to true, flag this as a data inconsistency that should be clarified.
 
+IMPORTANT - Income Analysis:
+The data includes income information for both client and spouse in the arrays:
+- "clientIncomeSources": Array of income sources for the client
+- "spouseIncomeSources": Array of income sources for the spouse (if married)
+
+Each income source contains:
+- "description": Source of income (e.g., "Social Security", "Pension", "Part-time work")
+- "amount": Amount received per period
+- "frequency": How often received ("Monthly", "Quarterly", "Semi-Annually", "Annually", "Weekly", "Bi-Weekly")
+
+When analyzing income:
+1. Calculate monthly income for each source by converting based on frequency:
+   - Weekly: amount * 52 / 12
+   - Bi-Weekly: amount * 26 / 12
+   - Monthly: amount
+   - Quarterly: amount / 3
+   - Semi-Annually: amount / 6
+   - Annually: amount / 12
+
+2. Include income analysis in your report:
+   - List each income source with monthly equivalent
+   - Calculate total monthly income for client
+   - Calculate total monthly income for spouse (if applicable)
+   - Calculate combined household monthly income (if married)
+   - Calculate annual household income
+
+3. Consider income in context of:
+   - Long-term care affordability: Compare monthly income to potential LTC costs (~$8,000-$12,000/month for nursing home care)
+   - Estate sustainability: Is income sufficient to maintain lifestyle without depleting assets?
+   - Medicaid planning: If income is low and LTC concern is high, Medicaid planning may be relevant
+   - Dependency on Social Security vs. other sources: Diversification of income sources
+
+4. Flag potential concerns:
+   - If total monthly income is less than $3,000 for a single person or $5,000 for a couple, note potential financial vulnerability
+   - If income sources are primarily Social Security without pension or investment income, note reliance on government benefits
+   - If there's a significant income disparity between spouses, consider survivor income planning
+
+IMPORTANT - Medical Insurance Analysis:
+The data includes medical insurance information for both client and spouse:
+- "clientMedicalInsurance": Medical insurance details for the client
+- "spouseMedicalInsurance": Medical insurance details for the spouse (if married)
+
+Each medical insurance object contains:
+- "medicarePartBDeduction": Monthly Medicare Part B deduction amount
+- "medicareCoverageType": Type of coverage ("Medicare Advantage", "Medicare Supplement", "Neither", or "")
+- "medicareCoverageCost": Monthly cost for Medicare Advantage or Supplement plan
+- "privateInsuranceDescription": Description of private insurance (e.g., employer-provided, Blue Cross)
+- "privateInsuranceCost": Monthly cost for private insurance
+- "otherInsuranceDescription": Description of other insurance (e.g., VA benefits, Medicaid)
+- "otherInsuranceCost": Monthly cost for other insurance
+
+When analyzing medical insurance:
+
+1. Calculate total monthly insurance costs for each person and combined household.
+
+2. CRITICAL - Medicare Advantage Multi-State Warning:
+   If either client or spouse has "medicareCoverageType": "Medicare Advantage" AND
+   the "realEstate" array contains properties in more than one state:
+   - FLAG THIS AS A HIGH-PRIORITY CONCERN
+   - Explain that Medicare Advantage plans are network-based and typically provide limited coverage outside the plan's service area
+   - If the client spends extended time at out-of-state properties (vacation homes, etc.), they may face restricted access to non-emergency care
+   - Recommend reviewing the plan's out-of-area coverage terms
+   - Suggest evaluating whether Medicare Supplement (Medigap) might be more appropriate for their lifestyle
+
+3. Include medical insurance in household budget analysis:
+   - Compare total monthly insurance costs against total monthly income
+   - Include insurance costs in net disposable income calculations
+   - Factor insurance costs into long-term care affordability assessment
+
+4. Flag additional concerns:
+   - If no Medicare coverage type is selected for someone 65+, note potential gap in coverage
+   - If total insurance costs exceed 15% of monthly income, flag as potentially burdensome
+   - If client has LTC concerns and only has Medicare (no supplemental or LTC insurance), note coverage limitations
+
 Please be certain to include:
 1. Family profile analysis
-2. Asset inventory tables with ownership breakdown (use the pre-computed categories)
-3. Totals by ownership category (use the pre-computed totals)
-4. Probate avoidance issues
-5. Document gap analysis
-6. Vulnerable assets identification
-7. Cash bequest funding analysis (if applicable)
-8. Prioritized recommendations
-9. Next steps
+2. Income analysis with monthly and annual totals
+3. Medical insurance analysis with monthly costs and coverage assessment
+4. Asset inventory tables with ownership breakdown (use the pre-computed categories)
+5. Totals by ownership category (use the pre-computed totals)
+6. Probate avoidance issues
+7. Document gap analysis
+8. Vulnerable assets identification
+9. Cash bequest funding analysis (if applicable)
+10. Long-term care affordability assessment (compare income minus insurance costs to potential LTC costs)
+11. Medicare Advantage multi-state property warning (if applicable)
+12. Prioritized recommendations
+13. Next steps
 
 Here is the Client Intake Data:`,
 

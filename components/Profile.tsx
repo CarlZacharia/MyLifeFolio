@@ -37,6 +37,7 @@ import PrintIcon from '@mui/icons-material/Print';
 import EmailIcon from '@mui/icons-material/Email';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import CloseIcon from '@mui/icons-material/Close';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthContext';
 
@@ -108,7 +109,7 @@ const Profile: React.FC<ProfileProps> = ({ onBack }) => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(null);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
-  const [emailSending, setEmailSending] = useState(false);
+  const [helpDialogOpen, setHelpDialogOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -409,13 +410,9 @@ const Profile: React.FC<ProfileProps> = ({ onBack }) => {
     }
   };
 
-  const handleEmailQuestions = async () => {
-    setEmailSending(true);
-    try {
-      // For now, open the user's email client with pre-filled content
-      const subject = encodeURIComponent(`Questions for Consultation - ${profileData.name}`);
-      const body = encodeURIComponent(`
-Dear Zacharia Brown & Bratkovich Team,
+  const getEmailContent = () => {
+    const subject = `Questions for Consultation - ${profileData.name}`;
+    const body = `Dear Zacharia Brown & Bratkovich Team,
 
 I have the following questions I would like to discuss during my consultation:
 
@@ -429,16 +426,36 @@ ${profileData.telephone ? `Phone: ${profileData.telephone}` : ''}
 ${profileData.state_of_domicile ? `State: ${profileData.state_of_domicile}` : ''}
 
 Thank you,
-${profileData.name}
-      `.trim());
+${profileData.name}`;
 
-      window.location.href = `mailto:info@zacbrownlaw.com?subject=${subject}&body=${body}`;
-      setSuccessMessage('Email client opened. Please send the email to complete.');
-    } catch (err) {
-      setError('Failed to open email client. Please try again.');
-    } finally {
-      setEmailSending(false);
+    return { subject, body };
+  };
+
+  const handleEmailViaGmail = () => {
+    const { subject, body } = getEmailContent();
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=info@zacbrownlaw.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(gmailUrl, '_blank');
+    setSuccessMessage('Gmail compose window opened.');
+    setEmailDialogOpen(false);
+  };
+
+  const handleEmailViaMailto = () => {
+    const { subject, body } = getEmailContent();
+    window.location.href = `mailto:info@zacbrownlaw.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setSuccessMessage('Email client opened. Please send the email to complete.');
+    setEmailDialogOpen(false);
+  };
+
+  const handleCopyEmailContent = async () => {
+    const { subject, body } = getEmailContent();
+    const fullContent = `To: info@zacbrownlaw.com\nSubject: ${subject}\n\n${body}`;
+
+    try {
+      await navigator.clipboard.writeText(fullContent);
+      setSuccessMessage('Email content copied to clipboard! Paste it into your email client.');
       setEmailDialogOpen(false);
+    } catch (err) {
+      setError('Failed to copy to clipboard. Please try again.');
     }
   };
 
@@ -587,6 +604,33 @@ ${profileData.name}
                 <Typography variant="h6" sx={{ color: '#1e3a5f' }}>
                   Questions & Notes
                 </Typography>
+                <Box
+                  component="span"
+                  onClick={() => setHelpDialogOpen(true)}
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    bgcolor: '#1a237e',
+                    color: '#FFD700',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    ml: 0.5,
+                    flexShrink: 0,
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                    '&:hover': {
+                      transform: 'scale(1.15)',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                    },
+                  }}
+                >
+                  ?
+                </Box>
               </Box>
               <Button
                 variant="contained"
@@ -770,33 +814,208 @@ ${profileData.name}
       </Dialog>
 
       {/* Email Confirmation Dialog */}
-      <Dialog open={emailDialogOpen} onClose={() => setEmailDialogOpen(false)}>
+      <Dialog open={emailDialogOpen} onClose={() => setEmailDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <EmailIcon sx={{ color: '#1e3a5f' }} />
           Email Questions to Attorney
         </DialogTitle>
         <DialogContent>
           <Typography sx={{ mb: 2 }}>
-            This will open your email client with a pre-filled message containing your {questions.length} question{questions.length !== 1 ? 's' : ''}.
+            Send your {questions.length} question{questions.length !== 1 ? 's' : ''} to <strong>info@zacbrownlaw.com</strong>
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            The email will be addressed to: <strong>info@zacbrownlaw.com</strong>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Choose how you'd like to send the email:
           </Typography>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Button
+              variant="contained"
+              onClick={handleEmailViaGmail}
+              fullWidth
+              sx={{
+                bgcolor: '#EA4335',
+                '&:hover': { bgcolor: '#d33426' },
+                py: 1.5,
+                justifyContent: 'flex-start',
+                px: 3,
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  component="img"
+                  src="https://www.gstatic.com/images/branding/product/1x/gmail_2020q4_32dp.png"
+                  alt="Gmail"
+                  sx={{ width: 24, height: 24 }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+                <Typography>Open in Gmail</Typography>
+              </Box>
+            </Button>
+
+            <Button
+              variant="outlined"
+              onClick={handleEmailViaMailto}
+              fullWidth
+              sx={{ py: 1.5, justifyContent: 'flex-start', px: 3 }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <EmailIcon />
+                <Typography>Open in Default Email App</Typography>
+              </Box>
+            </Button>
+
+            <Button
+              variant="outlined"
+              onClick={handleCopyEmailContent}
+              fullWidth
+              sx={{ py: 1.5, justifyContent: 'flex-start', px: 3 }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <ContentCopyIcon />
+                <Typography>Copy Email Content to Clipboard</Typography>
+              </Box>
+            </Button>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setEmailDialogOpen(false)} variant="outlined">
+          <Button onClick={() => setEmailDialogOpen(false)} variant="text">
             Cancel
           </Button>
-          <Button
-            onClick={handleEmailQuestions}
-            variant="contained"
-            startIcon={emailSending ? <CircularProgress size={16} color="inherit" /> : <EmailIcon />}
-            disabled={emailSending}
-            sx={{ bgcolor: '#1e3a5f', '&:hover': { bgcolor: '#0f2744' } }}
-          >
-            Open Email
-          </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Help Dialog */}
+      <Dialog
+        open={helpDialogOpen}
+        onClose={() => setHelpDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            overflow: 'hidden',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            bgcolor: '#1a237e',
+            color: 'white',
+            py: 1.5,
+            px: 2,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 28,
+                height: 28,
+                borderRadius: '50%',
+                bgcolor: '#FFD700',
+                color: '#1a237e',
+                fontSize: '1rem',
+                fontWeight: 700,
+              }}
+            >
+              ?
+            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Questions & Notes
+            </Typography>
+          </Box>
+          <IconButton onClick={() => setHelpDialogOpen(false)} size="small" sx={{ color: 'white' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3, pb: 2 }}>
+          <Typography variant="body1" sx={{ mb: 3, mt: 2, lineHeight: 1.7 }}>
+            Use this section to save questions you want to discuss with your attorney during your consultation.
+            You can add, edit, or delete questions at any time.
+          </Typography>
+
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, color: '#1a237e' }}>
+            Sharing Options:
+          </Typography>
+          <Box component="ul" sx={{ mb: 3, mt: 1, pl: 2.5, '& li': { mb: 1.5 } }}>
+            <li>
+              <Typography variant="body2" component="span">
+                <strong>Print Questions:</strong> Opens a formatted print preview with your questions and contact information, ready to bring to your meeting.
+              </Typography>
+            </li>
+            <li>
+              <Typography variant="body2" component="span">
+                <strong>Email to Attorney:</strong> Opens a dialog with multiple ways to send your questions to the firm.
+              </Typography>
+            </li>
+          </Box>
+
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, color: '#1a237e' }}>
+            Email Options:
+          </Typography>
+          <Box component="ul" sx={{ mt: 1, pl: 2.5, '& li': { mb: 1.5 } }}>
+            <li>
+              <Typography variant="body2" component="span">
+                <strong>Open in Gmail:</strong> Opens a new browser tab with Gmail&apos;s compose window, pre-filled with your questions. Best for Gmail users.
+              </Typography>
+            </li>
+            <li>
+              <Typography variant="body2" component="span">
+                <strong>Open in Default Email App:</strong> Opens your computer&apos;s default email application (Outlook, Apple Mail, etc.) with a pre-filled message.
+              </Typography>
+            </li>
+            <li>
+              <Typography variant="body2" component="span">
+                <strong>Copy to Clipboard:</strong> Copies the full email content so you can paste it into any email client or messaging app.
+              </Typography>
+            </li>
+          </Box>
+        </DialogContent>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 3,
+            py: 2,
+            borderTop: '1px solid #e0e0e0',
+            bgcolor: '#fafafa',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box
+              component="img"
+              src="/zbb-logo.png"
+              alt="ZBB"
+              sx={{ height: 24, width: 'auto' }}
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              Zacharia Brown & Bratkovich © {new Date().getFullYear()}
+            </Typography>
+          </Box>
+          <Button
+            onClick={() => setHelpDialogOpen(false)}
+            variant="contained"
+            sx={{
+              bgcolor: '#1a237e',
+              '&:hover': { bgcolor: '#0d1642' },
+              fontWeight: 600,
+              px: 3,
+            }}
+          >
+            GOT IT
+          </Button>
+        </Box>
       </Dialog>
 
       {/* Success Snackbar */}

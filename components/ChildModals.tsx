@@ -22,7 +22,7 @@ import {
   Typography,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useFormContext } from '../lib/FormContext';
+import { useFormContext, BeneficiaryDistributionMethod } from '../lib/FormContext';
 
 export type ChildMaritalStatus = 'Single' | 'Married' | 'Divorced' | 'Widowed' | '';
 
@@ -37,12 +37,20 @@ export interface ChildData {
   numberOfChildren: number;
   hasMinorChildren: boolean;
   distributionType: 'Per Stirpes' | 'Per Capita' | '';
+  distributionMethod: BeneficiaryDistributionMethod;
   disinherit: boolean;
   isDeceased: boolean;
   comments: string;
 }
 
 const CHILD_MARITAL_STATUS_OPTIONS: ChildMaritalStatus[] = ['Single', 'Married', 'Divorced', 'Widowed'];
+
+const DISTRIBUTION_METHOD_OPTIONS: { value: BeneficiaryDistributionMethod; label: string }[] = [
+  { value: 'Outright', label: 'Outright distribution' },
+  { value: 'Trust for Term of Years', label: 'Distribution in trust for a term of years' },
+  { value: 'Trust for Life', label: 'Distribution in trust for life' },
+  { value: 'Unsure', label: 'Unsure' },
+];
 
 const RELATIONSHIP_OPTIONS = [
   'Son of Both',
@@ -74,6 +82,7 @@ const getDefaultChildData = (): ChildData => ({
   numberOfChildren: 0,
   hasMinorChildren: false,
   distributionType: '',
+  distributionMethod: '',
   disinherit: false,
   isDeceased: false,
   comments: '',
@@ -354,6 +363,27 @@ export const ChildModal: React.FC<ChildModalProps> = ({
                 </Grid>
               </>
             )}
+            {/* Distribution Method */}
+            <Grid item xs={12}>
+              <FormControl component="fieldset" fullWidth>
+                <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1 }}>
+                  What type of distribution do you foresee for this beneficiary?
+                </FormLabel>
+                <RadioGroup
+                  value={formData.distributionMethod || ''}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, distributionMethod: e.target.value as BeneficiaryDistributionMethod }))}
+                >
+                  {DISTRIBUTION_METHOD_OPTIONS.map((option) => (
+                    <FormControlLabel
+                      key={option.value}
+                      value={option.value}
+                      control={<Radio size="small" />}
+                      label={option.label}
+                    />
+                  ))}
+                </RadioGroup>
+              </FormControl>
+            </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
