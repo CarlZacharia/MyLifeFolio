@@ -6,7 +6,8 @@
       "Bash(mkdir:*)",
       "Bash(npm uninstall:*)",
       "Bash(cat:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }
