@@ -40,12 +40,13 @@ export interface IncomeSource {
 }
 
 // Medicare coverage type options
-export type MedicareCoverageType = '' | 'Medicare Advantage' | 'Medicare Supplement' | 'Neither';
+export type MedicareCoverageType = '' | 'Medicare Advantage' | 'Medicare Supplement';
 
 // Medical insurance information
 export interface MedicalInsurance {
   medicarePartBDeduction: string;  // Monthly Medicare Part B deduction
   medicareCoverageType: MedicareCoverageType;
+  medicarePlanName: string;  // Name of the Medicare plan
   medicareCoverageCost: string;  // Monthly cost for Medicare Advantage or Supplement
   privateInsuranceDescription: string;
   privateInsuranceCost: string;  // Monthly cost
@@ -829,6 +830,7 @@ const initialFormData: FormData = {
   clientMedicalInsurance: {
     medicarePartBDeduction: '',
     medicareCoverageType: '',
+    medicarePlanName: '',
     medicareCoverageCost: '',
     privateInsuranceDescription: '',
     privateInsuranceCost: '',
@@ -839,6 +841,7 @@ const initialFormData: FormData = {
   spouseMedicalInsurance: {
     medicarePartBDeduction: '',
     medicareCoverageType: '',
+    medicarePlanName: '',
     medicareCoverageCost: '',
     privateInsuranceDescription: '',
     privateInsuranceCost: '',

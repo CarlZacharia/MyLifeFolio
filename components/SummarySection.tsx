@@ -386,10 +386,10 @@ const SummarySection = () => {
                         <TableCell align="right">{formatCurrency(formData.clientMedicalInsurance.medicarePartBDeduction)}</TableCell>
                       </TableRow>
                     )}
-                    {formData.clientMedicalInsurance.medicareCoverageType && formData.clientMedicalInsurance.medicareCoverageType !== 'Neither' && (
+                    {formData.clientMedicalInsurance.medicareCoverageType && (
                       <TableRow>
                         <TableCell>{formData.clientMedicalInsurance.medicareCoverageType}</TableCell>
-                        <TableCell>-</TableCell>
+                        <TableCell>{formData.clientMedicalInsurance.medicarePlanName || '-'}</TableCell>
                         <TableCell align="right">{formatCurrency(formData.clientMedicalInsurance.medicareCoverageCost)}</TableCell>
                       </TableRow>
                     )}
@@ -443,10 +443,10 @@ const SummarySection = () => {
                         <TableCell align="right">{formatCurrency(formData.spouseMedicalInsurance.medicarePartBDeduction)}</TableCell>
                       </TableRow>
                     )}
-                    {formData.spouseMedicalInsurance.medicareCoverageType && formData.spouseMedicalInsurance.medicareCoverageType !== 'Neither' && (
+                    {formData.spouseMedicalInsurance.medicareCoverageType && (
                       <TableRow>
                         <TableCell>{formData.spouseMedicalInsurance.medicareCoverageType}</TableCell>
-                        <TableCell>-</TableCell>
+                        <TableCell>{formData.spouseMedicalInsurance.medicarePlanName || '-'}</TableCell>
                         <TableCell align="right">{formatCurrency(formData.spouseMedicalInsurance.medicareCoverageCost)}</TableCell>
                       </TableRow>
                     )}

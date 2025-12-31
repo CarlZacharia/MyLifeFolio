@@ -116,7 +116,6 @@ const calculateTotalInsuranceCost = (insurance: MedicalInsurance): number => {
 const MEDICARE_COVERAGE_OPTIONS: { value: MedicareCoverageType; label: string }[] = [
   { value: 'Medicare Advantage', label: 'Medicare Advantage' },
   { value: 'Medicare Supplement', label: 'Medicare Supplement (Medigap)' },
-  { value: 'Neither', label: 'Neither' },
 ];
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
@@ -693,6 +692,7 @@ const PersonalDataSection = () => {
             <Typography variant="h6" sx={{ fontWeight: 500 }}>
               Income Sources
             </Typography>
+            <HelpIcon helpId={230} onClick={() => openHelp(230)} />
           </Box>
         </Grid>
 
@@ -801,6 +801,7 @@ const PersonalDataSection = () => {
             <Typography variant="h6" sx={{ fontWeight: 500 }}>
               Medical Insurance
             </Typography>
+            <HelpIcon helpId={231} onClick={() => openHelp(231)} />
           </Box>
         </Grid>
 
@@ -834,32 +835,48 @@ const PersonalDataSection = () => {
             <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1 }}>
               Medicare Coverage Type
             </FormLabel>
-            <RadioGroup
-              row
-              value={formData.clientMedicalInsurance.medicareCoverageType}
-              onChange={(e) => {
-                updateFormData({
-                  clientMedicalInsurance: {
-                    ...formData.clientMedicalInsurance,
-                    medicareCoverageType: e.target.value as MedicareCoverageType,
-                    medicareCoverageCost: e.target.value === 'Neither' ? '' : formData.clientMedicalInsurance.medicareCoverageCost,
-                  },
-                });
-              }}
-            >
-              {MEDICARE_COVERAGE_OPTIONS.map((option) => (
-                <FormControlLabel
-                  key={option.value}
-                  value={option.value}
-                  control={<Radio size="small" />}
-                  label={option.label}
-                />
-              ))}
-            </RadioGroup>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <RadioGroup
+                row
+                value={formData.clientMedicalInsurance.medicareCoverageType}
+                onChange={(e) => {
+                  updateFormData({
+                    clientMedicalInsurance: {
+                      ...formData.clientMedicalInsurance,
+                      medicareCoverageType: e.target.value as MedicareCoverageType,
+                    },
+                  });
+                }}
+              >
+                {MEDICARE_COVERAGE_OPTIONS.map((option) => (
+                  <FormControlLabel
+                    key={option.value}
+                    value={option.value}
+                    control={<Radio size="small" />}
+                    label={option.label}
+                  />
+                ))}
+              </RadioGroup>
+              <TextField
+                value={formData.clientMedicalInsurance.medicarePlanName}
+                onChange={(e) => {
+                  updateFormData({
+                    clientMedicalInsurance: {
+                      ...formData.clientMedicalInsurance,
+                      medicarePlanName: e.target.value,
+                    },
+                  });
+                }}
+                variant="outlined"
+                size="small"
+                placeholder="Name of plan"
+                sx={{ minWidth: 150 }}
+              />
+            </Box>
           </FormControl>
         </Grid>
 
-        {formData.clientMedicalInsurance.medicareCoverageType && formData.clientMedicalInsurance.medicareCoverageType !== 'Neither' && (
+        {formData.clientMedicalInsurance.medicareCoverageType && (
           <Grid item xs={12} md={3}>
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
@@ -1843,6 +1860,7 @@ const PersonalDataSection = () => {
             <Typography variant="h6" sx={{ fontWeight: 500 }}>
               Spouse&apos;s Income Sources
             </Typography>
+            <HelpIcon helpId={232} onClick={() => openHelp(232)} />
           </Box>
         </Grid>
 
@@ -1951,6 +1969,7 @@ const PersonalDataSection = () => {
             <Typography variant="h6" sx={{ fontWeight: 500 }}>
               Spouse&apos;s Medical Insurance
             </Typography>
+            <HelpIcon helpId={233} onClick={() => openHelp(233)} />
           </Box>
         </Grid>
 
@@ -1984,32 +2003,48 @@ const PersonalDataSection = () => {
             <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1 }}>
               Medicare Coverage Type
             </FormLabel>
-            <RadioGroup
-              row
-              value={formData.spouseMedicalInsurance.medicareCoverageType}
-              onChange={(e) => {
-                updateFormData({
-                  spouseMedicalInsurance: {
-                    ...formData.spouseMedicalInsurance,
-                    medicareCoverageType: e.target.value as MedicareCoverageType,
-                    medicareCoverageCost: e.target.value === 'Neither' ? '' : formData.spouseMedicalInsurance.medicareCoverageCost,
-                  },
-                });
-              }}
-            >
-              {MEDICARE_COVERAGE_OPTIONS.map((option) => (
-                <FormControlLabel
-                  key={option.value}
-                  value={option.value}
-                  control={<Radio size="small" />}
-                  label={option.label}
-                />
-              ))}
-            </RadioGroup>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <RadioGroup
+                row
+                value={formData.spouseMedicalInsurance.medicareCoverageType}
+                onChange={(e) => {
+                  updateFormData({
+                    spouseMedicalInsurance: {
+                      ...formData.spouseMedicalInsurance,
+                      medicareCoverageType: e.target.value as MedicareCoverageType,
+                    },
+                  });
+                }}
+              >
+                {MEDICARE_COVERAGE_OPTIONS.map((option) => (
+                  <FormControlLabel
+                    key={option.value}
+                    value={option.value}
+                    control={<Radio size="small" />}
+                    label={option.label}
+                  />
+                ))}
+              </RadioGroup>
+              <TextField
+                value={formData.spouseMedicalInsurance.medicarePlanName}
+                onChange={(e) => {
+                  updateFormData({
+                    spouseMedicalInsurance: {
+                      ...formData.spouseMedicalInsurance,
+                      medicarePlanName: e.target.value,
+                    },
+                  });
+                }}
+                variant="outlined"
+                size="small"
+                placeholder="Name of plan"
+                sx={{ minWidth: 150 }}
+              />
+            </Box>
           </FormControl>
         </Grid>
 
-        {formData.spouseMedicalInsurance.medicareCoverageType && formData.spouseMedicalInsurance.medicareCoverageType !== 'Neither' && (
+        {formData.spouseMedicalInsurance.medicareCoverageType && (
           <Grid item xs={12} md={3}>
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>

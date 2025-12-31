@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS estate_planning_client_medical_insurance (
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
 
   medicare_part_b_deduction TEXT DEFAULT '',  -- Monthly Medicare Part B deduction amount
-  medicare_coverage_type TEXT DEFAULT '',     -- 'Medicare Advantage', 'Medicare Supplement', 'Neither', or ''
+  medicare_coverage_type TEXT DEFAULT '',     -- 'Medicare Advantage', 'Medicare Supplement', or ''
+  medicare_plan_name TEXT DEFAULT '',         -- Name of the Medicare plan
   medicare_coverage_cost TEXT DEFAULT '',     -- Monthly cost for Medicare Advantage or Supplement
 
   private_insurance_description TEXT DEFAULT '',  -- Description of private insurance
@@ -42,7 +43,8 @@ CREATE POLICY "Users can delete own estate_planning_client_medical_insurance"
 
 COMMENT ON TABLE estate_planning_client_medical_insurance IS 'Medical insurance information for the client';
 COMMENT ON COLUMN estate_planning_client_medical_insurance.medicare_part_b_deduction IS 'Monthly Medicare Part B deduction amount';
-COMMENT ON COLUMN estate_planning_client_medical_insurance.medicare_coverage_type IS 'Type of Medicare coverage: Medicare Advantage, Medicare Supplement, Neither, or empty';
+COMMENT ON COLUMN estate_planning_client_medical_insurance.medicare_coverage_type IS 'Type of Medicare coverage: Medicare Advantage, Medicare Supplement, or empty';
+COMMENT ON COLUMN estate_planning_client_medical_insurance.medicare_plan_name IS 'Name of the Medicare plan';
 COMMENT ON COLUMN estate_planning_client_medical_insurance.medicare_coverage_cost IS 'Monthly cost for Medicare Advantage or Medicare Supplement plan';
 COMMENT ON COLUMN estate_planning_client_medical_insurance.private_insurance_description IS 'Description of private insurance coverage (e.g., employer-provided, Blue Cross)';
 COMMENT ON COLUMN estate_planning_client_medical_insurance.private_insurance_cost IS 'Monthly cost for private insurance';
@@ -58,7 +60,8 @@ CREATE TABLE IF NOT EXISTS estate_planning_spouse_medical_insurance (
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
 
   medicare_part_b_deduction TEXT DEFAULT '',  -- Monthly Medicare Part B deduction amount
-  medicare_coverage_type TEXT DEFAULT '',     -- 'Medicare Advantage', 'Medicare Supplement', 'Neither', or ''
+  medicare_coverage_type TEXT DEFAULT '',     -- 'Medicare Advantage', 'Medicare Supplement', or ''
+  medicare_plan_name TEXT DEFAULT '',         -- Name of the Medicare plan
   medicare_coverage_cost TEXT DEFAULT '',     -- Monthly cost for Medicare Advantage or Supplement
 
   private_insurance_description TEXT DEFAULT '',  -- Description of private insurance
@@ -89,7 +92,8 @@ CREATE POLICY "Users can delete own estate_planning_spouse_medical_insurance"
 
 COMMENT ON TABLE estate_planning_spouse_medical_insurance IS 'Medical insurance information for the spouse';
 COMMENT ON COLUMN estate_planning_spouse_medical_insurance.medicare_part_b_deduction IS 'Monthly Medicare Part B deduction amount';
-COMMENT ON COLUMN estate_planning_spouse_medical_insurance.medicare_coverage_type IS 'Type of Medicare coverage: Medicare Advantage, Medicare Supplement, Neither, or empty';
+COMMENT ON COLUMN estate_planning_spouse_medical_insurance.medicare_coverage_type IS 'Type of Medicare coverage: Medicare Advantage, Medicare Supplement, or empty';
+COMMENT ON COLUMN estate_planning_spouse_medical_insurance.medicare_plan_name IS 'Name of the Medicare plan';
 COMMENT ON COLUMN estate_planning_spouse_medical_insurance.medicare_coverage_cost IS 'Monthly cost for Medicare Advantage or Medicare Supplement plan';
 COMMENT ON COLUMN estate_planning_spouse_medical_insurance.private_insurance_description IS 'Description of private insurance coverage (e.g., employer-provided, Blue Cross)';
 COMMENT ON COLUMN estate_planning_spouse_medical_insurance.private_insurance_cost IS 'Monthly cost for private insurance';

@@ -2369,6 +2369,107 @@ export const helpAnswers: HelpAnswer[] = [
       </ul>
     `,
   },
+  // Income Sources and Medical Insurance Help (IDs 230-233)
+  {
+    id: 230,
+    type: "Text",
+    title: "Income Sources",
+    text: `
+      <p>List your <strong>regular sources of income</strong>. This helps us understand your financial situation for estate planning purposes.</p>
+      <p>Common income sources include:</p>
+      <ul>
+        <li><strong>Social Security</strong> - Monthly benefits from SSA</li>
+        <li><strong>Pension</strong> - Retirement payments from former employers</li>
+        <li><strong>Retirement Distributions</strong> - IRA, 401(k), or other retirement account withdrawals</li>
+        <li><strong>Investment Income</strong> - Dividends, interest, rental income</li>
+        <li><strong>Employment Income</strong> - Wages, salary, or self-employment income</li>
+        <li><strong>Annuity Payments</strong> - Regular payments from annuity contracts</li>
+      </ul>
+      <p>For each income source, enter:</p>
+      <ul>
+        <li>A brief description of the source</li>
+        <li>The amount received per payment</li>
+        <li>How often you receive it (monthly, quarterly, etc.)</li>
+      </ul>
+      <p>The system will calculate your total monthly income automatically.</p>
+    `,
+  },
+  {
+    id: 231,
+    type: "Text",
+    title: "Medical Insurance",
+    text: `
+      <p>Enter your <strong>medical insurance information</strong>. This helps us assess healthcare costs and long-term care planning needs.</p>
+
+      <p><strong>Medicare Part B Deduction:</strong></p>
+      <p>The standard Medicare Part B premium is deducted from Social Security. Enter your monthly deduction amount.</p>
+
+      <p><strong>Medicare Coverage Type:</strong></p>
+      <ul>
+        <li><strong>Medicare Advantage (Part C)</strong> - An "all-in-one" alternative to Original Medicare offered by private companies. These plans often include prescription drug coverage and may offer additional benefits like vision and dental. They typically have network restrictions.</li>
+        <li><strong>Medicare Supplement (Medigap)</strong> - Private insurance that helps pay for costs Original Medicare doesn't cover, such as copayments, coinsurance, and deductibles. These plans work with Original Medicare and offer more provider flexibility.</li>
+      </ul>
+
+      <p><strong>Important for Multi-State Property Owners:</strong></p>
+      <p>If you own properties in multiple states and have Medicare Advantage, be aware that these plans often have limited out-of-network coverage. This could affect your access to non-emergency care when staying at out-of-state properties.</p>
+
+      <p><strong>Private Insurance:</strong></p>
+      <p>Include any employer-provided or privately purchased health insurance.</p>
+
+      <p><strong>Other Insurance:</strong></p>
+      <p>Include VA benefits, Medicaid, long-term care insurance, or other health coverage.</p>
+    `,
+  },
+  {
+    id: 232,
+    type: "Text",
+    title: "Spouse's Income Sources",
+    text: `
+      <p>List your <strong>spouse's regular sources of income</strong>. This helps us understand your household's complete financial picture.</p>
+      <p>Common income sources include:</p>
+      <ul>
+        <li><strong>Social Security</strong> - Monthly benefits from SSA</li>
+        <li><strong>Pension</strong> - Retirement payments from former employers</li>
+        <li><strong>Retirement Distributions</strong> - IRA, 401(k), or other retirement account withdrawals</li>
+        <li><strong>Investment Income</strong> - Dividends, interest, rental income</li>
+        <li><strong>Employment Income</strong> - Wages, salary, or self-employment income</li>
+        <li><strong>Annuity Payments</strong> - Regular payments from annuity contracts</li>
+      </ul>
+      <p>For each income source, enter:</p>
+      <ul>
+        <li>A brief description of the source</li>
+        <li>The amount received per payment</li>
+        <li>How often your spouse receives it (monthly, quarterly, etc.)</li>
+      </ul>
+      <p>Combined household income is important for evaluating long-term care affordability and estate sustainability.</p>
+    `,
+  },
+  {
+    id: 233,
+    type: "Text",
+    title: "Spouse's Medical Insurance",
+    text: `
+      <p>Enter your <strong>spouse's medical insurance information</strong>. This helps us assess household healthcare costs and long-term care planning needs.</p>
+
+      <p><strong>Medicare Part B Deduction:</strong></p>
+      <p>The standard Medicare Part B premium is deducted from Social Security. Enter your spouse's monthly deduction amount.</p>
+
+      <p><strong>Medicare Coverage Type:</strong></p>
+      <ul>
+        <li><strong>Medicare Advantage (Part C)</strong> - An "all-in-one" alternative to Original Medicare offered by private companies. These plans often include prescription drug coverage and may offer additional benefits like vision and dental. They typically have network restrictions.</li>
+        <li><strong>Medicare Supplement (Medigap)</strong> - Private insurance that helps pay for costs Original Medicare doesn't cover, such as copayments, coinsurance, and deductibles. These plans work with Original Medicare and offer more provider flexibility.</li>
+      </ul>
+
+      <p><strong>Important for Multi-State Property Owners:</strong></p>
+      <p>If you own properties in multiple states and your spouse has Medicare Advantage, be aware that these plans often have limited out-of-network coverage. This could affect access to non-emergency care when staying at out-of-state properties.</p>
+
+      <p><strong>Private Insurance:</strong></p>
+      <p>Include any employer-provided or privately purchased health insurance your spouse has.</p>
+
+      <p><strong>Other Insurance:</strong></p>
+      <p>Include VA benefits, Medicaid, long-term care insurance, or other health coverage your spouse has.</p>
+    `,
+  },
 ];
 
 interface HelpModalProps {
