@@ -23,6 +23,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useFormContext, MaritalStatus, Sex, IncomeSource, IncomeFrequency, MedicalInsurance, MedicareCoverageType } from '../lib/FormContext';
 import PhoneInput from './PhoneInput';
+import { SSNInput } from './SSNInput';
 import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
 
@@ -548,6 +549,15 @@ const PersonalDataSection = () => {
               sx={{ backgroundColor: '#f5f5f5' }}
             />
           </Box>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <SSNInput
+            label="Social Security Number"
+            value={formData.socialSecurityNumber}
+            onChange={(value) => updateFormData({ socialSecurityNumber: value })}
+            fullWidth
+          />
         </Grid>
 
         <Grid item xs={12} md={4}>
@@ -1762,6 +1772,15 @@ const PersonalDataSection = () => {
               sx={{ backgroundColor: '#f5f5f5' }}
             />
           </Box>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <SSNInput
+            label="Spouse Social Security Number"
+            value={formData.spouseSocialSecurityNumber}
+            onChange={(value) => updateFormData({ spouseSocialSecurityNumber: value })}
+            fullWidth
+          />
         </Grid>
 
         <Grid item xs={12} md={4}>

@@ -7,6 +7,7 @@
 
 import { supabase } from './supabase';
 import { FormData } from './FormContext';
+import { encryptSensitiveData, decryptSensitiveData } from './encryption';
 
 // Types for intake operations
 export type IntakeType =
@@ -69,7 +70,23 @@ export async function saveIntakeRaw(
     }
 
     // Prepare the data - convert Date objects to ISO strings for JSON storage
-    const jsonFormData = serializeFormDataForJson(formData);
+    let jsonFormData = serializeFormDataForJson(formData);
+
+    // Encrypt sensitive fields (SSNs, etc.) before saving
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const isSessionValid = session &&
+                            session.access_token &&
+                            session.expires_at &&
+                            session.expires_at > Math.floor(Date.now() / 1000);
+
+      if (!sessionError && isSessionValid) {
+        jsonFormData = await encryptSensitiveData(jsonFormData);
+      }
+    } catch (encryptError: any) {
+      // Continue with unencrypted data if encryption fails
+      console.warn('Encryption failed, saving unencrypted:', encryptError);
+    }
 
     if (existingId) {
       // Update existing record
@@ -126,8 +143,9 @@ export async function saveIntakeRaw(
 
 /**
  * Get a single raw intake by ID
+ * @param skipDecryption - If true, skip decrypting sensitive fields (useful for preview/sync checks)
  */
-export async function getIntakeRaw(id: string): Promise<IntakeRawRecord | null> {
+export async function getIntakeRaw(id: string, skipDecryption = false): Promise<IntakeRawRecord | null> {
   try {
     const { data, error } = await supabase
       .from('intakes_raw')
@@ -141,9 +159,34 @@ export async function getIntakeRaw(id: string): Promise<IntakeRawRecord | null> 
     }
 
     // Parse the form_data back to FormData type
+    let formData = deserializeFormDataFromJson(data.form_data);
+
+    // Decrypt sensitive fields (SSNs, etc.) unless skipDecryption is true
+    if (!skipDecryption) {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const isSessionValid = session &&
+                              session.access_token &&
+                              session.expires_at &&
+                              session.expires_at > Math.floor(Date.now() / 1000);
+
+        if (sessionError || !isSessionValid) {
+          return {
+            ...data,
+            form_data: formData,
+          } as IntakeRawRecord;
+        }
+
+        formData = await decryptSensitiveData(formData as any) as FormData;
+      } catch (decryptError: any) {
+        // Continue with encrypted data if decryption fails
+        console.warn('Decryption failed, displaying encrypted data:', decryptError);
+      }
+    }
+
     return {
       ...data,
-      form_data: deserializeFormDataFromJson(data.form_data),
+      form_data: formData,
     } as IntakeRawRecord;
   } catch (err) {
     console.error('Error in getIntakeRaw:', err);
@@ -1194,8 +1237,8 @@ export async function saveIntakeFull(
  * Load a complete intake from the raw JSON table
  * This is the recommended way to load data as it preserves the exact structure
  */
-export async function loadIntakeFromRaw(id: string): Promise<FormData | null> {
-  const intake = await getIntakeRaw(id);
+export async function loadIntakeFromRaw(id: string, skipDecryption = false): Promise<FormData | null> {
+  const intake = await getIntakeRaw(id, skipDecryption);
   if (!intake) return null;
   return intake.form_data;
 }

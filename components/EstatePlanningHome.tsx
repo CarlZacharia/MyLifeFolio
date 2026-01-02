@@ -42,7 +42,11 @@ import ExploreIcon from '@mui/icons-material/Explore';
 import QuizIcon from '@mui/icons-material/Quiz';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import CloudDoneIcon from '@mui/icons-material/CloudDone';
+import SaveIcon from '@mui/icons-material/Save';
 import { useAuth } from '../lib/AuthContext';
+import { useFormContext } from '../lib/FormContext';
+import { saveIntake, listIntakesRaw, loadIntakeFromRaw } from '../lib/supabaseIntake';
 
 // Helper to check if user is an admin (email domain is zacbrownlaw.com)
 const isAdminUser = (email: string | undefined): boolean => {
@@ -294,7 +298,13 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
 }) => {
   const [scrolled, setScrolled] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [hasExistingData, setHasExistingData] = useState(false);
+  const [createdAt, setCreatedAt] = useState<Date | null>(null);
   const { user, signOut } = useAuth();
+  const { formData, loadFormData } = useFormContext();
 
   const handleLogout = async () => {
     await signOut();
@@ -309,22 +319,45 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Check if there's existing questionnaire data
-  const { hasExistingData, createdAt } = useMemo(() => {
-    if (typeof window === 'undefined') return { hasExistingData: false, createdAt: null };
-    try {
-      const stored = localStorage.getItem('estate-planning-form-data');
-      if (!stored) return { hasExistingData: false, createdAt: null };
-      const data = JSON.parse(stored);
-      const hasData = data && (data.name || data.spouseName || data.children?.length > 0);
-      return {
-        hasExistingData: hasData,
-        createdAt: data?.createdAt ? new Date(data.createdAt) : null,
-      };
-    } catch {
-      return { hasExistingData: false, createdAt: null };
-    }
-  }, []);
+  // Load existing data from Supabase when component mounts
+  useEffect(() => {
+    const loadData = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        // Get all estate planning intakes for this user
+        const intakes = await listIntakesRaw('EstatePlanning');
+
+        if (intakes && intakes.length > 0) {
+          // Find the most recently updated intake
+          const mostRecent = intakes.reduce((latest, current) => {
+            return new Date(current.updated_at) > new Date(latest.updated_at)
+              ? current
+              : latest;
+          });
+
+          // Load the full form data
+          const data = await loadIntakeFromRaw(mostRecent.id);
+          if (data) {
+            loadFormData(data, 0);
+            setHasExistingData(true);
+            setCreatedAt(data.createdAt ? new Date(data.createdAt) : null);
+            setLastSaved(new Date(mostRecent.updated_at));
+          }
+        }
+      } catch (error) {
+        console.error('Error loading data from Supabase:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [user, loadFormData]);
 
   const formatDate = (date: Date | null) => {
     if (!date) return '';

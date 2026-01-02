@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test SSN Encryption</title>
+</head>
+<body>
+    <h1>Test SSN Encryption</h1>
+
+    <div>
+        <h2>Your Supabase Settings:</h2>
+        <label>Supabase URL:</label>
+        <input type="text" id="supabaseUrl" value="https://umhkyuqgshdedhluedkg.supabase.co" style="width: 400px"><br><br>
+
+        <label>Anon Key:</label>
+        <input type="text" id="anonKey" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtaGt5dXFnc2hkZWRobHVlZGtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY1ODg2MDUsImV4cCI6MjA4MjE2NDYwNX0.7-Oyle6oHWHMWRiDGqRVsOxK5VieWcj3U10BvK6Sqfs" style="width: 600px"><br><br>
+    </div>
+
+    <div>
+        <h2>Test Encryption:</h2>
+        <label>SSN to encrypt:</label>
+        <input type="text" id="ssn" value="123-45-6789" placeholder="123-45-6789"><br><br>
+
+        <button onclick="testEncryption()">Test Encrypt</button>
+        <button onclick="testDecryption()">Test Decrypt</button>
+    </div>
+
+    <div id="result" style="margin-top: 20px; padding: 10px; background: #f0f0f0; white-space: pre-wrap;"></div>
+
+    <script>
+        async function testEncryption() {
+            const url = document.getElementById('supabaseUrl').value;
+            const key = document.getElementById('anonKey').value;
+            const ssn = document.getElementById('ssn').value;
+            const resultDiv = document.getElementById('result');
+
+            resultDiv.textContent = 'Testing encryption...\n';
+
+            try {
+                const response = await fetch(`${url}/functions/v1/encrypt-sensitive-data`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'encrypt',
+                        data: { socialSecurityNumber: ssn }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    resultDiv.textContent = '✅ SUCCESS!\n\n';
+                    resultDiv.textContent += 'Original SSN: ' + ssn + '\n';
+                    resultDiv.textContent += 'Encrypted SSN: ' + result.data.socialSecurityNumber + '\n\n';
+                    resultDiv.textContent += 'Full response:\n' + JSON.stringify(result, null, 2);
+
+                    // Save encrypted value for decrypt test
+                    window.encryptedSSN = result.data.socialSecurityNumber;
+                } else {
+                    resultDiv.textContent = '❌ ERROR:\n' + JSON.stringify(result, null, 2);
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ ERROR:\n' + error.message;
+            }
+        }
+
+        async function testDecryption() {
+            const url = document.getElementById('supabaseUrl').value;
+            const key = document.getElementById('anonKey').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!window.encryptedSSN) {
+                resultDiv.textContent = 'Please run encryption test first!';
+                return;
+            }
+
+            resultDiv.textContent = 'Testing decryption...\n';
+
+            try {
+                const response = await fetch(`${url}/functions/v1/encrypt-sensitive-data`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'decrypt',
+                        data: { socialSecurityNumber: window.encryptedSSN }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    resultDiv.textContent = '✅ SUCCESS!\n\n';
+                    resultDiv.textContent += 'Encrypted SSN: ' + window.encryptedSSN + '\n';
+                    resultDiv.textContent += 'Decrypted SSN: ' + result.data.socialSecurityNumber + '\n\n';
+                    resultDiv.textContent += 'Full response:\n' + JSON.stringify(result, null, 2);
+                } else {
+                    resultDiv.textContent = '❌ ERROR:\n' + JSON.stringify(result, null, 2);
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ ERROR:\n' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

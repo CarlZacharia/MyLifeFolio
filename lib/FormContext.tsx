@@ -2,9 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 
-const STORAGE_KEY = 'estate-planning-form-data';
-const STEP_STORAGE_KEY = 'estate-planning-current-step';
-const SCHEMA_VERSION_KEY = 'estate-planning-schema-version';
 const CURRENT_SCHEMA_VERSION = 2; // Increment when schema changes require migration
 
 export type MaritalStatus = 'Single' | 'Married' | 'Second Marriage' | 'Divorced' | 'Separated' | 'Domestic Partnership' | '';
@@ -331,6 +328,7 @@ export interface FormData {
   workPhone: string;
   email: string;
   birthDate: Date | null;
+  socialSecurityNumber: string; // Client SSN (encrypted on server before storage)
   spouseName: string;
   spouseAka: string;
   spouseMailingAddress: string;
@@ -340,6 +338,7 @@ export interface FormData {
   spouseEmail: string;
   spouseBirthDate: Date | null;
   spouseSex: Sex;
+  spouseSocialSecurityNumber: string; // Spouse SSN (encrypted on server before storage)
   childrenTogether: number;
   spouseHasChildrenFromPrior: boolean;
   spouseChildrenFromPrior: number;
@@ -721,6 +720,7 @@ export interface FormData {
 interface FormContextType {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
+  loadFormData: (data: FormData, step?: number) => void;
   currentStep: number;
   setCurrentStep: (step: number) => void;
   clearFormData: () => void;
@@ -800,6 +800,7 @@ const initialFormData: FormData = {
   workPhone: '',
   email: '',
   birthDate: null,
+  socialSecurityNumber: '',
   spouseName: '',
   spouseAka: '',
   spouseMailingAddress: '',
@@ -809,6 +810,7 @@ const initialFormData: FormData = {
   spouseEmail: '',
   spouseBirthDate: null,
   spouseSex: '',
+  spouseSocialSecurityNumber: '',
   childrenTogether: 0,
   spouseHasChildrenFromPrior: false,
   spouseChildrenFromPrior: 0,
@@ -1287,119 +1289,24 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const isFirstRender = useRef(true);
 
-  // Load from localStorage on mount
+  // Initialize on mount - data will be loaded from Supabase by parent component
   useEffect(() => {
-    try {
-      const savedData = localStorage.getItem(STORAGE_KEY);
-      const savedStep = localStorage.getItem(STEP_STORAGE_KEY);
-      const savedVersion = localStorage.getItem(SCHEMA_VERSION_KEY);
-      const storedVersion = savedVersion ? parseInt(savedVersion, 10) : 0;
-
-      if (savedData) {
-        const parsed = deserializeFormData(savedData);
-
-        // Merge with initialFormData to handle any new fields added to the schema
-        // Deep merge for nested objects like clientLongTermCare, spouseLongTermCare, clientCurrentEstatePlan, spouseCurrentEstatePlan
-        const mergedData: FormData = {
-          ...initialFormData,
-          ...parsed,
-          // Ensure nested objects are properly merged with defaults
-          clientLongTermCare: {
-            ...initialFormData.clientLongTermCare,
-            ...(parsed.clientLongTermCare || {}),
-          },
-          spouseLongTermCare: {
-            ...initialFormData.spouseLongTermCare,
-            ...(parsed.spouseLongTermCare || {}),
-          },
-          clientCurrentEstatePlan: {
-            ...initialFormData.clientCurrentEstatePlan,
-            ...(parsed.clientCurrentEstatePlan || {}),
-          },
-          spouseCurrentEstatePlan: {
-            ...initialFormData.spouseCurrentEstatePlan,
-            ...(parsed.spouseCurrentEstatePlan || {}),
-          },
-          clientDistributionPlan: {
-            ...initialFormData.clientDistributionPlan,
-            ...(parsed.clientDistributionPlan || {}),
-          },
-          spouseDistributionPlan: {
-            ...initialFormData.spouseDistributionPlan,
-            ...(parsed.spouseDistributionPlan || {}),
-          },
-        };
-
-        // Ensure createdAt is set if it doesn't exist
-        if (!mergedData.createdAt) {
-          mergedData.createdAt = new Date().toISOString();
-        }
-
-        setFormData(mergedData);
-
-        // If schema version changed, save the migrated data back to localStorage
-        if (storedVersion < CURRENT_SCHEMA_VERSION) {
-          localStorage.setItem(STORAGE_KEY, serializeFormData(mergedData));
-          localStorage.setItem(SCHEMA_VERSION_KEY, CURRENT_SCHEMA_VERSION.toString());
-          console.log(`Migrated form data from schema version ${storedVersion} to ${CURRENT_SCHEMA_VERSION}`);
-        }
-      }
-
-      // Always ensure schema version is current
-      if (storedVersion < CURRENT_SCHEMA_VERSION) {
-        localStorage.setItem(SCHEMA_VERSION_KEY, CURRENT_SCHEMA_VERSION.toString());
-      }
-
-      if (savedStep) {
-        const step = parseInt(savedStep, 10);
-        if (!isNaN(step)) {
-          setCurrentStep(step);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading form data from localStorage:', error);
-    }
     setIsInitialized(true);
   }, []);
 
-  // Auto-save to localStorage whenever formData changes (skip first render)
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
-    if (!isInitialized) return;
-
-    try {
-      localStorage.setItem(STORAGE_KEY, serializeFormData(formData));
-    } catch (error) {
-      console.error('Error saving form data to localStorage:', error);
-    }
-  }, [formData, isInitialized]);
-
-  // Save currentStep to localStorage
-  useEffect(() => {
-    if (!isInitialized) return;
-
-    try {
-      localStorage.setItem(STEP_STORAGE_KEY, currentStep.toString());
-    } catch (error) {
-      console.error('Error saving step to localStorage:', error);
-    }
-  }, [currentStep, isInitialized]);
+  // Auto-save will be handled by parent component via Supabase
+  // No localStorage auto-save needed
 
   const updateFormData = (data: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
   };
 
+  const loadFormData = (data: FormData, step: number = 0) => {
+    setFormData(data);
+    setCurrentStep(step);
+  };
+
   const clearFormData = () => {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(STEP_STORAGE_KEY);
-    } catch (error) {
-      console.error('Error clearing localStorage:', error);
-    }
     setFormData(initialFormData);
     setCurrentStep(0);
   };
@@ -1409,6 +1316,7 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
       value={{
         formData,
         updateFormData,
+        loadFormData,
         currentStep,
         setCurrentStep,
         clearFormData,

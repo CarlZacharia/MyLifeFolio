@@ -28,6 +28,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import DownloadIcon from '@mui/icons-material/Download';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PersonIcon from '@mui/icons-material/Person';
+import CloudDoneIcon from '@mui/icons-material/CloudDone';
+import SaveIcon from '@mui/icons-material/Save';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
@@ -63,6 +65,7 @@ import {
   updateIntakeStorageInfo,
 } from '../lib/supabaseStorage';
 import { getActiveOffices, getActiveAttorneys } from '../lib/supabaseOfficesAttorneys';
+import { supabase } from '../lib/supabase';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -394,6 +397,13 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
   const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
 
+  // Auto-save state
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const saveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const authErrorShownRef = React.useRef(false);
+
   // Office and Attorney state for Review & Submit page
   const [offices, setOffices] = useState<OfficeInfo[]>([]);
   const [attorneys, setAttorneys] = useState<AttorneyInfo[]>([]);
@@ -422,6 +432,81 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
     };
     loadOfficesAndAttorneys();
   }, []);
+
+  // Auto-save to Supabase with debouncing (save 3 seconds after user stops typing)
+  React.useEffect(() => {
+    if (!user) {
+      // Clear error if user logs out and reset auth error flag
+      setSaveError(null);
+      authErrorShownRef.current = false;
+      return;
+    }
+
+    // Clear any existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced save
+    saveTimeoutRef.current = setTimeout(async () => {
+      // Skip auto-save if we've already shown an auth error
+      if (authErrorShownRef.current) {
+        return;
+      }
+
+      try {
+        setIsSaving(true);
+        setSaveError(null);
+
+        // Verify session is still valid before attempting to save
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+        if (sessionError || !session) {
+          setSaveError('Session expired. Please log in again.');
+          authErrorShownRef.current = true;
+          console.error('Session validation failed:', sessionError);
+          // Don't keep retrying if session is invalid
+          return;
+        }
+
+        const result = await saveIntakeFull(formData, 'EstatePlanning');
+
+        if (result.success) {
+          setLastSaved(new Date());
+          authErrorShownRef.current = false; // Reset on successful save
+        } else {
+          // Check if error is authentication-related
+          if (result.error?.includes('JWT') || result.error?.includes('auth')) {
+            setSaveError('Session expired. Please log in again.');
+            authErrorShownRef.current = true;
+          } else {
+            setSaveError(result.error || 'Failed to save');
+          }
+          console.error('Auto-save failed:', result.error);
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+        // Check if error is authentication-related
+        if (errorMessage.includes('JWT') || errorMessage.includes('auth') || errorMessage.includes('401')) {
+          setSaveError('Session expired. Please log in again.');
+          authErrorShownRef.current = true;
+        } else {
+          setSaveError('Failed to save changes');
+        }
+        console.error('Auto-save error:', error);
+      } finally {
+        setIsSaving(false);
+      }
+    }, 3000); // 3 second debounce
+
+    // Cleanup on unmount
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [formData, user]);
 
   const openHelp = (helpId: number) => setActiveHelpId(helpId);
   const closeHelp = () => setActiveHelpId(null);
@@ -877,6 +962,38 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
             <Typography variant="body2" color="text.secondary">
               Estate Planning & Elder Law Attorneys
             </Typography>
+
+            {/* Auto-save indicator */}
+            {user && (
+              <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                {isSaving ? (
+                  <Typography variant="caption" sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <SaveIcon sx={{ fontSize: 14 }} />
+                    Saving...
+                  </Typography>
+                ) : lastSaved ? (
+                  <Typography variant="caption" sx={{ color: 'success.main', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <CloudDoneIcon sx={{ fontSize: 14 }} />
+                    All changes saved
+                    {lastSaved && (
+                      <span style={{ marginLeft: 4, color: '#666' }}>
+                        {lastSaved.toLocaleTimeString()}
+                      </span>
+                    )}
+                  </Typography>
+                ) : (
+                  <Typography variant="caption" sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <CloudDoneIcon sx={{ fontSize: 14 }} />
+                    Auto-save enabled
+                  </Typography>
+                )}
+                {saveError && (
+                  <Typography variant="caption" sx={{ color: 'error.main', ml: 2 }}>
+                    {saveError}
+                  </Typography>
+                )}
+              </Box>
+            )}
           </Box>
 
           {/* Help Modal */}

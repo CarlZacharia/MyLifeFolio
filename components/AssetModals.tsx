@@ -88,18 +88,32 @@ const JOINT_OWNER_TYPES: RealEstateOwner[] = [
 ];
 
 // Filter beneficiary options based on owner type
-// Excludes Client and Spouse options for jointly owned assets
+// Excludes Client and Spouse options appropriately:
+// - For "Client" ownership: exclude Client (can't leave to yourself)
+// - For "Spouse" ownership: exclude Spouse (can't leave to yourself)
+// - For joint ownership: exclude both Client and Spouse
 const filterBeneficiaryOptions = (
   options: BeneficiaryOption[],
   owner: string
 ): BeneficiaryOption[] => {
-  if (!JOINT_OWNER_TYPES.includes(owner as RealEstateOwner)) {
-    return options;
+  // For jointly owned assets, exclude both Client and Spouse
+  if (JOINT_OWNER_TYPES.includes(owner as RealEstateOwner)) {
+    return options.filter(
+      (opt) => !opt.value.startsWith("client:") && !opt.value.startsWith("spouse:")
+    );
   }
-  // For joint ownership, exclude Client and Spouse from beneficiary options
-  return options.filter(
-    (opt) => !opt.value.startsWith("client:") && !opt.value.startsWith("spouse:")
-  );
+
+  // For Client-only ownership, exclude Client from beneficiary options
+  if (owner === "Client") {
+    return options.filter((opt) => !opt.value.startsWith("client:"));
+  }
+
+  // For Spouse-only ownership, exclude Spouse from beneficiary options
+  if (owner === "Spouse") {
+    return options.filter((opt) => !opt.value.startsWith("spouse:"));
+  }
+
+  return options;
 };
 
 export interface TrustFlags {

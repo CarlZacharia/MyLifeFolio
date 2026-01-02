@@ -367,18 +367,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Check if user has existing estate planning data in localStorage
-  const hasExistingData = useMemo(() => {
-    if (typeof window === 'undefined') return false;
-    try {
-      const hasStep = localStorage.getItem('estate-planning-current-step') !== null;
-      const hasData = localStorage.getItem('estate-planning-form-data') !== null;
-      const hasVersion = localStorage.getItem('estate-planning-schema-version') !== null;
-      return hasStep && hasData && hasVersion;
-    } catch {
-      return false;
-    }
-  }, []);
+  // Data will be loaded from Supabase automatically when entering the questionnaire
+  const hasExistingData = false; // No longer checking localStorage
 
   // Determine button text and action based on auth state and localStorage
   const primaryButtonConfig = useMemo(() => {

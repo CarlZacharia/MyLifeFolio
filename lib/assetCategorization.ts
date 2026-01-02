@@ -128,6 +128,7 @@ export const categorizeAssets = (formData: FormData): AssetCategorySummary => {
   });
 
   // Categorize Bank Accounts
+  // Accounts with beneficiary designations are non-probate
   formData.bankAccounts.forEach((account) => {
     const asset: CategorizedAsset = {
       description: account.institution,
@@ -136,13 +137,24 @@ export const categorizeAssets = (formData: FormData): AssetCategorySummary => {
     };
 
     const isJoint = isJointOwnership(account.owner);
+    const hasDesignatedBeneficiary = account.hasBeneficiaries && account.primaryBeneficiaries.length > 0;
 
     if (isJoint) {
       categories.jointNonProbate.push(asset);
     } else if (ownerIncludesClient(account.owner) && !ownerIncludesSpouse(account.owner)) {
-      categories.clientProbate.push(asset);
+      // Non-probate if beneficiary designated (TOD/POD)
+      if (hasDesignatedBeneficiary) {
+        categories.clientNonProbate.push(asset);
+      } else {
+        categories.clientProbate.push(asset);
+      }
     } else if (ownerIncludesSpouse(account.owner) && !ownerIncludesClient(account.owner)) {
-      categories.spouseProbate.push(asset);
+      // Non-probate if beneficiary designated (TOD/POD)
+      if (hasDesignatedBeneficiary) {
+        categories.spouseNonProbate.push(asset);
+      } else {
+        categories.spouseProbate.push(asset);
+      }
     }
   });
 
@@ -183,6 +195,7 @@ export const categorizeAssets = (formData: FormData): AssetCategorySummary => {
   });
 
   // Categorize Non-Qualified Investments
+  // Accounts with beneficiary designations (TOD) are non-probate
   formData.nonQualifiedInvestments.forEach((investment) => {
     const asset: CategorizedAsset = {
       description: investment.institution,
@@ -191,13 +204,24 @@ export const categorizeAssets = (formData: FormData): AssetCategorySummary => {
     };
 
     const isJoint = isJointOwnership(investment.owner);
+    const hasDesignatedBeneficiary = investment.hasBeneficiaries && investment.primaryBeneficiaries.length > 0;
 
     if (isJoint) {
       categories.jointNonProbate.push(asset);
     } else if (ownerIncludesClient(investment.owner) && !ownerIncludesSpouse(investment.owner)) {
-      categories.clientProbate.push(asset);
+      // Non-probate if beneficiary designated (TOD)
+      if (hasDesignatedBeneficiary) {
+        categories.clientNonProbate.push(asset);
+      } else {
+        categories.clientProbate.push(asset);
+      }
     } else if (ownerIncludesSpouse(investment.owner) && !ownerIncludesClient(investment.owner)) {
-      categories.spouseProbate.push(asset);
+      // Non-probate if beneficiary designated (TOD)
+      if (hasDesignatedBeneficiary) {
+        categories.spouseNonProbate.push(asset);
+      } else {
+        categories.spouseProbate.push(asset);
+      }
     }
   });
 

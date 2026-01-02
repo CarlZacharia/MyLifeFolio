@@ -2555,6 +2555,60 @@ const EstatePlanAnalysis: React.FC = () => {
             ))}
           </Box>
 
+          {/* Heir Distribution Summary for Single People */}
+          {!showSpouse && allAssets.length > 0 && (() => {
+            // Calculate beneficiary shares for all client assets
+            const allAssetsWithShares: AssetWithBeneficiaryBreakdown[] = allAssets.map(asset => {
+              const assetValue = parseCurrency(asset.value);
+              const shares = calculateBeneficiaryShares(
+                assetValue,
+                asset.primaryBeneficiaries,
+                asset.secondaryBeneficiaries,
+                asset.secondaryDistributionType,
+                formData.clientDistributionPlan.residuaryBeneficiaries,
+                formData.clientDistributionPlan.residuaryShareType,
+                formData.clientDistributionPlan,
+                formData.children,
+                [formData.name] // Client is deceased
+              );
+
+              return {
+                asset,
+                displayValue: assetValue,
+                beneficiaryShares: shares,
+              };
+            });
+
+            // Add cash gifts (general bequests) to heir summary
+            const cashGiftsAsShares = formData.cashGiftsToBeneficiaries.map(gift => ({
+              asset: {
+                type: 'Cash Gift',
+                description: `Cash Gift to ${gift.beneficiaryName}`,
+                value: gift.amount,
+                owner: 'Estate',
+                hasBeneficiaries: true,
+              } as CategorizedAsset,
+              displayValue: parseCurrency(gift.amount),
+              beneficiaryShares: [{
+                beneficiaryName: gift.beneficiaryName,
+                percentage: 100,
+                amount: parseCurrency(gift.amount),
+              }],
+            }));
+
+            const allAssetsWithCashGifts = [...allAssetsWithShares, ...cashGiftsAsShares];
+            const heirInheritances = aggregateHeirInheritance(allAssetsWithCashGifts);
+
+            if (heirInheritances.length === 0) return null;
+
+            return (
+              <HeirSummary
+                title="Projected Distribution to Heirs"
+                heirs={heirInheritances}
+              />
+            );
+          })()}
+
           {/* No Assets Message */}
           {allAssets.length === 0 && (
             <Paper variant="outlined" sx={{ p: 3, textAlign: 'center' }}>

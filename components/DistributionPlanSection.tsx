@@ -406,6 +406,11 @@ const DistributionPlanSection: React.FC<DistributionPlanSectionProps> = ({
   const totalPercentage = plan.residuaryBeneficiaries.reduce((sum, b) => sum + (b.percentage || 0), 0);
   const percentageValid = Math.abs(totalPercentage - 100) < 0.01;
 
+  // Check if person is married (has a spouse)
+  const isMarried = formData.maritalStatus === 'Married' ||
+                    formData.maritalStatus === 'Second Marriage' ||
+                    formData.maritalStatus === 'Domestic Partnership';
+
   // Get beneficiaries not yet added to residuary
   // Exclude spouse since spouse is always primary beneficiary in custom distribution
   const availableForResiduary = availableBeneficiaries.filter(
@@ -425,43 +430,50 @@ const DistributionPlanSection: React.FC<DistributionPlanSectionProps> = ({
             How would you like to distribute your estate?
           </FormLabel>
           <RadioGroup
-            value={plan.distributionType || 'sweetheart'}
+            value={plan.distributionType || (isMarried ? 'sweetheart' : 'custom')}
             onChange={(e) => handleDistributionTypeChange(e.target.value as 'sweetheart' | 'spouseFirstDiffering' | 'custom')}
           >
-            <FormControlLabel
-              value="sweetheart"
-              control={<Radio />}
-              label={
-                <Box>
-                  <Typography variant="body1">Sweetheart Plan</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Everything to {spouseName || 'spouse'} first, then equally to children
-                  </Typography>
-                </Box>
-              }
-              sx={{ alignItems: 'flex-start', mb: 1 }}
-            />
-            <FormControlLabel
-              value="spouseFirstDiffering"
-              control={<Radio />}
-              label={
-                <Box>
-                  <Typography variant="body1">All to Spouse First, Differing Amounts to Others</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {spouseName || 'Spouse'} receives everything first, then specify different amounts for each beneficiary
-                  </Typography>
-                </Box>
-              }
-              sx={{ alignItems: 'flex-start', mb: 1 }}
-            />
+            {/* Only show spouse-related options if married */}
+            {isMarried && (
+              <>
+                <FormControlLabel
+                  value="sweetheart"
+                  control={<Radio />}
+                  label={
+                    <Box>
+                      <Typography variant="body1">Sweetheart Plan</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Everything to {spouseName || 'spouse'} first, then equally to children
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{ alignItems: 'flex-start', mb: 1 }}
+                />
+                <FormControlLabel
+                  value="spouseFirstDiffering"
+                  control={<Radio />}
+                  label={
+                    <Box>
+                      <Typography variant="body1">All to Spouse First, Differing Amounts to Others</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {spouseName || 'Spouse'} receives everything first, then specify different amounts for each beneficiary
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{ alignItems: 'flex-start', mb: 1 }}
+                />
+              </>
+            )}
             <FormControlLabel
               value="custom"
               control={<Radio />}
               label={
                 <Box>
-                  <Typography variant="body1">Completely Custom Distribution</Typography>
+                  <Typography variant="body1">{isMarried ? 'Completely Custom Distribution' : 'Custom Distribution'}</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Specify exactly how each asset and the residuary should be distributed
+                    {isMarried
+                      ? 'Specify exactly how each asset and the residuary should be distributed'
+                      : 'Specify how you want your assets distributed to your beneficiaries'}
                   </Typography>
                 </Box>
               }

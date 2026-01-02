@@ -897,7 +897,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                   <HelpIcon helpId={153} onClick={() => openHelp(153)} />
                 </Box>
                 <FormGroup row>
-                  {CAREGIVER_OPTIONS.map((caregiver) => (
+                  {CAREGIVER_OPTIONS.filter((caregiver) => showSpouse || caregiver !== 'Spouse/partner').map((caregiver) => (
                     <FormControlLabel
                       key={caregiver}
                       control={
@@ -1125,7 +1125,11 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
             <Grid item xs={12} md={6}>
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Have you or your spouse ever applied for Medicaid for long-term care?</FormLabel>
+                  <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>
+                    {showSpouse
+                      ? 'Have you or your spouse ever applied for Medicaid for long-term care?'
+                      : 'Have you ever applied for Medicaid for long-term care?'}
+                  </FormLabel>
                   <HelpIcon helpId={159} onClick={() => openHelp(159)} />
                 </Box>
                 <RadioGroup
