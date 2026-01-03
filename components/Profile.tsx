@@ -687,6 +687,7 @@ ${profileData.name}`;
                             </Typography>
                           </Box>
                         }
+                        secondaryTypographyProps={{ component: 'div' }}
                       />
                       <ListItemSecondaryAction>
                         <IconButton
