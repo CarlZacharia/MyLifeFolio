@@ -158,10 +158,8 @@ export async function getIntakeRaw(id: string, skipDecryption = false): Promise<
       return null;
     }
 
-    // Parse the form_data back to FormData type
-    let formData = deserializeFormDataFromJson(data.form_data);
-
     // Decrypt sensitive fields (SSNs, etc.) unless skipDecryption is true
+    let formData = data.form_data;
     if (!skipDecryption) {
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -170,19 +168,17 @@ export async function getIntakeRaw(id: string, skipDecryption = false): Promise<
                               session.expires_at &&
                               session.expires_at > Math.floor(Date.now() / 1000);
 
-        if (sessionError || !isSessionValid) {
-          return {
-            ...data,
-            form_data: formData,
-          } as IntakeRawRecord;
+        if (!sessionError && isSessionValid) {
+          formData = await decryptSensitiveData(formData as any) as any;
         }
-
-        formData = await decryptSensitiveData(formData as any) as FormData;
       } catch (decryptError: any) {
         // Continue with encrypted data if decryption fails
         console.warn('Decryption failed, displaying encrypted data:', decryptError);
       }
     }
+
+    // Parse the form_data back to FormData type (convert date strings to Date objects)
+    formData = deserializeFormDataFromJson(formData);
 
     return {
       ...data,

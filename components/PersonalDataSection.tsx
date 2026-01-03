@@ -557,6 +557,8 @@ const PersonalDataSection = () => {
             value={formData.socialSecurityNumber}
             onChange={(value) => updateFormData({ socialSecurityNumber: value })}
             fullWidth
+            helpId={234}
+            onHelpClick={openHelp}
           />
         </Grid>
 
@@ -1780,6 +1782,8 @@ const PersonalDataSection = () => {
             value={formData.spouseSocialSecurityNumber}
             onChange={(value) => updateFormData({ spouseSocialSecurityNumber: value })}
             fullWidth
+            helpId={234}
+            onHelpClick={openHelp}
           />
         </Grid>
 

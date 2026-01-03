@@ -2518,6 +2518,36 @@ export const helpAnswers: HelpAnswer[] = [
       <p>Include VA benefits, Medicaid, long-term care insurance, or other health coverage your spouse has.</p>
     `,
   },
+  {
+    id: 234,
+    type: "Text",
+    title: "Social Security Number - Secure Encryption",
+    text: `
+      <p>Your <strong>Social Security Number (SSN)</strong> is highly sensitive information. We protect it using:</p>
+
+      <p><strong>🔒 Server-Side Encryption</strong></p>
+      <ul>
+        <li><strong>AES-256-GCM encryption</strong> - Military-grade encryption standard used by governments and financial institutions</li>
+        <li><strong>Server-side processing</strong> - Your SSN is encrypted on our secure server before being stored in the database</li>
+        <li><strong>Encryption key security</strong> - The encryption key never reaches your browser and is stored separately from the encrypted data</li>
+      </ul>
+
+      <p><strong>How It Works:</strong></p>
+      <ol>
+        <li>You enter your SSN in the form (formatted as ###-##-####)</li>
+        <li>When you save, the data is sent securely to our server via HTTPS</li>
+        <li>The server encrypts your SSN using the secret encryption key</li>
+        <li>Only the encrypted version is stored in the database</li>
+        <li>When you view your information, it's automatically decrypted for display</li>
+      </ol>
+
+      <p><strong>Why This Matters:</strong></p>
+      <p>Even if someone gained unauthorized access to the database, your SSN would appear as unreadable encrypted text without the encryption key. This provides an additional layer of security beyond our standard access controls.</p>
+
+      <p><strong>Lock Icon:</strong></p>
+      <p>The green lock icon 🔒 next to the SSN field indicates this field is protected by server-side encryption.</p>
+    `,
+  },
 ];
 
 interface HelpModalProps {

@@ -169,17 +169,9 @@ serve(async (req) => {
   }
 
   try {
-    // Verify authentication
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Missing authorization header' }),
-        {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-    }
+    // Supabase automatically validates the JWT token at the gateway level
+    // when "JWT verification" is enabled for this function.
+    // No need to manually check auth headers here.
 
     // Parse request body
     const { action, data } = await req.json();

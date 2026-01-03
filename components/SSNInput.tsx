@@ -4,7 +4,7 @@
  * A secure input field for Social Security Numbers with:
  * - Automatic formatting (###-##-####)
  * - Input masking
- * - Security notice about server-side encryption
+ * - Help icon with encryption information
  */
 
 import React, { ChangeEvent } from 'react';
@@ -20,6 +20,8 @@ interface SSNInputProps {
   required?: boolean;
   disabled?: boolean;
   fullWidth?: boolean;
+  helpId?: number;
+  onHelpClick?: (helpId: number) => void;
 }
 
 export function SSNInput({
@@ -31,6 +33,8 @@ export function SSNInput({
   required = false,
   disabled = false,
   fullWidth = true,
+  helpId,
+  onHelpClick,
 }: SSNInputProps) {
   /**
    * Format SSN with dashes: ###-##-####
@@ -75,16 +79,56 @@ export function SSNInput({
 
   return (
     <Box>
+      {helpId && onHelpClick && (
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+          <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+            {label}
+            {required && ' *'}
+          </Typography>
+          <Box
+            component="span"
+            onClick={() => onHelpClick(helpId)}
+            sx={{
+              ml: 0.5,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              color: 'primary.main',
+              '&:hover': {
+                color: 'primary.dark',
+              },
+            }}
+          >
+            <Box
+              component="span"
+              sx={{
+                width: 18,
+                height: 18,
+                borderRadius: '50%',
+                border: '2px solid currentColor',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                fontWeight: 'bold',
+              }}
+            >
+              ?
+            </Box>
+          </Box>
+        </Box>
+      )}
       <TextField
-        label={label}
+        label={helpId ? undefined : label}
         value={value}
         onChange={handleChange}
         error={hasError}
         helperText={displayHelperText}
-        required={required}
+        required={helpId ? false : required}
         disabled={disabled}
         fullWidth={fullWidth}
         placeholder="###-##-####"
+        size="small"
         inputProps={{
           maxLength: 11, // 9 digits + 2 dashes
           inputMode: 'numeric',
@@ -102,32 +146,6 @@ export function SSNInput({
           ),
         }}
       />
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          mt: 0.5,
-          ml: 1.5
-        }}
-      >
-        <LockIcon
-          sx={{
-            fontSize: 12,
-            color: 'success.main',
-            mr: 0.5
-          }}
-        />
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'success.main',
-            fontSize: '0.7rem',
-            fontWeight: 500
-          }}
-        >
-          Securely encrypted on server before storage
-        </Typography>
-      </Box>
     </Box>
   );
 }
