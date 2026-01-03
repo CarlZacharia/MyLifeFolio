@@ -46,7 +46,7 @@ import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import SaveIcon from '@mui/icons-material/Save';
 import { useAuth } from '../lib/AuthContext';
 import { useFormContext } from '../lib/FormContext';
-import { saveIntake, listIntakesRaw, loadIntakeFromRaw } from '../lib/supabaseIntake';
+import { listIntakesRaw, loadIntakeFromRaw } from '../lib/supabaseIntake';
 
 // Helper to check if user is an admin (email domain is zacbrownlaw.com)
 const isAdminUser = (email: string | undefined): boolean => {
@@ -777,7 +777,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                   }}
                 >
                   <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8rem', lineHeight: 1.5 }}>
-                    Your data is stored locally and securely until you submit.
+                    Your data is secure.
                   </Typography>
                 </Alert>
               </AnimatedSection>

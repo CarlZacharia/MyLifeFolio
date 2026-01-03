@@ -15,25 +15,21 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
-import SlidePlayer, { Slide } from "./SlidePlayer";
-
 // Help content types
-export type HelpContentType = "Text" | "Video" | "Link" | "Slideshow";
+export type HelpContentType = "Text" | "Video" | "Link";
 
 // Video provider types
-export type VideoProvider = "youtube" | "vimeo" | "mp4" | "other";
+export type VideoProvider = "youtube" | "vimeo" | "loom" | "mp4" | "other";
 
 export interface HelpAnswer {
   id: number;
   type: HelpContentType;
   title: string;
-  text: string; // Can contain HTML - shown below video/slideshow for Video/Slideshow type
-  videoUrl?: string; // For Video type: YouTube, Vimeo, or direct MP4 URL
+  text: string; // Can contain HTML - shown below video for Video type
+  videoUrl?: string; // For Video type: YouTube, Vimeo, Loom, or direct MP4 URL
   videoProvider?: VideoProvider; // Optional: auto-detected if not provided
   linkUrl?: string;
   linkText?: string;
-  slides?: Slide[]; // For Slideshow type: array of slides with image and audio paths
-  autoAdvance?: boolean; // For Slideshow type: auto-advance to next slide when audio ends
 }
 
 // Helper to detect video provider from URL
@@ -44,10 +40,20 @@ const detectVideoProvider = (url: string): VideoProvider => {
   if (url.includes("vimeo.com")) {
     return "vimeo";
   }
+  if (url.includes("loom.com")) {
+    return "loom";
+  }
   if (url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".ogg")) {
     return "mp4";
   }
   return "other";
+};
+
+// Extract Loom video ID from various URL formats
+const getLoomId = (url: string): string | null => {
+  // Handles: https://www.loom.com/share/VIDEO_ID and https://www.loom.com/embed/VIDEO_ID
+  const match = url.match(/loom\.com\/(?:share|embed)\/([a-zA-Z0-9]+)/);
+  return match ? match[1] : null;
 };
 
 // Extract YouTube video ID from various URL formats
@@ -638,14 +644,12 @@ export const helpAnswers: HelpAnswer[] = [
       <p>Any situation where an outright distribution might create problems could warrant receiving the inheritance in trust instead. This gives you flexibility to provide for your beneficiaries while addressing your specific concerns.</p>
     `,
   },
-  // Section Sub-headers with Slideshow (IDs 50-60)
+  // Section Sub-headers with Video Help (IDs 50-60)
   {
     id: 50,
-    type: "Slideshow",
+    type: "Video",
     title: "Existing Trusts",
-    slides: [
-      { image: "/slides/help/50/slide1.png", audio: "/slides/help/50/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/EXISTING_TRUSTS_VIDEO_ID",
     text: `
       <p>This section asks about any <strong>existing trusts</strong> you may have.</p>
       <p>Understanding your current trust structure helps us:</p>
@@ -659,11 +663,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 51,
-    type: "Slideshow",
+    type: "Video",
     title: "Spouse/Partner Information",
-    slides: [
-      { image: "/slides/help/51/slide1.png", audio: "/slides/help/51/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/SPOUSE_PARTNER_INFO_VIDEO_ID",
     text: `
       <p>This section collects information about your <strong>spouse or domestic partner</strong>.</p>
       <p>Your partner's information is essential for:</p>
@@ -675,14 +677,12 @@ export const helpAnswers: HelpAnswer[] = [
       </ul>
     `,
   },
-  // Section Overview Slideshows (IDs 100+)
+  // Section Overview Videos (IDs 100+)
   {
     id: 0,
-    type: "Slideshow",
+    type: "Video",
     title: "Estate Planning Intake Overview",
-    slides: [
-      { image: "/slides/help/0/slide1.png", audio: "/slides/help/0/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/ESTATE_PLANNING_OVERVIEW_VIDEO_ID",
     text: `
       <p>Welcome to the <strong>Zacharia Brown & Bratkovich Estate Planning Intake Questionnaire</strong>.</p>
       <p>This comprehensive questionnaire will guide you through providing all the information we need to prepare your estate plan. The process is divided into the following sections:</p>
@@ -702,11 +702,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 100,
-    type: "Slideshow",
+    type: "Video",
     title: "Personal Data Overview",
-    slides: [
-      { image: "/slides/help/100/slide1.png", audio: "/slides/help/100/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/PERSONAL_DATA_OVERVIEW_VIDEO_ID",
     text: `
       <p>This section collects your <strong>personal information</strong> and that of your spouse (if applicable).</p>
       <p>Information gathered includes:</p>
@@ -726,11 +724,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 101,
-    type: "Slideshow",
+    type: "Video",
     title: "Children Section Overview",
-    slides: [
-      { image: "/slides/help/101/slide1.png", audio: "/slides/help/101/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/CHILDREN_SECTION_OVERVIEW_VIDEO_ID",
     text: `
       <p>This section captures information about your <strong>children and dependents</strong>.</p>
       <p>We'll collect details about:</p>
@@ -746,11 +742,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 102,
-    type: "Slideshow",
+    type: "Video",
     title: "Other Beneficiaries Overview",
-    slides: [
-      { image: "/slides/help/102/slide1.png", audio: "/slides/help/102/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/OTHER_BENEFICIARIES_OVERVIEW_VIDEO_ID",
     text: `
       <p>This section covers <strong>additional beneficiaries</strong> beyond your immediate family.</p>
       <p>You can designate:</p>
@@ -785,11 +779,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 104,
-    type: "Slideshow",
+    type: "Video",
     title: "Fiduciaries Overview",
-    slides: [
-      { image: "/slides/help/104/slide1.png", audio: "/slides/help/104/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/FIDUCIARIES_OVERVIEW_VIDEO_ID",
     text: `
       <p>This section helps you designate <strong>trusted individuals</strong> to act on your behalf.</p>
       <p>Fiduciary roles include:</p>
@@ -805,11 +797,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 105,
-    type: "Slideshow",
+    type: "Video",
     title: "Dispositive Intentions Overview",
-    slides: [
-      { image: "/slides/help/105/slide1.png", audio: "/slides/help/105/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/DISPOSITIVE_INTENTIONS_OVERVIEW_VIDEO_ID",
     text: `
       <p>This section captures your <strong>wishes for distributing your estate</strong>.</p>
       <p>You'll specify:</p>
@@ -825,11 +815,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 106,
-    type: "Slideshow",
+    type: "Video",
     title: "Assets Section Overview",
-    slides: [
-      { image: "/slides/help/106/slide1.png", audio: "/slides/help/106/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/ASSETS_SECTION_OVERVIEW_VIDEO_ID",
     text: `
       <p>This section helps you <strong>inventory all your assets</strong>.</p>
       <p>Asset categories include:</p>
@@ -847,11 +835,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 107,
-    type: "Slideshow",
+    type: "Video",
     title: "New Plan Provisions Overview",
-    slides: [
-      { image: "/slides/help/107/slide1.png", audio: "/slides/help/107/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/NEW_PLAN_PROVISIONS_OVERVIEW_VIDEO_ID",
     text: `
       <p>This section captures your <strong>wishes for your new estate plan</strong>.</p>
       <p>You'll specify:</p>
@@ -866,14 +852,12 @@ export const helpAnswers: HelpAnswer[] = [
       <p>These provisions form the heart of your estate plan and ensure your wishes are carried out exactly as you intend.</p>
     `,
   },
-  // Asset Category Slideshows (IDs 110-118)
+  // Asset Category Videos (IDs 110-118)
   {
     id: 110,
-    type: "Slideshow",
+    type: "Video",
     title: "Real Estate",
-    slides: [
-      { image: "/slides/help/110/slide1.png", audio: "/slides/help/110/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/REAL_ESTATE_VIDEO_ID",
     text: `
       <p>This category includes all <strong>real property</strong> you own.</p>
       <p>Types of real estate to include:</p>
@@ -890,11 +874,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 111,
-    type: "Slideshow",
+    type: "Video",
     title: "Cash, Bank Accounts and CDs",
-    slides: [
-      { image: "/slides/help/111/slide1.png", audio: "/slides/help/111/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/CASH_BANK_ACCOUNTS_VIDEO_ID",
     text: `
       <p>Include all <strong>liquid cash accounts</strong> in this category.</p>
       <p>Types of accounts:</p>
@@ -910,11 +892,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 112,
-    type: "Slideshow",
+    type: "Video",
     title: "Non-Qualified Investment Accounts",
-    slides: [
-      { image: "/slides/help/112/slide1.png", audio: "/slides/help/112/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/NON_QUALIFIED_INVESTMENTS_VIDEO_ID",
     text: `
       <p>These are <strong>taxable investment accounts</strong> that are not retirement accounts.</p>
       <p>Examples include:</p>
@@ -930,11 +910,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 113,
-    type: "Slideshow",
+    type: "Video",
     title: "IRAs and Retirement Accounts",
-    slides: [
-      { image: "/slides/help/113/slide1.png", audio: "/slides/help/113/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/IRAS_RETIREMENT_ACCOUNTS_VIDEO_ID",
     text: `
       <p>Include all <strong>tax-advantaged retirement accounts</strong>.</p>
       <p>Types of retirement accounts:</p>
@@ -951,11 +929,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 114,
-    type: "Slideshow",
+    type: "Video",
     title: "Life Insurance",
-    slides: [
-      { image: "/slides/help/114/slide1.png", audio: "/slides/help/114/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/LIFE_INSURANCE_VIDEO_ID",
     text: `
       <p>Include all <strong>life insurance policies</strong> you own.</p>
       <p>Types of life insurance:</p>
@@ -971,11 +947,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 115,
-    type: "Slideshow",
+    type: "Video",
     title: "Vehicles",
-    slides: [
-      { image: "/slides/help/115/slide1.png", audio: "/slides/help/115/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/VEHICLES_VIDEO_ID",
     text: `
       <p>Include all <strong>motor vehicles</strong> you own.</p>
       <p>Types of vehicles:</p>
@@ -992,11 +966,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 116,
-    type: "Slideshow",
+    type: "Video",
     title: "Other Assets",
-    slides: [
-      { image: "/slides/help/116/slide1.png", audio: "/slides/help/116/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/OTHER_ASSETS_VIDEO_ID",
     text: `
       <p>Include any <strong>other valuable assets</strong> not covered by other categories.</p>
       <p>Examples include:</p>
@@ -1013,11 +985,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 117,
-    type: "Slideshow",
+    type: "Video",
     title: "Business Interests",
-    slides: [
-      { image: "/slides/help/117/slide1.png", audio: "/slides/help/117/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/BUSINESS_INTERESTS_VIDEO_ID",
     text: `
       <p>Include any <strong>ownership interests in businesses</strong>.</p>
       <p>Types of business interests:</p>
@@ -1034,11 +1004,9 @@ export const helpAnswers: HelpAnswer[] = [
   },
   {
     id: 118,
-    type: "Slideshow",
+    type: "Video",
     title: "Digital Assets",
-    slides: [
-      { image: "/slides/help/118/slide1.png", audio: "/slides/help/118/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/DIGITAL_ASSETS_VIDEO_ID",
     text: `
       <p>Include <strong>digital and cryptocurrency assets</strong>.</p>
       <p>Types of digital assets:</p>
@@ -1178,11 +1146,9 @@ export const helpAnswers: HelpAnswer[] = [
   // Long-Term Care Section Help (ID 130)
   {
     id: 130,
-    type: "Slideshow",
+    type: "Video",
     title: "Long-Term Care Planning",
-    slides: [
-      { image: "/slides/help/130/slide1.png", audio: "/slides/help/130/audio1.mp3" },
-    ],
+    videoUrl: "https://www.loom.com/share/LONG_TERM_CARE_PLANNING_VIDEO_ID",
     text: `
       <p><strong>Long-Term Care Planning</strong> helps protect your assets while ensuring you receive quality care as you age.</p>
       <p>This section covers several important areas:</p>
@@ -2654,6 +2620,36 @@ const HelpModal: React.FC<HelpModalProps> = ({ open, onClose, helpId }) => {
                 </Box>
               );
 
+            case "loom":
+              const loomId = getLoomId(videoUrl);
+              if (!loomId) return null;
+              return (
+                <Box
+                  sx={{
+                    position: "relative",
+                    paddingBottom: "56.25%", // 16:9 aspect ratio
+                    height: 0,
+                    overflow: "hidden",
+                    borderRadius: 1,
+                    mb: 2,
+                  }}
+                >
+                  <iframe
+                    src={`https://www.loom.com/embed/${loomId}`}
+                    title={helpContent.title}
+                    allowFullScreen
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      border: "none",
+                    }}
+                  />
+                </Box>
+              );
+
             case "mp4":
               return (
                 <Box sx={{ mb: 2 }}>
@@ -2713,49 +2709,6 @@ const HelpModal: React.FC<HelpModalProps> = ({ open, onClose, helpId }) => {
           <Box>
             {renderVideoPlayer()}
             {/* Show text description below video if provided */}
-            {helpContent.text && (
-              <Box
-                dangerouslySetInnerHTML={{ __html: helpContent.text }}
-                sx={{
-                  "& p": { mb: 2, lineHeight: 1.7 },
-                  "& ul": { pl: 3, mb: 2 },
-                  "& li": { mb: 0.5, lineHeight: 1.6 },
-                  "& strong": { color: "#1a237e" },
-                }}
-              />
-            )}
-          </Box>
-        );
-
-      case "Slideshow":
-        return (
-          <Box>
-            {helpContent.slides && helpContent.slides.length > 0 ? (
-              <Box sx={{ mb: 2 }}>
-                <SlidePlayer
-                  slides={helpContent.slides}
-                  title={helpContent.title}
-                  autoAdvance={helpContent.autoAdvance ?? true}
-                />
-              </Box>
-            ) : (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: 200,
-                  bgcolor: "#f5f5f5",
-                  borderRadius: 1,
-                  mb: 2,
-                }}
-              >
-                <Typography color="text.secondary">
-                  No slides available
-                </Typography>
-              </Box>
-            )}
-            {/* Show text description below slideshow if provided */}
             {helpContent.text && (
               <Box
                 dangerouslySetInnerHTML={{ __html: helpContent.text }}
