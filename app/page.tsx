@@ -45,6 +45,7 @@ import LongTermCareSection from '../components/LongTermCareSection';
 import AssetsSection from '../components/AssetsSection';
 import SummarySection from '../components/SummarySection';
 import EstatePlanAnalysis from '../components/EstatePlanAnalysis';
+import { TrustPlanSection } from '../components/TrustPlan';
 import LandingPage from '../components/LandingPage';
 import EstatePlanningHome from '../components/EstatePlanningHome';
 import AdminDashboard from '../components/AdminDashboard';
@@ -367,6 +368,7 @@ const ALL_STEPS = [
   'New Plan Provisions',
   'Long-Term Care',
   'Summary',
+  'Trust Planning',
   'Analysis',
   'Review & Submit'
 ];
@@ -678,6 +680,8 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
         return <AssetsSection />;
       case 'Summary':
         return <SummarySection />;
+      case 'Trust Planning':
+        return <TrustPlanSection />;
       case 'Analysis':
         return <EstatePlanAnalysis />;
       case 'Review & Submit':

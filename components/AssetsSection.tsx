@@ -406,6 +406,7 @@ const AssetsSection = () => {
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
         showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
       />
 
       {/* Non-Qualified Investment Modal */}
@@ -418,9 +419,10 @@ const AssetsSection = () => {
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
         showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
       />
 
-      {/* Retirement Account Modal */}
+      {/* Retirement Account Modal - No trustFlags: IRAs can only be owned by individuals */}
       <RetirementAccountModal
         open={modalState.type === 'retirementAccount'}
         onClose={closeModal}
@@ -442,6 +444,7 @@ const AssetsSection = () => {
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
         showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
       />
 
       {/* Vehicle Modal */}
@@ -454,6 +457,7 @@ const AssetsSection = () => {
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
         showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
       />
 
       {/* Other Asset Modal */}
@@ -466,6 +470,7 @@ const AssetsSection = () => {
         beneficiaryOptions={beneficiaryOptions}
         isEdit={modalState.isEdit}
         showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
       />
 
       {/* Business Interest Modal */}
@@ -489,6 +494,7 @@ const AssetsSection = () => {
         initialData={getEditData() as DigitalAssetData | undefined}
         isEdit={modalState.isEdit}
         showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
       />
     </Box>
   );

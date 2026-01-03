@@ -1293,6 +1293,7 @@ interface BankAccountModalProps {
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
   showSpouse?: boolean;
+  trustFlags?: TrustFlags;
 }
 
 export const BankAccountModal: React.FC<BankAccountModalProps> = ({
@@ -1304,12 +1305,33 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
   beneficiaryOptions,
   isEdit = false,
   showSpouse = true,
+  trustFlags,
 }) => {
   const ownerOptions = getOwnerOptions(showSpouse);
   const [data, setData] = useState<BankAccountData>(
     initialData || emptyBankAccount
   );
   const [touched, setTouched] = useState<TouchedFields<BankAccountData>>({});
+
+  // Build trust options based on flags
+  const trustOwnerOptions: string[] = [];
+  if (trustFlags) {
+    if (trustFlags.clientHasLivingTrust) {
+      trustOwnerOptions.push("Client's Living Trust");
+    }
+    if (trustFlags.clientHasIrrevocableTrust) {
+      trustOwnerOptions.push("Client's Irrevocable Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasLivingTrust) {
+      trustOwnerOptions.push("Spouse's Living Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasIrrevocableTrust) {
+      trustOwnerOptions.push("Spouse's Irrevocable Trust");
+    }
+  }
+
+  // Combine all owner options
+  const allOwnerOptions = [...ownerOptions, ...trustOwnerOptions];
 
   useEffect(() => {
     if (open) {
@@ -1367,7 +1389,7 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
                   setTouched((prev) => ({ ...prev, owner: true }));
                 }}
               >
-                {ownerOptions.map((option) => (
+                {allOwnerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -1568,6 +1590,7 @@ interface NonQualifiedInvestmentModalProps {
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
   showSpouse?: boolean;
+  trustFlags?: TrustFlags;
 }
 
 export const NonQualifiedInvestmentModal: React.FC<
@@ -1581,12 +1604,33 @@ export const NonQualifiedInvestmentModal: React.FC<
   beneficiaryOptions,
   isEdit = false,
   showSpouse = true,
+  trustFlags,
 }) => {
   const ownerOptions = getOwnerOptions(showSpouse);
   const [data, setData] = useState<NonQualifiedInvestmentData>(
     initialData || emptyNonQualifiedInvestment
   );
   const [touched, setTouched] = useState<TouchedFields<NonQualifiedInvestmentData>>({});
+
+  // Build trust options based on flags
+  const trustOwnerOptions: string[] = [];
+  if (trustFlags) {
+    if (trustFlags.clientHasLivingTrust) {
+      trustOwnerOptions.push("Client's Living Trust");
+    }
+    if (trustFlags.clientHasIrrevocableTrust) {
+      trustOwnerOptions.push("Client's Irrevocable Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasLivingTrust) {
+      trustOwnerOptions.push("Spouse's Living Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasIrrevocableTrust) {
+      trustOwnerOptions.push("Spouse's Irrevocable Trust");
+    }
+  }
+
+  // Combine all owner options
+  const allOwnerOptions = [...ownerOptions, ...trustOwnerOptions];
 
   useEffect(() => {
     if (open) {
@@ -1643,7 +1687,7 @@ export const NonQualifiedInvestmentModal: React.FC<
                   setTouched((prev) => ({ ...prev, owner: true }));
                 }}
               >
-                {ownerOptions.map((option) => (
+                {allOwnerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -1844,6 +1888,8 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
   isEdit = false,
   showSpouse = true,
 }) => {
+  // Note: Retirement accounts (IRAs, 401ks, etc.) can only be owned by individuals, not trusts
+  // A trust can be a beneficiary but not an owner
   const individualOwnerOptions = getIndividualOwnerOptions(showSpouse);
   const [data, setData] = useState<RetirementAccountData>(
     initialData || emptyRetirementAccount
@@ -2120,6 +2166,7 @@ interface LifeInsuranceModalProps {
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
   showSpouse?: boolean;
+  trustFlags?: TrustFlags;
 }
 
 export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
@@ -2131,9 +2178,30 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
   beneficiaryOptions,
   isEdit = false,
   showSpouse = true,
+  trustFlags,
 }) => {
   const individualOwnerOptions = getIndividualOwnerOptions(showSpouse);
   const insuredOptions = getIndividualOwnerOptions(showSpouse);
+
+  // Build trust options based on flags (life insurance can be owned by trusts, especially ILITs)
+  const trustOwnerOptions: string[] = [];
+  if (trustFlags) {
+    if (trustFlags.clientHasLivingTrust) {
+      trustOwnerOptions.push("Client's Living Trust");
+    }
+    if (trustFlags.clientHasIrrevocableTrust) {
+      trustOwnerOptions.push("Client's Irrevocable Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasLivingTrust) {
+      trustOwnerOptions.push("Spouse's Living Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasIrrevocableTrust) {
+      trustOwnerOptions.push("Spouse's Irrevocable Trust");
+    }
+  }
+
+  // Combine all owner options
+  const allOwnerOptions = [...individualOwnerOptions, ...trustOwnerOptions];
 
   // For single clients, default insured to 'Client'
   const getInitialData = (): LifeInsuranceData => {
@@ -2212,7 +2280,7 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
                   setTouched((prev) => ({ ...prev, owner: true }));
                 }}
               >
-                {individualOwnerOptions.map((option) => (
+                {allOwnerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -2474,6 +2542,7 @@ interface VehicleModalProps {
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
   showSpouse?: boolean;
+  trustFlags?: TrustFlags;
 }
 
 export const VehicleModal: React.FC<VehicleModalProps> = ({
@@ -2485,10 +2554,31 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
   beneficiaryOptions,
   isEdit = false,
   showSpouse = true,
+  trustFlags,
 }) => {
   const ownerOptions = getOwnerOptions(showSpouse);
   const [data, setData] = useState<VehicleData>(initialData || emptyVehicle);
   const [touched, setTouched] = useState<TouchedFields<VehicleData>>({});
+
+  // Build trust options based on flags
+  const trustOwnerOptions: string[] = [];
+  if (trustFlags) {
+    if (trustFlags.clientHasLivingTrust) {
+      trustOwnerOptions.push("Client's Living Trust");
+    }
+    if (trustFlags.clientHasIrrevocableTrust) {
+      trustOwnerOptions.push("Client's Irrevocable Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasLivingTrust) {
+      trustOwnerOptions.push("Spouse's Living Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasIrrevocableTrust) {
+      trustOwnerOptions.push("Spouse's Irrevocable Trust");
+    }
+  }
+
+  // Combine all owner options
+  const allOwnerOptions = [...ownerOptions, ...trustOwnerOptions];
 
   useEffect(() => {
     if (open) {
@@ -2543,7 +2633,7 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
                   setTouched((prev) => ({ ...prev, owner: true }));
                 }}
               >
-                {ownerOptions.map((option) => (
+                {allOwnerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -2722,6 +2812,7 @@ interface OtherAssetModalProps {
   beneficiaryOptions: BeneficiaryOption[];
   isEdit?: boolean;
   showSpouse?: boolean;
+  trustFlags?: TrustFlags;
 }
 
 export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
@@ -2733,12 +2824,33 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
   beneficiaryOptions,
   isEdit = false,
   showSpouse = true,
+  trustFlags,
 }) => {
   const ownerOptions = getOwnerOptions(showSpouse);
   const [data, setData] = useState<OtherAssetData>(
     initialData || emptyOtherAsset
   );
   const [touched, setTouched] = useState<TouchedFields<OtherAssetData>>({});
+
+  // Build trust options based on flags
+  const trustOwnerOptions: string[] = [];
+  if (trustFlags) {
+    if (trustFlags.clientHasLivingTrust) {
+      trustOwnerOptions.push("Client's Living Trust");
+    }
+    if (trustFlags.clientHasIrrevocableTrust) {
+      trustOwnerOptions.push("Client's Irrevocable Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasLivingTrust) {
+      trustOwnerOptions.push("Spouse's Living Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasIrrevocableTrust) {
+      trustOwnerOptions.push("Spouse's Irrevocable Trust");
+    }
+  }
+
+  // Combine all owner options
+  const allOwnerOptions = [...ownerOptions, ...trustOwnerOptions];
 
   useEffect(() => {
     if (open) {
@@ -2793,7 +2905,7 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
                   setTouched((prev) => ({ ...prev, owner: true }));
                 }}
               >
-                {ownerOptions.map((option) => (
+                {allOwnerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
@@ -3291,6 +3403,7 @@ interface DigitalAssetModalProps {
   initialData?: DigitalAssetData;
   isEdit?: boolean;
   showSpouse?: boolean;
+  trustFlags?: TrustFlags;
 }
 
 export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
@@ -3301,12 +3414,33 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
   initialData,
   isEdit = false,
   showSpouse = true,
+  trustFlags,
 }) => {
   const individualOwnerOptions = getIndividualOwnerOptions(showSpouse);
   const [data, setData] = useState<DigitalAssetData>(
     initialData || emptyDigitalAsset
   );
   const [touched, setTouched] = useState<TouchedFields<DigitalAssetData>>({});
+
+  // Build trust options based on flags
+  const trustOwnerOptions: string[] = [];
+  if (trustFlags) {
+    if (trustFlags.clientHasLivingTrust) {
+      trustOwnerOptions.push("Client's Living Trust");
+    }
+    if (trustFlags.clientHasIrrevocableTrust) {
+      trustOwnerOptions.push("Client's Irrevocable Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasLivingTrust) {
+      trustOwnerOptions.push("Spouse's Living Trust");
+    }
+    if (showSpouse && trustFlags.spouseHasIrrevocableTrust) {
+      trustOwnerOptions.push("Spouse's Irrevocable Trust");
+    }
+  }
+
+  // Combine all owner options
+  const allOwnerOptions = [...individualOwnerOptions, ...trustOwnerOptions];
 
   useEffect(() => {
     if (open) {
@@ -3364,7 +3498,7 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
                   setTouched((prev) => ({ ...prev, owner: true }));
                 }}
               >
-                {individualOwnerOptions.map((option) => (
+                {allOwnerOptions.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
