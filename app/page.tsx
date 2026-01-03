@@ -406,6 +406,10 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
   const saveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const authErrorShownRef = React.useRef(false);
 
+  // Track existing intake IDs to update instead of creating new records
+  const [existingRawId, setExistingRawId] = useState<string | null>(null);
+  const [existingIntakeId, setExistingIntakeId] = useState<string | null>(null);
+
   // Office and Attorney state for Review & Submit page
   const [offices, setOffices] = useState<OfficeInfo[]>([]);
   const [attorneys, setAttorneys] = useState<AttorneyInfo[]>([]);
@@ -434,6 +438,51 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
     };
     loadOfficesAndAttorneys();
   }, []);
+
+  // Load existing intake IDs when user is authenticated
+  React.useEffect(() => {
+    const loadExistingIntakeIds = async () => {
+      if (!user) {
+        setExistingRawId(null);
+        setExistingIntakeId(null);
+        return;
+      }
+
+      try {
+        // Check for existing raw intake for this user
+        const { data: rawData } = await supabase
+          .from('intakes_raw')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('intake_type', 'EstatePlanning')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (rawData?.id) {
+          setExistingRawId(rawData.id);
+        }
+
+        // Check for existing normalized intake for this user
+        const { data: intakeData } = await supabase
+          .from('estate_planning_intakes')
+          .select('id')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (intakeData?.id) {
+          setExistingIntakeId(intakeData.id);
+        }
+      } catch (err) {
+        // No existing intake found, that's fine - will create new on first save
+        console.log('No existing intake found for user');
+      }
+    };
+
+    loadExistingIntakeIds();
+  }, [user]);
 
   // Auto-save to Supabase with debouncing (save 3 seconds after user stops typing)
   React.useEffect(() => {
@@ -471,11 +520,23 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
           return;
         }
 
-        const result = await saveIntakeFull(formData, 'EstatePlanning');
+        const result = await saveIntakeFull(
+          formData,
+          'EstatePlanning',
+          existingRawId || undefined,
+          existingIntakeId || undefined
+        );
 
         if (result.success) {
           setLastSaved(new Date());
           authErrorShownRef.current = false; // Reset on successful save
+          // Update IDs if this was the first save (new record created)
+          if (result.intakeRawId && !existingRawId) {
+            setExistingRawId(result.intakeRawId);
+          }
+          if (result.intakeId && !existingIntakeId) {
+            setExistingIntakeId(result.intakeId);
+          }
         } else {
           // Check if error is authentication-related
           if (result.error?.includes('JWT') || result.error?.includes('auth')) {
@@ -508,7 +569,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [formData, user]);
+  }, [formData, user, existingRawId, existingIntakeId]);
 
   const openHelp = (helpId: number) => setActiveHelpId(helpId);
   const closeHelp = () => setActiveHelpId(null);
@@ -593,10 +654,23 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
       const clientFolderName = generateClientFolderName(clientName);
 
       // Step 2: Save form data to Supabase (both raw JSON and normalized tables)
-      const saveResult = await saveIntakeFull(formData, 'EstatePlanning');
+      const saveResult = await saveIntakeFull(
+        formData,
+        'EstatePlanning',
+        existingRawId || undefined,
+        existingIntakeId || undefined
+      );
       if (!saveResult.success) {
         console.error('Failed to save intake to Supabase:', saveResult.error);
         // Continue with analysis even if save fails - we don't want to block the user
+      } else {
+        // Update IDs if this was the first save
+        if (saveResult.intakeRawId && !existingRawId) {
+          setExistingRawId(saveResult.intakeRawId);
+        }
+        if (saveResult.intakeId && !existingIntakeId) {
+          setExistingIntakeId(saveResult.intakeId);
+        }
       }
 
       const intakeId = saveResult.intakeRawId;

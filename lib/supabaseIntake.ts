@@ -1327,3 +1327,177 @@ export async function searchIntakes(
     return [];
   }
 }
+
+// ============================================================================
+// CLEANUP FUNCTIONS
+// ============================================================================
+
+export interface CleanupResult {
+  success: boolean;
+  deletedRawCount: number;
+  deletedIntakeCount: number;
+  keptRecords: { userId: string; rawId: string; intakeId: string | null }[];
+  error?: string;
+}
+
+/**
+ * Clean up duplicate intake records, keeping only the most recent one per user.
+ * This function will:
+ * 1. Find all unique users with intake records
+ * 2. For each user, keep only the most recently updated record
+ * 3. Delete all older duplicate records
+ *
+ * WARNING: This permanently deletes data. Use with caution.
+ *
+ * @param dryRun - If true, only report what would be deleted without actually deleting
+ */
+export async function cleanupDuplicateIntakes(dryRun = true): Promise<CleanupResult> {
+  try {
+    const result: CleanupResult = {
+      success: true,
+      deletedRawCount: 0,
+      deletedIntakeCount: 0,
+      keptRecords: [],
+    };
+
+    // Step 1: Get all raw intake records grouped by user
+    const { data: allRawIntakes, error: rawError } = await supabase
+      .from('intakes_raw')
+      .select('id, user_id, updated_at')
+      .eq('intake_type', 'EstatePlanning')
+      .order('updated_at', { ascending: false });
+
+    if (rawError) {
+      return { ...result, success: false, error: rawError.message };
+    }
+
+    if (!allRawIntakes || allRawIntakes.length === 0) {
+      console.log('No intake records found');
+      return result;
+    }
+
+    // Group by user_id
+    const userIntakesMap = new Map<string, typeof allRawIntakes>();
+    for (const intake of allRawIntakes) {
+      const existing = userIntakesMap.get(intake.user_id) || [];
+      existing.push(intake);
+      userIntakesMap.set(intake.user_id, existing);
+    }
+
+    console.log(`Found ${userIntakesMap.size} unique users with intake records`);
+
+    // Step 2: For each user, identify duplicates to delete
+    const rawIdsToDelete: string[] = [];
+
+    for (const [userId, intakes] of userIntakesMap) {
+      if (intakes.length > 1) {
+        // Keep the first one (most recent due to ordering), delete the rest
+        const keepId = intakes[0].id;
+        const deleteIds = intakes.slice(1).map(i => i.id);
+
+        rawIdsToDelete.push(...deleteIds);
+
+        console.log(`User ${userId}: keeping ${keepId}, deleting ${deleteIds.length} duplicates`);
+      }
+
+      // Track which record we're keeping
+      result.keptRecords.push({
+        userId,
+        rawId: intakes[0].id,
+        intakeId: null, // Will be filled below
+      });
+    }
+
+    // Step 3: Get corresponding normalized intake records
+    const { data: allNormalizedIntakes, error: normalizedError } = await supabase
+      .from('estate_planning_intakes')
+      .select('id, user_id, updated_at')
+      .order('updated_at', { ascending: false });
+
+    if (normalizedError) {
+      console.warn('Error fetching normalized intakes:', normalizedError.message);
+    }
+
+    const normalizedIdsToDelete: string[] = [];
+
+    if (allNormalizedIntakes) {
+      // Group by user_id
+      const userNormalizedMap = new Map<string, typeof allNormalizedIntakes>();
+      for (const intake of allNormalizedIntakes) {
+        const existing = userNormalizedMap.get(intake.user_id) || [];
+        existing.push(intake);
+        userNormalizedMap.set(intake.user_id, existing);
+      }
+
+      for (const [userId, intakes] of userNormalizedMap) {
+        if (intakes.length > 1) {
+          // Keep the first one (most recent), delete the rest
+          const deleteIds = intakes.slice(1).map(i => i.id);
+          normalizedIdsToDelete.push(...deleteIds);
+
+          console.log(`User ${userId} (normalized): keeping ${intakes[0].id}, deleting ${deleteIds.length} duplicates`);
+        }
+
+        // Update kept record with intake ID
+        const keptRecord = result.keptRecords.find(r => r.userId === userId);
+        if (keptRecord) {
+          keptRecord.intakeId = intakes[0].id;
+        }
+      }
+    }
+
+    console.log(`\nSummary:`);
+    console.log(`- Raw records to delete: ${rawIdsToDelete.length}`);
+    console.log(`- Normalized records to delete: ${normalizedIdsToDelete.length}`);
+    console.log(`- Records to keep: ${result.keptRecords.length}`);
+
+    if (dryRun) {
+      console.log('\n[DRY RUN] No records were deleted. Set dryRun=false to actually delete.');
+      result.deletedRawCount = rawIdsToDelete.length;
+      result.deletedIntakeCount = normalizedIdsToDelete.length;
+      return result;
+    }
+
+    // Step 4: Delete duplicates (if not dry run)
+    if (rawIdsToDelete.length > 0) {
+      const { error: deleteRawError } = await supabase
+        .from('intakes_raw')
+        .delete()
+        .in('id', rawIdsToDelete);
+
+      if (deleteRawError) {
+        console.error('Error deleting raw intakes:', deleteRawError);
+        return { ...result, success: false, error: deleteRawError.message };
+      }
+      result.deletedRawCount = rawIdsToDelete.length;
+      console.log(`Deleted ${rawIdsToDelete.length} raw intake records`);
+    }
+
+    if (normalizedIdsToDelete.length > 0) {
+      const { error: deleteNormalizedError } = await supabase
+        .from('estate_planning_intakes')
+        .delete()
+        .in('id', normalizedIdsToDelete);
+
+      if (deleteNormalizedError) {
+        console.error('Error deleting normalized intakes:', deleteNormalizedError);
+        return { ...result, success: false, error: deleteNormalizedError.message };
+      }
+      result.deletedIntakeCount = normalizedIdsToDelete.length;
+      console.log(`Deleted ${normalizedIdsToDelete.length} normalized intake records`);
+    }
+
+    console.log('\nCleanup completed successfully!');
+    return result;
+
+  } catch (err) {
+    console.error('Error in cleanupDuplicateIntakes:', err);
+    return {
+      success: false,
+      deletedRawCount: 0,
+      deletedIntakeCount: 0,
+      keptRecords: [],
+      error: err instanceof Error ? err.message : 'Unknown error',
+    };
+  }
+}

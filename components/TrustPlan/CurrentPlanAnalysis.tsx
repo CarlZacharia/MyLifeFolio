@@ -242,12 +242,12 @@ export const CurrentPlanAnalysisComponent: React.FC<CurrentPlanAnalysisProps> = 
                       </Typography>
                     }
                     secondary={
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
+                      <Box component="span" sx={{ display: 'block' }}>
+                        <Typography variant="body2" color="text.secondary" component="span" sx={{ display: 'block' }}>
                           {issue.description}
                         </Typography>
                         {issue.affectedBeneficiaries && issue.affectedBeneficiaries.length > 0 && (
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                          <Typography variant="caption" color="text.secondary" component="span" sx={{ display: 'block', mt: 0.5 }}>
                             Affected: {issue.affectedBeneficiaries.join(', ')}
                           </Typography>
                         )}

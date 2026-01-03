@@ -23,7 +23,9 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import DescriptionIcon from '@mui/icons-material/Description';
+import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
 import { supabase } from '../lib/supabase';
+import { cleanupDuplicateIntakes, CleanupResult } from '../lib/supabaseIntake';
 
 interface IntakeRecord {
   id: string;
@@ -69,6 +71,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
+  const [cleanupLoading, setCleanupLoading] = useState(false);
+  const [cleanupResult, setCleanupResult] = useState<CleanupResult | null>(null);
 
   useEffect(() => {
     fetchUsersAndIntakes();
@@ -180,6 +184,33 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     });
   };
 
+  const handleCleanupDuplicates = async (dryRun: boolean) => {
+    if (!dryRun && !window.confirm(
+      'Are you sure you want to delete duplicate intake records? This cannot be undone.\n\n' +
+      'This will keep only the most recent intake per user and delete all older duplicates.'
+    )) {
+      return;
+    }
+
+    setCleanupLoading(true);
+    setCleanupResult(null);
+
+    try {
+      const result = await cleanupDuplicateIntakes(dryRun);
+      setCleanupResult(result);
+
+      // Refresh the data if we actually deleted records
+      if (!dryRun && result.success) {
+        await fetchUsersAndIntakes();
+      }
+    } catch (err) {
+      console.error('Cleanup error:', err);
+      setError(err instanceof Error ? err.message : 'Cleanup failed');
+    } finally {
+      setCleanupLoading(false);
+    }
+  };
+
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -220,23 +251,67 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
   return (
     <Box sx={{ p: 3, maxWidth: 1400, mx: 'auto' }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={onBack}
-          sx={{ mr: 2 }}
-          variant="outlined"
-        >
-          Back
-        </Button>
-        <Typography variant="h4" sx={{ color: '#1e3a5f', fontWeight: 600 }}>
-          Admin Dashboard
-        </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={onBack}
+            sx={{ mr: 2 }}
+            variant="outlined"
+          >
+            Back
+          </Button>
+          <Typography variant="h4" sx={{ color: '#1e3a5f', fontWeight: 600 }}>
+            Admin Dashboard
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            startIcon={cleanupLoading ? <CircularProgress size={16} /> : <CleaningServicesIcon />}
+            onClick={() => handleCleanupDuplicates(true)}
+            disabled={cleanupLoading}
+            variant="outlined"
+            color="info"
+            size="small"
+          >
+            Preview Cleanup
+          </Button>
+          <Button
+            startIcon={cleanupLoading ? <CircularProgress size={16} /> : <CleaningServicesIcon />}
+            onClick={() => handleCleanupDuplicates(false)}
+            disabled={cleanupLoading}
+            variant="contained"
+            color="error"
+            size="small"
+          >
+            Delete Duplicates
+          </Button>
+        </Box>
       </Box>
+
+      {/* Cleanup Result */}
+      {cleanupResult && (
+        <Alert
+          severity={cleanupResult.success ? 'success' : 'error'}
+          sx={{ mb: 3 }}
+          onClose={() => setCleanupResult(null)}
+        >
+          {cleanupResult.success ? (
+            <>
+              <strong>Cleanup {cleanupResult.deletedRawCount === 0 && cleanupResult.deletedIntakeCount === 0 ? 'Preview' : 'Complete'}:</strong>{' '}
+              {cleanupResult.deletedRawCount} raw records and {cleanupResult.deletedIntakeCount} normalized records
+              {cleanupResult.deletedRawCount === 0 && cleanupResult.deletedIntakeCount === 0 ? ' would be' : ' were'} deleted.
+              {' '}Keeping {cleanupResult.keptRecords.length} records (one per user).
+            </>
+          ) : (
+            <>Cleanup failed: {cleanupResult.error}</>
+          )}
+        </Alert>
+      )}
 
       {/* Error Alert */}
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
           {error}
         </Alert>
       )}

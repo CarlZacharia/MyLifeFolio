@@ -367,10 +367,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Data will be loaded from Supabase automatically when entering the questionnaire
-  const hasExistingData = false; // No longer checking localStorage
-
-  // Determine button text and action based on auth state and localStorage
+  // Determine button text and action based on auth state
   const primaryButtonConfig = useMemo(() => {
     if (user) {
       // User is authenticated - go to estate planning overview
@@ -379,22 +376,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
         icon: <ArrowForwardIcon />,
         onClick: () => onNavigate('estate-planning-home'),
       };
-    } else if (hasExistingData) {
-      // Not logged in but has existing data - prompt to login
+    } else {
+      // Not logged in - prompt to login (Register button is in navbar)
       return {
         text: 'Login to Your Account',
         icon: <LoginIcon />,
         onClick: onLogin,
       };
-    } else {
-      // No data and not logged in - prompt to register
-      return {
-        text: 'Signup for New Account',
-        icon: <PersonAddIcon />,
-        onClick: onRegister,
-      };
     }
-  }, [user, hasExistingData, onNavigate, onLogin, onRegister]);
+  }, [user, onNavigate, onLogin]);
 
   const services = [
     {
@@ -616,7 +606,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                         },
                       }}
                     >
-                      Get Started
+                      Register
                     </Button>
                   </>
                 )}
