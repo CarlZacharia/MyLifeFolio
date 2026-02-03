@@ -4,6 +4,7 @@
 export interface QuizOption {
   label: string;
   points: number;
+  isAdditional?: boolean; // If true, this is a checkbox that can be selected alongside radio options
 }
 
 export interface QuizQuestion {
@@ -11,6 +12,7 @@ export interface QuizQuestion {
   question: string;
   options: QuizOption[];
   whyThisMatters: string;
+  hasAdditionalOptions?: boolean; // If true, some options are checkboxes (marked with isAdditional)
 }
 
 export interface QuizResult {
@@ -49,12 +51,13 @@ export const quizQuestions: QuizQuestion[] = [
   {
     id: 'family-complexity',
     question: 'Which best describes your family situation?',
+    hasAdditionalOptions: true,
     options: [
       { label: 'Single, no children', points: 0 },
       { label: 'Married, first marriage, children are from this marriage', points: 1 },
       { label: 'Blended family (children from prior relationships)', points: 3 },
-      { label: 'I have a family member with special needs or disabilities', points: 3 },
-      { label: 'I want to disinherit someone or anticipate a family dispute', points: 3 },
+      { label: 'I have a family member with special needs or disabilities', points: 3, isAdditional: true },
+      { label: 'I want to disinherit someone or anticipate a family dispute', points: 3, isAdditional: true },
     ],
     whyThisMatters:
       'Blended families, special needs situations, and potential disputes all benefit from the flexibility and control a trust provides. A trust can ensure your wishes are followed precisely and reduce the chance of conflict.',
