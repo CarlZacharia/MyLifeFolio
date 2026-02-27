@@ -1,0 +1,173 @@
+export interface CategoryMeta {
+  slug: string
+  name: string
+  description: string
+  icon: string
+  defaultItemType: string
+}
+
+export const CATEGORY_META: Record<string, CategoryMeta> = {
+  'personal-identity': {
+    slug: 'personal-identity',
+    name: 'Personal & Identity',
+    description: 'Legal identity documents, vital records, and personal identification information',
+    icon: 'fingerprint',
+    defaultItemType: 'document',
+  },
+  'family-relationships': {
+    slug: 'family-relationships',
+    name: 'Family & Relationships',
+    description: 'Family tree, contact information, relationship notes, and pet care instructions',
+    icon: 'users',
+    defaultItemType: 'contact',
+  },
+  'friends-neighbors': {
+    slug: 'friends-neighbors',
+    name: 'Friends & Neighbors',
+    description: 'Local contacts who can check on you, have keys, or assist in emergencies',
+    icon: 'home',
+    defaultItemType: 'contact',
+  },
+  'advisory-team': {
+    slug: 'advisory-team',
+    name: 'Professional Advisory Team',
+    description: 'Your attorney, CPA, wealth manager, insurance agent, banker, and other advisors',
+    icon: 'briefcase',
+    defaultItemType: 'contact',
+  },
+  'medical-history': {
+    slug: 'medical-history',
+    name: 'Medical History & Current Care',
+    description: 'Diagnoses, medications, physicians, allergies, medical devices, pharmacy information',
+    icon: 'heart-pulse',
+    defaultItemType: 'medical',
+  },
+  'healthcare-preferences': {
+    slug: 'healthcare-preferences',
+    name: 'Healthcare Preferences & Directives',
+    description: 'Preferred hospitals, DNR status, living will specifics, treatment preferences, pain management philosophy',
+    icon: 'stethoscope',
+    defaultItemType: 'instruction',
+  },
+  'long-term-care': {
+    slug: 'long-term-care',
+    name: 'Long-Term Care Desires',
+    description: 'Preferred care settings, staffing preferences, quality of life definitions, transition thresholds',
+    icon: 'bed',
+    defaultItemType: 'instruction',
+  },
+  'mental-health': {
+    slug: 'mental-health',
+    name: 'Mental Health & Cognitive Decline',
+    description: 'Wishes for cognitive decline, memory care preferences, comfort routines, what you do and do not want',
+    icon: 'brain',
+    defaultItemType: 'instruction',
+  },
+  'financial-overview': {
+    slug: 'financial-overview',
+    name: 'Financial Overview',
+    description: 'Bank accounts, brokerage accounts, retirement accounts, insurance policies, debts, safe deposit boxes',
+    icon: 'landmark',
+    defaultItemType: 'financial',
+  },
+  'digital-life': {
+    slug: 'digital-life',
+    name: 'Digital Life',
+    description: 'Email accounts, cloud storage, passwords, social media, cryptocurrency, subscriptions',
+    icon: 'monitor-smartphone',
+    defaultItemType: 'credential',
+  },
+  'income-obligations': {
+    slug: 'income-obligations',
+    name: 'Income Streams & Recurring Obligations',
+    description: 'Pensions, Social Security, annuities, rental income, recurring bills, tax schedules, charitable pledges',
+    icon: 'repeat',
+    defaultItemType: 'financial',
+  },
+  'business-interests': {
+    slug: 'business-interests',
+    name: 'Business Interests & Ownership',
+    description: 'Active businesses, passive investments, PE funds, board positions, IP, key contacts, succession plans',
+    icon: 'building-2',
+    defaultItemType: 'custom',
+  },
+  'royalties': {
+    slug: 'royalties',
+    name: 'Royalties & Residual Income',
+    description: 'Book, music, patent, mineral, franchise, and licensing royalties with transfer details',
+    icon: 'coins',
+    defaultItemType: 'financial',
+  },
+  'personal-property': {
+    slug: 'personal-property',
+    name: 'Personal Property & Beneficiary Designations',
+    description: 'Jewelry, art, collectibles, vehicles, wine collections — with specific beneficiary for each item',
+    icon: 'gem',
+    defaultItemType: 'property',
+  },
+  'firearms': {
+    slug: 'firearms',
+    name: 'Firearms',
+    description: 'Complete inventory with make, model, serial numbers, locations, NFA items, transfer compliance, designated recipients',
+    icon: 'shield',
+    defaultItemType: 'property',
+  },
+  'funeral-burial': {
+    slug: 'funeral-burial',
+    name: 'Funeral, Burial & Memorial',
+    description: 'Burial vs. cremation, funeral home, religious traditions, memorial wishes, obituary preferences, organ donation',
+    icon: 'flower-2',
+    defaultItemType: 'instruction',
+  },
+  'personal-wishes': {
+    slug: 'personal-wishes',
+    name: 'Personal Wishes & Legacy',
+    description: 'Ethical will, legacy letters, values, life lessons, family stories, charitable legacy intentions',
+    icon: 'scroll-text',
+    defaultItemType: 'rich_text',
+  },
+  'home-property': {
+    slug: 'home-property',
+    name: 'Home & Property',
+    description: 'Alarm codes, household operations, seasonal instructions, vehicles, storage, staff and vendor contacts',
+    icon: 'house',
+    defaultItemType: 'property',
+  },
+  'clubs-memberships': {
+    slug: 'clubs-memberships',
+    name: 'Club Memberships & Social Commitments',
+    description: 'Country clubs, yacht clubs, board positions, volunteer commitments, season tickets, transferability details',
+    icon: 'trophy',
+    defaultItemType: 'custom',
+  },
+  'travel-lifestyle': {
+    slug: 'travel-lifestyle',
+    name: 'Travel & Lifestyle',
+    description: 'Frequent flyer accounts, loyalty programs, travel agent, timeshares, planned trips, concierge contacts',
+    icon: 'plane',
+    defaultItemType: 'custom',
+  },
+}
+
+export const CATEGORY_ORDER = [
+  'personal-identity',
+  'family-relationships',
+  'friends-neighbors',
+  'advisory-team',
+  'medical-history',
+  'healthcare-preferences',
+  'long-term-care',
+  'mental-health',
+  'financial-overview',
+  'digital-life',
+  'income-obligations',
+  'business-interests',
+  'royalties',
+  'personal-property',
+  'firearms',
+  'funeral-burial',
+  'personal-wishes',
+  'home-property',
+  'clubs-memberships',
+  'travel-lifestyle',
+]
