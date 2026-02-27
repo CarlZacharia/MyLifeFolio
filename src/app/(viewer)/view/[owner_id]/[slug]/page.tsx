@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
+import { useSupabase } from "@/lib/supabase/use-supabase"
 import { useAuditLog } from "@/lib/hooks/use-audit-log"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -18,7 +18,7 @@ export default function ViewerCategoryPage() {
   const params = useParams()
   const ownerId = params.owner_id as string
   const slug = params.slug as string
-  const supabase = createClient()
+  const supabase = useSupabase()
   const { log } = useAuditLog()
   const loggedRef = useRef(false)
 

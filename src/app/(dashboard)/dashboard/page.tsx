@@ -7,23 +7,16 @@ import { Header } from "@/components/layout/header"
 import { CategoryGrid } from "@/components/folio/category-grid"
 import { DashboardSkeleton } from "@/components/shared/loading-skeleton"
 import { Progress } from "@/components/ui/progress"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { FolderOpen, Users, Clock } from "lucide-react"
+import { FolderOpen, Users, Clock, ArrowRight } from "lucide-react"
 import { formatRelativeTime } from "@/lib/utils/format"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import Link from "next/link"
 
 export default function DashboardPage() {
   const { profile, loading: authLoading } = useAuth()
   const { categories, loading: catsLoading } = useCategories()
   const { persons, loading: personsLoading } = usePersons()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!authLoading && profile && !profile.onboarding_completed) {
-      router.push("/onboarding")
-    }
-  }, [authLoading, profile, router])
 
   const loading = authLoading || catsLoading || personsLoading
 
@@ -76,6 +69,28 @@ export default function DashboardPage() {
               Here&apos;s an overview of your life folio
             </p>
           </div>
+
+          {/* Onboarding prompt */}
+          {!profile?.onboarding_completed && (
+            <Card className="border-gold/30 bg-gold/5">
+              <CardContent className="flex items-center justify-between p-4">
+                <div>
+                  <p className="font-medium text-primary">
+                    Finish setting up your folio
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Add your people and configure access roles
+                  </p>
+                </div>
+                <Link href="/onboarding">
+                  <Button size="sm" className="bg-gold text-gold-foreground hover:bg-gold/90">
+                    Continue Setup
+                    <ArrowRight className="ml-2 size-4" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Quick Stats */}
           <div className="grid gap-4 sm:grid-cols-3">

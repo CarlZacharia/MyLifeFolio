@@ -39,6 +39,9 @@ export type ItemType =
   | 'checklist'
   | 'custom'
 
+// Belongs-to for household support
+export type BelongsTo = 'self' | 'spouse' | 'joint'
+
 // Audit actions
 export type AuditAction =
   | 'view'

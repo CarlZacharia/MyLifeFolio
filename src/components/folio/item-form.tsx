@@ -30,12 +30,14 @@ interface ItemFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   categorySlug: string
-  initialData?: { title: string; data: Record<string, Json>; notes?: string; is_sensitive?: boolean }
+  spouseName?: string | null
+  initialData?: { title: string; data: Record<string, Json>; notes?: string; is_sensitive?: boolean; belongs_to?: string }
   onSubmit: (item: {
     title: string
     data: Record<string, Json>
     notes?: string
     is_sensitive?: boolean
+    belongs_to?: string
   }) => Promise<void>
 }
 
@@ -43,6 +45,7 @@ export function ItemForm({
   open,
   onOpenChange,
   categorySlug,
+  spouseName,
   initialData,
   onSubmit,
 }: ItemFormProps) {
@@ -55,6 +58,7 @@ export function ItemForm({
   const [isSensitive, setIsSensitive] = useState(
     initialData?.is_sensitive || false
   )
+  const [belongsTo, setBelongsTo] = useState(initialData?.belongs_to || "self")
   const [saving, setSaving] = useState(false)
 
   const setValue = (key: string, value: Json) => {
@@ -75,12 +79,14 @@ export function ItemForm({
         data: formData,
         notes: notes || undefined,
         is_sensitive: isSensitive,
+        belongs_to: belongsTo,
       })
       onOpenChange(false)
       setTitle("")
       setFormData({})
       setNotes("")
       setIsSensitive(false)
+      setBelongsTo("self")
     } catch {
       toast.error("Failed to save item")
     } finally {
@@ -194,6 +200,22 @@ export function ItemForm({
               required
             />
           </div>
+
+          {spouseName && (
+            <div className="space-y-2">
+              <Label>This item belongs to</Label>
+              <Select value={belongsTo} onValueChange={setBelongsTo}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="self">Me</SelectItem>
+                  <SelectItem value="spouse">{spouseName}</SelectItem>
+                  <SelectItem value="joint">Joint / Shared</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {fields.map((field) => (
             <div key={field.key} className="space-y-2">

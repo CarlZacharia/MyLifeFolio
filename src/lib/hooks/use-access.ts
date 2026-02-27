@@ -1,11 +1,11 @@
 "use client"
 
 import { useCallback } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useSupabase } from "@/lib/supabase/use-supabase"
 import { useAuditLog } from "@/lib/hooks/use-audit-log"
 
 export function useAccess() {
-  const supabase = createClient()
+  const supabase = useSupabase()
   const { log } = useAuditLog()
 
   const setCategoryAccess = useCallback(

@@ -25,6 +25,7 @@ export default function SettingsPage() {
   const [city, setCity] = useState("")
   const [state, setState] = useState("")
   const [zip, setZip] = useState("")
+  const [spouseName, setSpouseName] = useState("")
   // Initialize form once profile loads
   useEffect(() => {
     if (profile) {
@@ -36,6 +37,7 @@ export default function SettingsPage() {
       setCity(profile.city || "")
       setState(profile.state || "")
       setZip(profile.zip || "")
+      setSpouseName(profile.spouse_name || "")
     }
   }, [profile])
 
@@ -53,6 +55,7 @@ export default function SettingsPage() {
         city: city || null,
         state: state || null,
         zip: zip || null,
+        spouse_name: spouseName || null,
       })
 
       if (result?.error) {
@@ -183,6 +186,29 @@ export default function SettingsPage() {
                       {saving ? "Saving..." : "Save Changes"}
                     </Button>
                   </form>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Household</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="spouseName">Spouse / Partner Name</Label>
+                      <Input
+                        id="spouseName"
+                        value={spouseName}
+                        onChange={(e) => setSpouseName(e.target.value)}
+                        placeholder="Leave blank if not applicable"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        When set, each category will show separate sections for
+                        your items and your spouse&apos;s items.
+                      </p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </>

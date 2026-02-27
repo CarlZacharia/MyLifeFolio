@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useEffect, useState, useCallback } from "react"
+import { useSupabase } from "@/lib/supabase/use-supabase"
 import type { Profile } from "@/lib/types/app"
 
 export function useProfile() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const supabase = useSupabase()
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -30,25 +30,24 @@ export function useProfile() {
     }
 
     fetchProfile()
-  }, [supabase])
+  }, [])
 
-  const updateProfile = async (updates: Partial<Profile>) => {
-    if (!profile) return { data: null, error: new Error("No profile loaded") }
+  const updateProfile = useCallback(async (updates: Partial<Profile>) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { data: null, error: new Error("Not authenticated") }
 
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .update(updates)
-        .eq("id", profile.id)
-        .select()
-        .single()
+    const { data, error } = await supabase
+      .from("profiles")
+      .update(updates)
+      .eq("id", user.id)
+      .select()
+      .single()
 
-      if (data) setProfile(data)
-      return { data, error }
-    } catch (err) {
-      return { data: null, error: err instanceof Error ? err : new Error("Update failed") }
-    }
-  }
+    if (data) setProfile(data)
+    return { data, error }
+  }, [])
 
   return { profile, loading, updateProfile }
 }

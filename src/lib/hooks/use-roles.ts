@@ -1,13 +1,13 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useSupabase } from "@/lib/supabase/use-supabase"
 import type { Role } from "@/lib/types/app"
 
 export function useRoles() {
   const [roles, setRoles] = useState<Role[]>([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const supabase = useSupabase()
 
   const fetchRoles = useCallback(async () => {
     const {

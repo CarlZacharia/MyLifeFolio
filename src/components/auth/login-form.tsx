@@ -32,7 +32,7 @@ export function LoginForm() {
     e.preventDefault()
     setLoading(true)
 
-    const { error, data } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -43,17 +43,7 @@ export function LoginForm() {
       return
     }
 
-    // Check if user has any folio items to determine redirect
-    const { count } = await supabase
-      .from("folio_items")
-      .select("*", { count: "exact", head: true })
-      .eq("owner_id", data.user.id)
-
-    if (count && count > 0) {
-      router.push("/dashboard")
-    } else {
-      router.push("/onboarding")
-    }
+    router.push("/dashboard")
     router.refresh()
   }
 

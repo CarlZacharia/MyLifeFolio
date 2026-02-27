@@ -1,11 +1,11 @@
 "use client"
 
 import { useCallback } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useSupabase } from "@/lib/supabase/use-supabase"
 import type { AuditAction } from "@/lib/types/app"
 
 export function useAuditLog() {
-  const supabase = createClient()
+  const supabase = useSupabase()
 
   const log = useCallback(
     async (params: {

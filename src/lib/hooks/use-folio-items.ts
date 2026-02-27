@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useSupabase } from "@/lib/supabase/use-supabase"
 import { useAuditLog } from "@/lib/hooks/use-audit-log"
 import type { FolioItemWithAttachments } from "@/lib/types/app"
 import type { Json } from "@/lib/types/database"
@@ -9,7 +9,7 @@ import type { Json } from "@/lib/types/database"
 export function useFolioItems(categoryId?: string) {
   const [items, setItems] = useState<FolioItemWithAttachments[]>([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const supabase = useSupabase()
   const { log } = useAuditLog()
 
   const fetchItems = useCallback(async () => {
@@ -51,6 +51,7 @@ export function useFolioItems(categoryId?: string) {
     data: Json
     notes?: string
     is_sensitive?: boolean
+    belongs_to?: string
   }) => {
     const {
       data: { user },
@@ -87,6 +88,7 @@ export function useFolioItems(categoryId?: string) {
       notes?: string
       is_sensitive?: boolean
       use_custom_access?: boolean
+      belongs_to?: string
     }
   ) => {
     const { data, error } = await supabase

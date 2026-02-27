@@ -1,13 +1,13 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useSupabase } from "@/lib/supabase/use-supabase"
 import type { CategoryWithAccess } from "@/lib/types/app"
 
 export function useCategories() {
   const [categories, setCategories] = useState<CategoryWithAccess[]>([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const supabase = useSupabase()
 
   const fetchCategories = useCallback(async () => {
     const {

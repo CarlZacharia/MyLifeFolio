@@ -1,14 +1,14 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useSupabase } from "@/lib/supabase/use-supabase"
 import { useAuditLog } from "@/lib/hooks/use-audit-log"
 import type { PersonWithRoles } from "@/lib/types/app"
 
 export function usePersons() {
   const [persons, setPersons] = useState<PersonWithRoles[]>([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const supabase = useSupabase()
   const { log } = useAuditLog()
 
   const fetchPersons = useCallback(async () => {

@@ -17,7 +17,7 @@ export const CATEGORY_META: Record<string, CategoryMeta> = {
   'family-relationships': {
     slug: 'family-relationships',
     name: 'Family & Relationships',
-    description: 'Family tree, contact information, relationship notes, and pet care instructions',
+    description: 'Family tree, contact information, and relationship notes',
     icon: 'users',
     defaultItemType: 'contact',
   },
@@ -147,6 +147,13 @@ export const CATEGORY_META: Record<string, CategoryMeta> = {
     icon: 'plane',
     defaultItemType: 'custom',
   },
+  'pets': {
+    slug: 'pets',
+    name: 'Pets & Pet Care',
+    description: 'Pet profiles, veterinary info, feeding and medication schedules, designated caretakers, pet trust details, and care instructions',
+    icon: 'paw-print',
+    defaultItemType: 'custom',
+  },
 }
 
 export const CATEGORY_ORDER = [
@@ -170,4 +177,5 @@ export const CATEGORY_ORDER = [
   'home-property',
   'clubs-memberships',
   'travel-lifestyle',
+  'pets',
 ]

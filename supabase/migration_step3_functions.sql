@@ -56,7 +56,7 @@ BEGIN
     -- 2. Family & Relationships
     INSERT INTO categories (id, owner_id, name, slug, description, icon, sort_order)
     VALUES (gen_random_uuid(), p_user_id, 'Family & Relationships', 'family-relationships',
-        'Family tree, contact information, relationship notes, and pet care instructions', 'users', 2)
+        'Family tree, contact information, and relationship notes', 'users', 2)
     RETURNING id INTO c_id;
     INSERT INTO category_role_access (category_id, role_id, owner_id) VALUES
         (c_id, r_no_restrict, p_user_id);
@@ -207,6 +207,14 @@ BEGIN
     RETURNING id INTO c_id;
     INSERT INTO category_role_access (category_id, role_id, owner_id) VALUES
         (c_id, r_spouse, p_user_id);
+
+    -- 21. Pets & Pet Care → Spouse, Executor
+    INSERT INTO categories (id, owner_id, name, slug, description, icon, sort_order)
+    VALUES (gen_random_uuid(), p_user_id, 'Pets & Pet Care', 'pets',
+        'Pet profiles, veterinary info, feeding and medication schedules, designated caretakers, pet trust details, and care instructions', 'paw-print', 21)
+    RETURNING id INTO c_id;
+    INSERT INTO category_role_access (category_id, role_id, owner_id) VALUES
+        (c_id, r_spouse, p_user_id), (c_id, r_executor, p_user_id);
 
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER

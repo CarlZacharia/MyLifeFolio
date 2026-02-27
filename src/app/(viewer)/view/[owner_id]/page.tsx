@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
+import { useSupabase } from "@/lib/supabase/use-supabase"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -14,7 +14,7 @@ import type { Category, Profile } from "@/lib/types/app"
 export default function ViewerFolioPage() {
   const params = useParams()
   const ownerId = params.owner_id as string
-  const supabase = createClient()
+  const supabase = useSupabase()
 
   const [owner, setOwner] = useState<Profile | null>(null)
   const [categories, setCategories] = useState<(Category & { item_count: number })[]>([])

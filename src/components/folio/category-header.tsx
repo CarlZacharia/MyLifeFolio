@@ -8,7 +8,7 @@ import {
   Fingerprint, Users, Home, Briefcase, HeartPulse, Stethoscope,
   Bed, Brain, Landmark, MonitorSmartphone, Repeat, Building2,
   Coins, Gem, Shield, Flower2, ScrollText, House, Trophy, Plane,
-  LucideIcon,
+  PawPrint, LucideIcon,
 } from "lucide-react"
 
 const iconMap: Record<string, LucideIcon> = {
@@ -32,6 +32,7 @@ const iconMap: Record<string, LucideIcon> = {
   house: House,
   trophy: Trophy,
   plane: Plane,
+  "paw-print": PawPrint,
 }
 
 interface CategoryHeaderProps {
