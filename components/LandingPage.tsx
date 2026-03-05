@@ -47,11 +47,11 @@ import QuizIcon from '@mui/icons-material/Quiz';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import { useAuth } from '../lib/AuthContext';
 
-// Helper to check if user is an admin (email domain is zacbrownlaw.com)
+// Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
   if (!email) return false;
   const domain = email.split('@')[1];
-  return domain === 'zacbrownlaw.com';
+  return domain === 'mylifefolio.com';
 };
 
 // Custom theme with sophisticated typography and colors
@@ -474,7 +474,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                 <Box
                   component="img"
                   src="/logo.jpg"
-                  alt="Zacharia Brown & Bratkovich"
+                  alt="MyLifeFolio"
                   sx={{
                     height: { xs: 36, md: 40 },
                     width: { xs: 36, md: 40 },
@@ -493,7 +493,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                     display: { xs: 'none', sm: 'block' },
                   }}
                 >
-                  Zacharia Brown & Bratkovich
+                  MyLifeFolio
                 </Typography>
               </Box>
 
@@ -713,7 +713,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                       lineHeight: 1.8,
                     }}
                   >
-                    At Zacharia Brown & Bratkovich, we understand that planning for the future
+                    At MyLifeFolio, we understand that planning for the future
                     requires trust, expertise, and a personal approach. Our experienced attorneys
                     guide you through every step, ensuring your wishes are honored and your loved
                     ones protected.
@@ -790,36 +790,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                       alignItems: 'center',
                     }}
                   >
-                    {/* Decorative legal imagery placeholder */}
                     <Box
+                      component="img"
+                      src="/mylifefolio.png"
+                      alt="MyLifeFolio"
                       sx={{
-                        width: 280,
-                        height: 280,
+                        maxWidth: 320,
+                        width: 320,
+                        height: 320,
                         borderRadius: '50%',
-                        background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.15) 0%, rgba(201, 162, 39, 0.05) 100%)',
-                        border: '2px solid rgba(201, 162, 39, 0.2)',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        position: 'relative',
-                        '&::before': {
-                          content: '""',
-                          position: 'absolute',
-                          inset: -20,
-                          borderRadius: '50%',
-                          border: '1px solid rgba(201, 162, 39, 0.1)',
-                        },
-                        '&::after': {
-                          content: '""',
-                          position: 'absolute',
-                          inset: -40,
-                          borderRadius: '50%',
-                          border: '1px solid rgba(201, 162, 39, 0.05)',
-                        },
+                        objectFit: 'cover',
                       }}
-                    >
-                      <BalanceIcon sx={{ fontSize: 100, color: 'secondary.main', opacity: 0.6 }} />
-                    </Box>
+                    />
                   </Box>
                 </AnimatedSection>
               </Grid>
@@ -1242,7 +1224,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                 <AnimatedSection delay={300}>
                   <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
                     For over three decades, families throughout Southwest Florida have trusted
-                    Zacharia Brown & Bratkovich to protect their legacies and plan for the future.
+                    MyLifeFolio to protect their legacies and plan for the future.
                     Our attorneys combine deep legal expertise with genuine compassion for every
                     client we serve.
                   </Typography>
@@ -1438,7 +1420,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                         Email
                       </Typography>
                       <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        info@zacbrownlaw.com
+                        info@mylifefolio.com
                       </Typography>
                     </Box>
                   </Box>
@@ -1469,12 +1451,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onLogin, onRegist
                     fontSize: '1rem',
                   }}
                 >
-                  Zacharia Brown & Bratkovich
+                  MyLifeFolio
                 </Typography>
               </Box>
 
               <Typography variant="body2" sx={{ opacity: 0.6, textAlign: 'center' }}>
-                © {new Date().getFullYear()} Zacharia Brown & Bratkovich. All rights reserved.
+                © {new Date().getFullYear()} MyLifeFolio. All rights reserved.
               </Typography>
 
               <Box sx={{ display: 'flex', gap: 3 }}>

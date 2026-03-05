@@ -28,11 +28,11 @@ import { useAuth } from '../lib/AuthContext';
 import IraRmdCalculator from './IraRmdCalculator';
 import { TrustQuiz } from './TrustQuiz';
 
-// Helper to check if user is an admin (email domain is zacbrownlaw.com)
+// Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
   if (!email) return false;
   const domain = email.split('@')[1];
-  return domain === 'zacbrownlaw.com';
+  return domain === 'mylifefolio.com';
 };
 
 // Custom theme matching other pages
@@ -196,7 +196,7 @@ const PlanningPathfinder: React.FC<PlanningPathfinderProps> = ({
 
   const handleScheduleConsultation = () => {
     // Open Calendly or contact page in new tab
-    window.open('https://calendly.com/zacbrownlaw', '_blank');
+    window.open('https://calendly.com/mylifefolio', '_blank');
   };
 
   return (
@@ -258,7 +258,7 @@ const PlanningPathfinder: React.FC<PlanningPathfinderProps> = ({
               <Box
                 component="img"
                 src="/logo.jpg"
-                alt="Zacharia Brown & Bratkovich"
+                alt="MyLifeFolio"
                 sx={{
                   height: { xs: 36, md: 40 },
                   width: { xs: 36, md: 40 },
@@ -277,7 +277,7 @@ const PlanningPathfinder: React.FC<PlanningPathfinderProps> = ({
                   display: { xs: 'none', sm: 'block' },
                 }}
               >
-                Zacharia Brown & Bratkovich
+                MyLifeFolio
               </Typography>
             </Box>
 
@@ -651,7 +651,7 @@ const PlanningPathfinder: React.FC<PlanningPathfinderProps> = ({
                     fontSize: '1rem',
                   }}
                 >
-                  Zacharia Brown & Bratkovich
+                  MyLifeFolio
                 </Typography>
               </Box>
 

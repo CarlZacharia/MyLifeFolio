@@ -140,8 +140,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>Estate Planning Questionnaire - Zacharia Brown & Bratkovich</title>
-        <meta name="description" content="Estate Planning Questionnaire for Zacharia Brown & Bratkovich law firm" />
+        <title>Estate Planning Questionnaire - MyLifeFolio</title>
+        <meta name="description" content="Estate Planning Questionnaire for MyLifeFolio" />
       </head>
       <body>
         <ThemeProvider theme={theme}>
@@ -153,7 +153,7 @@ export default function RootLayout({
                 <Box
                   component="img"
                   src="/logo.jpg"
-                  alt="Zacharia Brown & Bratkovich"
+                  alt="MyLifeFolio"
                   sx={{
                     height: 40,
                     mr: 2,
@@ -167,7 +167,7 @@ export default function RootLayout({
                 <GavelIcon sx={{ mr: 2, display: { xs: 'block', sm: 'none' } }} />
                 <Box sx={{ flexGrow: 1 }}>
                   <Typography variant="h5" component="div" sx={{ fontWeight: 600 }}>
-                    Zacharia Brown & Bratkovich
+                    MyLifeFolio
                   </Typography>
                 </Box>
 

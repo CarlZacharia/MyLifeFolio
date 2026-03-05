@@ -684,7 +684,7 @@ export const helpAnswers: HelpAnswer[] = [
     title: "Estate Planning Intake Overview",
     videoUrl: "https://www.loom.com/share/ESTATE_PLANNING_OVERVIEW_VIDEO_ID",
     text: `
-      <p>Welcome to the <strong>Zacharia Brown & Bratkovich Estate Planning Intake Questionnaire</strong>.</p>
+      <p>Welcome to the <strong>MyLifeFolio Estate Planning Intake Questionnaire</strong>.</p>
       <p>This comprehensive questionnaire will guide you through providing all the information we need to prepare your estate plan. The process is divided into the following sections:</p>
       <ul>
         <li><strong>Personal Data:</strong> Your contact information, marital status, and basic details</li>
@@ -2839,7 +2839,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ open, onClose, helpId }) => {
             variant="caption"
             sx={{ color: "text.secondary", fontSize: "0.7rem" }}
           >
-            Zacharia Brown & Bratkovich &copy; 2026
+            MyLifeFolio &copy; 2026
           </Typography>
         </Box>
         <Button

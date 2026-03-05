@@ -48,11 +48,11 @@ import { useAuth } from '../lib/AuthContext';
 import { useFormContext } from '../lib/FormContext';
 import { listIntakesRaw, loadIntakeFromRaw } from '../lib/supabaseIntake';
 
-// Helper to check if user is an admin (email domain is zacbrownlaw.com)
+// Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
   if (!email) return false;
   const domain = email.split('@')[1];
-  return domain === 'zacbrownlaw.com';
+  return domain === 'mylifefolio.com';
 };
 
 // Custom theme matching LandingPage
@@ -427,7 +427,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                 <Box
                   component="img"
                   src="/logo.jpg"
-                  alt="Zacharia Brown & Bratkovich"
+                  alt="MyLifeFolio"
                   sx={{
                     height: { xs: 36, md: 40 },
                     width: { xs: 36, md: 40 },
@@ -446,7 +446,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                     display: { xs: 'none', sm: 'block' },
                   }}
                 >
-                  Zacharia Brown & Bratkovich
+                  MyLifeFolio
                 </Typography>
               </Box>
 
@@ -1099,7 +1099,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                     fontSize: '1rem',
                   }}
                 >
-                  Zacharia Brown & Bratkovich
+                  MyLifeFolio
                 </Typography>
               </Box>
 

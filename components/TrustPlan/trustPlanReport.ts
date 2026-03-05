@@ -928,7 +928,7 @@ function createFooter(): Paragraph[] {
     new Paragraph({
       children: [
         new TextRun({
-          text: 'Zacharia Brown & Bratkovich',
+          text: 'MyLifeFolio',
           bold: true,
           size: 24,
         }),

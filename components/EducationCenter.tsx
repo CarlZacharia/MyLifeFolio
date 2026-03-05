@@ -145,7 +145,7 @@ const EducationCenter: React.FC = () => {
             Education Center
           </Typography>
           <Typography variant="subtitle1" color="text.secondary">
-            Zacharia Brown & Bratkovich
+            MyLifeFolio
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             Explore our educational resources to help you better understand estate planning

@@ -85,7 +85,7 @@ const ClientNotesModal: React.FC<ClientNotesModalProps> = ({
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
         <Typography variant="body1" sx={{ mb: 3, mt: 2.5, fontWeight: 500, color: 'text.primary' }}>
-          Save any questions or comments you want to ask or tell the attorneys at Zacharia Brown & Bratkovich at your meeting.
+          Save any questions or comments you want to ask or tell the attorneys at MyLifeFolio at your meeting.
         </Typography>
         <TextField
           fullWidth

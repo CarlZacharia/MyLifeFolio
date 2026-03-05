@@ -1,6 +1,6 @@
 # Estate Planning Questionnaire - Next.js Application
 
-A professional, multi-section estate planning questionnaire for Zacharia Brown & Bratkovich law firm. Built with Next.js, TypeScript, and Material-UI, designed to submit data directly to n8n workflows.
+A professional, multi-section estate planning questionnaire for MyLifeFolio law firm. Built with Next.js, TypeScript, and Material-UI, designed to submit data directly to n8n workflows.
 
 ## 🎯 Features
 
@@ -95,7 +95,7 @@ Respond to Webhook
 
 ### Sample n8n Email Node Configuration
 
-**To:** your-email@zachbrown.com
+**To:** info@mylifefolio.com
 **Subject:** New Estate Planning Questionnaire Submitted
 **Body:**
 ```
@@ -303,12 +303,12 @@ stocksBonds: Array<{
 ## 🤝 Support
 
 For questions or issues:
-- Email: support@zachbrown.com
+- Email: info@mylifefolio.com
 - Phone: (239) 345-4545
 
 ## 📄 License
 
-Proprietary - Zacharia Brown & Bratkovich
+Proprietary - MyLifeFolio
 
 ## 🔄 Updates
 
@@ -324,4 +324,4 @@ npm install @mui/material@latest @mui/x-date-pickers@latest next@latest react@la
 
 ---
 
-Built with ❤️ for Zacharia Brown & Bratkovich
+Built with ❤️ for MyLifeFolio

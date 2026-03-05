@@ -320,7 +320,7 @@ const markdownToDocx = (markdown: string, clientName: string): Document => {
     new Paragraph({
       children: [
         new TextRun({
-          text: 'Zacharia Brown & Bratkovich',
+          text: 'MyLifeFolio',
           bold: true,
         }),
       ],
@@ -376,11 +376,11 @@ const ALL_STEPS = [
 // Page type for routing
 type PageType = 'landing' | 'estate-planning-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'profile' | 'planning-pathfinder' | 'education-center';
 
-// Helper to check if user is an admin (email domain is zacbrownlaw.com)
+// Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
   if (!email) return false;
   const domain = email.split('@')[1];
-  return domain === 'zacbrownlaw.com';
+  return domain === 'mylifefolio.com';
 };
 
 interface QuestionnaireContentProps {
@@ -769,7 +769,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
             </Alert>
             <Typography variant="body1" sx={{ mb: 2 }}>
               Thank you for completing the Estate Planning Questionnaire. By clicking "Submit",
-              your information will be securely sent to Zacharia Brown & Bratkovich for review.
+              your information will be securely sent to MyLifeFolio for review.
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
               We will contact you shortly to schedule or confirm your consultation appointment.
@@ -869,7 +869,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
               </Typography>
               <Alert severity="info" sx={{ mb: 3 }}>
                 This AI-generated analysis is for informational purposes only and does not constitute legal advice.
-                Please review this with an attorney from Zacharia Brown & Bratkovich.
+                Please review this with an attorney from MyLifeFolio.
               </Alert>
               <Paper
                 variant="outlined"
@@ -922,7 +922,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
                 </Button>
               </Box>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 4, textAlign: 'center' }}>
-                Zacharia Brown & Bratkovich
+                MyLifeFolio
                 <br />
                 26811 South Bay Dr. Ste 260
                 <br />
@@ -954,11 +954,11 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
             <Box
               component="img"
               src="/logo.jpg"
-              alt="Zacharia Brown & Bratkovich Logo"
+              alt="MyLifeFolio Logo"
               sx={{ height: 40, width: 'auto', borderRadius: 1 }}
             />
             <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
-              Zacharia Brown &amp; Bratkovich
+              MyLifeFolio
             </Typography>
           </Box>
           {user && (
@@ -1035,7 +1035,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
               <VideoHelpIcon helpId={0} onClick={() => openHelp(0)} size="large" />
             </Box>
             <Typography variant="subtitle1" color="text.secondary">
-              Zacharia Brown & Bratkovich
+              MyLifeFolio
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Estate Planning & Elder Law Attorneys

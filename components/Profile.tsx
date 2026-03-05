@@ -394,7 +394,7 @@ const Profile: React.FC<ProfileProps> = ({ onBack }) => {
             </div>
           `).join('')}
           <div class="footer">
-            <p>Prepared for consultation with Zacharia Brown & Bratkovich</p>
+            <p>Prepared for consultation with MyLifeFolio</p>
             <p>26811 South Bay Dr. Ste 260, Bonita Springs, FL 34134 | (239) 345-4545</p>
             <p>Generated: ${new Date().toLocaleDateString()}</p>
           </div>
@@ -412,7 +412,7 @@ const Profile: React.FC<ProfileProps> = ({ onBack }) => {
 
   const getEmailContent = () => {
     const subject = `Questions for Consultation - ${profileData.name}`;
-    const body = `Dear Zacharia Brown & Bratkovich Team,
+    const body = `Dear MyLifeFolio Team,
 
 I have the following questions I would like to discuss during my consultation:
 
@@ -433,7 +433,7 @@ ${profileData.name}`;
 
   const handleEmailViaGmail = () => {
     const { subject, body } = getEmailContent();
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=info@zacbrownlaw.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=info@mylifefolio.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.open(gmailUrl, '_blank');
     setSuccessMessage('Gmail compose window opened.');
     setEmailDialogOpen(false);
@@ -441,14 +441,14 @@ ${profileData.name}`;
 
   const handleEmailViaMailto = () => {
     const { subject, body } = getEmailContent();
-    window.location.href = `mailto:info@zacbrownlaw.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:info@mylifefolio.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     setSuccessMessage('Email client opened. Please send the email to complete.');
     setEmailDialogOpen(false);
   };
 
   const handleCopyEmailContent = async () => {
     const { subject, body } = getEmailContent();
-    const fullContent = `To: info@zacbrownlaw.com\nSubject: ${subject}\n\n${body}`;
+    const fullContent = `To: info@mylifefolio.com\nSubject: ${subject}\n\n${body}`;
 
     try {
       await navigator.clipboard.writeText(fullContent);
@@ -822,7 +822,7 @@ ${profileData.name}`;
         </DialogTitle>
         <DialogContent>
           <Typography sx={{ mb: 2 }}>
-            Send your {questions.length} question{questions.length !== 1 ? 's' : ''} to <strong>info@zacbrownlaw.com</strong>
+            Send your {questions.length} question{questions.length !== 1 ? 's' : ''} to <strong>info@mylifefolio.com</strong>
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             Choose how you'd like to send the email:
@@ -1001,7 +1001,7 @@ ${profileData.name}`;
               }}
             />
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-              Zacharia Brown & Bratkovich © {new Date().getFullYear()}
+              MyLifeFolio © {new Date().getFullYear()}
             </Typography>
           </Box>
           <Button

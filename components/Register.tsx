@@ -193,7 +193,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
           <Box
             component="img"
             src="/logo.jpg"
-            alt="Zacharia Brown & Bratkovich"
+            alt="MyLifeFolio"
             sx={{
               height: 80,
               width: 'auto',
@@ -326,7 +326,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
             }
             label={
               <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.5 }}>
-                I agree that all content, videos, and forms on this website are for educational purposes only and do not constitute legal advice. I understand that no attorney-client relationship exists with Zacharia Brown & Bratkovich unless mutually agreed to in writing. I acknowledge that I may not rely on any information provided through this website without first obtaining review and advice from an attorney.
+                I agree that all content, videos, and forms on this website are for educational purposes only and do not constitute legal advice. I understand that no attorney-client relationship exists with MyLifeFolio unless mutually agreed to in writing. I acknowledge that I may not rely on any information provided through this website without first obtaining review and advice from an attorney.
               </Typography>
             }
             sx={{
@@ -387,7 +387,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
             lineHeight: 1.4,
           }}
         >
-          © 2026 Zacharia Brown & Bratkovich. All rights reserved. Access to this website is strictly limited to individuals for personal use in connection with Estate Planning and Elder Law matters. Any other use is expressly prohibited.  This application may utilize artificial intelligence to assist in the preparation of materials; all AI-generated content is subject to attorney review before it may be relied upon.
+          © 2026 MyLifeFolio. All rights reserved. Access to this website is strictly limited to individuals for personal use in connection with Estate Planning and Elder Law matters. Any other use is expressly prohibited.  This application may utilize artificial intelligence to assist in the preparation of materials; all AI-generated content is subject to attorney review before it may be relied upon.
         </Typography>
       </Paper>
     </Box>
