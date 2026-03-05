@@ -9,6 +9,7 @@ import {
   Divider,
   FormControl,
   FormLabel,
+  InputLabel,
   Select,
   MenuItem,
   SelectChangeEvent,
@@ -215,20 +216,15 @@ const PersonalDataSection = () => {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Full Legal Name
-              </Typography>
-              <HelpIcon helpId={1} onClick={() => openHelp(1)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Full Legal Name"
               value={formData.name}
               onChange={handleChange('name')}
               variant="outlined"
-              placeholder="Enter your full legal name"
               size="small"
+              InputLabelProps={{ shrink: true }}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   '& fieldset': {
@@ -244,43 +240,36 @@ const PersonalDataSection = () => {
                 },
               }}
             />
+            <HelpIcon helpId={1} onClick={() => openHelp(1)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Also Known As (AKA)
-              </Typography>
-              <HelpIcon helpId={2} onClick={() => openHelp(2)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Also Known As (AKA)"
               value={formData.aka}
               onChange={handleChange('aka')}
               variant="outlined"
-              placeholder="Maiden name, nickname, etc."
               size="small"
+              InputLabelProps={{ shrink: true }}
             />
+            <HelpIcon helpId={2} onClick={() => openHelp(2)} />
           </Box>
         </Grid>
 
         <Grid item xs={12}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Mailing Address
-              </Typography>
-              <HelpIcon helpId={3} onClick={() => openHelp(3)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Mailing Address"
               value={formData.mailingAddress}
               onChange={handleChange('mailingAddress')}
               variant="outlined"
               multiline
               rows={2}
+              InputLabelProps={{ shrink: true }}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   '& fieldset': {
@@ -296,26 +285,24 @@ const PersonalDataSection = () => {
                 },
               }}
             />
+            <HelpIcon helpId={3} onClick={() => openHelp(3)} />
           </Box>
         </Grid>
 
         {/* Domicile Fields */}
         <Grid item xs={12} md={4}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                State of Domicile
-              </Typography>
-              <HelpIcon helpId={29} onClick={() => openHelp(29)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="State of Domicile"
               value={formData.stateOfDomicile}
               onChange={handleChange('stateOfDomicile')}
               variant="outlined"
               size="small"
               placeholder="e.g., Ohio"
+              InputLabelProps={{ shrink: true }}
             />
+            <HelpIcon helpId={29} onClick={() => openHelp(29)} />
           </Box>
         </Grid>
 
@@ -343,91 +330,26 @@ const PersonalDataSection = () => {
 
         {formData.lookingToChangeDomicile && (
           <Grid item xs={12} md={4}>
-            <Box>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-                New State of Domicile
-              </Typography>
-              <FormControl fullWidth size="small">
-                <Select
-                  value={formData.newDomicileState}
-                  onChange={(e) => updateFormData({ newDomicileState: e.target.value })}
-                  displayEmpty
-                >
-                  <MenuItem value="" disabled>Select a state</MenuItem>
-                  <MenuItem value="Florida">Florida</MenuItem>
-                  <MenuItem value="Pennsylvania">Pennsylvania</MenuItem>
-                  <MenuItem value="Other">Other</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
+            <FormControl fullWidth size="small">
+              <InputLabel shrink>New State of Domicile</InputLabel>
+              <Select
+                label="New State of Domicile"
+                value={formData.newDomicileState}
+                onChange={(e) => updateFormData({ newDomicileState: e.target.value })}
+                notched
+                displayEmpty
+              >
+                <MenuItem value="" disabled>Select a state</MenuItem>
+                <MenuItem value="Florida">Florida</MenuItem>
+                <MenuItem value="Pennsylvania">Pennsylvania</MenuItem>
+                <MenuItem value="Other">Other</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
         )}
 
         <Grid item xs={12} md={3}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Cell Phone
-              </Typography>
-              <HelpIcon helpId={6} onClick={() => openHelp(6)} />
-            </Box>
-            <PhoneInput
-              fullWidth
-              value={formData.cellPhone}
-              onChange={handleChange('cellPhone')}
-              variant="outlined"
-              size="small"
-              name="cellPhone"
-            />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Home Phone
-              </Typography>
-              <HelpIcon helpId={7} onClick={() => openHelp(7)} />
-            </Box>
-            <PhoneInput
-              fullWidth
-              value={formData.homePhone}
-              onChange={handleChange('homePhone')}
-              variant="outlined"
-              size="small"
-              name="homePhone"
-            />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Work Phone
-              </Typography>
-              <HelpIcon helpId={8} onClick={() => openHelp(8)} />
-            </Box>
-            <PhoneInput
-              fullWidth
-              value={formData.workPhone}
-              onChange={handleChange('workPhone')}
-              variant="outlined"
-              size="small"
-              name="workPhone"
-            />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Sex
-              </Typography>
-              <HelpIcon helpId={9} onClick={() => openHelp(9)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <FormControl
               fullWidth
               variant="outlined"
@@ -448,8 +370,11 @@ const PersonalDataSection = () => {
               }}
             >
               <Select
+                label="Sex"
                 value={formData.sex}
                 onChange={handleSelectChange('sex')}
+                notched
+                displayEmpty
               >
                 {SEX_OPTIONS.map((sex) => (
                   <MenuItem key={sex} value={sex}>
@@ -457,25 +382,71 @@ const PersonalDataSection = () => {
                   </MenuItem>
                 ))}
               </Select>
+              <InputLabel shrink>Sex</InputLabel>
             </FormControl>
+            <HelpIcon helpId={9} onClick={() => openHelp(9)} />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={3}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <PhoneInput
+              fullWidth
+              label="Home Phone"
+              value={formData.homePhone}
+              onChange={handleChange('homePhone')}
+              variant="outlined"
+              size="small"
+              name="homePhone"
+              InputLabelProps={{ shrink: true }}
+            />
+            <HelpIcon helpId={7} onClick={() => openHelp(7)} />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={3}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <PhoneInput
+              fullWidth
+              label="Work Phone"
+              value={formData.workPhone}
+              onChange={handleChange('workPhone')}
+              variant="outlined"
+              size="small"
+              name="workPhone"
+              InputLabelProps={{ shrink: true }}
+            />
+            <HelpIcon helpId={8} onClick={() => openHelp(8)} />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={3}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <PhoneInput
+              fullWidth
+              label="Cell Phone"
+              value={formData.cellPhone}
+              onChange={handleChange('cellPhone')}
+              variant="outlined"
+              size="small"
+              name="cellPhone"
+              InputLabelProps={{ shrink: true }}
+            />
+            <HelpIcon helpId={6} onClick={() => openHelp(6)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Email Address
-              </Typography>
-              <HelpIcon helpId={10} onClick={() => openHelp(10)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Email Address"
               value={formData.email}
               onChange={handleChange('email')}
               variant="outlined"
               type="email"
               size="small"
+              InputLabelProps={{ shrink: true }}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   '& fieldset': {
@@ -491,18 +462,14 @@ const PersonalDataSection = () => {
                 },
               }}
             />
+            <HelpIcon helpId={10} onClick={() => openHelp(10)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Birth Date
-              </Typography>
-              <HelpIcon helpId={11} onClick={() => openHelp(11)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <DatePicker
+              label="Birth Date"
               value={formData.birthDate}
               onChange={handleDateChange('birthDate')}
               slotProps={{
@@ -511,6 +478,7 @@ const PersonalDataSection = () => {
                   variant: 'outlined',
                   size: 'small',
                   onBlur: handleBirthDateBlur,
+                  InputLabelProps: { shrink: true },
                   sx: {
                     '& .MuiOutlinedInput-root': {
                       '& fieldset': {
@@ -528,27 +496,23 @@ const PersonalDataSection = () => {
                 },
               }}
             />
+            <HelpIcon helpId={11} onClick={() => openHelp(11)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={2}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Age
-              </Typography>
-            </Box>
-            <TextField
-              fullWidth
-              value={clientAge}
-              variant="outlined"
-              size="small"
-              InputProps={{
-                readOnly: true,
-              }}
-              sx={{ backgroundColor: '#f5f5f5' }}
-            />
-          </Box>
+          <TextField
+            fullWidth
+            label="Age"
+            value={clientAge}
+            variant="outlined"
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            InputProps={{
+              readOnly: true,
+            }}
+            sx={{ backgroundColor: '#f5f5f5' }}
+          />
         </Grid>
 
         <Grid item xs={12} md={4}>
@@ -563,13 +527,7 @@ const PersonalDataSection = () => {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Marital Status
-              </Typography>
-              <HelpIcon helpId={12} onClick={() => openHelp(12)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <FormControl
               fullWidth
               variant="outlined"
@@ -589,9 +547,12 @@ const PersonalDataSection = () => {
                 },
               }}
             >
+              <InputLabel shrink>Marital Status</InputLabel>
               <Select
+                label="Marital Status"
                 value={formData.maritalStatus}
                 onChange={handleSelectChange('maritalStatus')}
+                notched
               >
                 {MARITAL_STATUS_OPTIONS.map((status) => (
                   <MenuItem key={status} value={status}>
@@ -600,20 +561,16 @@ const PersonalDataSection = () => {
                 ))}
               </Select>
             </FormControl>
+            <HelpIcon helpId={12} onClick={() => openHelp(12)} />
           </Box>
         </Grid>
 
         {/* No. of Children - always shown */}
         <Grid item xs={12} md={2}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                No. of Children
-              </Typography>
-              <HelpIcon helpId={13} onClick={() => openHelp(13)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="No. of Children"
               value={formData.numberOfChildren}
               onChange={(e) => {
                 const value = parseInt(e.target.value, 10);
@@ -623,7 +580,9 @@ const PersonalDataSection = () => {
               size="small"
               type="number"
               inputProps={{ min: 0, style: { textAlign: 'center' } }}
+              InputLabelProps={{ shrink: true }}
             />
+            <HelpIcon helpId={13} onClick={() => openHelp(13)} />
           </Box>
         </Grid>
 
@@ -697,325 +656,6 @@ const PersonalDataSection = () => {
           </FormControl>
         </Grid>
 
-        {/* Client's Income Sources */}
-        <Grid item xs={12}>
-          <Divider sx={{ my: 2 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 500 }}>
-              Income Sources
-            </Typography>
-            <HelpIcon helpId={230} onClick={() => openHelp(230)} />
-          </Box>
-        </Grid>
-
-        {formData.clientIncomeSources.map((incomeSource, index) => (
-          <React.Fragment key={`client-income-${index}`}>
-            <Grid item xs={12} md={4}>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-                  {index === 0 ? 'Income Source' : `Income Source ${index + 1}`}
-                </Typography>
-                <TextField
-                  fullWidth
-                  value={incomeSource.description}
-                  onChange={(e) => {
-                    const newSources = [...formData.clientIncomeSources];
-                    newSources[index] = { ...newSources[index], description: e.target.value };
-                    updateFormData({ clientIncomeSources: newSources });
-                  }}
-                  variant="outlined"
-                  size="small"
-                  placeholder={index === 0 ? 'Social Security' : 'e.g., Pension, Part-time work'}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={6} md={2}>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-                  Amount
-                </Typography>
-                <TextField
-                  fullWidth
-                  value={incomeSource.amount}
-                  onChange={(e) => {
-                    const newSources = [...formData.clientIncomeSources];
-                    newSources[index] = { ...newSources[index], amount: e.target.value };
-                    updateFormData({ clientIncomeSources: newSources });
-                  }}
-                  variant="outlined"
-                  size="small"
-                  placeholder="$0.00"
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={6} md={3}>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-                  Frequency
-                </Typography>
-                <FormControl fullWidth variant="outlined" size="small">
-                  <Select
-                    value={incomeSource.frequency}
-                    onChange={(e) => {
-                      const newSources = [...formData.clientIncomeSources];
-                      newSources[index] = { ...newSources[index], frequency: e.target.value as IncomeFrequency };
-                      updateFormData({ clientIncomeSources: newSources });
-                    }}
-                    displayEmpty
-                  >
-                    <MenuItem value="" disabled>Select frequency</MenuItem>
-                    {INCOME_FREQUENCY_OPTIONS.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-                  Monthly Amount
-                </Typography>
-                <TextField
-                  fullWidth
-                  value={incomeSource.amount && incomeSource.frequency
-                    ? formatCurrency(calculateMonthlyAmount(incomeSource.amount, incomeSource.frequency))
-                    : ''}
-                  variant="outlined"
-                  size="small"
-                  InputProps={{ readOnly: true }}
-                  sx={{ backgroundColor: 'action.hover' }}
-                  placeholder="Calculated"
-                />
-              </Box>
-            </Grid>
-          </React.Fragment>
-        ))}
-
-        {/* Total Monthly Income */}
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 1 }}>
-            <Typography variant="body1" sx={{ fontWeight: 600, mr: 2 }}>
-              Total Monthly Income:
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
-              {formatCurrency(calculateTotalMonthlyIncome(formData.clientIncomeSources))}
-            </Typography>
-          </Box>
-        </Grid>
-
-        {/* Client's Medical Insurance */}
-        <Grid item xs={12}>
-          <Divider sx={{ my: 2 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 500 }}>
-              Medical Insurance
-            </Typography>
-            <HelpIcon helpId={231} onClick={() => openHelp(231)} />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-              Medicare Part B Monthly Deduction
-            </Typography>
-            <TextField
-              fullWidth
-              value={formData.clientMedicalInsurance.medicarePartBDeduction}
-              onChange={(e) => {
-                updateFormData({
-                  clientMedicalInsurance: {
-                    ...formData.clientMedicalInsurance,
-                    medicarePartBDeduction: e.target.value,
-                  },
-                });
-              }}
-              variant="outlined"
-              size="small"
-              placeholder="$0.00"
-            />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={8} />
-
-        <Grid item xs={12} md={6}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1 }}>
-              Medicare Coverage Type
-            </FormLabel>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <RadioGroup
-                row
-                value={formData.clientMedicalInsurance.medicareCoverageType}
-                onChange={(e) => {
-                  updateFormData({
-                    clientMedicalInsurance: {
-                      ...formData.clientMedicalInsurance,
-                      medicareCoverageType: e.target.value as MedicareCoverageType,
-                    },
-                  });
-                }}
-              >
-                {MEDICARE_COVERAGE_OPTIONS.map((option) => (
-                  <FormControlLabel
-                    key={option.value}
-                    value={option.value}
-                    control={<Radio size="small" />}
-                    label={option.label}
-                  />
-                ))}
-              </RadioGroup>
-              <TextField
-                value={formData.clientMedicalInsurance.medicarePlanName}
-                onChange={(e) => {
-                  updateFormData({
-                    clientMedicalInsurance: {
-                      ...formData.clientMedicalInsurance,
-                      medicarePlanName: e.target.value,
-                    },
-                  });
-                }}
-                variant="outlined"
-                size="small"
-                placeholder="Name of plan"
-                sx={{ minWidth: 150 }}
-              />
-            </Box>
-          </FormControl>
-        </Grid>
-
-        {formData.clientMedicalInsurance.medicareCoverageType && (
-          <Grid item xs={12} md={3}>
-            <Box>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-                {formData.clientMedicalInsurance.medicareCoverageType} Monthly Cost
-              </Typography>
-              <TextField
-                fullWidth
-                value={formData.clientMedicalInsurance.medicareCoverageCost}
-                onChange={(e) => {
-                  updateFormData({
-                    clientMedicalInsurance: {
-                      ...formData.clientMedicalInsurance,
-                      medicareCoverageCost: e.target.value,
-                    },
-                  });
-                }}
-                variant="outlined"
-                size="small"
-                placeholder="$0.00"
-              />
-            </Box>
-          </Grid>
-        )}
-
-        <Grid item xs={12} md={6}>
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-              Private Insurance (if any)
-            </Typography>
-            <TextField
-              fullWidth
-              value={formData.clientMedicalInsurance.privateInsuranceDescription}
-              onChange={(e) => {
-                updateFormData({
-                  clientMedicalInsurance: {
-                    ...formData.clientMedicalInsurance,
-                    privateInsuranceDescription: e.target.value,
-                  },
-                });
-              }}
-              variant="outlined"
-              size="small"
-              placeholder="e.g., Employer-provided, Blue Cross"
-            />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-              Private Insurance Monthly Cost
-            </Typography>
-            <TextField
-              fullWidth
-              value={formData.clientMedicalInsurance.privateInsuranceCost}
-              onChange={(e) => {
-                updateFormData({
-                  clientMedicalInsurance: {
-                    ...formData.clientMedicalInsurance,
-                    privateInsuranceCost: e.target.value,
-                  },
-                });
-              }}
-              variant="outlined"
-              size="small"
-              placeholder="$0.00"
-            />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-              Other Insurance (if any)
-            </Typography>
-            <TextField
-              fullWidth
-              value={formData.clientMedicalInsurance.otherInsuranceDescription}
-              onChange={(e) => {
-                updateFormData({
-                  clientMedicalInsurance: {
-                    ...formData.clientMedicalInsurance,
-                    otherInsuranceDescription: e.target.value,
-                  },
-                });
-              }}
-              variant="outlined"
-              size="small"
-              placeholder="e.g., VA benefits, Medicaid"
-            />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-              Other Insurance Monthly Cost
-            </Typography>
-            <TextField
-              fullWidth
-              value={formData.clientMedicalInsurance.otherInsuranceCost}
-              onChange={(e) => {
-                updateFormData({
-                  clientMedicalInsurance: {
-                    ...formData.clientMedicalInsurance,
-                    otherInsuranceCost: e.target.value,
-                  },
-                });
-              }}
-              variant="outlined"
-              size="small"
-              placeholder="$0.00"
-            />
-          </Box>
-        </Grid>
-
-        {/* Total Monthly Insurance Cost */}
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 1 }}>
-            <Typography variant="body1" sx={{ fontWeight: 600, mr: 2 }}>
-              Total Monthly Insurance Cost:
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: 'error.main' }}>
-              {formatCurrency(calculateTotalInsuranceCost(formData.clientMedicalInsurance))}
-            </Typography>
-          </Box>
-        </Grid>
 
         {/* Client's Military Service */}
         <Grid item xs={12}>
@@ -1058,64 +698,48 @@ const PersonalDataSection = () => {
         {formData.clientServedMilitary && (
           <>
             <Grid item xs={12} md={4}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                    Branch of Service
-                  </Typography>
-                </Box>
-                <FormControl fullWidth variant="outlined" size="small">
-                  <Select
-                    value={formData.clientMilitaryBranch}
-                    onChange={handleSelectChange('clientMilitaryBranch')}
-                  >
-                    <MenuItem value="Army">Army</MenuItem>
-                    <MenuItem value="Navy">Navy</MenuItem>
-                    <MenuItem value="Air Force">Air Force</MenuItem>
-                    <MenuItem value="Marine Corps">Marine Corps</MenuItem>
-                    <MenuItem value="Coast Guard">Coast Guard</MenuItem>
-                    <MenuItem value="Space Force">Space Force</MenuItem>
-                    <MenuItem value="National Guard">National Guard</MenuItem>
-                    <MenuItem value="Reserves">Reserves</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
+              <FormControl fullWidth variant="outlined" size="small">
+                <InputLabel shrink>Branch of Service</InputLabel>
+                <Select
+                  label="Branch of Service"
+                  value={formData.clientMilitaryBranch}
+                  onChange={handleSelectChange('clientMilitaryBranch')}
+                  notched
+                >
+                  <MenuItem value="Army">Army</MenuItem>
+                  <MenuItem value="Navy">Navy</MenuItem>
+                  <MenuItem value="Air Force">Air Force</MenuItem>
+                  <MenuItem value="Marine Corps">Marine Corps</MenuItem>
+                  <MenuItem value="Coast Guard">Coast Guard</MenuItem>
+                  <MenuItem value="Space Force">Space Force</MenuItem>
+                  <MenuItem value="National Guard">National Guard</MenuItem>
+                  <MenuItem value="Reserves">Reserves</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} md={2}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                    Start Date
-                  </Typography>
-                </Box>
-                <TextField
-                  fullWidth
-                  type="month"
-                  value={formData.clientMilitaryStartDate}
-                  onChange={handleChange('clientMilitaryStartDate')}
-                  variant="outlined"
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Box>
+              <TextField
+                fullWidth
+                label="Start Date"
+                type="month"
+                value={formData.clientMilitaryStartDate}
+                onChange={handleChange('clientMilitaryStartDate')}
+                variant="outlined"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
             <Grid item xs={12} md={2}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                    End Date
-                  </Typography>
-                </Box>
-                <TextField
-                  fullWidth
-                  type="month"
-                  value={formData.clientMilitaryEndDate}
-                  onChange={handleChange('clientMilitaryEndDate')}
-                  variant="outlined"
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Box>
+              <TextField
+                fullWidth
+                label="End Date"
+                type="month"
+                value={formData.clientMilitaryEndDate}
+                onChange={handleChange('clientMilitaryEndDate')}
+                variant="outlined"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
           </>
         )}
@@ -1158,36 +782,28 @@ const PersonalDataSection = () => {
 
         {formData.clientHasPrepaidFuneral && (
           <Grid item xs={12} md={4}>
-            <Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                  Prepaid Funeral Details
-                </Typography>
-              </Box>
-              <TextField
-                fullWidth
-                value={formData.clientPrepaidFuneralDetails}
-                onChange={handleChange('clientPrepaidFuneralDetails')}
-                variant="outlined"
-                size="small"
-                placeholder="Policy number, funeral home, etc."
-              />
-            </Box>
+            <TextField
+              fullWidth
+              label="Prepaid Funeral Details"
+              value={formData.clientPrepaidFuneralDetails}
+              onChange={handleChange('clientPrepaidFuneralDetails')}
+              variant="outlined"
+              size="small"
+              placeholder="Policy number, funeral home, etc."
+              InputLabelProps={{ shrink: true }}
+            />
           </Grid>
         )}
 
         <Grid item xs={12} md={4}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Burial or Cremation Preference
-              </Typography>
-              <HelpIcon helpId={44} onClick={() => openHelp(44)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <FormControl fullWidth variant="outlined" size="small">
+              <InputLabel shrink>Burial or Cremation Preference</InputLabel>
               <Select
+                label="Burial or Cremation Preference"
                 value={formData.clientBurialOrCremation}
                 onChange={handleSelectChange('clientBurialOrCremation')}
+                notched
               >
                 <MenuItem value="">Select...</MenuItem>
                 <MenuItem value="Burial">Burial</MenuItem>
@@ -1195,312 +811,41 @@ const PersonalDataSection = () => {
                 <MenuItem value="Undecided">Undecided</MenuItem>
               </Select>
             </FormControl>
+            <HelpIcon helpId={44} onClick={() => openHelp(44)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Preferred Funeral Home
-              </Typography>
-              <HelpIcon helpId={45} onClick={() => openHelp(45)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Preferred Funeral Home"
               value={formData.clientPreferredFuneralHome}
               onChange={handleChange('clientPreferredFuneralHome')}
               variant="outlined"
               size="small"
-              placeholder="Name and location"
+              InputLabelProps={{ shrink: true }}
             />
+            <HelpIcon helpId={45} onClick={() => openHelp(45)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Preferred Church for Service
-              </Typography>
-              <HelpIcon helpId={46} onClick={() => openHelp(46)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Preferred Church for Service"
               value={formData.clientPreferredChurch}
               onChange={handleChange('clientPreferredChurch')}
               variant="outlined"
               size="small"
-              placeholder="Name and location"
+              InputLabelProps={{ shrink: true }}
             />
+            <HelpIcon helpId={46} onClick={() => openHelp(46)} />
           </Box>
         </Grid>
 
-        {/* Client's Existing Trusts */}
-        <Grid item xs={12}>
-          <Divider sx={{ my: 2 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 500 }}>
-              Existing Trusts
-            </Typography>
-            <VideoHelpIcon helpId={50} onClick={() => openHelp(50)} />
-          </Box>
-        </Grid>
 
-        <Grid item xs={12} md={6}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <FormControl component="fieldset">
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
-                  Do you have an existing Living Trust?
-                </FormLabel>
-                <HelpIcon helpId={4} onClick={() => openHelp(4)} />
-              </Box>
-              <RadioGroup
-                row
-                value={formData.clientHasLivingTrust ? 'yes' : 'no'}
-                onChange={(e) => {
-                  const hasLivingTrust = e.target.value === 'yes';
-                  updateFormData({
-                    clientHasLivingTrust: hasLivingTrust,
-                    clientLivingTrustName: hasLivingTrust ? formData.clientLivingTrustName : '',
-                    clientLivingTrustDate: hasLivingTrust ? formData.clientLivingTrustDate : null,
-                  });
-                }}
-              >
-                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-              </RadioGroup>
-            </FormControl>
-            {formData.clientHasLivingTrust && (
-              <>
-                <TextField
-                  fullWidth
-                  label="Living Trust Name"
-                  value={formData.clientLivingTrustName}
-                  onChange={handleChange('clientLivingTrustName')}
-                  variant="outlined"
-                  placeholder="e.g., The John Smith Revocable Living Trust"
-                />
-                <DatePicker
-                  label="Living Trust Date"
-                  value={formData.clientLivingTrustDate}
-                  onChange={handleDateChange('clientLivingTrustDate')}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      variant: 'outlined',
-                    },
-                  }}
-                />
-              </>
-            )}
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <FormControl component="fieldset">
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
-                  Do you have an existing Irrevocable Trust?
-                </FormLabel>
-                <HelpIcon helpId={5} onClick={() => openHelp(5)} />
-              </Box>
-              <RadioGroup
-                row
-                value={formData.clientHasIrrevocableTrust ? 'yes' : 'no'}
-                onChange={(e) => {
-                  const hasIrrevocableTrust = e.target.value === 'yes';
-                  updateFormData({
-                    clientHasIrrevocableTrust: hasIrrevocableTrust,
-                    clientIrrevocableTrustName: hasIrrevocableTrust ? formData.clientIrrevocableTrustName : '',
-                    clientIrrevocableTrustDate: hasIrrevocableTrust ? formData.clientIrrevocableTrustDate : null,
-                  });
-                }}
-              >
-                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-              </RadioGroup>
-            </FormControl>
-            {formData.clientHasIrrevocableTrust && (
-              <>
-                <TextField
-                  fullWidth
-                  label="Irrevocable Trust Name"
-                  value={formData.clientIrrevocableTrustName}
-                  onChange={handleChange('clientIrrevocableTrustName')}
-                  variant="outlined"
-                  placeholder="e.g., The Smith Irrevocable Trust"
-                />
-                <DatePicker
-                  label="Irrevocable Trust Date"
-                  value={formData.clientIrrevocableTrustDate}
-                  onChange={handleDateChange('clientIrrevocableTrustDate')}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      variant: 'outlined',
-                    },
-                  }}
-                />
-              </>
-            )}
-          </Box>
-        </Grid>
-
-        <Grid item xs={12}>
-          <FormControl component="fieldset">
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
-                Are you interested in creating or updating a trust?
-              </FormLabel>
-              <HelpIcon helpId={54} onClick={() => openHelp(54)} />
-            </Box>
-            <RadioGroup
-              row
-              value={formData.clientConsideringTrust ? 'yes' : 'no'}
-              onChange={(e) => {
-                updateFormData({ clientConsideringTrust: e.target.value === 'yes' });
-              }}
-            >
-              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
-
-        {/* Safe Deposit Box */}
-        <Grid item xs={12}>
-          <Divider sx={{ my: 2 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 500 }}>
-              Safe Deposit Box
-            </Typography>
-            <HelpIcon helpId={56} onClick={() => openHelp(56)} />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <FormControl component="fieldset">
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
-                Do you have a safe deposit box?
-              </FormLabel>
-              <HelpIcon helpId={57} onClick={() => openHelp(57)} />
-            </Box>
-            <RadioGroup
-              row
-              value={formData.hasSafeDepositBox ? 'yes' : 'no'}
-              onChange={(e) => {
-                const hasBox = e.target.value === 'yes';
-                updateFormData({
-                  hasSafeDepositBox: hasBox,
-                  safeDepositBoxBank: hasBox ? formData.safeDepositBoxBank : '',
-                  safeDepositBoxNumber: hasBox ? formData.safeDepositBoxNumber : '',
-                  safeDepositBoxLocation: hasBox ? formData.safeDepositBoxLocation : '',
-                  safeDepositBoxAccess: hasBox ? formData.safeDepositBoxAccess : '',
-                  safeDepositBoxContents: hasBox ? formData.safeDepositBoxContents : '',
-                });
-              }}
-            >
-              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
-
-        {formData.hasSafeDepositBox && (
-          <>
-            <Grid item xs={12} md={4}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                    Bank/Institution
-                  </Typography>
-                </Box>
-                <TextField
-                  fullWidth
-                  value={formData.safeDepositBoxBank}
-                  onChange={handleChange('safeDepositBoxBank')}
-                  variant="outlined"
-                  size="small"
-                  placeholder="e.g., Chase Bank, First National Bank"
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                    Box Number
-                  </Typography>
-                </Box>
-                <TextField
-                  fullWidth
-                  value={formData.safeDepositBoxNumber}
-                  onChange={handleChange('safeDepositBoxNumber')}
-                  variant="outlined"
-                  size="small"
-                  placeholder="e.g., Box #1234"
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                    Branch Location/Address
-                  </Typography>
-                </Box>
-                <TextField
-                  fullWidth
-                  value={formData.safeDepositBoxLocation}
-                  onChange={handleChange('safeDepositBoxLocation')}
-                  variant="outlined"
-                  size="small"
-                  placeholder="e.g., 123 Main St, Columbus, OH"
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                    Who Has Access/Keys?
-                  </Typography>
-                </Box>
-                <TextField
-                  fullWidth
-                  value={formData.safeDepositBoxAccess}
-                  onChange={handleChange('safeDepositBoxAccess')}
-                  variant="outlined"
-                  size="small"
-                  placeholder="e.g., Client and spouse, Attorney John Smith"
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={12}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                    Contents/What&apos;s Stored
-                  </Typography>
-                </Box>
-                <TextField
-                  fullWidth
-                  value={formData.safeDepositBoxContents}
-                  onChange={handleChange('safeDepositBoxContents')}
-                  variant="outlined"
-                  size="small"
-                  multiline
-                  rows={2}
-                  placeholder="e.g., Original will, deed to home, jewelry, birth certificates"
-                />
-              </Box>
-            </Grid>
-          </>
-        )}
       </Grid>
       )}
 
@@ -1518,19 +863,15 @@ const PersonalDataSection = () => {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Spouse Full Legal Name
-              </Typography>
-              <HelpIcon helpId={17} onClick={() => openHelp(17)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Spouse Full Legal Name"
               value={formData.spouseName}
               onChange={handleChange('spouseName')}
               variant="outlined"
               size="small"
+              InputLabelProps={{ shrink: true }}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   '& fieldset': {
@@ -1546,113 +887,92 @@ const PersonalDataSection = () => {
                 },
               }}
             />
+            <HelpIcon helpId={17} onClick={() => openHelp(17)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Spouse Also Known As (AKA)
-              </Typography>
-              <HelpIcon helpId={18} onClick={() => openHelp(18)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Spouse Also Known As (AKA)"
               value={formData.spouseAka}
               onChange={handleChange('spouseAka')}
               variant="outlined"
-              placeholder="Maiden name, nickname, etc."
               size="small"
+              InputLabelProps={{ shrink: true }}
             />
+            <HelpIcon helpId={18} onClick={() => openHelp(18)} />
           </Box>
         </Grid>
 
         <Grid item xs={12}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Spouse Mailing Address
-              </Typography>
-              <HelpIcon helpId={19} onClick={() => openHelp(19)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Spouse Mailing Address"
               value={formData.spouseMailingAddress}
               onChange={handleChange('spouseMailingAddress')}
               variant="outlined"
               multiline
               rows={2}
               helperText="Leave blank if same as client"
+              InputLabelProps={{ shrink: true }}
             />
+            <HelpIcon helpId={19} onClick={() => openHelp(19)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Spouse Cell Phone
-              </Typography>
-              <HelpIcon helpId={20} onClick={() => openHelp(20)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <PhoneInput
               fullWidth
+              label="Spouse Cell Phone"
               value={formData.spouseCellPhone}
               onChange={handleChange('spouseCellPhone')}
               variant="outlined"
               size="small"
               name="spouseCellPhone"
+              InputLabelProps={{ shrink: true }}
             />
+            <HelpIcon helpId={20} onClick={() => openHelp(20)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Spouse Home Phone
-              </Typography>
-              <HelpIcon helpId={21} onClick={() => openHelp(21)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <PhoneInput
               fullWidth
+              label="Spouse Home Phone"
               value={formData.spouseHomePhone}
               onChange={handleChange('spouseHomePhone')}
               variant="outlined"
               size="small"
               name="spouseHomePhone"
+              InputLabelProps={{ shrink: true }}
             />
+            <HelpIcon helpId={21} onClick={() => openHelp(21)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Spouse Work Phone
-              </Typography>
-              <HelpIcon helpId={22} onClick={() => openHelp(22)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <PhoneInput
               fullWidth
+              label="Spouse Work Phone"
               value={formData.spouseWorkPhone}
               onChange={handleChange('spouseWorkPhone')}
               variant="outlined"
               size="small"
               name="spouseWorkPhone"
+              InputLabelProps={{ shrink: true }}
             />
+            <HelpIcon helpId={22} onClick={() => openHelp(22)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={3}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Sex
-              </Typography>
-              <HelpIcon helpId={23} onClick={() => openHelp(23)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <FormControl
               fullWidth
               variant="outlined"
@@ -1672,9 +992,12 @@ const PersonalDataSection = () => {
                 },
               }}
             >
+              <InputLabel shrink>Sex</InputLabel>
               <Select
+                label="Sex"
                 value={formData.spouseSex}
                 onChange={handleSelectChange('spouseSex')}
+                notched
               >
                 {SEX_OPTIONS.map((sex) => (
                   <MenuItem key={sex} value={sex}>
@@ -1683,24 +1006,21 @@ const PersonalDataSection = () => {
                 ))}
               </Select>
             </FormControl>
+            <HelpIcon helpId={23} onClick={() => openHelp(23)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Spouse Email Address
-              </Typography>
-              <HelpIcon helpId={24} onClick={() => openHelp(24)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Spouse Email Address"
               value={formData.spouseEmail}
               onChange={handleChange('spouseEmail')}
               variant="outlined"
               type="email"
               size="small"
+              InputLabelProps={{ shrink: true }}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   '& fieldset': {
@@ -1716,18 +1036,14 @@ const PersonalDataSection = () => {
                 },
               }}
             />
+            <HelpIcon helpId={24} onClick={() => openHelp(24)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Spouse Birth Date
-              </Typography>
-              <HelpIcon helpId={25} onClick={() => openHelp(25)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <DatePicker
+              label="Spouse Birth Date"
               value={formData.spouseBirthDate}
               onChange={handleDateChange('spouseBirthDate')}
               slotProps={{
@@ -1736,6 +1052,7 @@ const PersonalDataSection = () => {
                   variant: 'outlined',
                   size: 'small',
                   onBlur: handleSpouseBirthDateBlur,
+                  InputLabelProps: { shrink: true },
                   sx: {
                     '& .MuiOutlinedInput-root': {
                       '& fieldset': {
@@ -1753,27 +1070,23 @@ const PersonalDataSection = () => {
                 },
               }}
             />
+            <HelpIcon helpId={25} onClick={() => openHelp(25)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={2}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Age
-              </Typography>
-            </Box>
-            <TextField
-              fullWidth
-              value={spouseAge}
-              variant="outlined"
-              size="small"
-              InputProps={{
-                readOnly: true,
-              }}
-              sx={{ backgroundColor: '#f5f5f5' }}
-            />
-          </Box>
+          <TextField
+            fullWidth
+            label="Age"
+            value={spouseAge}
+            variant="outlined"
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            InputProps={{
+              readOnly: true,
+            }}
+            sx={{ backgroundColor: '#f5f5f5' }}
+          />
         </Grid>
 
         <Grid item xs={12} md={4}>
@@ -1809,15 +1122,10 @@ const PersonalDataSection = () => {
         </Grid>
 
         <Grid item xs={12} md={2}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Children Together
-              </Typography>
-              <HelpIcon helpId={15} onClick={() => openHelp(15)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Children Together"
               value={formData.childrenTogether}
               onChange={(e) => {
                 const value = parseInt(e.target.value, 10);
@@ -1829,9 +1137,11 @@ const PersonalDataSection = () => {
               size="small"
               type="number"
               inputProps={{ min: 0, max: formData.numberOfChildren - formData.clientChildrenFromPrior, style: { textAlign: 'center' } }}
+              InputLabelProps={{ shrink: true }}
               error={formData.childrenTogether > formData.numberOfChildren - formData.clientChildrenFromPrior}
               helperText={formData.numberOfChildren > 0 ? `Max: ${Math.max(0, formData.numberOfChildren - formData.clientChildrenFromPrior)}` : ''}
             />
+            <HelpIcon helpId={15} onClick={() => openHelp(15)} />
           </Box>
         </Grid>
 
@@ -1876,325 +1186,6 @@ const PersonalDataSection = () => {
           </Grid>
         )}
 
-        {/* Spouse's Income Sources */}
-        <Grid item xs={12}>
-          <Divider sx={{ my: 2 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 500 }}>
-              Spouse&apos;s Income Sources
-            </Typography>
-            <HelpIcon helpId={232} onClick={() => openHelp(232)} />
-          </Box>
-        </Grid>
-
-        {formData.spouseIncomeSources.map((incomeSource, index) => (
-          <React.Fragment key={`spouse-income-${index}`}>
-            <Grid item xs={12} md={4}>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-                  {index === 0 ? 'Income Source' : `Income Source ${index + 1}`}
-                </Typography>
-                <TextField
-                  fullWidth
-                  value={incomeSource.description}
-                  onChange={(e) => {
-                    const newSources = [...formData.spouseIncomeSources];
-                    newSources[index] = { ...newSources[index], description: e.target.value };
-                    updateFormData({ spouseIncomeSources: newSources });
-                  }}
-                  variant="outlined"
-                  size="small"
-                  placeholder={index === 0 ? 'Social Security' : 'e.g., Pension, Part-time work'}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={6} md={2}>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-                  Amount
-                </Typography>
-                <TextField
-                  fullWidth
-                  value={incomeSource.amount}
-                  onChange={(e) => {
-                    const newSources = [...formData.spouseIncomeSources];
-                    newSources[index] = { ...newSources[index], amount: e.target.value };
-                    updateFormData({ spouseIncomeSources: newSources });
-                  }}
-                  variant="outlined"
-                  size="small"
-                  placeholder="$0.00"
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={6} md={3}>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-                  Frequency
-                </Typography>
-                <FormControl fullWidth variant="outlined" size="small">
-                  <Select
-                    value={incomeSource.frequency}
-                    onChange={(e) => {
-                      const newSources = [...formData.spouseIncomeSources];
-                      newSources[index] = { ...newSources[index], frequency: e.target.value as IncomeFrequency };
-                      updateFormData({ spouseIncomeSources: newSources });
-                    }}
-                    displayEmpty
-                  >
-                    <MenuItem value="" disabled>Select frequency</MenuItem>
-                    {INCOME_FREQUENCY_OPTIONS.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-                  Monthly Amount
-                </Typography>
-                <TextField
-                  fullWidth
-                  value={incomeSource.amount && incomeSource.frequency
-                    ? formatCurrency(calculateMonthlyAmount(incomeSource.amount, incomeSource.frequency))
-                    : ''}
-                  variant="outlined"
-                  size="small"
-                  InputProps={{ readOnly: true }}
-                  sx={{ backgroundColor: 'action.hover' }}
-                  placeholder="Calculated"
-                />
-              </Box>
-            </Grid>
-          </React.Fragment>
-        ))}
-
-        {/* Spouse Total Monthly Income */}
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 1 }}>
-            <Typography variant="body1" sx={{ fontWeight: 600, mr: 2 }}>
-              Spouse&apos;s Total Monthly Income:
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
-              {formatCurrency(calculateTotalMonthlyIncome(formData.spouseIncomeSources))}
-            </Typography>
-          </Box>
-        </Grid>
-
-        {/* Spouse's Medical Insurance */}
-        <Grid item xs={12}>
-          <Divider sx={{ my: 2 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 500 }}>
-              Spouse&apos;s Medical Insurance
-            </Typography>
-            <HelpIcon helpId={233} onClick={() => openHelp(233)} />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-              Medicare Part B Monthly Deduction
-            </Typography>
-            <TextField
-              fullWidth
-              value={formData.spouseMedicalInsurance.medicarePartBDeduction}
-              onChange={(e) => {
-                updateFormData({
-                  spouseMedicalInsurance: {
-                    ...formData.spouseMedicalInsurance,
-                    medicarePartBDeduction: e.target.value,
-                  },
-                });
-              }}
-              variant="outlined"
-              size="small"
-              placeholder="$0.00"
-            />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={8} />
-
-        <Grid item xs={12} md={6}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1 }}>
-              Medicare Coverage Type
-            </FormLabel>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <RadioGroup
-                row
-                value={formData.spouseMedicalInsurance.medicareCoverageType}
-                onChange={(e) => {
-                  updateFormData({
-                    spouseMedicalInsurance: {
-                      ...formData.spouseMedicalInsurance,
-                      medicareCoverageType: e.target.value as MedicareCoverageType,
-                    },
-                  });
-                }}
-              >
-                {MEDICARE_COVERAGE_OPTIONS.map((option) => (
-                  <FormControlLabel
-                    key={option.value}
-                    value={option.value}
-                    control={<Radio size="small" />}
-                    label={option.label}
-                  />
-                ))}
-              </RadioGroup>
-              <TextField
-                value={formData.spouseMedicalInsurance.medicarePlanName}
-                onChange={(e) => {
-                  updateFormData({
-                    spouseMedicalInsurance: {
-                      ...formData.spouseMedicalInsurance,
-                      medicarePlanName: e.target.value,
-                    },
-                  });
-                }}
-                variant="outlined"
-                size="small"
-                placeholder="Name of plan"
-                sx={{ minWidth: 150 }}
-              />
-            </Box>
-          </FormControl>
-        </Grid>
-
-        {formData.spouseMedicalInsurance.medicareCoverageType && (
-          <Grid item xs={12} md={3}>
-            <Box>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-                {formData.spouseMedicalInsurance.medicareCoverageType} Monthly Cost
-              </Typography>
-              <TextField
-                fullWidth
-                value={formData.spouseMedicalInsurance.medicareCoverageCost}
-                onChange={(e) => {
-                  updateFormData({
-                    spouseMedicalInsurance: {
-                      ...formData.spouseMedicalInsurance,
-                      medicareCoverageCost: e.target.value,
-                    },
-                  });
-                }}
-                variant="outlined"
-                size="small"
-                placeholder="$0.00"
-              />
-            </Box>
-          </Grid>
-        )}
-
-        <Grid item xs={12} md={6}>
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-              Private Insurance (if any)
-            </Typography>
-            <TextField
-              fullWidth
-              value={formData.spouseMedicalInsurance.privateInsuranceDescription}
-              onChange={(e) => {
-                updateFormData({
-                  spouseMedicalInsurance: {
-                    ...formData.spouseMedicalInsurance,
-                    privateInsuranceDescription: e.target.value,
-                  },
-                });
-              }}
-              variant="outlined"
-              size="small"
-              placeholder="e.g., Employer-provided, Blue Cross"
-            />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-              Private Insurance Monthly Cost
-            </Typography>
-            <TextField
-              fullWidth
-              value={formData.spouseMedicalInsurance.privateInsuranceCost}
-              onChange={(e) => {
-                updateFormData({
-                  spouseMedicalInsurance: {
-                    ...formData.spouseMedicalInsurance,
-                    privateInsuranceCost: e.target.value,
-                  },
-                });
-              }}
-              variant="outlined"
-              size="small"
-              placeholder="$0.00"
-            />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-              Other Insurance (if any)
-            </Typography>
-            <TextField
-              fullWidth
-              value={formData.spouseMedicalInsurance.otherInsuranceDescription}
-              onChange={(e) => {
-                updateFormData({
-                  spouseMedicalInsurance: {
-                    ...formData.spouseMedicalInsurance,
-                    otherInsuranceDescription: e.target.value,
-                  },
-                });
-              }}
-              variant="outlined"
-              size="small"
-              placeholder="e.g., VA benefits, Medicaid"
-            />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', mb: 0.5 }}>
-              Other Insurance Monthly Cost
-            </Typography>
-            <TextField
-              fullWidth
-              value={formData.spouseMedicalInsurance.otherInsuranceCost}
-              onChange={(e) => {
-                updateFormData({
-                  spouseMedicalInsurance: {
-                    ...formData.spouseMedicalInsurance,
-                    otherInsuranceCost: e.target.value,
-                  },
-                });
-              }}
-              variant="outlined"
-              size="small"
-              placeholder="$0.00"
-            />
-          </Box>
-        </Grid>
-
-        {/* Spouse Total Monthly Insurance Cost */}
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 1 }}>
-            <Typography variant="body1" sx={{ fontWeight: 600, mr: 2 }}>
-              Spouse&apos;s Total Monthly Insurance Cost:
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: 'error.main' }}>
-              {formatCurrency(calculateTotalInsuranceCost(formData.spouseMedicalInsurance))}
-            </Typography>
-          </Box>
-        </Grid>
 
         {/* Spouse's Military Service */}
         <Grid item xs={12}>
@@ -2234,64 +1225,48 @@ const PersonalDataSection = () => {
         {formData.spouseServedMilitary && (
           <>
             <Grid item xs={12} md={4}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                    Branch of Service
-                  </Typography>
-                </Box>
-                <FormControl fullWidth variant="outlined" size="small">
-                  <Select
-                    value={formData.spouseMilitaryBranch}
-                    onChange={handleSelectChange('spouseMilitaryBranch')}
-                  >
-                    <MenuItem value="Army">Army</MenuItem>
-                    <MenuItem value="Navy">Navy</MenuItem>
-                    <MenuItem value="Air Force">Air Force</MenuItem>
-                    <MenuItem value="Marine Corps">Marine Corps</MenuItem>
-                    <MenuItem value="Coast Guard">Coast Guard</MenuItem>
-                    <MenuItem value="Space Force">Space Force</MenuItem>
-                    <MenuItem value="National Guard">National Guard</MenuItem>
-                    <MenuItem value="Reserves">Reserves</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
+              <FormControl fullWidth variant="outlined" size="small">
+                <InputLabel shrink>Branch of Service</InputLabel>
+                <Select
+                  label="Branch of Service"
+                  value={formData.spouseMilitaryBranch}
+                  onChange={handleSelectChange('spouseMilitaryBranch')}
+                  notched
+                >
+                  <MenuItem value="Army">Army</MenuItem>
+                  <MenuItem value="Navy">Navy</MenuItem>
+                  <MenuItem value="Air Force">Air Force</MenuItem>
+                  <MenuItem value="Marine Corps">Marine Corps</MenuItem>
+                  <MenuItem value="Coast Guard">Coast Guard</MenuItem>
+                  <MenuItem value="Space Force">Space Force</MenuItem>
+                  <MenuItem value="National Guard">National Guard</MenuItem>
+                  <MenuItem value="Reserves">Reserves</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} md={2}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                    Start Date
-                  </Typography>
-                </Box>
-                <TextField
-                  fullWidth
-                  type="month"
-                  value={formData.spouseMilitaryStartDate}
-                  onChange={handleChange('spouseMilitaryStartDate')}
-                  variant="outlined"
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Box>
+              <TextField
+                fullWidth
+                label="Start Date"
+                type="month"
+                value={formData.spouseMilitaryStartDate}
+                onChange={handleChange('spouseMilitaryStartDate')}
+                variant="outlined"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
             <Grid item xs={12} md={2}>
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                    End Date
-                  </Typography>
-                </Box>
-                <TextField
-                  fullWidth
-                  type="month"
-                  value={formData.spouseMilitaryEndDate}
-                  onChange={handleChange('spouseMilitaryEndDate')}
-                  variant="outlined"
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Box>
+              <TextField
+                fullWidth
+                label="End Date"
+                type="month"
+                value={formData.spouseMilitaryEndDate}
+                onChange={handleChange('spouseMilitaryEndDate')}
+                variant="outlined"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
           </>
         )}
@@ -2331,36 +1306,28 @@ const PersonalDataSection = () => {
 
         {formData.spouseHasPrepaidFuneral && (
           <Grid item xs={12} md={4}>
-            <Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                  Prepaid Funeral Details
-                </Typography>
-              </Box>
-              <TextField
-                fullWidth
-                value={formData.spousePrepaidFuneralDetails}
-                onChange={handleChange('spousePrepaidFuneralDetails')}
-                variant="outlined"
-                size="small"
-                placeholder="Policy number, funeral home, etc."
-              />
-            </Box>
+            <TextField
+              fullWidth
+              label="Prepaid Funeral Details"
+              value={formData.spousePrepaidFuneralDetails}
+              onChange={handleChange('spousePrepaidFuneralDetails')}
+              variant="outlined"
+              size="small"
+              placeholder="Policy number, funeral home, etc."
+              InputLabelProps={{ shrink: true }}
+            />
           </Grid>
         )}
 
         <Grid item xs={12} md={4}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Burial or Cremation Preference
-              </Typography>
-              <HelpIcon helpId={49} onClick={() => openHelp(49)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <FormControl fullWidth variant="outlined" size="small">
+              <InputLabel shrink>Burial or Cremation Preference</InputLabel>
               <Select
+                label="Burial or Cremation Preference"
                 value={formData.spouseBurialOrCremation}
                 onChange={handleSelectChange('spouseBurialOrCremation')}
+                notched
               >
                 <MenuItem value="">Select...</MenuItem>
                 <MenuItem value="Burial">Burial</MenuItem>
@@ -2368,177 +1335,40 @@ const PersonalDataSection = () => {
                 <MenuItem value="Undecided">Undecided</MenuItem>
               </Select>
             </FormControl>
+            <HelpIcon helpId={49} onClick={() => openHelp(49)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Preferred Funeral Home
-              </Typography>
-              <HelpIcon helpId={52} onClick={() => openHelp(52)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Preferred Funeral Home"
               value={formData.spousePreferredFuneralHome}
               onChange={handleChange('spousePreferredFuneralHome')}
               variant="outlined"
               size="small"
-              placeholder="Name and location"
+              InputLabelProps={{ shrink: true }}
             />
+            <HelpIcon helpId={52} onClick={() => openHelp(52)} />
           </Box>
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                Preferred Church for Service
-              </Typography>
-              <HelpIcon helpId={53} onClick={() => openHelp(53)} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
+              label="Preferred Church for Service"
               value={formData.spousePreferredChurch}
               onChange={handleChange('spousePreferredChurch')}
               variant="outlined"
               size="small"
-              placeholder="Name and location"
+              InputLabelProps={{ shrink: true }}
             />
+            <HelpIcon helpId={53} onClick={() => openHelp(53)} />
           </Box>
         </Grid>
 
-        {/* Spouse's Existing Trusts */}
-        <Grid item xs={12}>
-          <Divider sx={{ my: 2 }} />
-          <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
-            Spouse&apos;s Existing Trusts
-          </Typography>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <FormControl component="fieldset">
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
-                  Does your spouse have an existing Living Trust?
-                </FormLabel>
-                <HelpIcon helpId={27} onClick={() => openHelp(27)} />
-              </Box>
-              <RadioGroup
-                row
-                value={formData.spouseHasLivingTrust ? 'yes' : 'no'}
-                onChange={(e) => {
-                  const hasLivingTrust = e.target.value === 'yes';
-                  updateFormData({
-                    spouseHasLivingTrust: hasLivingTrust,
-                    spouseLivingTrustName: hasLivingTrust ? formData.spouseLivingTrustName : '',
-                    spouseLivingTrustDate: hasLivingTrust ? formData.spouseLivingTrustDate : null,
-                  });
-                }}
-              >
-                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-              </RadioGroup>
-            </FormControl>
-            {formData.spouseHasLivingTrust && (
-              <>
-                <TextField
-                  fullWidth
-                  label="Spouse Living Trust Name"
-                  value={formData.spouseLivingTrustName}
-                  onChange={handleChange('spouseLivingTrustName')}
-                  variant="outlined"
-                  placeholder="e.g., The Jane Smith Revocable Living Trust"
-                />
-                <DatePicker
-                  label="Spouse Living Trust Date"
-                  value={formData.spouseLivingTrustDate}
-                  onChange={handleDateChange('spouseLivingTrustDate')}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      variant: 'outlined',
-                    },
-                  }}
-                />
-              </>
-            )}
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <FormControl component="fieldset">
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
-                  Does your spouse have an existing Irrevocable Trust?
-                </FormLabel>
-                <HelpIcon helpId={28} onClick={() => openHelp(28)} />
-              </Box>
-              <RadioGroup
-                row
-                value={formData.spouseHasIrrevocableTrust ? 'yes' : 'no'}
-                onChange={(e) => {
-                  const hasIrrevocableTrust = e.target.value === 'yes';
-                  updateFormData({
-                    spouseHasIrrevocableTrust: hasIrrevocableTrust,
-                    spouseIrrevocableTrustName: hasIrrevocableTrust ? formData.spouseIrrevocableTrustName : '',
-                    spouseIrrevocableTrustDate: hasIrrevocableTrust ? formData.spouseIrrevocableTrustDate : null,
-                  });
-                }}
-              >
-                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-              </RadioGroup>
-            </FormControl>
-            {formData.spouseHasIrrevocableTrust && (
-              <>
-                <TextField
-                  fullWidth
-                  label="Spouse Irrevocable Trust Name"
-                  value={formData.spouseIrrevocableTrustName}
-                  onChange={handleChange('spouseIrrevocableTrustName')}
-                  variant="outlined"
-                  placeholder="e.g., The Smith Irrevocable Trust"
-                />
-                <DatePicker
-                  label="Spouse Irrevocable Trust Date"
-                  value={formData.spouseIrrevocableTrustDate}
-                  onChange={handleDateChange('spouseIrrevocableTrustDate')}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      variant: 'outlined',
-                    },
-                  }}
-                />
-              </>
-            )}
-          </Box>
-        </Grid>
-
-        <Grid item xs={12}>
-          <FormControl component="fieldset">
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
-                Is your spouse interested in creating or updating a trust?
-              </FormLabel>
-              <HelpIcon helpId={55} onClick={() => openHelp(55)} />
-            </Box>
-            <RadioGroup
-              row
-              value={formData.spouseConsideringTrust ? 'yes' : 'no'}
-              onChange={(e) => {
-                updateFormData({ spouseConsideringTrust: e.target.value === 'yes' });
-              }}
-            >
-              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
       </Grid>
       )}
 

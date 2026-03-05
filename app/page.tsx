@@ -37,17 +37,16 @@ import { saveAs } from 'file-saver';
 import { useFormContext, OfficeInfo, AttorneyInfo } from '../lib/FormContext';
 import { useAuth } from '../lib/AuthContext';
 import PersonalDataSection from '../components/PersonalDataSection';
+import IncomeSection from '../components/IncomeSection';
 import BeneficiariesSection from '../components/BeneficiariesSection';
-import DispositiveIntentionsSection from '../components/DispositiveIntentionsSection';
 import CurrentEstatePlanSection from '../components/CurrentEstatePlanSection';
-import FiduciariesSection from '../components/FiduciariesSection';
 import LongTermCareSection from '../components/LongTermCareSection';
 import AssetsSection from '../components/AssetsSection';
 import SummarySection from '../components/SummarySection';
 import EstatePlanAnalysis from '../components/EstatePlanAnalysis';
 import { TrustPlanSection } from '../components/TrustPlan';
 import LandingPage from '../components/LandingPage';
-import EstatePlanningHome from '../components/EstatePlanningHome';
+import MyLifeFolioHome from '../components/MyLifeFolioHome';
 import AdminDashboard from '../components/AdminDashboard';
 import Profile from '../components/Profile';
 import PlanningPathfinder from '../components/PlanningPathfinder';
@@ -361,11 +360,10 @@ const markdownToDocx = (markdown: string, clientName: string): Document => {
 
 const ALL_STEPS = [
   'Personal Data',
+  'Income',
   'Beneficiaries',
   'Assets',
-  'Current Estate Plan',
-  'Fiduciaries',
-  'New Plan Provisions',
+  'Estate Plan',
   'Long-Term Care',
   'Summary',
   'Trust Planning',
@@ -374,7 +372,7 @@ const ALL_STEPS = [
 ];
 
 // Page type for routing
-type PageType = 'landing' | 'estate-planning-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'profile' | 'planning-pathfinder' | 'education-center';
+type PageType = 'landing' | 'mylifefolio-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'profile' | 'planning-pathfinder' | 'education-center';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
@@ -465,7 +463,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
 
         // Check for existing normalized intake for this user
         const { data: intakeData } = await supabase
-          .from('estate_planning_intakes')
+          .from('folio_intakes')
           .select('id')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
@@ -740,14 +738,12 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
     switch (stepName) {
       case 'Personal Data':
         return <PersonalDataSection />;
+      case 'Income':
+        return <IncomeSection />;
       case 'Beneficiaries':
         return <BeneficiariesSection />;
-      case 'New Plan Provisions':
-        return <DispositiveIntentionsSection />;
-      case 'Current Estate Plan':
+      case 'Estate Plan':
         return <CurrentEstatePlanSection />;
-      case 'Fiduciaries':
-        return <FiduciariesSection />;
       case 'Long-Term Care':
         return <LongTermCareSection />;
       case 'Assets':
@@ -768,7 +764,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
               Please review your information before submitting. You can go back to any section to make changes.
             </Alert>
             <Typography variant="body1" sx={{ mb: 2 }}>
-              Thank you for completing the Estate Planning Questionnaire. By clicking "Submit",
+              Thank you for completing your MyLifeFolio questionnaire. By clicking "Submit",
               your information will be securely sent to MyLifeFolio for review.
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
@@ -858,14 +854,14 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
             const clientName = formData.name || 'Client';
             const doc = markdownToDocx(analysisResult, clientName);
             const blob = await Packer.toBlob(doc);
-            const fileName = `Estate_Planning_Analysis_${clientName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.docx`;
+            const fileName = `MyLifeFolio_Analysis_${clientName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.docx`;
             saveAs(blob, fileName);
           };
 
           return (
             <Box sx={{ py: 2 }}>
               <Typography variant="h4" gutterBottom sx={{ color: '#1e3a5f', fontWeight: 600, textAlign: 'center' }}>
-                Estate Planning Analysis
+                MyLifeFolio Analysis
               </Typography>
               <Alert severity="info" sx={{ mb: 3 }}>
                 This AI-generated analysis is for informational purposes only and does not constitute legal advice.
@@ -1030,16 +1026,11 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
               <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#1e3a5f', mb: 0 }} onClick={debugFormData}>
-                Estate Planning Questionnaire
+                My Folio Builder
               </Typography>
               <VideoHelpIcon helpId={0} onClick={() => openHelp(0)} size="large" />
             </Box>
-            <Typography variant="subtitle1" color="text.secondary">
-              MyLifeFolio
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Estate Planning & Elder Law Attorneys
-            </Typography>
+
 
             {/* Auto-save indicator */}
             {user && (
@@ -1243,7 +1234,7 @@ export default function MainPage() {
   const handleAuthSuccess = () => {
     setShowAuthModal(null);
     // Navigate to estate planning home after successful authentication
-    handleNavigate('estate-planning-home');
+    handleNavigate('mylifefolio-home');
   };
 
   const handleSwitchToLogin = () => {
@@ -1272,9 +1263,9 @@ export default function MainPage() {
           />
         );
 
-      case 'estate-planning-home':
+      case 'mylifefolio-home':
         return (
-          <EstatePlanningHome
+          <MyLifeFolioHome
             onNavigateBack={() => handleNavigate('landing')}
             onStartQuestionnaire={() => handleNavigate('estate-planning-questionnaire')}
             onEducationItemClick={handleEducationItemClick}
@@ -1289,7 +1280,7 @@ export default function MainPage() {
       case 'estate-planning-questionnaire':
         return (
           <QuestionnaireContent
-            onNavigateBack={() => handleNavigate('estate-planning-home')}
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
             onLogout={handleLogout}
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}

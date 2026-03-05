@@ -8,7 +8,13 @@
       "Bash(cat:*)",
       "Bash(npx tsc:*)",
       "Bash(git checkout:*)",
-      "Bash(npx supabase functions list)"
+      "Bash(npx supabase functions list)",
+      "Bash(for f in supabase/migrations/002_create_estate_planning_tables.sql supabase/migrations/003_create_estate_planning_extended.sql supabase/migrations/20241231_add_distribution_method_to_children.sql supabase/migrations/20241231_add_income_sources.sql supabase/migrations/20241231_add_medical_insurance.sql)",
+      "Bash(do sed -i 's/estate_planning_/folio_/g' \"$f\")",
+      "Bash(done)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\czach\\apps\\react\\mylifefolio\\components"
     ]
   }
 }

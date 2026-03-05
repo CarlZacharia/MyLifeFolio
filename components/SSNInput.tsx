@@ -8,7 +8,7 @@
  */
 
 import React, { ChangeEvent } from 'react';
-import { TextField, Box, Typography } from '@mui/material';
+import { TextField, Box } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 
 interface SSNInputProps {
@@ -78,57 +78,19 @@ export function SSNInput({
     : '');
 
   return (
-    <Box>
-      {helpId && onHelpClick && (
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-          <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-            {label}
-            {required && ' *'}
-          </Typography>
-          <Box
-            component="span"
-            onClick={() => onHelpClick(helpId)}
-            sx={{
-              ml: 0.5,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              color: 'primary.main',
-              '&:hover': {
-                color: 'primary.dark',
-              },
-            }}
-          >
-            <Box
-              component="span"
-              sx={{
-                width: 18,
-                height: 18,
-                borderRadius: '50%',
-                border: '2px solid currentColor',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '12px',
-                fontWeight: 'bold',
-              }}
-            >
-              ?
-            </Box>
-          </Box>
-        </Box>
-      )}
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
       <TextField
-        label={helpId ? undefined : label}
+        label={label}
         value={value}
         onChange={handleChange}
         error={hasError}
         helperText={displayHelperText}
-        required={helpId ? false : required}
+        required={required}
         disabled={disabled}
         fullWidth={fullWidth}
         placeholder="###-##-####"
         size="small"
+        InputLabelProps={{ shrink: true }}
         inputProps={{
           maxLength: 11, // 9 digits + 2 dashes
           inputMode: 'numeric',
@@ -146,6 +108,38 @@ export function SSNInput({
           ),
         }}
       />
+      {helpId && onHelpClick && (
+        <Box
+          component="span"
+          onClick={() => onHelpClick(helpId)}
+          sx={{
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            color: 'primary.main',
+            '&:hover': {
+              color: 'primary.dark',
+            },
+          }}
+        >
+          <Box
+            component="span"
+            sx={{
+              width: 18,
+              height: 18,
+              borderRadius: '50%',
+              border: '2px solid currentColor',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '12px',
+              fontWeight: 'bold',
+            }}
+          >
+            ?
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 }

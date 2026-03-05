@@ -140,8 +140,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>Estate Planning Questionnaire - MyLifeFolio</title>
-        <meta name="description" content="Estate Planning Questionnaire for MyLifeFolio" />
+        <title>MyLifeFolio</title>
+        <meta name="description" content="MyLifeFolio" />
       </head>
       <body>
         <ThemeProvider theme={theme}>

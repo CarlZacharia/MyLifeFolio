@@ -76,7 +76,7 @@ mylifefolio/
 │   └── page.tsx                # Main questionnaire with stepper
 ├── components/
 │   ├── LandingPage.tsx         # Landing/home page
-│   ├── EstatePlanningHome.tsx  # Estate planning overview
+│   ├── MyLifeFolioHome.tsx     # MyLifeFolio home overview
 │   ├── Login.tsx               # Login form
 │   ├── Register.tsx            # Registration form
 │   ├── Profile.tsx             # User profile & questions

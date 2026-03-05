@@ -154,25 +154,24 @@ const theme = createTheme({
 // Education Center Items
 const educationItems = [
   {
-    id: 'what-is-estate-planning',
-    title: 'What is Estate Planning?',
+    id: 'getting-started-folio',
+    title: 'Getting Started with Your Folio',
     type: 'article',
-    description: 'Learn the basics of estate planning and why it matters.',
+    description: 'Learn how to set up and organize your personal life folio.',
     readTime: '5 min read',
   },
   {
-    id: 'how-assets-pass',
-    title: 'How Assets Pass at Death',
+    id: 'why-organize-documents',
+    title: 'Why Organizing Your Documents Matters',
     type: 'article',
-    description: 'Understanding probate, joint ownership, beneficiary designations, and life estates.',
-    readTime: '7 min read',
-    pdfUrl: '/articles/HowAssetsPass.pdf',
+    description: 'How having everything in one place protects you and your family.',
+    readTime: '6 min read',
   },
   {
-    id: 'wills-vs-trusts',
-    title: 'Wills vs. Trusts: Understanding the Difference',
+    id: 'estate-planning-basics',
+    title: 'Estate Planning Basics',
     type: 'article',
-    description: 'Compare wills and trusts to determine which is right for you.',
+    description: 'An introduction to wills, trusts, and planning for the future.',
     readTime: '8 min read',
   },
   {
@@ -186,29 +185,8 @@ const educationItems = [
     id: 'healthcare-directives',
     title: 'Healthcare Directives & Living Wills',
     type: 'article',
-    description: 'Ensure your healthcare wishes are honored.',
+    description: 'Ensure your healthcare wishes are documented and honored.',
     readTime: '6 min read',
-  },
-  {
-    id: 'probate-process',
-    title: 'The Probate Process in Florida',
-    type: 'article',
-    description: 'What to expect during Florida probate.',
-    readTime: '10 min read',
-  },
-  {
-    id: 'avoiding-probate',
-    title: 'Strategies to Avoid Probate',
-    type: 'video',
-    description: 'Learn how to structure your estate to avoid probate.',
-    readTime: '15 min watch',
-  },
-  {
-    id: 'trust-administration',
-    title: 'Trust Administration Guide',
-    type: 'guide',
-    description: 'A comprehensive guide for successor trustees.',
-    readTime: '20 min read',
   },
   {
     id: 'beneficiary-designations',
@@ -218,12 +196,32 @@ const educationItems = [
     readTime: '7 min read',
   },
   {
-    id: 'estate-tax-basics',
-    title: 'Estate Tax Basics',
+    id: 'digital-assets',
+    title: 'Managing Your Digital Life',
     type: 'article',
-    description: 'Understanding federal and state estate taxes.',
-    readTime: '9 min read',
-    pdfUrl: '/articles/EstateTaxation.pdf',
+    description: 'How to account for online accounts, passwords, and digital property.',
+    readTime: '8 min read',
+  },
+  {
+    id: 'family-communication',
+    title: 'Talking to Family About Your Plans',
+    type: 'video',
+    description: 'Tips for having important conversations with loved ones.',
+    readTime: '10 min watch',
+  },
+  {
+    id: 'insurance-overview',
+    title: 'Insurance: What You Need to Know',
+    type: 'guide',
+    description: 'Life, long-term care, and other coverage to consider.',
+    readTime: '12 min read',
+  },
+  {
+    id: 'financial-snapshot',
+    title: 'Creating a Financial Snapshot',
+    type: 'guide',
+    description: 'How to compile a clear picture of your assets and liabilities.',
+    readTime: '15 min read',
   },
   {
     id: 'special-needs-planning',
@@ -275,7 +273,7 @@ const AnimatedSection: React.FC<{ children: React.ReactNode; delay?: number }> =
   );
 };
 
-interface EstatePlanningHomeProps {
+interface MyLifeFolioHomeProps {
   onNavigateBack: () => void;
   onStartQuestionnaire: () => void;
   onEducationItemClick?: (itemId: string) => void;
@@ -286,7 +284,7 @@ interface EstatePlanningHomeProps {
   onNavigate?: (page: string) => void;
 }
 
-const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
+const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
   onNavigateBack,
   onStartQuestionnaire,
   onEducationItemClick,
@@ -612,7 +610,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                   mb: 2,
                 }}
               >
-                Estate Planning
+                My Life Folio
               </Typography>
             </AnimatedSection>
 
@@ -625,7 +623,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                   mb: 2,
                 }}
               >
-                Estate Planning Center
+                My Life Folio Home
               </Typography>
             </AnimatedSection>
 
@@ -638,8 +636,8 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                   fontSize: '1.1rem',
                 }}
               >
-                Explore our educational resources to better understand estate planning, then
-                complete your intake questionnaire to get started.
+                Your personal folio for organizing the things that matter most — estate plans,
+                important documents, family information, and life decisions all in one secure place.
               </Typography>
             </AnimatedSection>
           </Container>
@@ -706,7 +704,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                         mb: 1,
                       }}
                     >
-                      {hasExistingData ? 'Continue Your Intake' : 'Start Your Intake'}
+                      {hasExistingData ? 'Continue Your Folio' : 'Start Your Folio'}
                     </Typography>
 
                     <Typography
@@ -719,8 +717,8 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                       }}
                     >
                       {hasExistingData
-                        ? 'Pick up where you left off on your estate planning questionnaire.'
-                        : 'Begin your estate planning questionnaire to help us understand your needs and goals.'}
+                        ? 'Pick up where you left off building your personal life folio.'
+                        : 'Start building your folio — we\'ll gather the information needed to organize your life\'s important details.'}
                     </Typography>
 
                     {hasExistingData && createdAt && (
@@ -752,7 +750,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                         fontSize: '0.875rem',
                       }}
                     >
-                      {hasExistingData ? 'Continue Questionnaire' : 'Begin Questionnaire'}
+                      {hasExistingData ? 'Continue Folio' : 'Begin Folio'}
                       <ArrowForwardIcon sx={{ fontSize: 18 }} />
                     </Box>
                   </CardContent>
@@ -833,7 +831,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                   </Box>
 
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: '0.85rem' }}>
-                    Explore resources to understand estate planning concepts
+                    Articles, videos, and guides to help you make informed decisions
                   </Typography>
 
                   <Divider sx={{ mb: 1 }} />
@@ -1006,7 +1004,7 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
                         lineHeight: 1.6,
                       }}
                     >
-                      Interactive tools to help guide your planning decisions:
+                      Interactive tools to help you understand your options:
                     </Typography>
 
                     <Box sx={{ flexGrow: 1 }}>
@@ -1118,4 +1116,4 @@ const EstatePlanningHome: React.FC<EstatePlanningHomeProps> = ({
   );
 };
 
-export default EstatePlanningHome;
+export default MyLifeFolioHome;

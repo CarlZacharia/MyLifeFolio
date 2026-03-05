@@ -14,32 +14,32 @@ DROP POLICY IF EXISTS "Users can delete own files" ON storage.objects;
 -- Delete the bucket from Supabase Dashboard > Storage if needed,
 -- or just leave it -- the schema script uses ON CONFLICT to update it.
 
--- Drop child tables (those with foreign keys to estate_planning_intakes)
-DROP TABLE IF EXISTS estate_planning_spouse_medical_insurance CASCADE;
-DROP TABLE IF EXISTS estate_planning_client_medical_insurance CASCADE;
-DROP TABLE IF EXISTS estate_planning_spouse_income CASCADE;
-DROP TABLE IF EXISTS estate_planning_client_income CASCADE;
-DROP TABLE IF EXISTS estate_planning_distribution_plans CASCADE;
-DROP TABLE IF EXISTS estate_planning_current_estate_plan CASCADE;
-DROP TABLE IF EXISTS estate_planning_long_term_care CASCADE;
-DROP TABLE IF EXISTS estate_planning_cash_gifts CASCADE;
-DROP TABLE IF EXISTS estate_planning_specific_gifts CASCADE;
-DROP TABLE IF EXISTS estate_planning_digital_assets CASCADE;
-DROP TABLE IF EXISTS estate_planning_business_interests CASCADE;
-DROP TABLE IF EXISTS estate_planning_other_assets CASCADE;
-DROP TABLE IF EXISTS estate_planning_vehicles CASCADE;
-DROP TABLE IF EXISTS estate_planning_life_insurance CASCADE;
-DROP TABLE IF EXISTS estate_planning_retirement_accounts CASCADE;
-DROP TABLE IF EXISTS estate_planning_investments CASCADE;
-DROP TABLE IF EXISTS estate_planning_bank_accounts CASCADE;
-DROP TABLE IF EXISTS estate_planning_real_estate CASCADE;
-DROP TABLE IF EXISTS estate_planning_dependents CASCADE;
-DROP TABLE IF EXISTS estate_planning_charities CASCADE;
-DROP TABLE IF EXISTS estate_planning_beneficiaries CASCADE;
-DROP TABLE IF EXISTS estate_planning_children CASCADE;
+-- Drop child tables (those with foreign keys to folio_intakes)
+DROP TABLE IF EXISTS folio_spouse_medical_insurance CASCADE;
+DROP TABLE IF EXISTS folio_client_medical_insurance CASCADE;
+DROP TABLE IF EXISTS folio_spouse_income CASCADE;
+DROP TABLE IF EXISTS folio_client_income CASCADE;
+DROP TABLE IF EXISTS folio_distribution_plans CASCADE;
+DROP TABLE IF EXISTS folio_current_estate_plan CASCADE;
+DROP TABLE IF EXISTS folio_long_term_care CASCADE;
+DROP TABLE IF EXISTS folio_cash_gifts CASCADE;
+DROP TABLE IF EXISTS folio_specific_gifts CASCADE;
+DROP TABLE IF EXISTS folio_digital_assets CASCADE;
+DROP TABLE IF EXISTS folio_business_interests CASCADE;
+DROP TABLE IF EXISTS folio_other_assets CASCADE;
+DROP TABLE IF EXISTS folio_vehicles CASCADE;
+DROP TABLE IF EXISTS folio_life_insurance CASCADE;
+DROP TABLE IF EXISTS folio_retirement_accounts CASCADE;
+DROP TABLE IF EXISTS folio_investments CASCADE;
+DROP TABLE IF EXISTS folio_bank_accounts CASCADE;
+DROP TABLE IF EXISTS folio_real_estate CASCADE;
+DROP TABLE IF EXISTS folio_dependents CASCADE;
+DROP TABLE IF EXISTS folio_charities CASCADE;
+DROP TABLE IF EXISTS folio_beneficiaries CASCADE;
+DROP TABLE IF EXISTS folio_children CASCADE;
 
 -- Drop parent estate planning intakes table
-DROP TABLE IF EXISTS estate_planning_intakes CASCADE;
+DROP TABLE IF EXISTS folio_intakes CASCADE;
 
 -- Drop intakes_raw (depends on offices/attorneys)
 DROP TABLE IF EXISTS intakes_raw CASCADE;

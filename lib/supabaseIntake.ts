@@ -550,7 +550,7 @@ async function saveMainIntake(
 
   if (existingId) {
     const { data, error } = await supabase
-      .from('estate_planning_intakes')
+      .from('folio_intakes')
       .update(mainIntakeData)
       .eq('id', existingId)
       .select('id')
@@ -562,7 +562,7 @@ async function saveMainIntake(
     return { success: true, intakeId: data.id };
   } else {
     const { data, error } = await supabase
-      .from('estate_planning_intakes')
+      .from('folio_intakes')
       .insert(mainIntakeData)
       .select('id')
       .single();
@@ -642,7 +642,7 @@ async function saveChildren(
     comments: child.comments || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_children', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_children', intakeId, userId, records);
 }
 
 async function saveBeneficiaries(
@@ -660,7 +660,7 @@ async function saveBeneficiaries(
     notes: b.notes || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_beneficiaries', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_beneficiaries', intakeId, userId, records);
 }
 
 async function saveCharities(
@@ -674,7 +674,7 @@ async function saveCharities(
     amount: c.amount || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_charities', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_charities', intakeId, userId, records);
 }
 
 async function saveDependents(
@@ -687,7 +687,7 @@ async function saveDependents(
     relationship: d.relationship || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_dependents', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_dependents', intakeId, userId, records);
 }
 
 async function saveRealEstate(
@@ -719,7 +719,7 @@ async function saveRealEstate(
     notes: re.notes || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_real_estate', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_real_estate', intakeId, userId, records);
 }
 
 async function saveBankAccounts(
@@ -740,7 +740,7 @@ async function saveBankAccounts(
     notes: ba.notes || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_bank_accounts', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_bank_accounts', intakeId, userId, records);
 }
 
 async function saveInvestments(
@@ -761,7 +761,7 @@ async function saveInvestments(
     notes: inv.notes || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_investments', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_investments', intakeId, userId, records);
 }
 
 async function saveRetirementAccounts(
@@ -782,7 +782,7 @@ async function saveRetirementAccounts(
     notes: acc.notes || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_retirement_accounts', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_retirement_accounts', intakeId, userId, records);
 }
 
 async function saveLifeInsurance(
@@ -806,7 +806,7 @@ async function saveLifeInsurance(
     notes: pol.notes || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_life_insurance', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_life_insurance', intakeId, userId, records);
 }
 
 async function saveVehicles(
@@ -826,7 +826,7 @@ async function saveVehicles(
     notes: v.notes || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_vehicles', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_vehicles', intakeId, userId, records);
 }
 
 async function saveOtherAssets(
@@ -847,7 +847,7 @@ async function saveOtherAssets(
     notes: a.notes || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_other_assets', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_other_assets', intakeId, userId, records);
 }
 
 async function saveBusinessInterests(
@@ -866,7 +866,7 @@ async function saveBusinessInterests(
     notes: b.notes || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_business_interests', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_business_interests', intakeId, userId, records);
 }
 
 async function saveDigitalAssets(
@@ -883,7 +883,7 @@ async function saveDigitalAssets(
     notes: a.notes || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_digital_assets', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_digital_assets', intakeId, userId, records);
 }
 
 async function saveSpecificGifts(
@@ -898,7 +898,7 @@ async function saveSpecificGifts(
     notes: g.notes || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_specific_gifts', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_specific_gifts', intakeId, userId, records);
 }
 
 async function saveCashGifts(
@@ -913,7 +913,7 @@ async function saveCashGifts(
     amount: g.amount || null,
   }));
 
-  return deleteAndInsertRecords('estate_planning_cash_gifts', intakeId, userId, records);
+  return deleteAndInsertRecords('folio_cash_gifts', intakeId, userId, records);
 }
 
 async function saveLongTermCare(
@@ -922,7 +922,7 @@ async function saveLongTermCare(
   userId: string
 ): Promise<SaveResult> {
   // Delete existing records
-  await supabase.from('estate_planning_long_term_care').delete().eq('intake_id', intakeId);
+  await supabase.from('folio_long_term_care').delete().eq('intake_id', intakeId);
 
   const records = [];
 
@@ -950,7 +950,7 @@ async function saveLongTermCare(
     return { success: true };
   }
 
-  const { error } = await supabase.from('estate_planning_long_term_care').insert(records);
+  const { error } = await supabase.from('folio_long_term_care').insert(records);
 
   if (error) {
     return { success: false, error: error.message };
@@ -1031,7 +1031,7 @@ async function saveCurrentEstatePlan(
   userId: string
 ): Promise<SaveResult> {
   // Delete existing records
-  await supabase.from('estate_planning_current_estate_plan').delete().eq('intake_id', intakeId);
+  await supabase.from('folio_current_estate_plan').delete().eq('intake_id', intakeId);
 
   const records = [];
 
@@ -1059,7 +1059,7 @@ async function saveCurrentEstatePlan(
     return { success: true };
   }
 
-  const { error } = await supabase.from('estate_planning_current_estate_plan').insert(records);
+  const { error } = await supabase.from('folio_current_estate_plan').insert(records);
 
   if (error) {
     return { success: false, error: error.message };
@@ -1140,7 +1140,7 @@ async function saveDistributionPlans(
   userId: string
 ): Promise<SaveResult> {
   // Delete existing records
-  await supabase.from('estate_planning_distribution_plans').delete().eq('intake_id', intakeId);
+  await supabase.from('folio_distribution_plans').delete().eq('intake_id', intakeId);
 
   const records = [];
 
@@ -1182,7 +1182,7 @@ async function saveDistributionPlans(
     return { success: true };
   }
 
-  const { error } = await supabase.from('estate_planning_distribution_plans').insert(records);
+  const { error } = await supabase.from('folio_distribution_plans').insert(records);
 
   if (error) {
     return { success: false, error: error.message };
@@ -1410,7 +1410,7 @@ export async function cleanupDuplicateIntakes(dryRun = true): Promise<CleanupRes
 
     // Step 3: Get corresponding normalized intake records
     const { data: allNormalizedIntakes, error: normalizedError } = await supabase
-      .from('estate_planning_intakes')
+      .from('folio_intakes')
       .select('id, user_id, updated_at')
       .order('updated_at', { ascending: false });
 
@@ -1475,7 +1475,7 @@ export async function cleanupDuplicateIntakes(dryRun = true): Promise<CleanupRes
 
     if (normalizedIdsToDelete.length > 0) {
       const { error: deleteNormalizedError } = await supabase
-        .from('estate_planning_intakes')
+        .from('folio_intakes')
         .delete()
         .in('id', normalizedIdsToDelete);
 

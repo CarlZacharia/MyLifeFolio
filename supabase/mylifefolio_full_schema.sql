@@ -287,7 +287,7 @@ CREATE POLICY "Admins can read all intakes"
 -- ============================================================================
 -- 8. ESTATE PLANNING INTAKES (main intake record)
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_intakes (
+CREATE TABLE IF NOT EXISTS folio_intakes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   intake_raw_id UUID REFERENCES intakes_raw(id) ON DELETE SET NULL,
@@ -507,33 +507,33 @@ CREATE TABLE IF NOT EXISTS estate_planning_intakes (
   client_notes TEXT
 );
 
-CREATE INDEX idx_ep_intakes_user_id ON estate_planning_intakes(user_id);
-CREATE INDEX idx_ep_intakes_client_name ON estate_planning_intakes(client_name);
-CREATE INDEX idx_ep_intakes_created_at ON estate_planning_intakes(created_at DESC);
-CREATE INDEX idx_ep_intakes_intake_raw_id ON estate_planning_intakes(intake_raw_id);
+CREATE INDEX idx_ep_intakes_user_id ON folio_intakes(user_id);
+CREATE INDEX idx_ep_intakes_client_name ON folio_intakes(client_name);
+CREATE INDEX idx_ep_intakes_created_at ON folio_intakes(created_at DESC);
+CREATE INDEX idx_ep_intakes_intake_raw_id ON folio_intakes(intake_raw_id);
 
-CREATE TRIGGER update_estate_planning_intakes_updated_at
-  BEFORE UPDATE ON estate_planning_intakes
+CREATE TRIGGER update_folio_intakes_updated_at
+  BEFORE UPDATE ON folio_intakes
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
-ALTER TABLE estate_planning_intakes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE folio_intakes ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view own estate_planning_intakes"
-  ON estate_planning_intakes FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_intakes"
-  ON estate_planning_intakes FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_intakes"
-  ON estate_planning_intakes FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_intakes"
-  ON estate_planning_intakes FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "Users can view own folio_intakes"
+  ON folio_intakes FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_intakes"
+  ON folio_intakes FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_intakes"
+  ON folio_intakes FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_intakes"
+  ON folio_intakes FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 9. CHILDREN TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_children (
+CREATE TABLE IF NOT EXISTS folio_children (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   address TEXT,
@@ -552,25 +552,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_children (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_children_intake_id ON estate_planning_children(intake_id);
-CREATE INDEX idx_ep_children_user_id ON estate_planning_children(user_id);
+CREATE INDEX idx_ep_children_intake_id ON folio_children(intake_id);
+CREATE INDEX idx_ep_children_user_id ON folio_children(user_id);
 
-ALTER TABLE estate_planning_children ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_children"
-  ON estate_planning_children FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_children"
-  ON estate_planning_children FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_children"
-  ON estate_planning_children FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_children"
-  ON estate_planning_children FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_children ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_children"
+  ON folio_children FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_children"
+  ON folio_children FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_children"
+  ON folio_children FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_children"
+  ON folio_children FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 10. OTHER BENEFICIARIES TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_beneficiaries (
+CREATE TABLE IF NOT EXISTS folio_beneficiaries (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   address TEXT,
@@ -584,25 +584,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_beneficiaries (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_beneficiaries_intake_id ON estate_planning_beneficiaries(intake_id);
-CREATE INDEX idx_ep_beneficiaries_user_id ON estate_planning_beneficiaries(user_id);
+CREATE INDEX idx_ep_beneficiaries_intake_id ON folio_beneficiaries(intake_id);
+CREATE INDEX idx_ep_beneficiaries_user_id ON folio_beneficiaries(user_id);
 
-ALTER TABLE estate_planning_beneficiaries ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_beneficiaries"
-  ON estate_planning_beneficiaries FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_beneficiaries"
-  ON estate_planning_beneficiaries FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_beneficiaries"
-  ON estate_planning_beneficiaries FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_beneficiaries"
-  ON estate_planning_beneficiaries FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_beneficiaries ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_beneficiaries"
+  ON folio_beneficiaries FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_beneficiaries"
+  ON folio_beneficiaries FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_beneficiaries"
+  ON folio_beneficiaries FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_beneficiaries"
+  ON folio_beneficiaries FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 11. CHARITIES TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_charities (
+CREATE TABLE IF NOT EXISTS folio_charities (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   address TEXT,
@@ -611,25 +611,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_charities (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_charities_intake_id ON estate_planning_charities(intake_id);
-CREATE INDEX idx_ep_charities_user_id ON estate_planning_charities(user_id);
+CREATE INDEX idx_ep_charities_intake_id ON folio_charities(intake_id);
+CREATE INDEX idx_ep_charities_user_id ON folio_charities(user_id);
 
-ALTER TABLE estate_planning_charities ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_charities"
-  ON estate_planning_charities FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_charities"
-  ON estate_planning_charities FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_charities"
-  ON estate_planning_charities FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_charities"
-  ON estate_planning_charities FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_charities ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_charities"
+  ON folio_charities FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_charities"
+  ON folio_charities FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_charities"
+  ON folio_charities FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_charities"
+  ON folio_charities FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 12. DEPENDENTS TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_dependents (
+CREATE TABLE IF NOT EXISTS folio_dependents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   relationship TEXT,
@@ -637,25 +637,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_dependents (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_dependents_intake_id ON estate_planning_dependents(intake_id);
-CREATE INDEX idx_ep_dependents_user_id ON estate_planning_dependents(user_id);
+CREATE INDEX idx_ep_dependents_intake_id ON folio_dependents(intake_id);
+CREATE INDEX idx_ep_dependents_user_id ON folio_dependents(user_id);
 
-ALTER TABLE estate_planning_dependents ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_dependents"
-  ON estate_planning_dependents FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_dependents"
-  ON estate_planning_dependents FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_dependents"
-  ON estate_planning_dependents FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_dependents"
-  ON estate_planning_dependents FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_dependents ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_dependents"
+  ON folio_dependents FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_dependents"
+  ON folio_dependents FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_dependents"
+  ON folio_dependents FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_dependents"
+  ON folio_dependents FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 13. REAL ESTATE TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_real_estate (
+CREATE TABLE IF NOT EXISTS folio_real_estate (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   owner TEXT,
   ownership_form TEXT,
@@ -682,25 +682,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_real_estate (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_real_estate_intake_id ON estate_planning_real_estate(intake_id);
-CREATE INDEX idx_ep_real_estate_user_id ON estate_planning_real_estate(user_id);
+CREATE INDEX idx_ep_real_estate_intake_id ON folio_real_estate(intake_id);
+CREATE INDEX idx_ep_real_estate_user_id ON folio_real_estate(user_id);
 
-ALTER TABLE estate_planning_real_estate ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_real_estate"
-  ON estate_planning_real_estate FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_real_estate"
-  ON estate_planning_real_estate FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_real_estate"
-  ON estate_planning_real_estate FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_real_estate"
-  ON estate_planning_real_estate FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_real_estate ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_real_estate"
+  ON folio_real_estate FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_real_estate"
+  ON folio_real_estate FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_real_estate"
+  ON folio_real_estate FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_real_estate"
+  ON folio_real_estate FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 14. BANK ACCOUNTS TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_bank_accounts (
+CREATE TABLE IF NOT EXISTS folio_bank_accounts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   owner TEXT,
   account_type TEXT,
@@ -716,25 +716,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_bank_accounts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_bank_accounts_intake_id ON estate_planning_bank_accounts(intake_id);
-CREATE INDEX idx_ep_bank_accounts_user_id ON estate_planning_bank_accounts(user_id);
+CREATE INDEX idx_ep_bank_accounts_intake_id ON folio_bank_accounts(intake_id);
+CREATE INDEX idx_ep_bank_accounts_user_id ON folio_bank_accounts(user_id);
 
-ALTER TABLE estate_planning_bank_accounts ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_bank_accounts"
-  ON estate_planning_bank_accounts FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_bank_accounts"
-  ON estate_planning_bank_accounts FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_bank_accounts"
-  ON estate_planning_bank_accounts FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_bank_accounts"
-  ON estate_planning_bank_accounts FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_bank_accounts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_bank_accounts"
+  ON folio_bank_accounts FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_bank_accounts"
+  ON folio_bank_accounts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_bank_accounts"
+  ON folio_bank_accounts FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_bank_accounts"
+  ON folio_bank_accounts FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 15. NON-QUALIFIED INVESTMENTS TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_investments (
+CREATE TABLE IF NOT EXISTS folio_investments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   owner TEXT,
   institution TEXT,
@@ -750,25 +750,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_investments (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_investments_intake_id ON estate_planning_investments(intake_id);
-CREATE INDEX idx_ep_investments_user_id ON estate_planning_investments(user_id);
+CREATE INDEX idx_ep_investments_intake_id ON folio_investments(intake_id);
+CREATE INDEX idx_ep_investments_user_id ON folio_investments(user_id);
 
-ALTER TABLE estate_planning_investments ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_investments"
-  ON estate_planning_investments FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_investments"
-  ON estate_planning_investments FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_investments"
-  ON estate_planning_investments FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_investments"
-  ON estate_planning_investments FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_investments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_investments"
+  ON folio_investments FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_investments"
+  ON folio_investments FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_investments"
+  ON folio_investments FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_investments"
+  ON folio_investments FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 16. RETIREMENT ACCOUNTS TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_retirement_accounts (
+CREATE TABLE IF NOT EXISTS folio_retirement_accounts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   owner TEXT,
   institution TEXT,
@@ -784,25 +784,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_retirement_accounts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_retirement_intake_id ON estate_planning_retirement_accounts(intake_id);
-CREATE INDEX idx_ep_retirement_user_id ON estate_planning_retirement_accounts(user_id);
+CREATE INDEX idx_ep_retirement_intake_id ON folio_retirement_accounts(intake_id);
+CREATE INDEX idx_ep_retirement_user_id ON folio_retirement_accounts(user_id);
 
-ALTER TABLE estate_planning_retirement_accounts ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_retirement_accounts"
-  ON estate_planning_retirement_accounts FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_retirement_accounts"
-  ON estate_planning_retirement_accounts FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_retirement_accounts"
-  ON estate_planning_retirement_accounts FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_retirement_accounts"
-  ON estate_planning_retirement_accounts FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_retirement_accounts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_retirement_accounts"
+  ON folio_retirement_accounts FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_retirement_accounts"
+  ON folio_retirement_accounts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_retirement_accounts"
+  ON folio_retirement_accounts FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_retirement_accounts"
+  ON folio_retirement_accounts FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 17. LIFE INSURANCE TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_life_insurance (
+CREATE TABLE IF NOT EXISTS folio_life_insurance (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   owner TEXT,
   company TEXT,
@@ -821,25 +821,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_life_insurance (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_life_insurance_intake_id ON estate_planning_life_insurance(intake_id);
-CREATE INDEX idx_ep_life_insurance_user_id ON estate_planning_life_insurance(user_id);
+CREATE INDEX idx_ep_life_insurance_intake_id ON folio_life_insurance(intake_id);
+CREATE INDEX idx_ep_life_insurance_user_id ON folio_life_insurance(user_id);
 
-ALTER TABLE estate_planning_life_insurance ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_life_insurance"
-  ON estate_planning_life_insurance FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_life_insurance"
-  ON estate_planning_life_insurance FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_life_insurance"
-  ON estate_planning_life_insurance FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_life_insurance"
-  ON estate_planning_life_insurance FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_life_insurance ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_life_insurance"
+  ON folio_life_insurance FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_life_insurance"
+  ON folio_life_insurance FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_life_insurance"
+  ON folio_life_insurance FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_life_insurance"
+  ON folio_life_insurance FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 18. VEHICLES TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_vehicles (
+CREATE TABLE IF NOT EXISTS folio_vehicles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   owner TEXT,
   year_make_model TEXT,
@@ -854,25 +854,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_vehicles (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_vehicles_intake_id ON estate_planning_vehicles(intake_id);
-CREATE INDEX idx_ep_vehicles_user_id ON estate_planning_vehicles(user_id);
+CREATE INDEX idx_ep_vehicles_intake_id ON folio_vehicles(intake_id);
+CREATE INDEX idx_ep_vehicles_user_id ON folio_vehicles(user_id);
 
-ALTER TABLE estate_planning_vehicles ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_vehicles"
-  ON estate_planning_vehicles FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_vehicles"
-  ON estate_planning_vehicles FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_vehicles"
-  ON estate_planning_vehicles FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_vehicles"
-  ON estate_planning_vehicles FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_vehicles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_vehicles"
+  ON folio_vehicles FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_vehicles"
+  ON folio_vehicles FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_vehicles"
+  ON folio_vehicles FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_vehicles"
+  ON folio_vehicles FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 19. OTHER ASSETS TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_other_assets (
+CREATE TABLE IF NOT EXISTS folio_other_assets (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   owner TEXT,
   description TEXT,
@@ -888,25 +888,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_other_assets (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_other_assets_intake_id ON estate_planning_other_assets(intake_id);
-CREATE INDEX idx_ep_other_assets_user_id ON estate_planning_other_assets(user_id);
+CREATE INDEX idx_ep_other_assets_intake_id ON folio_other_assets(intake_id);
+CREATE INDEX idx_ep_other_assets_user_id ON folio_other_assets(user_id);
 
-ALTER TABLE estate_planning_other_assets ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_other_assets"
-  ON estate_planning_other_assets FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_other_assets"
-  ON estate_planning_other_assets FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_other_assets"
-  ON estate_planning_other_assets FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_other_assets"
-  ON estate_planning_other_assets FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_other_assets ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_other_assets"
+  ON folio_other_assets FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_other_assets"
+  ON folio_other_assets FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_other_assets"
+  ON folio_other_assets FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_other_assets"
+  ON folio_other_assets FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 20. BUSINESS INTERESTS TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_business_interests (
+CREATE TABLE IF NOT EXISTS folio_business_interests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   owner TEXT,
   business_name TEXT,
@@ -920,25 +920,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_business_interests (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_business_intake_id ON estate_planning_business_interests(intake_id);
-CREATE INDEX idx_ep_business_user_id ON estate_planning_business_interests(user_id);
+CREATE INDEX idx_ep_business_intake_id ON folio_business_interests(intake_id);
+CREATE INDEX idx_ep_business_user_id ON folio_business_interests(user_id);
 
-ALTER TABLE estate_planning_business_interests ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_business_interests"
-  ON estate_planning_business_interests FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_business_interests"
-  ON estate_planning_business_interests FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_business_interests"
-  ON estate_planning_business_interests FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_business_interests"
-  ON estate_planning_business_interests FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_business_interests ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_business_interests"
+  ON folio_business_interests FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_business_interests"
+  ON folio_business_interests FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_business_interests"
+  ON folio_business_interests FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_business_interests"
+  ON folio_business_interests FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 21. DIGITAL ASSETS TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_digital_assets (
+CREATE TABLE IF NOT EXISTS folio_digital_assets (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   owner TEXT,
   asset_type TEXT,
@@ -950,25 +950,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_digital_assets (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_digital_assets_intake_id ON estate_planning_digital_assets(intake_id);
-CREATE INDEX idx_ep_digital_assets_user_id ON estate_planning_digital_assets(user_id);
+CREATE INDEX idx_ep_digital_assets_intake_id ON folio_digital_assets(intake_id);
+CREATE INDEX idx_ep_digital_assets_user_id ON folio_digital_assets(user_id);
 
-ALTER TABLE estate_planning_digital_assets ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_digital_assets"
-  ON estate_planning_digital_assets FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_digital_assets"
-  ON estate_planning_digital_assets FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_digital_assets"
-  ON estate_planning_digital_assets FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_digital_assets"
-  ON estate_planning_digital_assets FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_digital_assets ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_digital_assets"
+  ON folio_digital_assets FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_digital_assets"
+  ON folio_digital_assets FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_digital_assets"
+  ON folio_digital_assets FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_digital_assets"
+  ON folio_digital_assets FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 22. SPECIFIC GIFTS TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_specific_gifts (
+CREATE TABLE IF NOT EXISTS folio_specific_gifts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   recipient_name TEXT NOT NULL,
   relationship TEXT,
@@ -978,25 +978,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_specific_gifts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_specific_gifts_intake_id ON estate_planning_specific_gifts(intake_id);
-CREATE INDEX idx_ep_specific_gifts_user_id ON estate_planning_specific_gifts(user_id);
+CREATE INDEX idx_ep_specific_gifts_intake_id ON folio_specific_gifts(intake_id);
+CREATE INDEX idx_ep_specific_gifts_user_id ON folio_specific_gifts(user_id);
 
-ALTER TABLE estate_planning_specific_gifts ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_specific_gifts"
-  ON estate_planning_specific_gifts FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_specific_gifts"
-  ON estate_planning_specific_gifts FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_specific_gifts"
-  ON estate_planning_specific_gifts FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_specific_gifts"
-  ON estate_planning_specific_gifts FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_specific_gifts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_specific_gifts"
+  ON folio_specific_gifts FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_specific_gifts"
+  ON folio_specific_gifts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_specific_gifts"
+  ON folio_specific_gifts FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_specific_gifts"
+  ON folio_specific_gifts FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 23. CASH GIFTS TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_cash_gifts (
+CREATE TABLE IF NOT EXISTS folio_cash_gifts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   beneficiary_id TEXT,
   beneficiary_name TEXT NOT NULL,
@@ -1006,25 +1006,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_cash_gifts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_cash_gifts_intake_id ON estate_planning_cash_gifts(intake_id);
-CREATE INDEX idx_ep_cash_gifts_user_id ON estate_planning_cash_gifts(user_id);
+CREATE INDEX idx_ep_cash_gifts_intake_id ON folio_cash_gifts(intake_id);
+CREATE INDEX idx_ep_cash_gifts_user_id ON folio_cash_gifts(user_id);
 
-ALTER TABLE estate_planning_cash_gifts ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_cash_gifts"
-  ON estate_planning_cash_gifts FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_cash_gifts"
-  ON estate_planning_cash_gifts FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_cash_gifts"
-  ON estate_planning_cash_gifts FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_cash_gifts"
-  ON estate_planning_cash_gifts FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_cash_gifts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_cash_gifts"
+  ON folio_cash_gifts FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_cash_gifts"
+  ON folio_cash_gifts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_cash_gifts"
+  ON folio_cash_gifts FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_cash_gifts"
+  ON folio_cash_gifts FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 24. LONG-TERM CARE TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_long_term_care (
+CREATE TABLE IF NOT EXISTS folio_long_term_care (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   person_type TEXT NOT NULL CHECK (person_type IN ('client', 'spouse')),
 
@@ -1111,32 +1111,32 @@ CREATE TABLE IF NOT EXISTS estate_planning_long_term_care (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_ltc_intake_id ON estate_planning_long_term_care(intake_id);
-CREATE INDEX idx_ep_ltc_user_id ON estate_planning_long_term_care(user_id);
-CREATE INDEX idx_ep_ltc_person_type ON estate_planning_long_term_care(person_type);
-CREATE UNIQUE INDEX idx_ep_ltc_intake_person ON estate_planning_long_term_care(intake_id, person_type);
+CREATE INDEX idx_ep_ltc_intake_id ON folio_long_term_care(intake_id);
+CREATE INDEX idx_ep_ltc_user_id ON folio_long_term_care(user_id);
+CREATE INDEX idx_ep_ltc_person_type ON folio_long_term_care(person_type);
+CREATE UNIQUE INDEX idx_ep_ltc_intake_person ON folio_long_term_care(intake_id, person_type);
 
-CREATE TRIGGER update_estate_planning_ltc_updated_at
-  BEFORE UPDATE ON estate_planning_long_term_care
+CREATE TRIGGER update_folio_ltc_updated_at
+  BEFORE UPDATE ON folio_long_term_care
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
-ALTER TABLE estate_planning_long_term_care ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_long_term_care"
-  ON estate_planning_long_term_care FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_long_term_care"
-  ON estate_planning_long_term_care FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_long_term_care"
-  ON estate_planning_long_term_care FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_long_term_care"
-  ON estate_planning_long_term_care FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_long_term_care ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_long_term_care"
+  ON folio_long_term_care FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_long_term_care"
+  ON folio_long_term_care FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_long_term_care"
+  ON folio_long_term_care FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_long_term_care"
+  ON folio_long_term_care FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 25. CURRENT ESTATE PLAN TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_current_estate_plan (
+CREATE TABLE IF NOT EXISTS folio_current_estate_plan (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   person_type TEXT NOT NULL CHECK (person_type IN ('client', 'spouse')),
 
@@ -1217,32 +1217,32 @@ CREATE TABLE IF NOT EXISTS estate_planning_current_estate_plan (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_cep_intake_id ON estate_planning_current_estate_plan(intake_id);
-CREATE INDEX idx_ep_cep_user_id ON estate_planning_current_estate_plan(user_id);
-CREATE INDEX idx_ep_cep_person_type ON estate_planning_current_estate_plan(person_type);
-CREATE UNIQUE INDEX idx_ep_cep_intake_person ON estate_planning_current_estate_plan(intake_id, person_type);
+CREATE INDEX idx_ep_cep_intake_id ON folio_current_estate_plan(intake_id);
+CREATE INDEX idx_ep_cep_user_id ON folio_current_estate_plan(user_id);
+CREATE INDEX idx_ep_cep_person_type ON folio_current_estate_plan(person_type);
+CREATE UNIQUE INDEX idx_ep_cep_intake_person ON folio_current_estate_plan(intake_id, person_type);
 
-CREATE TRIGGER update_estate_planning_cep_updated_at
-  BEFORE UPDATE ON estate_planning_current_estate_plan
+CREATE TRIGGER update_folio_cep_updated_at
+  BEFORE UPDATE ON folio_current_estate_plan
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
-ALTER TABLE estate_planning_current_estate_plan ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_current_estate_plan"
-  ON estate_planning_current_estate_plan FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_current_estate_plan"
-  ON estate_planning_current_estate_plan FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_current_estate_plan"
-  ON estate_planning_current_estate_plan FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_current_estate_plan"
-  ON estate_planning_current_estate_plan FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_current_estate_plan ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_current_estate_plan"
+  ON folio_current_estate_plan FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_current_estate_plan"
+  ON folio_current_estate_plan FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_current_estate_plan"
+  ON folio_current_estate_plan FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_current_estate_plan"
+  ON folio_current_estate_plan FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 26. DISTRIBUTION PLANS TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_distribution_plans (
+CREATE TABLE IF NOT EXISTS folio_distribution_plans (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   person_type TEXT NOT NULL CHECK (person_type IN ('client', 'spouse')),
   distribution_type TEXT,
@@ -1257,32 +1257,32 @@ CREATE TABLE IF NOT EXISTS estate_planning_distribution_plans (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_dist_plans_intake_id ON estate_planning_distribution_plans(intake_id);
-CREATE INDEX idx_ep_dist_plans_user_id ON estate_planning_distribution_plans(user_id);
-CREATE INDEX idx_ep_dist_plans_person_type ON estate_planning_distribution_plans(person_type);
-CREATE UNIQUE INDEX idx_ep_dist_plans_intake_person ON estate_planning_distribution_plans(intake_id, person_type);
+CREATE INDEX idx_ep_dist_plans_intake_id ON folio_distribution_plans(intake_id);
+CREATE INDEX idx_ep_dist_plans_user_id ON folio_distribution_plans(user_id);
+CREATE INDEX idx_ep_dist_plans_person_type ON folio_distribution_plans(person_type);
+CREATE UNIQUE INDEX idx_ep_dist_plans_intake_person ON folio_distribution_plans(intake_id, person_type);
 
-CREATE TRIGGER update_estate_planning_dist_plans_updated_at
-  BEFORE UPDATE ON estate_planning_distribution_plans
+CREATE TRIGGER update_folio_dist_plans_updated_at
+  BEFORE UPDATE ON folio_distribution_plans
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
-ALTER TABLE estate_planning_distribution_plans ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_distribution_plans"
-  ON estate_planning_distribution_plans FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_distribution_plans"
-  ON estate_planning_distribution_plans FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_distribution_plans"
-  ON estate_planning_distribution_plans FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_distribution_plans"
-  ON estate_planning_distribution_plans FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_distribution_plans ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_distribution_plans"
+  ON folio_distribution_plans FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_distribution_plans"
+  ON folio_distribution_plans FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_distribution_plans"
+  ON folio_distribution_plans FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_distribution_plans"
+  ON folio_distribution_plans FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 27. CLIENT INCOME SOURCES TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_client_income (
+CREATE TABLE IF NOT EXISTS folio_client_income (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   description TEXT NOT NULL DEFAULT '',
   amount TEXT DEFAULT '',
@@ -1291,25 +1291,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_client_income (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_client_income_intake_id ON estate_planning_client_income(intake_id);
-CREATE INDEX idx_ep_client_income_user_id ON estate_planning_client_income(user_id);
+CREATE INDEX idx_ep_client_income_intake_id ON folio_client_income(intake_id);
+CREATE INDEX idx_ep_client_income_user_id ON folio_client_income(user_id);
 
-ALTER TABLE estate_planning_client_income ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_client_income"
-  ON estate_planning_client_income FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_client_income"
-  ON estate_planning_client_income FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_client_income"
-  ON estate_planning_client_income FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_client_income"
-  ON estate_planning_client_income FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_client_income ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_client_income"
+  ON folio_client_income FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_client_income"
+  ON folio_client_income FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_client_income"
+  ON folio_client_income FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_client_income"
+  ON folio_client_income FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 28. SPOUSE INCOME SOURCES TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_spouse_income (
+CREATE TABLE IF NOT EXISTS folio_spouse_income (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   description TEXT NOT NULL DEFAULT '',
   amount TEXT DEFAULT '',
@@ -1318,25 +1318,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_spouse_income (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_spouse_income_intake_id ON estate_planning_spouse_income(intake_id);
-CREATE INDEX idx_ep_spouse_income_user_id ON estate_planning_spouse_income(user_id);
+CREATE INDEX idx_ep_spouse_income_intake_id ON folio_spouse_income(intake_id);
+CREATE INDEX idx_ep_spouse_income_user_id ON folio_spouse_income(user_id);
 
-ALTER TABLE estate_planning_spouse_income ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_spouse_income"
-  ON estate_planning_spouse_income FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_spouse_income"
-  ON estate_planning_spouse_income FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_spouse_income"
-  ON estate_planning_spouse_income FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_spouse_income"
-  ON estate_planning_spouse_income FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_spouse_income ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_spouse_income"
+  ON folio_spouse_income FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_spouse_income"
+  ON folio_spouse_income FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_spouse_income"
+  ON folio_spouse_income FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_spouse_income"
+  ON folio_spouse_income FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 29. CLIENT MEDICAL INSURANCE TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_client_medical_insurance (
+CREATE TABLE IF NOT EXISTS folio_client_medical_insurance (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   medicare_part_b_deduction TEXT DEFAULT '',
   medicare_coverage_type TEXT DEFAULT '',
@@ -1351,25 +1351,25 @@ CREATE TABLE IF NOT EXISTS estate_planning_client_medical_insurance (
   CONSTRAINT unique_client_medical_insurance_per_intake UNIQUE (intake_id)
 );
 
-CREATE INDEX idx_ep_client_medical_insurance_intake_id ON estate_planning_client_medical_insurance(intake_id);
-CREATE INDEX idx_ep_client_medical_insurance_user_id ON estate_planning_client_medical_insurance(user_id);
+CREATE INDEX idx_ep_client_medical_insurance_intake_id ON folio_client_medical_insurance(intake_id);
+CREATE INDEX idx_ep_client_medical_insurance_user_id ON folio_client_medical_insurance(user_id);
 
-ALTER TABLE estate_planning_client_medical_insurance ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_client_medical_insurance"
-  ON estate_planning_client_medical_insurance FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_client_medical_insurance"
-  ON estate_planning_client_medical_insurance FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_client_medical_insurance"
-  ON estate_planning_client_medical_insurance FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_client_medical_insurance"
-  ON estate_planning_client_medical_insurance FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_client_medical_insurance ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_client_medical_insurance"
+  ON folio_client_medical_insurance FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_client_medical_insurance"
+  ON folio_client_medical_insurance FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_client_medical_insurance"
+  ON folio_client_medical_insurance FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_client_medical_insurance"
+  ON folio_client_medical_insurance FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 30. SPOUSE MEDICAL INSURANCE TABLE
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS estate_planning_spouse_medical_insurance (
+CREATE TABLE IF NOT EXISTS folio_spouse_medical_insurance (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  intake_id UUID NOT NULL REFERENCES estate_planning_intakes(id) ON DELETE CASCADE,
+  intake_id UUID NOT NULL REFERENCES folio_intakes(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   medicare_part_b_deduction TEXT DEFAULT '',
   medicare_coverage_type TEXT DEFAULT '',
@@ -1384,18 +1384,18 @@ CREATE TABLE IF NOT EXISTS estate_planning_spouse_medical_insurance (
   CONSTRAINT unique_spouse_medical_insurance_per_intake UNIQUE (intake_id)
 );
 
-CREATE INDEX idx_ep_spouse_medical_insurance_intake_id ON estate_planning_spouse_medical_insurance(intake_id);
-CREATE INDEX idx_ep_spouse_medical_insurance_user_id ON estate_planning_spouse_medical_insurance(user_id);
+CREATE INDEX idx_ep_spouse_medical_insurance_intake_id ON folio_spouse_medical_insurance(intake_id);
+CREATE INDEX idx_ep_spouse_medical_insurance_user_id ON folio_spouse_medical_insurance(user_id);
 
-ALTER TABLE estate_planning_spouse_medical_insurance ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own estate_planning_spouse_medical_insurance"
-  ON estate_planning_spouse_medical_insurance FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own estate_planning_spouse_medical_insurance"
-  ON estate_planning_spouse_medical_insurance FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own estate_planning_spouse_medical_insurance"
-  ON estate_planning_spouse_medical_insurance FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own estate_planning_spouse_medical_insurance"
-  ON estate_planning_spouse_medical_insurance FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE folio_spouse_medical_insurance ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own folio_spouse_medical_insurance"
+  ON folio_spouse_medical_insurance FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own folio_spouse_medical_insurance"
+  ON folio_spouse_medical_insurance FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own folio_spouse_medical_insurance"
+  ON folio_spouse_medical_insurance FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own folio_spouse_medical_insurance"
+  ON folio_spouse_medical_insurance FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================================
 -- 31. IRA REQUIRED MINIMUM DISTRIBUTIONS TABLE

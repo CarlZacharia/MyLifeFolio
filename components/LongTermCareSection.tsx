@@ -869,7 +869,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Are there geographic preferences or restrictions for your long-term care? (e.g., stay in current city, be near a particular child, stay in Pennsylvania/Florida)"
+                label="Are there geographic preferences or restrictions for your long-term care?"
                 value={data.geographicPreferences}
                 onChange={(e) => onChange('geographicPreferences', e.target.value)}
                 multiline
@@ -947,7 +947,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Are there any significant family conflicts or dynamics that could affect long-term care decisions or asset transfers?"
+                label="Are there family conflicts or dynamics that could affect long-term care decisions or asset transfers?"
                 value={data.familyConflicts}
                 onChange={(e) => onChange('familyConflicts', e.target.value)}
                 multiline

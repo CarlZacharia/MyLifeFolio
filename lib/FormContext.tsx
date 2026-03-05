@@ -119,6 +119,76 @@ export interface CashGiftToBeneficiary {
   amount: string;
 }
 
+// Pet Care Types
+export interface PetData {
+  // Basic Pet Information
+  petName: string;
+  petType: string; // Dog, Cat, Bird, Fish, Reptile, Other
+  petTypeOther: string;
+  breed: string;
+  age: string;
+  weight: string;
+  color: string;
+  sex: string; // Male, Female, Unknown
+  spayedNeutered: boolean;
+  microchipped: boolean;
+  microchipNumber: string;
+  registrationNumber: string;
+
+  // Veterinary Care
+  vetName: string;
+  vetClinic: string;
+  vetPhone: string;
+  vetAddress: string;
+  medications: string;
+  allergies: string;
+  medicalConditions: string;
+  vaccinesDue: string;
+  specialMedicalInstructions: string;
+
+  // Daily Care Instructions
+  feedingSchedule: string;
+  foodBrand: string;
+  foodAmount: string;
+  dietaryRestrictions: string;
+  exerciseNeeds: string;
+  groomingNeeds: string;
+  sleepingArrangements: string;
+
+  // Behavioral Profile
+  temperament: string;
+  fears: string;
+  triggers: string;
+  socialWithPeople: string;
+  socialWithAnimals: string;
+  trainingLevel: string;
+  specialCommands: string;
+
+  // Care Preferences & Wishes
+  preferredCaretaker: string;
+  alternateCaretaker: string;
+  caretakerInstructions: string;
+  keepWithOtherPets: boolean;
+  keepWithOtherPetsDetails: string;
+  neverPlaceWith: string;
+  rehomingPreferences: string;
+
+  // Financial Provisions
+  monthlyCareBudget: string;
+  petInsurance: boolean;
+  petInsuranceCompany: string;
+  petInsurancePolicyNumber: string;
+  petTrustFunding: string;
+  petTrustDetails: string;
+
+  // Emergency Instructions
+  emergencyContact: string;
+  emergencyContactPhone: string;
+  emergencyVetClinic: string;
+  emergencyVetPhone: string;
+  additionalNotes: string;
+}
+
 export interface CurrentEstatePlanData {
   // Document existence
   hasWill: boolean;
@@ -510,6 +580,19 @@ export interface FormData {
   spouseTrusteeSecondAlternate: string;
   spouseTrusteeSecondAlternateOther: string;
 
+  irrevocableTrusteeFirst: string;
+  irrevocableTrusteeFirstOther: string;
+  irrevocableTrusteeAlternate: string;
+  irrevocableTrusteeAlternateOther: string;
+  irrevocableTrusteeSecondAlternate: string;
+  irrevocableTrusteeSecondAlternateOther: string;
+  spouseIrrevocableTrusteeFirst: string;
+  spouseIrrevocableTrusteeFirstOther: string;
+  spouseIrrevocableTrusteeAlternate: string;
+  spouseIrrevocableTrusteeAlternateOther: string;
+  spouseIrrevocableTrusteeSecondAlternate: string;
+  spouseIrrevocableTrusteeSecondAlternateOther: string;
+
   guardianFirst: string;
   guardianFirstOther: string;
   guardianAlternate: string;
@@ -712,6 +795,10 @@ export interface FormData {
   clientCurrentEstatePlan: CurrentEstatePlanData;
   // Current Estate Plan - Spouse
   spouseCurrentEstatePlan: CurrentEstatePlanData;
+
+  // Pet Care
+  hasPetsForCare: boolean;
+  pets: PetData[];
 
   // Metadata
   createdAt: string; // ISO date string of when the questionnaire was started
@@ -952,6 +1039,18 @@ const initialFormData: FormData = {
   spouseTrusteeAlternateOther: '',
   spouseTrusteeSecondAlternate: '',
   spouseTrusteeSecondAlternateOther: '',
+  irrevocableTrusteeFirst: '',
+  irrevocableTrusteeFirstOther: '',
+  irrevocableTrusteeAlternate: '',
+  irrevocableTrusteeAlternateOther: '',
+  irrevocableTrusteeSecondAlternate: '',
+  irrevocableTrusteeSecondAlternateOther: '',
+  spouseIrrevocableTrusteeFirst: '',
+  spouseIrrevocableTrusteeFirstOther: '',
+  spouseIrrevocableTrusteeAlternate: '',
+  spouseIrrevocableTrusteeAlternateOther: '',
+  spouseIrrevocableTrusteeSecondAlternate: '',
+  spouseIrrevocableTrusteeSecondAlternateOther: '',
   guardianFirst: '',
   guardianFirstOther: '',
   guardianAlternate: '',
@@ -1174,6 +1273,8 @@ const initialFormData: FormData = {
     hasWill: false,
     hasTrust: false,
     isJointTrust: false,
+    hasIrrevocableTrust: false,
+    isJointIrrevocableTrust: false,
     hasFinancialPOA: false,
     hasHealthCarePOA: false,
     hasLivingWill: false,
@@ -1182,6 +1283,12 @@ const initialFormData: FormData = {
     willStateSigned: '',
     trustDateSigned: '',
     trustStateSigned: '',
+    trustName: '',
+    trustStateResided: '',
+    irrevocableTrustName: '',
+    irrevocableTrustDateSigned: '',
+    irrevocableTrustStateResided: '',
+    irrevocableTrustReason: '',
     financialPOADateSigned: '',
     financialPOAStateSigned: '',
     healthCarePOADateSigned: '',
@@ -1194,6 +1301,7 @@ const initialFormData: FormData = {
     uploadedFiles: [],
     willUploadedFiles: [],
     trustUploadedFiles: [],
+    irrevocableTrustUploadedFiles: [],
     financialPOAUploadedFiles: [],
     healthCarePOAUploadedFiles: [],
     livingWillUploadedFiles: [],
@@ -1228,6 +1336,8 @@ const initialFormData: FormData = {
     hasWill: false,
     hasTrust: false,
     isJointTrust: false,
+    hasIrrevocableTrust: false,
+    isJointIrrevocableTrust: false,
     hasFinancialPOA: false,
     hasHealthCarePOA: false,
     hasLivingWill: false,
@@ -1236,6 +1346,12 @@ const initialFormData: FormData = {
     willStateSigned: '',
     trustDateSigned: '',
     trustStateSigned: '',
+    trustName: '',
+    trustStateResided: '',
+    irrevocableTrustName: '',
+    irrevocableTrustDateSigned: '',
+    irrevocableTrustStateResided: '',
+    irrevocableTrustReason: '',
     financialPOADateSigned: '',
     financialPOAStateSigned: '',
     healthCarePOADateSigned: '',
@@ -1248,6 +1364,7 @@ const initialFormData: FormData = {
     uploadedFiles: [],
     willUploadedFiles: [],
     trustUploadedFiles: [],
+    irrevocableTrustUploadedFiles: [],
     financialPOAUploadedFiles: [],
     healthCarePOAUploadedFiles: [],
     livingWillUploadedFiles: [],
@@ -1278,6 +1395,10 @@ const initialFormData: FormData = {
     hasLivingWillDocument: false,
     comments: '',
   },
+
+  // Pet Care
+  hasPetsForCare: false,
+  pets: [],
 
   // Metadata
   createdAt: '',

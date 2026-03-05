@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   TextField,
@@ -9,6 +9,9 @@ import {
   Checkbox,
   FormControlLabel,
   FormGroup,
+  FormControl,
+  InputLabel,
+  Select,
   Tabs,
   Tab,
   Button,
@@ -24,6 +27,7 @@ import {
   Alert,
   Chip,
   Tooltip,
+  Divider,
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import PeopleIcon from '@mui/icons-material/People';
@@ -36,6 +40,7 @@ import {
   useFormContext,
   MaritalStatus,
   CurrentEstatePlanData,
+  FormData,
   UploadedDocumentInfo,
 } from '../lib/FormContext';
 import { VideoHelpIcon, HelpIcon } from './FieldWithHelp';
@@ -48,6 +53,8 @@ import {
   PersonType,
   DocumentType,
 } from '../lib/supabaseStorage';
+
+const OTHER_VALUE = '__OTHER__';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -63,6 +70,13 @@ const US_STATES = [
   'Wisconsin', 'Wyoming', 'District of Columbia'
 ];
 
+// Fiduciary field config per document type
+interface FiduciaryConfig {
+  label: string; // e.g. "Personal Representative (Executor)"
+  clientFields: { primary: keyof FormData; primaryOther: keyof FormData; alternate: keyof FormData; alternateOther: keyof FormData; second: keyof FormData; secondOther: keyof FormData };
+  spouseFields: { primary: keyof FormData; primaryOther: keyof FormData; alternate: keyof FormData; alternateOther: keyof FormData; second: keyof FormData; secondOther: keyof FormData };
+}
+
 // Document type config interface (uses DocumentType from supabaseStorage)
 interface DocumentTypeConfig {
   key: DocumentType;
@@ -71,15 +85,75 @@ interface DocumentTypeConfig {
   dateField: keyof CurrentEstatePlanData;
   stateField: keyof CurrentEstatePlanData;
   hasField: keyof CurrentEstatePlanData;
+  fiduciary: FiduciaryConfig;
 }
 
 const DOCUMENT_TYPES: DocumentTypeConfig[] = [
-  { key: 'will', label: 'Will (Last Will and Testament)', uploadField: 'willUploadedFiles', dateField: 'willDateSigned', stateField: 'willStateSigned', hasField: 'hasWill' },
-  { key: 'trust', label: 'Trust (Revocable Living Trust)', uploadField: 'trustUploadedFiles', dateField: 'trustDateSigned', stateField: 'trustStateSigned', hasField: 'hasTrust' },
-  { key: 'irrevocableTrust', label: 'Irrevocable Trust', uploadField: 'irrevocableTrustUploadedFiles', dateField: 'irrevocableTrustDateSigned', stateField: 'trustStateSigned', hasField: 'hasIrrevocableTrust' },
-  { key: 'financialPOA', label: 'Financial Power of Attorney', uploadField: 'financialPOAUploadedFiles', dateField: 'financialPOADateSigned', stateField: 'financialPOAStateSigned', hasField: 'hasFinancialPOA' },
-  { key: 'healthCarePOA', label: 'Health Care Power of Attorney', uploadField: 'healthCarePOAUploadedFiles', dateField: 'healthCarePOADateSigned', stateField: 'healthCarePOAStateSigned', hasField: 'hasHealthCarePOA' },
-  { key: 'livingWill', label: 'Living Will (Advance Directive)', uploadField: 'livingWillUploadedFiles', dateField: 'livingWillDateSigned', stateField: 'livingWillStateSigned', hasField: 'hasLivingWill' },
+  {
+    key: 'will',
+    label: 'Will (Last Will and Testament)',
+    uploadField: 'willUploadedFiles',
+    dateField: 'willDateSigned',
+    stateField: 'willStateSigned',
+    hasField: 'hasWill',
+    fiduciary: {
+      label: 'Personal Representative (Executor)',
+      clientFields: { primary: 'executorFirst', primaryOther: 'executorFirstOther', alternate: 'executorAlternate', alternateOther: 'executorAlternateOther', second: 'executorSecondAlternate', secondOther: 'executorSecondAlternateOther' },
+      spouseFields: { primary: 'spouseExecutorFirst', primaryOther: 'spouseExecutorFirstOther', alternate: 'spouseExecutorAlternate', alternateOther: 'spouseExecutorAlternateOther', second: 'spouseExecutorSecondAlternate', secondOther: 'spouseExecutorSecondAlternateOther' },
+    },
+  },
+  {
+    key: 'trust',
+    label: 'Trust (Revocable Living Trust)',
+    uploadField: 'trustUploadedFiles',
+    dateField: 'trustDateSigned',
+    stateField: 'trustStateSigned',
+    hasField: 'hasTrust',
+    fiduciary: {
+      label: 'Trustee',
+      clientFields: { primary: 'trusteeFirst', primaryOther: 'trusteeFirstOther', alternate: 'trusteeAlternate', alternateOther: 'trusteeAlternateOther', second: 'trusteeSecondAlternate', secondOther: 'trusteeSecondAlternateOther' },
+      spouseFields: { primary: 'spouseTrusteeFirst', primaryOther: 'spouseTrusteeFirstOther', alternate: 'spouseTrusteeAlternate', alternateOther: 'spouseTrusteeAlternateOther', second: 'spouseTrusteeSecondAlternate', secondOther: 'spouseTrusteeSecondAlternateOther' },
+    },
+  },
+  {
+    key: 'irrevocableTrust',
+    label: 'Irrevocable Trust',
+    uploadField: 'irrevocableTrustUploadedFiles',
+    dateField: 'irrevocableTrustDateSigned',
+    stateField: 'trustStateSigned',
+    hasField: 'hasIrrevocableTrust',
+    fiduciary: {
+      label: 'Trustee',
+      clientFields: { primary: 'irrevocableTrusteeFirst', primaryOther: 'irrevocableTrusteeFirstOther', alternate: 'irrevocableTrusteeAlternate', alternateOther: 'irrevocableTrusteeAlternateOther', second: 'irrevocableTrusteeSecondAlternate', secondOther: 'irrevocableTrusteeSecondAlternateOther' },
+      spouseFields: { primary: 'spouseIrrevocableTrusteeFirst', primaryOther: 'spouseIrrevocableTrusteeFirstOther', alternate: 'spouseIrrevocableTrusteeAlternate', alternateOther: 'spouseIrrevocableTrusteeAlternateOther', second: 'spouseIrrevocableTrusteeSecondAlternate', secondOther: 'spouseIrrevocableTrusteeSecondAlternateOther' },
+    },
+  },
+  {
+    key: 'financialPOA',
+    label: 'Financial Power of Attorney',
+    uploadField: 'financialPOAUploadedFiles',
+    dateField: 'financialPOADateSigned',
+    stateField: 'financialPOAStateSigned',
+    hasField: 'hasFinancialPOA',
+    fiduciary: {
+      label: 'Agent',
+      clientFields: { primary: 'financialAgentName', primaryOther: 'financialAgentNameOther', alternate: 'financialAlternateName', alternateOther: 'financialAlternateNameOther', second: 'financialSecondAlternateName', secondOther: 'financialSecondAlternateNameOther' },
+      spouseFields: { primary: 'spouseFinancialAgentName', primaryOther: 'spouseFinancialAgentNameOther', alternate: 'spouseFinancialAlternateName', alternateOther: 'spouseFinancialAlternateNameOther', second: 'spouseFinancialSecondAlternateName', secondOther: 'spouseFinancialSecondAlternateNameOther' },
+    },
+  },
+  {
+    key: 'healthCarePOA',
+    label: 'Health Care Power of Attorney',
+    uploadField: 'healthCarePOAUploadedFiles',
+    dateField: 'healthCarePOADateSigned',
+    stateField: 'healthCarePOAStateSigned',
+    hasField: 'hasHealthCarePOA',
+    fiduciary: {
+      label: 'Health Care Agent',
+      clientFields: { primary: 'healthCareAgentName', primaryOther: 'healthCareAgentNameOther', alternate: 'healthCareAlternateName', alternateOther: 'healthCareAlternateNameOther', second: 'healthCareSecondAlternateName', secondOther: 'healthCareSecondAlternateNameOther' },
+      spouseFields: { primary: 'spouseHealthCareAgentName', primaryOther: 'spouseHealthCareAgentNameOther', alternate: 'spouseHealthCareAlternateName', alternateOther: 'spouseHealthCareAlternateNameOther', second: 'spouseHealthCareSecondAlternateName', secondOther: 'spouseHealthCareSecondAlternateNameOther' },
+    },
+  },
 ];
 
 // Common reasons for irrevocable trusts
@@ -95,7 +169,78 @@ const IRREVOCABLE_TRUST_REASONS = [
   'Other',
 ];
 
-// Inline file chip component for displaying uploaded files
+// --- Reusable FiduciarySelect component (same pattern as FiduciariesSection) ---
+
+interface BeneficiaryOption {
+  value: string;
+  label: string;
+}
+
+interface FiduciarySelectProps {
+  label: string;
+  value: string;
+  otherValue: string;
+  onChange: (value: string) => void;
+  onOtherChange: (value: string) => void;
+  options: BeneficiaryOption[];
+  excludeValues?: string[];
+}
+
+const FiduciarySelect: React.FC<FiduciarySelectProps> = ({
+  label,
+  value,
+  otherValue,
+  onChange,
+  onOtherChange,
+  options,
+  excludeValues = [],
+}) => {
+  const filteredOptions = options.filter(
+    (opt) => !excludeValues.includes(opt.value) || opt.value === value
+  );
+
+  return (
+    <>
+      <FormControl fullWidth size="small">
+        <InputLabel>{label}</InputLabel>
+        <Select
+          value={value}
+          label={label}
+          onChange={(e) => {
+            onChange(e.target.value);
+            if (e.target.value !== OTHER_VALUE) {
+              onOtherChange('');
+            }
+          }}
+        >
+          <MenuItem value="">
+            <em>None</em>
+          </MenuItem>
+          {filteredOptions.map((opt) => (
+            <MenuItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </MenuItem>
+          ))}
+          <MenuItem value={OTHER_VALUE}>Other</MenuItem>
+        </Select>
+      </FormControl>
+      {value === OTHER_VALUE && (
+        <TextField
+          fullWidth
+          label={`${label} (specify)`}
+          value={otherValue}
+          onChange={(e) => onOtherChange(e.target.value)}
+          variant="outlined"
+          size="small"
+          sx={{ mt: 1 }}
+        />
+      )}
+    </>
+  );
+};
+
+// --- Inline file chip component ---
+
 interface InlineFileChipProps {
   file: UploadedDocumentInfo;
   headerColor: string;
@@ -156,7 +301,8 @@ const InlineFileChip: React.FC<InlineFileChipProps> = ({ file, headerColor, onVi
   );
 };
 
-// Document Upload Modal
+// --- Document Upload Modal ---
+
 interface DocumentUploadModalProps {
   open: boolean;
   onClose: () => void;
@@ -200,7 +346,6 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
       );
 
       if (result.uploaded.length > 0) {
-        // Convert UploadedDocumentMetadata to UploadedDocumentInfo
         const newFiles: UploadedDocumentInfo[] = result.uploaded.map((meta) => ({
           name: meta.name,
           originalName: meta.originalName,
@@ -421,28 +566,34 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
   );
 };
 
+// --- Main person-level estate plan component ---
+
 interface PersonCurrentEstatePlanProps {
   data: CurrentEstatePlanData;
   onChange: (field: keyof CurrentEstatePlanData, value: CurrentEstatePlanData[keyof CurrentEstatePlanData]) => void;
   onChangeMultiple: (updates: Partial<CurrentEstatePlanData>) => void;
-  personLabel: string;
+  formData: FormData;
+  updateFormData: (updates: Partial<FormData>) => void;
   personType: PersonType;
   clientFolderName: string;
   headerColor?: string;
   openHelp: (helpId: number) => void;
   showSpouse: boolean;
+  beneficiaryOptions: BeneficiaryOption[];
 }
 
 const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
   data,
   onChange,
   onChangeMultiple,
-  personLabel,
+  formData,
+  updateFormData,
   personType,
   clientFolderName,
   headerColor = '#1a237e',
   openHelp,
   showSpouse,
+  beneficiaryOptions,
 }) => {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [activeDocumentType, setActiveDocumentType] = useState<DocumentTypeConfig | null>(null);
@@ -461,10 +612,8 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
     const value = data[field];
     if (!Array.isArray(value)) return [];
     if (value.length === 0) return [];
-    // Handle backwards compatibility - old data may have string arrays
     const firstItem = value[0];
     if (typeof firstItem === 'string') {
-      // Convert old string format to new format (these won't have paths, just display names)
       return (value as unknown as string[]).map((name) => ({
         name,
         originalName: name,
@@ -474,7 +623,6 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
         uploadedAt: '',
       }));
     }
-    // Check if it looks like UploadedDocumentInfo (has path property)
     if (typeof firstItem === 'object' && firstItem !== null && 'path' in firstItem) {
       return value as unknown as UploadedDocumentInfo[];
     }
@@ -487,10 +635,8 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
     }
   };
 
-  // State for tracking inline file deletion
   const [deletingFilePath, setDeletingFilePath] = useState<string | null>(null);
 
-  // Handle viewing a file inline
   const handleViewFile = async (file: UploadedDocumentInfo) => {
     if (!file.path) return;
     try {
@@ -503,7 +649,6 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
     }
   };
 
-  // Handle deleting a file inline
   const handleDeleteFile = async (docType: DocumentTypeConfig, file: UploadedDocumentInfo) => {
     if (!file.path) return;
     setDeletingFilePath(file.path);
@@ -521,10 +666,52 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
     }
   };
 
-  // Check if any documents are selected
-  const hasAnyDocuments = data.hasWill || data.hasTrust || data.hasFinancialPOA || data.hasHealthCarePOA || data.hasLivingWill;
+  const handleFormDataChange = (field: keyof FormData) => (value: string) => {
+    updateFormData({ [field]: value });
+  };
 
-  const renderDocumentSection = (docType: DocumentTypeConfig, index: number) => {
+  const renderFiduciarySection = (docType: DocumentTypeConfig) => {
+    const fields = personType === 'client' ? docType.fiduciary.clientFields : docType.fiduciary.spouseFields;
+
+    return (
+      <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+        <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600, color: headerColor }}>
+          {docType.fiduciary.label}
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField
+              fullWidth
+              label="Primary"
+              value={(formData[fields.primary] as string) || ''}
+              onChange={(e) => updateFormData({ [fields.primary]: e.target.value })}
+              size="small"
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              fullWidth
+              label="Secondary"
+              value={(formData[fields.alternate] as string) || ''}
+              onChange={(e) => updateFormData({ [fields.alternate]: e.target.value })}
+              size="small"
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              fullWidth
+              label="Tertiary"
+              value={(formData[fields.second] as string) || ''}
+              onChange={(e) => updateFormData({ [fields.second]: e.target.value })}
+              size="small"
+            />
+          </Grid>
+        </Grid>
+      </Box>
+    );
+  };
+
+  const renderDocumentSection = (docType: DocumentTypeConfig) => {
     const isChecked = data[docType.hasField] as boolean;
     const uploadedFiles = getUploadedFiles(docType.uploadField);
     const isTrust = docType.key === 'trust';
@@ -575,7 +762,7 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
                   />
                 </Grid>
               )}
-              {/* Trust-specific fields: Name, Date, and State Resided */}
+              {/* Trust-specific fields */}
               {isTrust && (
                 <>
                   <Grid item xs={12}>
@@ -618,7 +805,6 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
               {/* Irrevocable Trust-specific fields */}
               {isIrrevocableTrust && (
                 <>
-                  {/* Joint Irrevocable Trust option for married couples */}
                   {showSpouse && (
                     <Grid item xs={12}>
                       <FormControlLabel
@@ -719,6 +905,9 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
                 </Box>
               </Box>
             )}
+
+            {/* Fiduciary positions inline */}
+            {renderFiduciarySection(docType)}
           </Box>
         </Collapse>
       </Box>
@@ -727,17 +916,18 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
 
   return (
     <Box>
-      {/* Document Checkboxes with inline fields */}
+      {/* Document Checkboxes with inline fields + fiduciaries */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
-            Existing Estate Planning Documents
+            Estate Planning Documents
           </Typography>
           <HelpIcon helpId={210} onClick={() => openHelp(210)} />
         </Box>
 
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Check each document you currently have. You can also upload copies of your documents for our review.
+          Check each document you currently have. For each, you can upload copies, enter the date signed,
+          and designate your fiduciaries (Primary, Secondary, Tertiary).
         </Typography>
 
         {/* Single State Selector for all documents */}
@@ -758,7 +948,7 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
         </Box>
 
         <FormGroup>
-          {DOCUMENT_TYPES.map((docType, index) => renderDocumentSection(docType, index))}
+          {DOCUMENT_TYPES.map((docType) => renderDocumentSection(docType))}
 
           {/* None Checkbox */}
           <FormControlLabel
@@ -788,6 +978,55 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
           />
         </FormGroup>
       </Paper>
+
+      {/* Guardian - only show if there are minor beneficiaries */}
+      {formData.anyBeneficiariesMinors && (
+        <Paper sx={{ p: 3, mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
+              Guardian
+            </Typography>
+            <HelpIcon helpId={124} onClick={() => openHelp(124)} />
+          </Box>
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            If you have minor or disabled child/children, whom do you want to act as Guardian?
+          </Typography>
+
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <FiduciarySelect
+                label="First Choice"
+                value={formData[personType === 'client' ? 'guardianFirst' : 'spouseGuardianFirst'] as string}
+                otherValue={formData[personType === 'client' ? 'guardianFirstOther' : 'spouseGuardianFirstOther'] as string}
+                onChange={handleFormDataChange(personType === 'client' ? 'guardianFirst' : 'spouseGuardianFirst')}
+                onOtherChange={handleFormDataChange(personType === 'client' ? 'guardianFirstOther' : 'spouseGuardianFirstOther')}
+                options={beneficiaryOptions}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FiduciarySelect
+                label="Alternate"
+                value={formData[personType === 'client' ? 'guardianAlternate' : 'spouseGuardianAlternate'] as string}
+                otherValue={formData[personType === 'client' ? 'guardianAlternateOther' : 'spouseGuardianAlternateOther'] as string}
+                onChange={handleFormDataChange(personType === 'client' ? 'guardianAlternate' : 'spouseGuardianAlternate')}
+                onOtherChange={handleFormDataChange(personType === 'client' ? 'guardianAlternateOther' : 'spouseGuardianAlternateOther')}
+                options={beneficiaryOptions}
+                excludeValues={[formData[personType === 'client' ? 'guardianFirst' : 'spouseGuardianFirst'] as string]}
+              />
+            </Grid>
+          </Grid>
+
+          {personType === 'client' && !formData.guardianFirst && !formData.guardianFirstOther && (
+            <Alert severity="warning" sx={{ mt: 2 }}>
+              <Typography variant="body2">
+                <strong>Guardian Required:</strong> You have indicated there are minor beneficiaries,
+                but no guardian has been nominated. Please select a guardian to care for minor children
+                if both parents pass away.
+              </Typography>
+            </Alert>
+          )}
+        </Paper>
+      )}
 
       {/* Additional Comments */}
       <Paper sx={{ p: 3 }}>
@@ -899,7 +1138,6 @@ const CurrentEstatePlanSection: React.FC = () => {
 
   const showSpouse = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
-  // Ensure we have valid data objects (handles legacy localStorage without these fields)
   const clientData = formData.clientCurrentEstatePlan || getDefaultEstatePlanData();
   const spouseData = formData.spouseCurrentEstatePlan || getDefaultEstatePlanData();
 
@@ -908,15 +1146,51 @@ const CurrentEstatePlanSection: React.FC = () => {
     setHelpOpen(true);
   };
 
+  // Build beneficiary options for Client
+  const clientBeneficiaryOptions = useMemo((): BeneficiaryOption[] => {
+    const options: BeneficiaryOption[] = [];
+    if (showSpouse && formData.spouseName) {
+      options.push({ value: `spouse:${formData.spouseName}`, label: formData.spouseName });
+    }
+    formData.children.forEach((child, index) => {
+      if (child.name) {
+        options.push({ value: `child:${index}:${child.name}`, label: child.name });
+      }
+    });
+    formData.otherBeneficiaries.forEach((beneficiary, index) => {
+      if (beneficiary.name) {
+        options.push({ value: `beneficiary:${index}:${beneficiary.name}`, label: beneficiary.name });
+      }
+    });
+    return options;
+  }, [showSpouse, formData.spouseName, formData.children, formData.otherBeneficiaries]);
+
+  // Build beneficiary options for Spouse
+  const spouseBeneficiaryOptions = useMemo((): BeneficiaryOption[] => {
+    const options: BeneficiaryOption[] = [];
+    if (formData.name) {
+      options.push({ value: `client:${formData.name}`, label: formData.name });
+    }
+    formData.children.forEach((child, index) => {
+      if (child.name) {
+        options.push({ value: `child:${index}:${child.name}`, label: child.name });
+      }
+    });
+    formData.otherBeneficiaries.forEach((beneficiary, index) => {
+      if (beneficiary.name) {
+        options.push({ value: `beneficiary:${index}:${beneficiary.name}`, label: beneficiary.name });
+      }
+    });
+    return options;
+  }, [formData.name, formData.children, formData.otherBeneficiaries]);
+
   const handleClientChange = (field: keyof CurrentEstatePlanData, value: CurrentEstatePlanData[keyof CurrentEstatePlanData]) => {
     const newData = {
       ...getDefaultEstatePlanData(),
       ...formData.clientCurrentEstatePlan,
       [field]: value,
     };
-    updateFormData({
-      clientCurrentEstatePlan: newData,
-    });
+    updateFormData({ clientCurrentEstatePlan: newData });
   };
 
   const handleClientChangeMultiple = (updates: Partial<CurrentEstatePlanData>) => {
@@ -925,9 +1199,7 @@ const CurrentEstatePlanSection: React.FC = () => {
       ...formData.clientCurrentEstatePlan,
       ...updates,
     };
-    updateFormData({
-      clientCurrentEstatePlan: newData,
-    });
+    updateFormData({ clientCurrentEstatePlan: newData });
   };
 
   const handleSpouseChange = (field: keyof CurrentEstatePlanData, value: CurrentEstatePlanData[keyof CurrentEstatePlanData]) => {
@@ -952,22 +1224,20 @@ const CurrentEstatePlanSection: React.FC = () => {
 
   const clientName = formData.name || 'Client';
   const spouseName = formData.spouseName || 'Spouse';
-
-  // Generate the client folder name for storage
   const clientFolderName = generateClientFolderName(clientName);
 
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
-          Current Estate Plan
+          Estate Plan
         </Typography>
         <VideoHelpIcon helpId={209} onClick={() => openHelp(209)} />
       </Box>
 
       <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
-        Tell us about any existing estate planning documents you may have. This helps us understand
-        your current situation and identify any updates that may be needed.
+        Tell us about any existing estate planning documents you may have and designate your fiduciaries.
+        This helps us understand your current situation and identify any updates that may be needed.
       </Typography>
 
       {showSpouse ? (
@@ -1002,12 +1272,14 @@ const CurrentEstatePlanSection: React.FC = () => {
               data={clientData}
               onChange={handleClientChange}
               onChangeMultiple={handleClientChangeMultiple}
-              personLabel={clientName}
+              formData={formData}
+              updateFormData={updateFormData}
               personType="client"
               clientFolderName={clientFolderName}
               headerColor="#1a237e"
               openHelp={openHelp}
               showSpouse={showSpouse}
+              beneficiaryOptions={clientBeneficiaryOptions}
             />
           )}
 
@@ -1016,12 +1288,14 @@ const CurrentEstatePlanSection: React.FC = () => {
               data={spouseData}
               onChange={handleSpouseChange}
               onChangeMultiple={handleSpouseChangeMultiple}
-              personLabel={spouseName}
+              formData={formData}
+              updateFormData={updateFormData}
               personType="spouse"
               clientFolderName={clientFolderName}
               headerColor="#2e7d32"
               openHelp={openHelp}
               showSpouse={showSpouse}
+              beneficiaryOptions={spouseBeneficiaryOptions}
             />
           )}
         </>
@@ -1030,12 +1304,14 @@ const CurrentEstatePlanSection: React.FC = () => {
           data={clientData}
           onChange={handleClientChange}
           onChangeMultiple={handleClientChangeMultiple}
-          personLabel={clientName}
+          formData={formData}
+          updateFormData={updateFormData}
           personType="client"
           clientFolderName={clientFolderName}
           headerColor="#1a237e"
           openHelp={openHelp}
           showSpouse={showSpouse}
+          beneficiaryOptions={clientBeneficiaryOptions}
         />
       )}
 

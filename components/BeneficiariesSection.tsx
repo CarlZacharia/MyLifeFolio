@@ -13,13 +13,14 @@ import {
   Radio,
   Divider,
 } from '@mui/material';
-import { useFormContext, MaritalStatus } from '../lib/FormContext';
+import { useFormContext, MaritalStatus, PetData } from '../lib/FormContext';
 import { ChildModal, ChildData } from './ChildModals';
 import ChildrenSummaryTable from './ChildrenSummaryTable';
 import { BeneficiaryModal, CharityModal, BeneficiaryData, CharityData } from './BeneficiaryModals';
 import { BeneficiariesSummaryTable, CharitiesSummaryTable } from './BeneficiariesSummaryTable';
 import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
+import PetCareSection from './PetCareSection';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -550,6 +551,36 @@ const BeneficiariesSection = () => {
           </Box>
         </>
       )}
+
+      {/* Pet Care Section */}
+      <Divider sx={{ my: 4 }} />
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 500 }}>
+            Pet Care
+          </Typography>
+          <HelpIcon helpId={40} onClick={() => openHelp(40)} />
+        </Box>
+        <FormControl component="fieldset" sx={{ mb: 2 }}>
+          <FormLabel component="legend">
+            Do you have a pet or pets that you want cared for if you become unable or when you pass away?
+          </FormLabel>
+          <RadioGroup
+            row
+            value={formData.hasPetsForCare ? 'yes' : 'no'}
+            onChange={handleRadioChange('hasPetsForCare')}
+          >
+            <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+            <FormControlLabel value="no" control={<Radio />} label="No" />
+          </RadioGroup>
+        </FormControl>
+        {formData.hasPetsForCare && (
+          <PetCareSection
+            pets={formData.pets}
+            onUpdatePets={(pets: PetData[]) => updateFormData({ pets })}
+          />
+        )}
+      </Box>
 
       {/* Child Modal */}
       <ChildModal
