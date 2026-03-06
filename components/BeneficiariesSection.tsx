@@ -220,7 +220,7 @@ const BeneficiariesSection = () => {
       {/* Main Section Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
-          BENEFICIARIES
+          CHILDREN
         </Typography>
         <VideoHelpIcon helpId={101} onClick={() => openHelp(101)} size="medium" />
       </Box>
@@ -243,7 +243,7 @@ const BeneficiariesSection = () => {
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 500 }}>
-            2. {hasChildren ? 'Other Beneficiaries' : 'Beneficiaries'}
+            {hasChildren ? 'Other Beneficiaries' : 'Beneficiaries'}
           </Typography>
           <VideoHelpIcon helpId={102} onClick={() => openHelp(102)} size="small" />
         </Box>

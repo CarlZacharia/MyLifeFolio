@@ -23,57 +23,26 @@ const CarePreferencesSection = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalCategory, setModalCategory] = useState<string>('');
-  const [isEdit, setIsEdit] = useState(false);
-  const [editIndex, setEditIndex] = useState<number | null>(null);
 
-  const openAdd = (category: string) => {
+  const openCategory = (category: string) => {
     setModalCategory(category);
-    setIsEdit(false);
-    setEditIndex(null);
-    setModalOpen(true);
-  };
-
-  const openEdit = (index: number) => {
-    setIsEdit(true);
-    setEditIndex(index);
-    setModalCategory(formData.carePreferences[index].category);
     setModalOpen(true);
   };
 
   const closeModal = () => {
     setModalOpen(false);
-    setIsEdit(false);
-    setEditIndex(null);
   };
 
-  const handleSave = (data: CarePreferenceData) => {
-    if (isEdit && editIndex !== null) {
-      const updated = [...formData.carePreferences];
-      updated[editIndex] = data;
-      updateFormData({ carePreferences: updated });
-    } else {
-      updateFormData({ carePreferences: [...formData.carePreferences, data] });
-    }
+  const handleSave = (entries: CarePreferenceData[]) => {
+    // Replace all entries for this category with the new set
+    const otherEntries = formData.carePreferences.filter(
+      (p) => p.category !== modalCategory
+    );
+    updateFormData({ carePreferences: [...otherEntries, ...entries] });
   };
 
-  const handleDelete = () => {
-    if (editIndex !== null) {
-      updateFormData({
-        carePreferences: formData.carePreferences.filter((_, i) => i !== editIndex),
-      });
-      closeModal();
-    }
-  };
-
-  const getEditData = (): CarePreferenceData | undefined => {
-    if (!isEdit || editIndex === null) return undefined;
-    return formData.carePreferences[editIndex] as CarePreferenceData;
-  };
-
-  const getPreferencesForCategory = (categoryLabel: string) =>
-    formData.carePreferences
-      .map((e, i) => ({ ...e, originalIndex: i }))
-      .filter((e) => e.category === categoryLabel);
+  const getEntriesForCategory = (categoryLabel: string) =>
+    formData.carePreferences.filter((e) => e.category === categoryLabel);
 
   const hasAnyPreferences = formData.carePreferences.length > 0;
 
@@ -100,7 +69,7 @@ const CarePreferencesSection = () => {
               variant={completed ? 'contained' : 'outlined'}
               size="small"
               startIcon={<AddIcon />}
-              onClick={() => openAdd(cat.label)}
+              onClick={() => openCategory(cat.label)}
               sx={{
                 justifyContent: 'flex-start',
                 textAlign: 'left',
@@ -129,7 +98,7 @@ const CarePreferencesSection = () => {
             </TableHead>
             <TableBody>
               {CARE_PREFERENCE_CATEGORIES.map((cat) => {
-                const preferences = getPreferencesForCategory(cat.label);
+                const preferences = getEntriesForCategory(cat.label);
                 if (preferences.length === 0) return null;
                 return (
                   <React.Fragment key={cat.label}>
@@ -144,17 +113,19 @@ const CarePreferencesSection = () => {
                           fontSize: '0.85rem',
                           py: 0.75,
                           letterSpacing: '0.03em',
+                          cursor: 'pointer',
                         }}
+                        onClick={() => openCategory(cat.label)}
                       >
                         {cat.label}
                       </TableCell>
                     </TableRow>
                     {/* Preference rows */}
-                    {preferences.map((pref) => (
+                    {preferences.map((pref, idx) => (
                       <TableRow
-                        key={pref.originalIndex}
+                        key={`${cat.label}-${idx}`}
                         hover
-                        onClick={() => openEdit(pref.originalIndex)}
+                        onClick={() => openCategory(cat.label)}
                         sx={{ cursor: 'pointer' }}
                       >
                         <TableCell>{pref.preferenceItem || '-'}</TableCell>
@@ -180,10 +151,8 @@ const CarePreferencesSection = () => {
         open={modalOpen}
         onClose={closeModal}
         onSave={handleSave}
-        onDelete={isEdit ? handleDelete : undefined}
-        initialData={getEditData()}
-        isEdit={isEdit}
         category={modalCategory}
+        existingEntries={getEntriesForCategory(modalCategory)}
       />
     </Box>
   );

@@ -315,6 +315,7 @@ export async function saveIntakeNormalized(
       saveAdvisors(formData.advisors, intakeId, user.id),
       saveExpenses(formData.expenses, intakeId, user.id),
       saveCarePreferences(formData.carePreferences, intakeId, user.id),
+      saveEndOfLife(formData.endOfLife, intakeId, user.id),
       saveFriendsNeighbors(formData.friendsNeighbors, intakeId, user.id),
       saveSpecificGifts(formData.specificGifts, intakeId, user.id),
       saveCashGifts(formData.cashGiftsToBeneficiaries, intakeId, user.id),
@@ -1080,6 +1081,21 @@ async function saveCarePreferences(
   }));
 
   return deleteAndInsertRecords('folio_care_preferences', intakeId, userId, records);
+}
+
+async function saveEndOfLife(
+  endOfLife: FormData['endOfLife'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = endOfLife.map((e) => ({
+    category: e.category || null,
+    field_data: Object.fromEntries(
+      Object.entries(e).filter(([k]) => k !== 'category')
+    ),
+  }));
+
+  return deleteAndInsertRecords('folio_end_of_life', intakeId, userId, records);
 }
 
 async function saveFriendsNeighbors(

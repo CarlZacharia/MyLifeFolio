@@ -183,16 +183,12 @@ const folioCategories = [
     items: ['Medical providers', 'Medications & equipment', 'Medical conditions', 'Insurance coverage'],
   },
   {
-    id: 'legacy-life-story', title: 'Legacy & Life Story', icon: <VideoLibraryIcon sx={{ fontSize: 26 }} />, accentColor: '#c9a227',
-    items: ['Video messages to loved ones', 'Life lessons & wisdom', 'Family history & memories', 'Photos & keepsakes index'],
+    id: 'insurance-coverage', title: 'Insurance Coverage', icon: <HealthAndSafetyIcon sx={{ fontSize: 26 }} />, accentColor: '#2e7d32',
+    items: ['Medical, vehicle & homeowners', 'Long-term care & disability', 'Life & umbrella policies', 'Policy details & contacts'],
   },
   {
     id: 'home-property', title: 'Home & Property', icon: <HomeIcon sx={{ fontSize: 26 }} />, accentColor: '#e07a2f',
     items: ['Residence details & access', 'Real estate & property', 'Vehicles & titled assets', 'Safe & storage locations'],
-  },
-  {
-    id: 'insurance-coverage', title: 'Insurance Coverage', icon: <HealthAndSafetyIcon sx={{ fontSize: 26 }} />, accentColor: '#2e7d32',
-    items: ['Medical, vehicle & homeowners', 'Long-term care & disability', 'Life & umbrella policies', 'Policy details & contacts'],
   },
   {
     id: 'end-of-life', title: 'End of Life Issues', icon: <VolunteerActivismIcon sx={{ fontSize: 26 }} />, accentColor: '#6a1b9a',
@@ -203,7 +199,12 @@ const folioCategories = [
     items: ['Care setting preferences', 'Medical & diet preferences', 'Daily routine & activities', 'End-of-life preferences'],
   },
   {
-    id: 'placeholder-2', title: 'Coming Soon', icon: <Box />, accentColor: '#9e9e9e',
+    id: 'legacy-life-story', title: 'Legacy & Life Story', icon: <VideoLibraryIcon sx={{ fontSize: 26 }} />, accentColor: '#c9a227',
+    items: ['Video messages to loved ones', 'Life lessons & wisdom', 'Family history & memories', 'Photos & keepsakes index'],
+  },
+  {
+    id: 'reports', title: 'Reports', icon: <LibraryBooksIcon sx={{ fontSize: 26 }} />, accentColor: '#455a64',
+    items: ['Emergency Medical Summary', 'Family Contact Sheet', 'Asset Inventory', 'Insurance Summary', 'Advisor Directory', 'Estate Planning Overview', 'Funeral Instructions', '"What To Do If I Die" Checklist', 'Family Briefing Report'],
   },
 ];
 

@@ -515,6 +515,7 @@ export interface FormData {
     distributionType: 'Per Stirpes' | 'Per Capita' | '';
     distributionMethod: BeneficiaryDistributionMethod;
     disinherit: boolean;
+    isDeceased: boolean;
     comments: string;
   }>;
   // Beneficiary Concerns (applies to all beneficiaries, not just children)
@@ -940,6 +941,11 @@ export interface FormData {
     notes: string;
   }>;
 
+  endOfLife: Array<{
+    category: string;
+    [key: string]: string;
+  }>;
+
   additionalComments: string;
 
   // Will/Trust Distribution Plans
@@ -1278,6 +1284,7 @@ const initialFormData: FormData = {
   insurancePolicies: [],
   expenses: [],
   carePreferences: [],
+  endOfLife: [],
   additionalComments: '',
   clientDistributionPlan: {
     distributionType: 'sweetheart',

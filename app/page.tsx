@@ -57,6 +57,7 @@ import ResourcesPage from '../components/ResourcesPage';
 import FolioCategoryPage from '../components/FolioCategoryPage';
 import InsuranceCoveragePage from '../components/InsuranceCoveragePage';
 import CarePreferencesSection from '../components/CarePreferencesSection';
+import EndOfLifeSection from '../components/EndOfLifeSection';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import PeopleIcon from '@mui/icons-material/People';
@@ -1591,8 +1592,7 @@ export default function MainPage() {
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
           >
-            <Typography variant="h5" sx={{ color: '#6a1b9a', mb: 2 }}>End of Life Issues</Typography>
-            <Typography color="text.secondary">Coming soon — advance directives, DNR, organ donation, and funeral preferences.</Typography>
+            <EndOfLifeSection />
           </FolioCategoryPage>
         );
 

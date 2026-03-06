@@ -9,7 +9,6 @@ import {
   Button,
   TextField,
   Box,
-  MenuItem,
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -32,62 +31,64 @@ export const emptyCarePreference = (category: string = ''): CarePreferenceData =
 interface CarePreferenceModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: CarePreferenceData) => void;
-  onDelete?: () => void;
-  initialData?: CarePreferenceData;
-  isEdit?: boolean;
-  category?: string;
+  onSave: (data: CarePreferenceData[]) => void;
+  category: string;
+  existingEntries: CarePreferenceData[];
 }
 
 const CarePreferenceModal: React.FC<CarePreferenceModalProps> = ({
   open,
   onClose,
   onSave,
-  onDelete,
-  initialData,
-  isEdit = false,
   category,
+  existingEntries,
 }) => {
-  const [data, setData] = useState<CarePreferenceData>(
-    initialData || emptyCarePreference(category)
+  const selectedCategory = CARE_PREFERENCE_CATEGORIES.find(
+    (c) => c.label === category
   );
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const items = selectedCategory?.items || [];
+
+  // Map of item label -> response value
+  const [responses, setResponses] = useState<Record<string, string>>({});
+  const [notes, setNotes] = useState('');
 
   useEffect(() => {
     if (open) {
-      setData(
-        isEdit && initialData ? initialData : emptyCarePreference(category)
-      );
-      setTouched({});
+      // Pre-populate from existing entries
+      const map: Record<string, string> = {};
+      let existingNotes = '';
+      existingEntries.forEach((entry) => {
+        if (entry.preferenceItem) {
+          map[entry.preferenceItem] = entry.response || '';
+        }
+        if (entry.notes && !existingNotes) {
+          existingNotes = entry.notes;
+        }
+      });
+      setResponses(map);
+      setNotes(existingNotes);
     }
-  }, [open, isEdit, initialData, category]);
+  }, [open, existingEntries]);
 
-  const handleChange = (updates: Partial<CarePreferenceData>) => {
-    setData((prev) => ({ ...prev, ...updates }));
+  const handleResponseChange = (item: string, value: string) => {
+    setResponses((prev) => ({ ...prev, [item]: value }));
   };
-
-  const handleBlur = (field: string) => {
-    setTouched((prev) => ({ ...prev, [field]: true }));
-  };
-
-  const selectedCategory = CARE_PREFERENCE_CATEGORIES.find(
-    (c) => c.label === (data.category || category)
-  );
-  const preferenceItems = selectedCategory?.items || [];
-
-  const preferenceItemError = touched.preferenceItem && !data.preferenceItem;
-  const canSave = data.preferenceItem.length > 0;
 
   const handleSave = () => {
-    if (!canSave) {
-      setTouched({ preferenceItem: true });
-      return;
-    }
-    onSave(data);
+    // Build entries for items that have a response
+    const entries: CarePreferenceData[] = items
+      .filter((item) => responses[item]?.trim())
+      .map((item, idx) => ({
+        category,
+        preferenceItem: item,
+        response: responses[item].trim(),
+        notes: idx === 0 ? notes.trim() : '',
+      }));
+    onSave(entries);
     onClose();
   };
 
-  const categoryLabel = data.category || category || 'Care Preference';
+  const filledCount = items.filter((item) => responses[item]?.trim()).length;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -99,68 +100,29 @@ const CarePreferenceModal: React.FC<CarePreferenceModalProps> = ({
           fontWeight: 600,
         }}
       >
-        {isEdit ? `Edit ${categoryLabel}` : `Add ${categoryLabel}`}
+        {category}
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
       </DialogTitle>
       <DialogContent dividers>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
-          {!category && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+          {items.map((item) => (
             <TextField
-              select
-              label="Category"
-              value={data.category}
-              onChange={(e) =>
-                handleChange({ category: e.target.value, preferenceItem: '' })
-              }
+              key={item}
+              label={item}
+              value={responses[item] || ''}
+              onChange={(e) => handleResponseChange(item, e.target.value)}
               InputLabelProps={{ shrink: true }}
               fullWidth
-              required
-            >
-              {CARE_PREFERENCE_CATEGORIES.map((cat) => (
-                <MenuItem key={cat.label} value={cat.label}>
-                  {cat.label}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
-
-          <TextField
-            select
-            label="Preference Item"
-            value={data.preferenceItem}
-            onChange={(e) => handleChange({ preferenceItem: e.target.value })}
-            onBlur={() => handleBlur('preferenceItem')}
-            error={!!preferenceItemError}
-            helperText={preferenceItemError ? 'Preference item is required' : ''}
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-            required
-            disabled={preferenceItems.length === 0}
-          >
-            {preferenceItems.map((item) => (
-              <MenuItem key={item} value={item}>
-                {item}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <TextField
-            label="Your Preference / Response"
-            value={data.response}
-            onChange={(e) => handleChange({ response: e.target.value })}
-            InputLabelProps={{ shrink: true }}
-            placeholder="Describe your preference or decision"
-            multiline
-            minRows={2}
-            fullWidth
-          />
+              size="small"
+            />
+          ))}
 
           <TextField
             label="Notes"
-            value={data.notes}
-            onChange={(e) => handleChange({ notes: e.target.value })}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
             InputLabelProps={{ shrink: true }}
             multiline
             minRows={2}
@@ -169,16 +131,11 @@ const CarePreferenceModal: React.FC<CarePreferenceModalProps> = ({
         </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 2 }}>
-        {isEdit && onDelete && (
-          <Button onClick={onDelete} color="error" sx={{ mr: 'auto' }}>
-            Delete
-          </Button>
-        )}
         <Button onClick={onClose} variant="outlined">
           Cancel
         </Button>
-        <Button onClick={handleSave} variant="contained" disabled={!canSave}>
-          {isEdit ? 'Save Changes' : 'Add Preference'}
+        <Button onClick={handleSave} variant="contained">
+          Save ({filledCount}/{items.length})
         </Button>
       </DialogActions>
     </Dialog>
