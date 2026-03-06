@@ -285,6 +285,11 @@ export async function saveIntakeNormalized(
       otherAssetsResult,
       businessResult,
       digitalAssetsResult,
+      medicalProvidersResult,
+      medicalInsuranceResult,
+      insuranceCoverageResult,
+      advisorsResult,
+      friendsNeighborsResult,
       specificGiftsResult,
       cashGiftsResult,
       ltcResult,
@@ -304,6 +309,12 @@ export async function saveIntakeNormalized(
       saveOtherAssets(formData.otherAssets, intakeId, user.id),
       saveBusinessInterests(formData.businessInterests, intakeId, user.id),
       saveDigitalAssets(formData.digitalAssets, intakeId, user.id),
+      saveMedicalProviders(formData.medicalProviders, intakeId, user.id),
+      saveMedicalInsurance(formData.medicalInsurancePolicies, intakeId, user.id),
+      saveInsuranceCoverage(formData.insurancePolicies, intakeId, user.id),
+      saveAdvisors(formData.advisors, intakeId, user.id),
+      saveExpenses(formData.expenses, intakeId, user.id),
+      saveFriendsNeighbors(formData.friendsNeighbors, intakeId, user.id),
       saveSpecificGifts(formData.specificGifts, intakeId, user.id),
       saveCashGifts(formData.cashGiftsToBeneficiaries, intakeId, user.id),
       saveLongTermCare(formData, intakeId, user.id),
@@ -326,6 +337,11 @@ export async function saveIntakeNormalized(
       otherAssetsResult,
       businessResult,
       digitalAssetsResult,
+      medicalProvidersResult,
+      medicalInsuranceResult,
+      insuranceCoverageResult,
+      advisorsResult,
+      friendsNeighborsResult,
       specificGiftsResult,
       cashGiftsResult,
       ltcResult,
@@ -884,6 +900,187 @@ async function saveDigitalAssets(
   }));
 
   return deleteAndInsertRecords('folio_digital_assets', intakeId, userId, records);
+}
+
+async function saveMedicalProviders(
+  providers: FormData['medicalProviders'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = providers.map((p) => ({
+    provider_category: p.providerCategory || null,
+    specialist_type: p.specialistType || null,
+    name: p.name || null,
+    firm_name: p.firmName || null,
+    phone: p.phone || null,
+    email: p.email || null,
+    address: p.address || null,
+    notes: p.notes || null,
+  }));
+
+  return deleteAndInsertRecords('folio_medical_providers', intakeId, userId, records);
+}
+
+async function saveMedicalInsurance(
+  policies: FormData['medicalInsurancePolicies'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = policies.map((p) => ({
+    person: p.person || null,
+    insurance_type: p.insuranceType || null,
+    policy_no: p.policyNo || null,
+    provider: p.provider || null,
+    paid_by: p.paidBy || null,
+    monthly_cost: parseDecimal(p.monthlyCost),
+    contact_name: p.contactName || null,
+    contact_address: p.contactAddress || null,
+    contact_phone: p.contactPhone || null,
+    contact_email: p.contactEmail || null,
+    notes: p.notes || null,
+  }));
+
+  return deleteAndInsertRecords('folio_medical_insurance', intakeId, userId, records);
+}
+
+async function saveInsuranceCoverage(
+  policies: FormData['insurancePolicies'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = policies.map((p) => ({
+    person: p.person || null,
+    coverage_type: p.coverageType || null,
+    policy_no: p.policyNo || null,
+    provider: p.provider || null,
+    annual_cost: parseDecimal(p.annualCost),
+    contact_name: p.contactName || null,
+    contact_address: p.contactAddress || null,
+    contact_phone: p.contactPhone || null,
+    contact_email: p.contactEmail || null,
+    notes: p.notes || null,
+    // Vehicle-specific fields
+    liability_limits: p.liabilityLimits || null,
+    has_collision: p.hasCollision || false,
+    has_comprehensive: p.hasComprehensive || false,
+    comprehensive_deductible: parseDecimal(p.comprehensiveDeductible || ''),
+    uninsured_amount: p.uninsuredAmount || null,
+    underinsured_amount: p.underinsuredAmount || null,
+    medical_payments_amount: p.medicalPaymentsAmount || null,
+    has_rental_insurance: p.hasRentalInsurance || false,
+    // Homeowner's-specific fields
+    ho_policy_type: p.hoPolicyType || null,
+    effective_date: p.effectiveDate || null,
+    expiration_date: p.expirationDate || null,
+    auto_renewal: p.autoRenewal || false,
+    property_covered: p.propertyCovered || null,
+    coverage_amounts: p.coverageAmounts || null,
+    deductibles: p.deductibles || null,
+    hurricane_wind_deductible: p.hurricaneWindDeductible || null,
+    has_scheduled_personal_property: p.hasScheduledPersonalProperty || false,
+    scheduled_personal_property_limit: p.scheduledPersonalPropertyLimit || null,
+    has_fine_arts_rider: p.hasFineArtsRider || false,
+    has_home_business_endorsement: p.hasHomeBusinessEndorsement || false,
+    has_water_backup: p.hasWaterBackup || false,
+    water_backup_limit: p.waterBackupLimit || null,
+    has_service_line_coverage: p.hasServiceLineCoverage || false,
+    has_equipment_breakdown: p.hasEquipmentBreakdown || false,
+    has_identity_theft_coverage: p.hasIdentityTheftCoverage || false,
+    // Long-Term Care-specific fields
+    ltc_insured_name: p.ltcInsuredName || null,
+    ltc_issue_date: p.ltcIssueDate || null,
+    ltc_policy_status: p.ltcPolicyStatus || null,
+    ltc_daily_benefit_amount: parseDecimal(p.ltcDailyBenefitAmount || ''),
+    ltc_monthly_benefit_amount: parseDecimal(p.ltcMonthlyBenefitAmount || ''),
+    ltc_benefit_period: p.ltcBenefitPeriod || null,
+    ltc_max_lifetime_benefit_pool: parseDecimal(p.ltcMaxLifetimeBenefitPool || ''),
+    ltc_inflation_protection_type: p.ltcInflationProtectionType || null,
+    ltc_current_benefit_after_inflation: p.ltcCurrentBenefitAfterInflation || null,
+    ltc_shared_care_rider: p.ltcSharedCareRider || false,
+    ltc_elimination_period: p.ltcEliminationPeriod || null,
+    ltc_covers_nursing_facility: p.ltcCoversNursingFacility || false,
+    ltc_covers_assisted_living: p.ltcCoversAssistedLiving || false,
+    ltc_covers_memory_care: p.ltcCoversMemoryCare || false,
+    ltc_covers_adult_day_care: p.ltcCoversAdultDayCare || false,
+    ltc_covers_home_health_care: p.ltcCoversHomeHealthCare || false,
+    ltc_covers_hospice: p.ltcCoversHospice || false,
+    ltc_covers_family_caregiver: p.ltcCoversFamilyCaregiver || false,
+    ltc_has_bed_reservation: p.ltcHasBedReservation || false,
+    ltc_bed_reservation_days: p.ltcBedReservationDays ? parseInt(p.ltcBedReservationDays) : null,
+    ltc_annual_premium: parseDecimal(p.ltcAnnualPremium || ''),
+    // Umbrella-specific fields
+    umb_policy_type: p.umbPolicyType || null,
+    umb_effective_date: p.umbEffectiveDate || null,
+    umb_expiration_date: p.umbExpirationDate || null,
+    umb_limit: p.umbLimit || null,
+    umb_limit_other: p.umbLimitOther || null,
+    umb_self_insured_retention: p.umbSelfInsuredRetention || null,
+    umb_auto_liability_required: p.umbAutoLiabilityRequired || null,
+    umb_homeowners_liability_required: p.umbHomeownersLiabilityRequired || null,
+    umb_has_watercraft_required: p.umbHasWatercraftRequired || false,
+    umb_watercraft_limit: p.umbWatercraftLimit || null,
+    umb_has_rental_property_required: p.umbHasRentalPropertyRequired || false,
+    umb_rental_property_limit: p.umbRentalPropertyLimit || null,
+    umb_other_underlying_policies: p.umbOtherUnderlyingPolicies || null,
+    umb_all_same_carrier: p.umbAllSameCarrier || false,
+    umb_named_insured: p.umbNamedInsured || null,
+    umb_additional_insureds: p.umbAdditionalInsureds || null,
+    umb_annual_premium: parseDecimal(p.umbAnnualPremium || ''),
+  }));
+
+  return deleteAndInsertRecords('folio_insurance_coverage', intakeId, userId, records);
+}
+
+async function saveAdvisors(
+  advisors: FormData['advisors'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = advisors.map((a) => ({
+    advisor_type: a.advisorType || null,
+    name: a.name || null,
+    firm_name: a.firmName || null,
+    phone: a.phone || null,
+    email: a.email || null,
+    address: a.address || null,
+    notes: a.notes || null,
+  }));
+
+  return deleteAndInsertRecords('folio_advisors', intakeId, userId, records);
+}
+
+async function saveExpenses(
+  expenses: FormData['expenses'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = expenses.map((e) => ({
+    category: e.category || null,
+    expense_type: e.expenseType || null,
+    paid_to: e.paidTo || null,
+    frequency: e.frequency || null,
+    amount: parseDecimal(e.amount),
+    notes: e.notes || null,
+  }));
+
+  return deleteAndInsertRecords('folio_expenses', intakeId, userId, records);
+}
+
+async function saveFriendsNeighbors(
+  contacts: FormData['friendsNeighbors'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = contacts.map((c) => ({
+    name: c.name || null,
+    relationship: c.relationship || null,
+    address: c.address || null,
+    phone: c.phone || null,
+    email: c.email || null,
+    notes: c.notes || null,
+  }));
+
+  return deleteAndInsertRecords('folio_friends_neighbors', intakeId, userId, records);
 }
 
 async function saveSpecificGifts(

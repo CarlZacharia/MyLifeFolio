@@ -938,7 +938,7 @@ function createFooter(): Paragraph[] {
     new Paragraph({
       children: [
         new TextRun({
-          text: '26811 South Bay Dr. Ste 260',
+          text: '26811 South Bay Dr. Ste 270',
           size: 22,
         }),
       ],

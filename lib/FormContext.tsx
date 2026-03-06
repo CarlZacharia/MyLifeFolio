@@ -804,6 +804,17 @@ export interface FormData {
     notes: string;
   }>;
 
+  medicalProviders: Array<{
+    providerCategory: 'clientPCP' | 'clientSpecialist' | 'spousePCP' | 'spouseSpecialist';
+    specialistType: string;
+    name: string;
+    firmName: string;
+    phone: string;
+    email: string;
+    address: string;
+    notes: string;
+  }>;
+
   advisors: Array<{
     advisorType: string;
     name: string;
@@ -811,6 +822,114 @@ export interface FormData {
     phone: string;
     email: string;
     address: string;
+    notes: string;
+  }>;
+
+  friendsNeighbors: Array<{
+    name: string;
+    relationship: string;
+    address: string;
+    phone: string;
+    email: string;
+    notes: string;
+  }>;
+
+  medicalInsurancePolicies: Array<{
+    person: 'client' | 'spouse';
+    insuranceType: string;
+    policyNo: string;
+    provider: string;
+    paidBy: string;
+    monthlyCost: string;
+    contactName: string;
+    contactAddress: string;
+    contactPhone: string;
+    contactEmail: string;
+    notes: string;
+  }>;
+
+  insurancePolicies: Array<{
+    person: 'client' | 'spouse';
+    coverageType: string;
+    policyNo: string;
+    provider: string;
+    annualCost: string;
+    contactName: string;
+    contactAddress: string;
+    contactPhone: string;
+    contactEmail: string;
+    notes: string;
+    liabilityLimits?: string;
+    hasCollision?: boolean;
+    hasComprehensive?: boolean;
+    comprehensiveDeductible?: string;
+    uninsuredAmount?: string;
+    underinsuredAmount?: string;
+    medicalPaymentsAmount?: string;
+    hasRentalInsurance?: boolean;
+    hoPolicyType?: string;
+    effectiveDate?: string;
+    expirationDate?: string;
+    autoRenewal?: boolean;
+    propertyCovered?: string;
+    coverageAmounts?: string;
+    deductibles?: string;
+    hurricaneWindDeductible?: string;
+    hasScheduledPersonalProperty?: boolean;
+    scheduledPersonalPropertyLimit?: string;
+    hasFineArtsRider?: boolean;
+    hasHomeBusinessEndorsement?: boolean;
+    hasWaterBackup?: boolean;
+    waterBackupLimit?: string;
+    hasServiceLineCoverage?: boolean;
+    hasEquipmentBreakdown?: boolean;
+    hasIdentityTheftCoverage?: boolean;
+    ltcInsuredName?: string;
+    ltcIssueDate?: string;
+    ltcPolicyStatus?: string;
+    ltcDailyBenefitAmount?: string;
+    ltcMonthlyBenefitAmount?: string;
+    ltcBenefitPeriod?: string;
+    ltcMaxLifetimeBenefitPool?: string;
+    ltcInflationProtectionType?: string;
+    ltcCurrentBenefitAfterInflation?: string;
+    ltcSharedCareRider?: boolean;
+    ltcEliminationPeriod?: string;
+    ltcCoversNursingFacility?: boolean;
+    ltcCoversAssistedLiving?: boolean;
+    ltcCoversMemoryCare?: boolean;
+    ltcCoversAdultDayCare?: boolean;
+    ltcCoversHomeHealthCare?: boolean;
+    ltcCoversHospice?: boolean;
+    ltcCoversFamilyCaregiver?: boolean;
+    ltcHasBedReservation?: boolean;
+    ltcBedReservationDays?: string;
+    ltcAnnualPremium?: string;
+    umbPolicyType?: string;
+    umbEffectiveDate?: string;
+    umbExpirationDate?: string;
+    umbLimit?: string;
+    umbLimitOther?: string;
+    umbSelfInsuredRetention?: string;
+    umbAutoLiabilityRequired?: string;
+    umbHomeownersLiabilityRequired?: string;
+    umbHasWatercraftRequired?: boolean;
+    umbWatercraftLimit?: string;
+    umbHasRentalPropertyRequired?: boolean;
+    umbRentalPropertyLimit?: string;
+    umbOtherUnderlyingPolicies?: string;
+    umbAllSameCarrier?: boolean;
+    umbNamedInsured?: string;
+    umbAdditionalInsureds?: string;
+    umbAnnualPremium?: string;
+  }>;
+
+  expenses: Array<{
+    category: string;
+    expenseType: string;
+    paidTo: string;
+    frequency: string;
+    amount: string;
     notes: string;
   }>;
 
@@ -1145,7 +1264,12 @@ const initialFormData: FormData = {
   otherAssets: [],
   businessInterests: [],
   digitalAssets: [],
+  medicalProviders: [],
   advisors: [],
+  friendsNeighbors: [],
+  medicalInsurancePolicies: [],
+  insurancePolicies: [],
+  expenses: [],
   additionalComments: '',
   clientDistributionPlan: {
     distributionType: 'sweetheart',

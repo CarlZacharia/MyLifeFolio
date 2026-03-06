@@ -325,7 +325,7 @@ const FolioCategoryPage: React.FC<FolioCategoryPageProps> = ({
                 <Typography sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 500, fontSize: '1rem' }}>MyLifeFolio</Typography>
               </Box>
               <Typography variant="body2" sx={{ opacity: 0.6, textAlign: 'center' }}>
-                26811 South Bay Dr. Ste 260, Bonita Springs, FL 34134 | (239) 345-4545
+                26811 South Bay Dr. Ste 270, Bonita Springs, FL 34134 | (239) 345-4545
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.5 }}>
                 © {new Date().getFullYear()} All rights reserved.

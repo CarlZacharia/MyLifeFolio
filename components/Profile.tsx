@@ -395,7 +395,7 @@ const Profile: React.FC<ProfileProps> = ({ onBack }) => {
           `).join('')}
           <div class="footer">
             <p>Prepared for consultation with MyLifeFolio</p>
-            <p>26811 South Bay Dr. Ste 260, Bonita Springs, FL 34134 | (239) 345-4545</p>
+            <p>26811 South Bay Dr. Ste 270, Bonita Springs, FL 34134 | (239) 345-4545</p>
             <p>Generated: ${new Date().toLocaleDateString()}</p>
           </div>
         </body>

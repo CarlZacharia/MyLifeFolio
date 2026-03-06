@@ -20,6 +20,7 @@ import BusinessAssetsTab from './BusinessAssetsTab';
 import DigitalAssetsTab from './DigitalAssetsTab';
 import OtherAssetsTab from './OtherAssetsTab';
 import { AssetCategoryType } from './AssetsSummaryTable';
+import ExpensesSection from './ExpensesSection';
 
 const PRIMARY_TABS = [
   { label: 'Assets', icon: <AccountBalanceWalletIcon /> },
@@ -139,7 +140,7 @@ const FinancialLifeSection = () => {
       {primaryTab === 1 && <IncomeSection />}
 
       {/* Expenses tab */}
-      {primaryTab === 2 && <PlaceholderTab title="Expenses" />}
+      {primaryTab === 2 && <ExpensesSection />}
 
       {/* Debts tab */}
       {primaryTab === 3 && <PlaceholderTab title="Debts" />}

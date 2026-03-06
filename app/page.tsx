@@ -44,6 +44,7 @@ import LongTermCareSection from '../components/LongTermCareSection';
 import AssetsSection from '../components/AssetsSection';
 import FinancialLifeSection from '../components/FinancialLifeSection';
 import PeopleAdvisorsSection from '../components/PeopleAdvisorsSection';
+import MedicalDataSection from '../components/MedicalDataSection';
 import SummarySection from '../components/SummarySection';
 import EstatePlanAnalysis from '../components/EstatePlanAnalysis';
 import { TrustPlanSection } from '../components/TrustPlan';
@@ -54,6 +55,7 @@ import Profile from '../components/Profile';
 import PlanningPathfinder from '../components/PlanningPathfinder';
 import ResourcesPage from '../components/ResourcesPage';
 import FolioCategoryPage from '../components/FolioCategoryPage';
+import InsuranceCoveragePage from '../components/InsuranceCoveragePage';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import PeopleIcon from '@mui/icons-material/People';
 import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
@@ -64,6 +66,8 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import HomeIcon from '@mui/icons-material/Home';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import Login from '../components/Login';
 import Register from '../components/Register';
 import { VideoHelpIcon } from '../components/FieldWithHelp';
@@ -343,7 +347,7 @@ const markdownToDocx = (markdown: string, clientName: string): Document => {
 
   children.push(
     new Paragraph({
-      text: '26811 South Bay Dr. Ste 260',
+      text: '26811 South Bay Dr. Ste 270',
       alignment: AlignmentType.CENTER,
     })
   );
@@ -388,7 +392,8 @@ const ALL_STEPS = [
 // Page type for routing
 type PageType = 'landing' | 'mylifefolio-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'profile' | 'planning-pathfinder' | 'education-center' | 'resources'
   | 'category-personal-information' | 'category-health-medical' | 'category-emergency-care' | 'category-financial-life'
-  | 'category-people-advisors' | 'category-legal-documents' | 'category-legacy-life-story' | 'category-home-property' | 'category-family-dependents';
+  | 'category-people-advisors' | 'category-legal-documents' | 'category-legacy-life-story' | 'category-home-property' | 'category-family-dependents'
+  | 'category-insurance-coverage' | 'category-end-of-life';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
@@ -937,7 +942,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
               <Typography variant="body2" color="text.secondary" sx={{ mt: 4, textAlign: 'center' }}>
                 MyLifeFolio
                 <br />
-                26811 South Bay Dr. Ste 260
+                26811 South Bay Dr. Ste 270
                 <br />
                 Bonita Springs, Florida 34134
                 <br />
@@ -1419,7 +1424,7 @@ export default function MainPage() {
       case 'category-emergency-care':
         return (
           <FolioCategoryPage
-            title="Emergency & Care"
+            title="Medical Data"
             icon={<LocalHospitalIcon sx={{ fontSize: 28 }} />}
             accentColor="#0077b6"
             onNavigateBack={() => handleNavigate('mylifefolio-home')}
@@ -1429,8 +1434,7 @@ export default function MainPage() {
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
           >
-            <Typography variant="h5" sx={{ color: '#0077b6', mb: 2 }}>Emergency & Care</Typography>
-            <Typography color="text.secondary">Coming soon — emergency contacts, caregivers, daily routines, and more.</Typography>
+            <MedicalDataSection />
           </FolioCategoryPage>
         );
 
@@ -1481,8 +1485,7 @@ export default function MainPage() {
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
           >
-            <Typography variant="h5" sx={{ color: '#7b2cbf', mb: 2 }}>Legal Documents</Typography>
-            <Typography color="text.secondary">Coming soon — wills, trusts, powers of attorney, deeds, and certificates.</Typography>
+            <CurrentEstatePlanSection />
           </FolioCategoryPage>
         );
 
@@ -1536,6 +1539,41 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
           >
             <BeneficiariesSection />
+          </FolioCategoryPage>
+        );
+
+      case 'category-insurance-coverage':
+        return (
+          <FolioCategoryPage
+            title="Insurance Coverage"
+            icon={<HealthAndSafetyIcon sx={{ fontSize: 28 }} />}
+            accentColor="#2e7d32"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+          >
+            <InsuranceCoveragePage />
+          </FolioCategoryPage>
+        );
+
+      case 'category-end-of-life':
+        return (
+          <FolioCategoryPage
+            title="End of Life Issues"
+            icon={<VolunteerActivismIcon sx={{ fontSize: 28 }} />}
+            accentColor="#6a1b9a"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+          >
+            <Typography variant="h5" sx={{ color: '#6a1b9a', mb: 2 }}>End of Life Issues</Typography>
+            <Typography color="text.secondary">Coming soon — advance directives, DNR, organ donation, and funeral preferences.</Typography>
           </FolioCategoryPage>
         );
 

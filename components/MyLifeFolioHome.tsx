@@ -29,6 +29,8 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import HomeIcon from '@mui/icons-material/Home';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import { useAuth } from '../lib/AuthContext';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
@@ -176,6 +178,10 @@ const folioCategories = [
     items: ['Will & trust documents', 'Powers of attorney', 'Deeds & titles', 'Birth & marriage certificates'],
   },
   {
+    id: 'emergency-care', title: 'Medical Data', icon: <LocalHospitalIcon sx={{ fontSize: 26 }} />, accentColor: '#0077b6',
+    items: ['Medical providers', 'Medications & equipment', 'Medical conditions', 'Insurance coverage'],
+  },
+  {
     id: 'legacy-life-story', title: 'Legacy & Life Story', icon: <VideoLibraryIcon sx={{ fontSize: 26 }} />, accentColor: '#c9a227',
     items: ['Video messages to loved ones', 'Life lessons & wisdom', 'Family history & memories', 'Photos & keepsakes index'],
   },
@@ -184,8 +190,18 @@ const folioCategories = [
     items: ['Residence details & access', 'Real estate & property', 'Vehicles & titled assets', 'Safe & storage locations'],
   },
   {
-    id: 'emergency-care', title: 'Emergency & Care', icon: <LocalHospitalIcon sx={{ fontSize: 26 }} />, accentColor: '#0077b6',
-    items: ['Emergency contacts & priorities', 'Trusted caregivers & aides', 'Daily routine & needs', 'Dietary needs & allergies'],
+    id: 'insurance-coverage', title: 'Insurance Coverage', icon: <HealthAndSafetyIcon sx={{ fontSize: 26 }} />, accentColor: '#2e7d32',
+    items: ['Medical, vehicle & homeowners', 'Long-term care & disability', 'Life & umbrella policies', 'Policy details & contacts'],
+  },
+  {
+    id: 'end-of-life', title: 'End of Life Issues', icon: <VolunteerActivismIcon sx={{ fontSize: 26 }} />, accentColor: '#6a1b9a',
+    items: ['Advance directives', 'DNR & living will', 'Organ donation wishes', 'Funeral & burial preferences'],
+  },
+  {
+    id: 'placeholder-1', title: 'Coming Soon', icon: <Box />, accentColor: '#9e9e9e',
+  },
+  {
+    id: 'placeholder-2', title: 'Coming Soon', icon: <Box />, accentColor: '#9e9e9e',
   },
 ];
 
@@ -657,7 +673,7 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
               </Box>
 
               <Typography variant="body2" sx={{ opacity: 0.6, textAlign: 'center' }}>
-                26811 South Bay Dr. Ste 260, Bonita Springs, FL 34134 | (239) 345-4545
+                26811 South Bay Dr. Ste 270, Bonita Springs, FL 34134 | (239) 345-4545
               </Typography>
 
               <Typography variant="body2" sx={{ opacity: 0.5 }}>

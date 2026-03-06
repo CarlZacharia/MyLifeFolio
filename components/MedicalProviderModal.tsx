@@ -14,24 +14,40 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-export const ADVISOR_TYPES = [
-  'CPA',
-  'Insurance Agent',
-  'Financial Advisor',
-  'Lawyer',
-  'Plumber',
-  'Electrician',
-  'HVAC',
-  'Repairs',
-  'Landscaping',
-  'Handyman',
-  'Clergy',
+export const SPECIALIST_TYPES = [
+  'Allergist/Immunologist',
+  'Cardiologist',
+  'Chiropractor',
+  'Dentist',
+  'Dermatologist',
+  'Endocrinologist',
+  'Gastroenterologist',
+  'Geriatrician',
+  'Gynecologist',
+  'Hematologist',
+  'Infectious Disease Specialist',
+  'Mental Health Provider',
+  'Nephrologist',
+  'Neurologist',
+  'Oncologist',
+  'Ophthalmologist',
+  'Orthopedic Surgeon',
+  'Otolaryngologist (ENT)',
+  'Pain Management Specialist',
+  'Physiatrist',
+  'Podiatrist',
+  'Pulmonologist',
+  'Rheumatologist',
+  'Sleep Medicine Specialist',
+  'Urologist',
+  'Other Specialist',
 ] as const;
 
-export type AdvisorType = (typeof ADVISOR_TYPES)[number] | '';
+export type SpecialistType = (typeof SPECIALIST_TYPES)[number] | '';
 
-export interface AdvisorData {
-  advisorType: string;
+export interface MedicalProviderData {
+  providerCategory: 'clientPCP' | 'clientSpecialist' | 'spousePCP' | 'spouseSpecialist';
+  specialistType: string;
   name: string;
   firmName: string;
   phone: string;
@@ -40,46 +56,51 @@ export interface AdvisorData {
   notes: string;
 }
 
-const emptyAdvisor: AdvisorData = {
-  advisorType: '',
+const emptyProvider = (category: MedicalProviderData['providerCategory']): MedicalProviderData => ({
+  providerCategory: category,
+  specialistType: '',
   name: '',
   firmName: '',
   phone: '',
   email: '',
   address: '',
   notes: '',
-};
+});
 
-interface AdvisorModalProps {
+interface MedicalProviderModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: AdvisorData) => void;
+  onSave: (data: MedicalProviderData) => void;
   onDelete?: () => void;
-  initialData?: AdvisorData;
+  initialData?: MedicalProviderData;
   isEdit?: boolean;
-  defaultType?: string;
+  providerCategory: MedicalProviderData['providerCategory'];
 }
 
-const AdvisorModal: React.FC<AdvisorModalProps> = ({
+const MedicalProviderModal: React.FC<MedicalProviderModalProps> = ({
   open,
   onClose,
   onSave,
   onDelete,
   initialData,
   isEdit = false,
-  defaultType = '',
+  providerCategory,
 }) => {
-  const [data, setData] = useState<AdvisorData>(initialData || { ...emptyAdvisor, advisorType: defaultType });
+  const [data, setData] = useState<MedicalProviderData>(initialData || emptyProvider(providerCategory));
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const isSpecialist = providerCategory === 'clientSpecialist' || providerCategory === 'spouseSpecialist';
+  const isSpouse = providerCategory === 'spousePCP' || providerCategory === 'spouseSpecialist';
+  const personLabel = isSpouse ? 'Spouse' : 'Client';
 
   useEffect(() => {
     if (open) {
-      setData(isEdit && initialData ? initialData : { ...emptyAdvisor, advisorType: defaultType });
+      setData(isEdit && initialData ? initialData : emptyProvider(providerCategory));
       setTouched({});
     }
-  }, [open, isEdit, initialData, defaultType]);
+  }, [open, isEdit, initialData, providerCategory]);
 
-  const handleChange = (updates: Partial<AdvisorData>) => {
+  const handleChange = (updates: Partial<MedicalProviderData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
@@ -99,29 +120,35 @@ const AdvisorModal: React.FC<AdvisorModalProps> = ({
     onClose();
   };
 
+  const title = isEdit
+    ? `Edit ${personLabel} ${isSpecialist ? 'Specialist' : 'PCP'}`
+    : `Add ${personLabel} ${isSpecialist ? 'Specialist' : 'PCP'}`;
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 600 }}>
-        {isEdit ? 'Edit Advisor' : 'Add Advisor'}
+        {title}
         <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
       </DialogTitle>
       <DialogContent dividers>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
-          <TextField
-            select
-            label="Advisor Type"
-            value={data.advisorType}
-            onChange={(e) => handleChange({ advisorType: e.target.value })}
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-          >
-            {ADVISOR_TYPES.map((type) => (
-              <MenuItem key={type} value={type}>{type}</MenuItem>
-            ))}
-          </TextField>
+          {isSpecialist && (
+            <TextField
+              select
+              label="Advisor Type"
+              value={data.specialistType}
+              onChange={(e) => handleChange({ specialistType: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+            >
+              {SPECIALIST_TYPES.map((type) => (
+                <MenuItem key={type} value={type}>{type}</MenuItem>
+              ))}
+            </TextField>
+          )}
 
           <TextField
-            label="Advisor Name"
+            label="Physician's Name"
             value={data.name}
             onChange={(e) => handleChange({ name: e.target.value })}
             onBlur={() => handleBlur('name')}
@@ -184,11 +211,11 @@ const AdvisorModal: React.FC<AdvisorModalProps> = ({
         )}
         <Button onClick={onClose} variant="outlined">Cancel</Button>
         <Button onClick={handleSave} variant="contained" disabled={!canSave}>
-          {isEdit ? 'Save Changes' : 'Add Advisor'}
+          {isEdit ? 'Save Changes' : isSpecialist ? 'Add Specialist' : 'Add PCP'}
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default AdvisorModal;
+export default MedicalProviderModal;

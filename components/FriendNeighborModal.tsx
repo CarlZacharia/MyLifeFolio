@@ -9,77 +9,57 @@ import {
   Button,
   TextField,
   Box,
-  MenuItem,
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import PeopleIcon from '@mui/icons-material/People';
 
-export const ADVISOR_TYPES = [
-  'CPA',
-  'Insurance Agent',
-  'Financial Advisor',
-  'Lawyer',
-  'Plumber',
-  'Electrician',
-  'HVAC',
-  'Repairs',
-  'Landscaping',
-  'Handyman',
-  'Clergy',
-] as const;
-
-export type AdvisorType = (typeof ADVISOR_TYPES)[number] | '';
-
-export interface AdvisorData {
-  advisorType: string;
+export interface FriendNeighborData {
   name: string;
-  firmName: string;
+  relationship: string;
+  address: string;
   phone: string;
   email: string;
-  address: string;
   notes: string;
 }
 
-const emptyAdvisor: AdvisorData = {
-  advisorType: '',
+const emptyFriendNeighbor: FriendNeighborData = {
   name: '',
-  firmName: '',
+  relationship: '',
+  address: '',
   phone: '',
   email: '',
-  address: '',
   notes: '',
 };
 
-interface AdvisorModalProps {
+interface FriendNeighborModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: AdvisorData) => void;
+  onSave: (data: FriendNeighborData) => void;
   onDelete?: () => void;
-  initialData?: AdvisorData;
+  initialData?: FriendNeighborData;
   isEdit?: boolean;
-  defaultType?: string;
 }
 
-const AdvisorModal: React.FC<AdvisorModalProps> = ({
+const FriendNeighborModal: React.FC<FriendNeighborModalProps> = ({
   open,
   onClose,
   onSave,
   onDelete,
   initialData,
   isEdit = false,
-  defaultType = '',
 }) => {
-  const [data, setData] = useState<AdvisorData>(initialData || { ...emptyAdvisor, advisorType: defaultType });
+  const [data, setData] = useState<FriendNeighborData>(initialData || emptyFriendNeighbor);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (open) {
-      setData(isEdit && initialData ? initialData : { ...emptyAdvisor, advisorType: defaultType });
+      setData(isEdit && initialData ? initialData : emptyFriendNeighbor);
       setTouched({});
     }
-  }, [open, isEdit, initialData, defaultType]);
+  }, [open, isEdit, initialData]);
 
-  const handleChange = (updates: Partial<AdvisorData>) => {
+  const handleChange = (updates: Partial<FriendNeighborData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
@@ -101,27 +81,28 @@ const AdvisorModal: React.FC<AdvisorModalProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 600 }}>
-        {isEdit ? 'Edit Advisor' : 'Add Advisor'}
-        <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontWeight: 600,
+          bgcolor: '#6a1b9a',
+          color: 'white',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <PeopleIcon />
+          {isEdit ? 'Edit Friend or Neighbor' : 'Add Friend or Neighbor'}
+        </Box>
+        <IconButton onClick={onClose} size="small" sx={{ color: 'white' }}>
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
       <DialogContent dividers>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <TextField
-            select
-            label="Advisor Type"
-            value={data.advisorType}
-            onChange={(e) => handleChange({ advisorType: e.target.value })}
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-          >
-            {ADVISOR_TYPES.map((type) => (
-              <MenuItem key={type} value={type}>{type}</MenuItem>
-            ))}
-          </TextField>
-
-          <TextField
-            label="Advisor Name"
+            label="Name"
             value={data.name}
             onChange={(e) => handleChange({ name: e.target.value })}
             onBlur={() => handleBlur('name')}
@@ -133,9 +114,17 @@ const AdvisorModal: React.FC<AdvisorModalProps> = ({
           />
 
           <TextField
-            label="Firm/Practice Name"
-            value={data.firmName}
-            onChange={(e) => handleChange({ firmName: e.target.value })}
+            label="Relationship"
+            value={data.relationship}
+            onChange={(e) => handleChange({ relationship: e.target.value })}
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
+
+          <TextField
+            label="Address"
+            value={data.address}
+            onChange={(e) => handleChange({ address: e.target.value })}
             InputLabelProps={{ shrink: true }}
             fullWidth
           />
@@ -158,14 +147,6 @@ const AdvisorModal: React.FC<AdvisorModalProps> = ({
           </Box>
 
           <TextField
-            label="Address"
-            value={data.address}
-            onChange={(e) => handleChange({ address: e.target.value })}
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-          />
-
-          <TextField
             label="Notes"
             value={data.notes}
             onChange={(e) => handleChange({ notes: e.target.value })}
@@ -184,11 +165,11 @@ const AdvisorModal: React.FC<AdvisorModalProps> = ({
         )}
         <Button onClick={onClose} variant="outlined">Cancel</Button>
         <Button onClick={handleSave} variant="contained" disabled={!canSave}>
-          {isEdit ? 'Save Changes' : 'Add Advisor'}
+          {isEdit ? 'Save Changes' : 'Add Contact'}
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default AdvisorModal;
+export default FriendNeighborModal;
