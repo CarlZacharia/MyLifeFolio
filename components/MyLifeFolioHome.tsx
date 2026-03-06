@@ -31,6 +31,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { useAuth } from '../lib/AuthContext';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
@@ -198,7 +199,8 @@ const folioCategories = [
     items: ['Advance directives', 'DNR & living will', 'Organ donation wishes', 'Funeral & burial preferences'],
   },
   {
-    id: 'placeholder-1', title: 'Coming Soon', icon: <Box />, accentColor: '#9e9e9e',
+    id: 'care-decisions', title: 'Care Decisions', icon: <FavoriteBorderIcon sx={{ fontSize: 26 }} />, accentColor: '#00838f',
+    items: ['Care setting preferences', 'Medical & diet preferences', 'Daily routine & activities', 'End-of-life preferences'],
   },
   {
     id: 'placeholder-2', title: 'Coming Soon', icon: <Box />, accentColor: '#9e9e9e',

@@ -933,6 +933,13 @@ export interface FormData {
     notes: string;
   }>;
 
+  carePreferences: Array<{
+    category: string;
+    preferenceItem: string;
+    response: string;
+    notes: string;
+  }>;
+
   additionalComments: string;
 
   // Will/Trust Distribution Plans
@@ -1270,6 +1277,7 @@ const initialFormData: FormData = {
   medicalInsurancePolicies: [],
   insurancePolicies: [],
   expenses: [],
+  carePreferences: [],
   additionalComments: '',
   clientDistributionPlan: {
     distributionType: 'sweetheart',

@@ -314,6 +314,7 @@ export async function saveIntakeNormalized(
       saveInsuranceCoverage(formData.insurancePolicies, intakeId, user.id),
       saveAdvisors(formData.advisors, intakeId, user.id),
       saveExpenses(formData.expenses, intakeId, user.id),
+      saveCarePreferences(formData.carePreferences, intakeId, user.id),
       saveFriendsNeighbors(formData.friendsNeighbors, intakeId, user.id),
       saveSpecificGifts(formData.specificGifts, intakeId, user.id),
       saveCashGifts(formData.cashGiftsToBeneficiaries, intakeId, user.id),
@@ -1064,6 +1065,21 @@ async function saveExpenses(
   }));
 
   return deleteAndInsertRecords('folio_expenses', intakeId, userId, records);
+}
+
+async function saveCarePreferences(
+  carePreferences: FormData['carePreferences'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = carePreferences.map((p) => ({
+    category: p.category || null,
+    preference_item: p.preferenceItem || null,
+    response: p.response || null,
+    notes: p.notes || null,
+  }));
+
+  return deleteAndInsertRecords('folio_care_preferences', intakeId, userId, records);
 }
 
 async function saveFriendsNeighbors(
