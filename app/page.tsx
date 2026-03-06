@@ -58,6 +58,7 @@ import FolioCategoryPage from '../components/FolioCategoryPage';
 import InsuranceCoveragePage from '../components/InsuranceCoveragePage';
 import CarePreferencesSection from '../components/CarePreferencesSection';
 import EndOfLifeSection from '../components/EndOfLifeSection';
+import ReportsSection from '../components/ReportsSection';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import PeopleIcon from '@mui/icons-material/People';
@@ -396,7 +397,7 @@ const ALL_STEPS = [
 type PageType = 'landing' | 'mylifefolio-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'profile' | 'planning-pathfinder' | 'education-center' | 'resources'
   | 'category-personal-information' | 'category-health-medical' | 'category-emergency-care' | 'category-financial-life'
   | 'category-people-advisors' | 'category-legal-documents' | 'category-legacy-life-story' | 'category-home-property' | 'category-family-dependents'
-  | 'category-insurance-coverage' | 'category-end-of-life' | 'category-care-decisions';
+  | 'category-insurance-coverage' | 'category-end-of-life' | 'category-care-decisions' | 'category-reports';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
@@ -1593,6 +1594,23 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
           >
             <EndOfLifeSection />
+          </FolioCategoryPage>
+        );
+
+      case 'category-reports':
+        return (
+          <FolioCategoryPage
+            title="Reports"
+            icon={<LibraryBooksIcon sx={{ fontSize: 28 }} />}
+            accentColor="#455a64"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+          >
+            <ReportsSection />
           </FolioCategoryPage>
         );
 
