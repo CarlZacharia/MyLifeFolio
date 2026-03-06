@@ -43,6 +43,7 @@ import CurrentEstatePlanSection from '../components/CurrentEstatePlanSection';
 import LongTermCareSection from '../components/LongTermCareSection';
 import AssetsSection from '../components/AssetsSection';
 import FinancialLifeSection from '../components/FinancialLifeSection';
+import PeopleAdvisorsSection from '../components/PeopleAdvisorsSection';
 import SummarySection from '../components/SummarySection';
 import EstatePlanAnalysis from '../components/EstatePlanAnalysis';
 import { TrustPlanSection } from '../components/TrustPlan';
@@ -1463,8 +1464,7 @@ export default function MainPage() {
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
           >
-            <Typography variant="h5" sx={{ color: '#2d6a4f', mb: 2 }}>My People & Advisors</Typography>
-            <Typography color="text.secondary">Coming soon — attorneys, financial advisors, insurance agents, and contacts.</Typography>
+            <PeopleAdvisorsSection />
           </FolioCategoryPage>
         );
 

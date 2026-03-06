@@ -18,6 +18,7 @@ import AssetsSection from './AssetsSection';
 import FinancialAssetsTab from './FinancialAssetsTab';
 import BusinessAssetsTab from './BusinessAssetsTab';
 import DigitalAssetsTab from './DigitalAssetsTab';
+import OtherAssetsTab from './OtherAssetsTab';
 import { AssetCategoryType } from './AssetsSummaryTable';
 
 const PRIMARY_TABS = [
@@ -121,6 +122,8 @@ const FinancialLifeSection = () => {
             <BusinessAssetsTab />
           ) : assetSubTab === 5 ? (
             <DigitalAssetsTab />
+          ) : assetSubTab === 7 ? (
+            <OtherAssetsTab />
           ) : ASSET_SUB_TABS[assetSubTab].categories.length > 0 ? (
             <AssetsSection
               visibleCategories={ASSET_SUB_TABS[assetSubTab].categories}

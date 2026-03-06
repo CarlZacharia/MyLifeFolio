@@ -804,6 +804,16 @@ export interface FormData {
     notes: string;
   }>;
 
+  advisors: Array<{
+    advisorType: string;
+    name: string;
+    firmName: string;
+    phone: string;
+    email: string;
+    address: string;
+    notes: string;
+  }>;
+
   additionalComments: string;
 
   // Will/Trust Distribution Plans
@@ -1135,6 +1145,7 @@ const initialFormData: FormData = {
   otherAssets: [],
   businessInterests: [],
   digitalAssets: [],
+  advisors: [],
   additionalComments: '',
   clientDistributionPlan: {
     distributionType: 'sweetheart',
