@@ -744,6 +744,113 @@ const PersonalDataSection = () => {
           </>
         )}
 
+        {/* Client's Safe Deposit Box */}
+        <Grid item xs={12}>
+          <Divider sx={{ my: 2 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              Safe Deposit Box
+            </Typography>
+            <HelpIcon helpId={56} onClick={() => openHelp(56)} />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <FormControl component="fieldset">
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
+                Do you have a safe deposit box?
+              </FormLabel>
+              <HelpIcon helpId={57} onClick={() => openHelp(57)} />
+            </Box>
+            <RadioGroup
+              row
+              value={formData.hasSafeDepositBox ? 'yes' : 'no'}
+              onChange={(e) => {
+                const hasBox = e.target.value === 'yes';
+                updateFormData({
+                  hasSafeDepositBox: hasBox,
+                  safeDepositBoxBank: hasBox ? formData.safeDepositBoxBank : '',
+                  safeDepositBoxNumber: hasBox ? formData.safeDepositBoxNumber : '',
+                  safeDepositBoxLocation: hasBox ? formData.safeDepositBoxLocation : '',
+                  safeDepositBoxAccess: hasBox ? formData.safeDepositBoxAccess : '',
+                  safeDepositBoxContents: hasBox ? formData.safeDepositBoxContents : '',
+                });
+              }}
+            >
+              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+
+        {formData.hasSafeDepositBox && (
+          <>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Bank/Institution"
+                value={formData.safeDepositBoxBank}
+                onChange={(e) => updateFormData({ safeDepositBoxBank: e.target.value })}
+                variant="outlined"
+                size="small"
+                placeholder="e.g., Chase Bank, First National Bank"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Box Number"
+                value={formData.safeDepositBoxNumber}
+                onChange={(e) => updateFormData({ safeDepositBoxNumber: e.target.value })}
+                variant="outlined"
+                size="small"
+                placeholder="e.g., Box #1234"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Branch Location/Address"
+                value={formData.safeDepositBoxLocation}
+                onChange={(e) => updateFormData({ safeDepositBoxLocation: e.target.value })}
+                variant="outlined"
+                size="small"
+                placeholder="e.g., 123 Main St, Columbus, OH"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Who Has Access/Keys?"
+                value={formData.safeDepositBoxAccess}
+                onChange={(e) => updateFormData({ safeDepositBoxAccess: e.target.value })}
+                variant="outlined"
+                size="small"
+                placeholder="e.g., Client and spouse, Attorney John Smith"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Contents/What's Stored"
+                value={formData.safeDepositBoxContents}
+                onChange={(e) => updateFormData({ safeDepositBoxContents: e.target.value })}
+                variant="outlined"
+                size="small"
+                multiline
+                rows={2}
+                placeholder="e.g., Original will, deed to home, jewelry, birth certificates"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+          </>
+        )}
+
         {/* Client's Funeral Preferences */}
         <Grid item xs={12}>
           <Divider sx={{ my: 2 }} />

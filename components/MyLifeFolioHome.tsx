@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -10,43 +10,26 @@ import {
   Grid,
   AppBar,
   Toolbar,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Paper,
   Button,
-  Alert,
-  Divider,
-  Chip,
   Fade,
 } from '@mui/material';
 import { ThemeProvider, createTheme, alpha } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArticleIcon from '@mui/icons-material/Article';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import DescriptionIcon from '@mui/icons-material/Description';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import EditIcon from '@mui/icons-material/Edit';
-import LockIcon from '@mui/icons-material/Lock';
 import BalanceIcon from '@mui/icons-material/Balance';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import SchoolIcon from '@mui/icons-material/School';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PersonIcon from '@mui/icons-material/Person';
-import ExploreIcon from '@mui/icons-material/Explore';
-import QuizIcon from '@mui/icons-material/Quiz';
-import CalculateIcon from '@mui/icons-material/Calculate';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import CloudDoneIcon from '@mui/icons-material/CloudDone';
-import SaveIcon from '@mui/icons-material/Save';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import PeopleIcon from '@mui/icons-material/People';
+import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import ContactsIcon from '@mui/icons-material/Contacts';
+import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
+import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
+import HomeIcon from '@mui/icons-material/Home';
+import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import { useAuth } from '../lib/AuthContext';
-import { useFormContext } from '../lib/FormContext';
-import { listIntakesRaw, loadIntakeFromRaw } from '../lib/supabaseIntake';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
@@ -151,109 +134,6 @@ const theme = createTheme({
   },
 });
 
-// Education Center Items
-const educationItems = [
-  {
-    id: 'getting-started-folio',
-    title: 'Getting Started with Your Folio',
-    type: 'article',
-    description: 'Learn how to set up and organize your personal life folio.',
-    readTime: '5 min read',
-  },
-  {
-    id: 'why-organize-documents',
-    title: 'Why Organizing Your Documents Matters',
-    type: 'article',
-    description: 'How having everything in one place protects you and your family.',
-    readTime: '6 min read',
-  },
-  {
-    id: 'estate-planning-basics',
-    title: 'Estate Planning Basics',
-    type: 'article',
-    description: 'An introduction to wills, trusts, and planning for the future.',
-    readTime: '8 min read',
-  },
-  {
-    id: 'power-of-attorney',
-    title: 'Power of Attorney Explained',
-    type: 'video',
-    description: 'A video guide to understanding powers of attorney.',
-    readTime: '12 min watch',
-  },
-  {
-    id: 'healthcare-directives',
-    title: 'Healthcare Directives & Living Wills',
-    type: 'article',
-    description: 'Ensure your healthcare wishes are documented and honored.',
-    readTime: '6 min read',
-  },
-  {
-    id: 'beneficiary-designations',
-    title: 'Beneficiary Designations: Common Mistakes',
-    type: 'article',
-    description: 'Avoid costly errors with beneficiary designations.',
-    readTime: '7 min read',
-  },
-  {
-    id: 'digital-assets',
-    title: 'Managing Your Digital Life',
-    type: 'article',
-    description: 'How to account for online accounts, passwords, and digital property.',
-    readTime: '8 min read',
-  },
-  {
-    id: 'family-communication',
-    title: 'Talking to Family About Your Plans',
-    type: 'video',
-    description: 'Tips for having important conversations with loved ones.',
-    readTime: '10 min watch',
-  },
-  {
-    id: 'insurance-overview',
-    title: 'Insurance: What You Need to Know',
-    type: 'guide',
-    description: 'Life, long-term care, and other coverage to consider.',
-    readTime: '12 min read',
-  },
-  {
-    id: 'financial-snapshot',
-    title: 'Creating a Financial Snapshot',
-    type: 'guide',
-    description: 'How to compile a clear picture of your assets and liabilities.',
-    readTime: '15 min read',
-  },
-  {
-    id: 'special-needs-planning',
-    title: 'Special Needs Planning',
-    type: 'guide',
-    description: 'Protecting loved ones with disabilities.',
-    readTime: '15 min read',
-  },
-];
-
-const getTypeIcon = (type: string) => {
-  switch (type) {
-    case 'video':
-      return <PlayCircleOutlineIcon />;
-    case 'guide':
-      return <MenuBookIcon />;
-    default:
-      return <ArticleIcon />;
-  }
-};
-
-const getTypeConfig = (type: string) => {
-  switch (type) {
-    case 'video':
-      return { color: '#9b2226', bgColor: alpha('#9b2226', 0.08), label: 'Video' };
-    case 'guide':
-      return { color: '#2d6a4f', bgColor: alpha('#2d6a4f', 0.08), label: 'Guide' };
-    default:
-      return { color: '#1e3a5f', bgColor: alpha('#1e3a5f', 0.08), label: 'Article' };
-  }
-};
-
 // Animated wrapper component
 const AnimatedSection: React.FC<{ children: React.ReactNode; delay?: number }> = ({
   children,
@@ -273,10 +153,139 @@ const AnimatedSection: React.FC<{ children: React.ReactNode; delay?: number }> =
   );
 };
 
+// Category blocks for the folio home
+const folioCategories = [
+  {
+    id: 'personal-information', title: 'Personal Information', icon: <PeopleIcon sx={{ fontSize: 26 }} />, accentColor: '#1e3a5f',
+    items: ['Client & spouse details', 'Contact information', 'Marital status & children', 'Military service', 'Funeral preferences'],
+  },
+  {
+    id: 'family-dependents', title: 'Family & Dependents', icon: <FamilyRestroomIcon sx={{ fontSize: 26 }} />, accentColor: '#d4497a',
+    items: ['Children & grandchildren', 'Beneficiary designations', 'Special needs dependents', 'Guardianship wishes'],
+  },
+  {
+    id: 'financial-life', title: 'Financial Life', icon: <AccountBalanceIcon sx={{ fontSize: 26 }} />, accentColor: '#0a5c36',
+    items: ['Bank & investment accounts', 'Income sources & pensions', 'Insurance policies', 'Debts & obligations'],
+  },
+  {
+    id: 'people-advisors', title: 'My People & Advisors', icon: <ContactsIcon sx={{ fontSize: 26 }} />, accentColor: '#2d6a4f',
+    items: ['Attorney & estate planner', 'Financial advisor & CPA', 'Insurance agents', 'Close friends & neighbors'],
+  },
+  {
+    id: 'legal-documents', title: 'Legal Documents', icon: <HistoryEduIcon sx={{ fontSize: 26 }} />, accentColor: '#7b2cbf',
+    items: ['Will & trust documents', 'Powers of attorney', 'Deeds & titles', 'Birth & marriage certificates'],
+  },
+  {
+    id: 'legacy-life-story', title: 'Legacy & Life Story', icon: <VideoLibraryIcon sx={{ fontSize: 26 }} />, accentColor: '#c9a227',
+    items: ['Video messages to loved ones', 'Life lessons & wisdom', 'Family history & memories', 'Photos & keepsakes index'],
+  },
+  {
+    id: 'home-property', title: 'Home & Property', icon: <HomeIcon sx={{ fontSize: 26 }} />, accentColor: '#e07a2f',
+    items: ['Residence details & access', 'Real estate & property', 'Vehicles & titled assets', 'Safe & storage locations'],
+  },
+  {
+    id: 'emergency-care', title: 'Emergency & Care', icon: <LocalHospitalIcon sx={{ fontSize: 26 }} />, accentColor: '#0077b6',
+    items: ['Emergency contacts & priorities', 'Trusted caregivers & aides', 'Daily routine & needs', 'Dietary needs & allergies'],
+  },
+];
+
+// Animated category card matching LandingPage ChapterCard style
+const FolioCard: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  accentColor: string;
+  items?: string[];
+  delay?: number;
+  onClick?: () => void;
+}> = ({ icon, title, accentColor, items, delay = 0, onClick }) => {
+  const [hovered, setHovered] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  return (
+    <Fade in={visible} timeout={600}>
+      <Card
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={onClick}
+        elevation={0}
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          overflow: 'hidden',
+          cursor: 'pointer',
+          border: '1px solid',
+          borderColor: hovered ? alpha(accentColor, 0.35) : alpha(accentColor, 0.12),
+          transform: hovered ? 'translateY(-6px)' : 'translateY(0)',
+          boxShadow: hovered
+            ? `0 20px 48px ${alpha(accentColor, 0.13)}`
+            : '0 4px 24px rgba(0,0,0,0.06)',
+          transition: 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '3px',
+            background: `linear-gradient(90deg, ${accentColor}, ${alpha(accentColor, 0.4)})`,
+            transform: hovered ? 'scaleX(1)' : 'scaleX(0)',
+            transformOrigin: 'left',
+            transition: 'transform 0.4s ease',
+          },
+        }}
+      >
+        <CardContent sx={{ p: 3.5, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: items ? 2.5 : 0 }}>
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: 1.5,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexShrink: 0,
+                background: `linear-gradient(135deg, ${alpha(accentColor, 0.12)}, ${alpha(accentColor, 0.05)})`,
+                border: `1px solid ${alpha(accentColor, 0.2)}`,
+              }}
+            >
+              <Box sx={{ color: accentColor, display: 'flex' }}>{icon}</Box>
+            </Box>
+            <Typography
+              variant="h6"
+              sx={{
+                color: 'text.primary',
+                fontSize: '1.05rem',
+                lineHeight: 1.3,
+              }}
+            >
+              {title}
+            </Typography>
+          </Box>
+          {items && items.length > 0 && (
+            <Box component="ul" sx={{ pl: 2, m: 0, flexGrow: 1 }}>
+              {items.map((item, idx) => (
+                <Typography key={idx} component="li" variant="body2" sx={{ color: 'text.secondary', mb: 0.6, fontSize: '0.88rem' }}>
+                  {item}
+                </Typography>
+              ))}
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+    </Fade>
+  );
+};
+
 interface MyLifeFolioHomeProps {
   onNavigateBack: () => void;
-  onStartQuestionnaire: () => void;
-  onEducationItemClick?: (itemId: string) => void;
   onLogin?: () => void;
   onRegister?: () => void;
   onAdmin?: () => void;
@@ -286,8 +295,6 @@ interface MyLifeFolioHomeProps {
 
 const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
   onNavigateBack,
-  onStartQuestionnaire,
-  onEducationItemClick,
   onLogin,
   onRegister,
   onAdmin,
@@ -295,14 +302,7 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
   onNavigate,
 }) => {
   const [scrolled, setScrolled] = useState(false);
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [hasExistingData, setHasExistingData] = useState(false);
-  const [createdAt, setCreatedAt] = useState<Date | null>(null);
   const { user, signOut } = useAuth();
-  const { formData, loadFormData } = useFormContext();
 
   const handleLogout = async () => {
     await signOut();
@@ -316,55 +316,6 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Load existing data from Supabase when component mounts
-  useEffect(() => {
-    const loadData = async () => {
-      if (!user) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-        // Get all estate planning intakes for this user
-        const intakes = await listIntakesRaw('EstatePlanning');
-
-        if (intakes && intakes.length > 0) {
-          // Find the most recently updated intake
-          const mostRecent = intakes.reduce((latest, current) => {
-            return new Date(current.updated_at) > new Date(latest.updated_at)
-              ? current
-              : latest;
-          });
-
-          // Load the full form data
-          const data = await loadIntakeFromRaw(mostRecent.id);
-          if (data) {
-            loadFormData(data, 0);
-            setHasExistingData(true);
-            setCreatedAt(data.createdAt ? new Date(data.createdAt) : null);
-            setLastSaved(new Date(mostRecent.updated_at));
-          }
-        }
-      } catch (error) {
-        console.error('Error loading data from Supabase:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, [user, loadFormData]);
-
-  const formatDate = (date: Date | null) => {
-    if (!date) return '';
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -474,6 +425,25 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
                         Profile
                       </Button>
                     )}
+                    <Button
+                      variant="outlined"
+                      onClick={() => onNavigate?.('resources')}
+                      startIcon={<LibraryBooksIcon />}
+                      sx={{
+                        borderColor: 'rgba(255,255,255,0.5)',
+                        color: 'white',
+                        fontWeight: 600,
+                        fontSize: '0.9rem',
+                        px: { xs: 2, md: 3 },
+                        py: 1,
+                        '&:hover': {
+                          borderColor: 'white',
+                          bgcolor: 'rgba(255,255,255,0.1)',
+                        },
+                      }}
+                    >
+                      Resources
+                    </Button>
                     {isAdminUser(user.email) && onAdmin && (
                       <Button
                         variant="outlined"
@@ -643,436 +613,21 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
           </Container>
         </Box>
 
-        {/* Main Content - Three Column Layout */}
+        {/* Main Content - Category Blocks */}
         <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, mt: -4 }}>
           <Grid container spacing={3}>
-            {/* Column 1: Start or Continue Intake */}
-            <Grid item xs={12} md={4}>
-              <AnimatedSection delay={400}>
-                <Card
-                  elevation={0}
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    border: '1px solid',
-                    borderColor: alpha('#1e3a5f', 0.08),
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    position: 'relative',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: `0 20px 40px ${alpha('#1e3a5f', 0.12)}`,
-                      borderColor: alpha('#1e3a5f', 0.3),
-                    },
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: '4px',
-                      background: `linear-gradient(90deg, #1e3a5f, ${alpha('#1e3a5f', 0.6)})`,
-                    },
-                  }}
-                  onClick={onStartQuestionnaire}
-                >
-                  <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Box
-                      sx={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: 2,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        mb: 2,
-                        background: `linear-gradient(135deg, ${alpha('#1e3a5f', 0.1)}, ${alpha('#1e3a5f', 0.05)})`,
-                        border: `1px solid ${alpha('#1e3a5f', 0.15)}`,
-                      }}
-                    >
-                      <AssignmentIcon sx={{ fontSize: 28, color: '#1e3a5f' }} />
-                    </Box>
-
-                    <Typography
-                      variant="h6"
-                      component="h3"
-                      sx={{
-                        color: 'primary.main',
-                        fontSize: '1.2rem',
-                        mb: 1,
-                      }}
-                    >
-                      {hasExistingData ? 'Continue Your Folio' : 'Start Your Folio'}
-                    </Typography>
-
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: 'text.secondary',
-                        flexGrow: 1,
-                        mb: 2,
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      {hasExistingData
-                        ? 'Pick up where you left off building your personal life folio.'
-                        : 'Start building your folio — we\'ll gather the information needed to organize your life\'s important details.'}
-                    </Typography>
-
-                    {hasExistingData && createdAt && (
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1,
-                          mb: 2,
-                          p: 1.5,
-                          borderRadius: 1,
-                          bgcolor: alpha('#c9a227', 0.08),
-                        }}
-                      >
-                        <AccessTimeIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
-                        <Typography variant="body2" sx={{ color: 'secondary.dark', fontWeight: 500, fontSize: '0.8rem' }}>
-                          Started {formatDate(createdAt)}
-                        </Typography>
-                      </Box>
-                    )}
-
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5,
-                        color: '#1e3a5f',
-                        fontWeight: 600,
-                        fontSize: '0.875rem',
-                      }}
-                    >
-                      {hasExistingData ? 'Continue Folio' : 'Begin Folio'}
-                      <ArrowForwardIcon sx={{ fontSize: 18 }} />
-                    </Box>
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
-
-              {/* Data Privacy Notice */}
-              <AnimatedSection delay={450}>
-                <Alert
-                  severity="info"
-                  icon={<LockIcon sx={{ color: 'primary.main', fontSize: 20 }} />}
-                  sx={{
-                    mt: 2,
-                    bgcolor: alpha('#1e3a5f', 0.04),
-                    border: '1px solid',
-                    borderColor: alpha('#1e3a5f', 0.1),
-                    borderRadius: 2,
-                    py: 1,
-                    '& .MuiAlert-message': {
-                      width: '100%',
-                    },
-                  }}
-                >
-                  <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8rem', lineHeight: 1.5 }}>
-                    Your data is secure.
-                  </Typography>
-                </Alert>
-              </AnimatedSection>
-            </Grid>
-
-            {/* Column 2: Education Center */}
-            <Grid item xs={12} md={4}>
-              <AnimatedSection delay={500}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 3,
-                    height: '100%',
-                    border: '1px solid',
-                    borderColor: alpha('#2d6a4f', 0.08),
-                    position: 'relative',
-                    overflow: 'hidden',
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: '4px',
-                      background: `linear-gradient(90deg, #2d6a4f, ${alpha('#2d6a4f', 0.6)})`,
-                    },
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                    <Box
-                      sx={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: 2,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        background: `linear-gradient(135deg, ${alpha('#2d6a4f', 0.1)}, ${alpha('#2d6a4f', 0.05)})`,
-                        border: `1px solid ${alpha('#2d6a4f', 0.15)}`,
-                      }}
-                    >
-                      <SchoolIcon sx={{ color: '#2d6a4f', fontSize: 28 }} />
-                    </Box>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: '#2d6a4f',
-                        fontSize: '1.2rem',
-                      }}
-                    >
-                      Education Center
-                    </Typography>
-                  </Box>
-
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: '0.85rem' }}>
-                    Articles, videos, and guides to help you make informed decisions
-                  </Typography>
-
-                  <Divider sx={{ mb: 1 }} />
-
-                  <List sx={{ maxHeight: 380, overflow: 'auto', mx: -1 }}>
-                    {educationItems.slice(0, 6).map((item) => {
-                      const typeConfig = getTypeConfig(item.type);
-                      const isHovered = hoveredItem === item.id;
-
-                      return (
-                        <ListItem key={item.id} disablePadding sx={{ mb: 0.5 }}>
-                          <ListItemButton
-                            onClick={() => {
-                              if (item.pdfUrl) {
-                                window.open(item.pdfUrl, '_blank', 'noopener,noreferrer');
-                              } else {
-                                onEducationItemClick?.(item.id);
-                              }
-                            }}
-                            onMouseEnter={() => setHoveredItem(item.id)}
-                            onMouseLeave={() => setHoveredItem(null)}
-                            sx={{
-                              borderRadius: 1.5,
-                              py: 1.5,
-                              px: 1.5,
-                              transition: 'all 0.2s ease',
-                              border: '1px solid transparent',
-                              '&:hover': {
-                                bgcolor: alpha('#2d6a4f', 0.03),
-                                borderColor: alpha('#2d6a4f', 0.08),
-                              },
-                            }}
-                          >
-                            <ListItemIcon sx={{ minWidth: 36 }}>
-                              <Box
-                                sx={{
-                                  width: 28,
-                                  height: 28,
-                                  borderRadius: 1,
-                                  display: 'flex',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                  bgcolor: typeConfig.bgColor,
-                                  color: typeConfig.color,
-                                  transition: 'transform 0.2s ease',
-                                  transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-                                  '& svg': { fontSize: 16 },
-                                }}
-                              >
-                                {getTypeIcon(item.type)}
-                              </Box>
-                            </ListItemIcon>
-                            <ListItemText
-                              disableTypography
-                              primary={
-                                <Typography
-                                  variant="body2"
-                                  sx={{
-                                    fontWeight: 600,
-                                    color: 'text.primary',
-                                    fontSize: '0.85rem',
-                                    lineHeight: 1.3,
-                                  }}
-                                >
-                                  {item.title}
-                                </Typography>
-                              }
-                              secondary={
-                                <Typography
-                                  variant="caption"
-                                  sx={{ color: 'text.disabled', fontSize: '0.7rem' }}
-                                >
-                                  {item.readTime}
-                                </Typography>
-                              }
-                            />
-                          </ListItemButton>
-                        </ListItem>
-                      );
-                    })}
-                  </List>
-
-                  <Button
-                    fullWidth
-                    variant="text"
-                    onClick={() => onNavigate?.('education-center')}
-                    endIcon={<ArrowForwardIcon sx={{ fontSize: 16 }} />}
-                    sx={{
-                      mt: 1,
-                      color: '#2d6a4f',
-                      fontWeight: 600,
-                      fontSize: '0.85rem',
-                      '&:hover': {
-                        bgcolor: alpha('#2d6a4f', 0.05),
-                      },
-                    }}
-                  >
-                    View All Resources
-                  </Button>
-                </Paper>
-              </AnimatedSection>
-            </Grid>
-
-            {/* Column 3: Planning Pathfinder */}
-            <Grid item xs={12} md={4}>
-              <AnimatedSection delay={600}>
-                <Card
-                  elevation={0}
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    border: '1px solid',
-                    borderColor: alpha('#7b2cbf', 0.08),
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    position: 'relative',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: `0 20px 40px ${alpha('#7b2cbf', 0.12)}`,
-                      borderColor: alpha('#7b2cbf', 0.3),
-                    },
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: '4px',
-                      background: `linear-gradient(90deg, #7b2cbf, ${alpha('#7b2cbf', 0.6)})`,
-                    },
-                  }}
-                  onClick={() => onNavigate?.('planning-pathfinder')}
-                >
-                  <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Box
-                      sx={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: 2,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        mb: 2,
-                        background: `linear-gradient(135deg, ${alpha('#7b2cbf', 0.1)}, ${alpha('#7b2cbf', 0.05)})`,
-                        border: `1px solid ${alpha('#7b2cbf', 0.15)}`,
-                      }}
-                    >
-                      <ExploreIcon sx={{ fontSize: 28, color: '#7b2cbf' }} />
-                    </Box>
-
-                    <Typography
-                      variant="h6"
-                      component="h3"
-                      sx={{
-                        color: '#7b2cbf',
-                        fontSize: '1.2rem',
-                        mb: 1,
-                      }}
-                    >
-                      Planning Pathfinder
-                    </Typography>
-
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: 'text.secondary',
-                        mb: 2,
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      Interactive tools to help you understand your options:
-                    </Typography>
-
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1.5,
-                          mb: 2,
-                          p: 1.5,
-                          borderRadius: 1.5,
-                          bgcolor: alpha('#7b2cbf', 0.04),
-                          border: `1px solid ${alpha('#7b2cbf', 0.1)}`,
-                        }}
-                      >
-                        <QuizIcon sx={{ fontSize: 20, color: '#7b2cbf' }} />
-                        <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.85rem' }}>
-                            Do I Need a Trust?
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem' }}>
-                            5-7 questions to find out
-                          </Typography>
-                        </Box>
-                      </Box>
-
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1.5,
-                          mb: 2,
-                          p: 1.5,
-                          borderRadius: 1.5,
-                          bgcolor: alpha('#7b2cbf', 0.04),
-                          border: `1px solid ${alpha('#7b2cbf', 0.1)}`,
-                        }}
-                      >
-                        <CalculateIcon sx={{ fontSize: 20, color: '#7b2cbf' }} />
-                        <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.85rem' }}>
-                            IRA RMD Calculator
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem' }}>
-                            Required minimum distribution
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5,
-                        color: '#7b2cbf',
-                        fontWeight: 600,
-                        fontSize: '0.875rem',
-                        mt: 'auto',
-                      }}
-                    >
-                      Explore Tools
-                      <ArrowForwardIcon sx={{ fontSize: 18 }} />
-                    </Box>
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
-            </Grid>
+            {folioCategories.map((cat, i) => (
+              <Grid item xs={12} sm={6} md={3} key={cat.id}>
+                <FolioCard
+                  icon={cat.icon}
+                  title={cat.title}
+                  accentColor={cat.accentColor}
+                  items={cat.items}
+                  delay={400 + i * 80}
+                  onClick={() => onNavigate?.(`category-${cat.id}`)}
+                />
+              </Grid>
+            ))}
           </Grid>
         </Container>
 

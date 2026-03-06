@@ -26,6 +26,7 @@ import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { useAuth } from '../lib/AuthContext';
 
 const isAdminUser = (email) => {
@@ -263,6 +264,10 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }) =>
                       Profile
                     </Button>
                   )}
+                  <Button variant="outlined" onClick={() => onNavigate('resources')} startIcon={<LibraryBooksIcon />}
+                    sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+                    Resources
+                  </Button>
                   {isAdminUser(user.email) && onAdmin && (
                     <Button variant="outlined" onClick={onAdmin} startIcon={<AdminPanelSettingsIcon />}
                       sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
@@ -276,6 +281,10 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }) =>
                 </>
               ) : (
                 <>
+                  <Button variant="outlined" onClick={() => onNavigate('resources')} startIcon={<LibraryBooksIcon />}
+                    sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+                    Resources
+                  </Button>
                   <Button color="inherit" onClick={onLogin} sx={{ opacity: 0.9, '&:hover': { opacity: 1, bgcolor: 'rgba(255,255,255,0.08)' } }}>
                     Sign In
                   </Button>

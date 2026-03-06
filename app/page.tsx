@@ -42,6 +42,7 @@ import BeneficiariesSection from '../components/BeneficiariesSection';
 import CurrentEstatePlanSection from '../components/CurrentEstatePlanSection';
 import LongTermCareSection from '../components/LongTermCareSection';
 import AssetsSection from '../components/AssetsSection';
+import FinancialLifeSection from '../components/FinancialLifeSection';
 import SummarySection from '../components/SummarySection';
 import EstatePlanAnalysis from '../components/EstatePlanAnalysis';
 import { TrustPlanSection } from '../components/TrustPlan';
@@ -50,6 +51,18 @@ import MyLifeFolioHome from '../components/MyLifeFolioHome';
 import AdminDashboard from '../components/AdminDashboard';
 import Profile from '../components/Profile';
 import PlanningPathfinder from '../components/PlanningPathfinder';
+import ResourcesPage from '../components/ResourcesPage';
+import FolioCategoryPage from '../components/FolioCategoryPage';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import PeopleIcon from '@mui/icons-material/People';
+import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import ContactsIcon from '@mui/icons-material/Contacts';
+import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
+import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
+import HomeIcon from '@mui/icons-material/Home';
+import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import Login from '../components/Login';
 import Register from '../components/Register';
 import { VideoHelpIcon } from '../components/FieldWithHelp';
@@ -372,7 +385,9 @@ const ALL_STEPS = [
 ];
 
 // Page type for routing
-type PageType = 'landing' | 'mylifefolio-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'profile' | 'planning-pathfinder' | 'education-center';
+type PageType = 'landing' | 'mylifefolio-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'profile' | 'planning-pathfinder' | 'education-center' | 'resources'
+  | 'category-personal-information' | 'category-health-medical' | 'category-emergency-care' | 'category-financial-life'
+  | 'category-people-advisors' | 'category-legal-documents' | 'category-legacy-life-story' | 'category-home-property' | 'category-family-dependents';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
@@ -386,9 +401,10 @@ interface QuestionnaireContentProps {
   onLogout: () => void;
   onAdmin?: () => void;
   onProfile?: () => void;
+  onResources?: () => void;
 }
 
-const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateBack, onLogout, onAdmin, onProfile }) => {
+const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateBack, onLogout, onAdmin, onProfile, onResources }) => {
   const { formData, updateFormData, currentStep, setCurrentStep, clearFormData } = useFormContext();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -978,6 +994,25 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
                   Profile
                 </Button>
               )}
+              {onResources && (
+                <Button
+                  variant="outlined"
+                  onClick={onResources}
+                  startIcon={<LibraryBooksIcon />}
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    '&:hover': {
+                      borderColor: 'white',
+                      bgcolor: 'rgba(255,255,255,0.1)',
+                    },
+                  }}
+                >
+                  Resources
+                </Button>
+              )}
               {isAdminUser(user.email) && onAdmin && (
                 <Button
                   variant="outlined"
@@ -1267,8 +1302,6 @@ export default function MainPage() {
         return (
           <MyLifeFolioHome
             onNavigateBack={() => handleNavigate('landing')}
-            onStartQuestionnaire={() => handleNavigate('estate-planning-questionnaire')}
-            onEducationItemClick={handleEducationItemClick}
             onLogin={handleLogin}
             onRegister={handleRegister}
             onAdmin={handleAdminClick}
@@ -1283,6 +1316,7 @@ export default function MainPage() {
             onNavigateBack={() => handleNavigate('mylifefolio-home')}
             onLogout={handleLogout}
             onAdmin={handleAdminClick}
+            onResources={() => handleNavigate('resources')}
             onProfile={handleProfileClick}
           />
         );
@@ -1298,6 +1332,8 @@ export default function MainPage() {
             onNavigate={handleNavigate}
             onLogin={handleLogin}
             onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
           />
         );
 
@@ -1312,6 +1348,22 @@ export default function MainPage() {
             onNavigate={handleNavigate}
             onLogin={handleLogin}
             onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+          />
+        );
+
+      // Resources page (Education Center + Planning Pathfinder)
+      case 'resources':
+        return (
+          <ResourcesPage
+            onNavigateBack={() => handleNavigate('landing')}
+            onNavigate={handleNavigate}
+            onEducationItemClick={handleEducationItemClick}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
           />
         );
 
@@ -1325,6 +1377,166 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
           />
+        );
+
+      // Folio category pages
+      case 'category-personal-information':
+        return (
+          <FolioCategoryPage
+            title="Personal Information"
+            icon={<PeopleIcon sx={{ fontSize: 28 }} />}
+            accentColor="#1e3a5f"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+          >
+            <PersonalDataSection />
+          </FolioCategoryPage>
+        );
+
+      case 'category-health-medical':
+        return (
+          <FolioCategoryPage
+            title="Health & Medical"
+            icon={<MedicalInformationIcon sx={{ fontSize: 28 }} />}
+            accentColor="#9b2226"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+          >
+            <Typography variant="h5" sx={{ color: '#9b2226', mb: 2 }}>Health & Medical</Typography>
+            <Typography color="text.secondary">Coming soon — health history, medications, providers, and more.</Typography>
+          </FolioCategoryPage>
+        );
+
+      case 'category-emergency-care':
+        return (
+          <FolioCategoryPage
+            title="Emergency & Care"
+            icon={<LocalHospitalIcon sx={{ fontSize: 28 }} />}
+            accentColor="#0077b6"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+          >
+            <Typography variant="h5" sx={{ color: '#0077b6', mb: 2 }}>Emergency & Care</Typography>
+            <Typography color="text.secondary">Coming soon — emergency contacts, caregivers, daily routines, and more.</Typography>
+          </FolioCategoryPage>
+        );
+
+      case 'category-financial-life':
+        return (
+          <FolioCategoryPage
+            title="Financial Life"
+            icon={<AccountBalanceIcon sx={{ fontSize: 28 }} />}
+            accentColor="#0a5c36"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+          >
+            <FinancialLifeSection />
+          </FolioCategoryPage>
+        );
+
+      case 'category-people-advisors':
+        return (
+          <FolioCategoryPage
+            title="My People & Advisors"
+            icon={<ContactsIcon sx={{ fontSize: 28 }} />}
+            accentColor="#2d6a4f"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+          >
+            <Typography variant="h5" sx={{ color: '#2d6a4f', mb: 2 }}>My People & Advisors</Typography>
+            <Typography color="text.secondary">Coming soon — attorneys, financial advisors, insurance agents, and contacts.</Typography>
+          </FolioCategoryPage>
+        );
+
+      case 'category-legal-documents':
+        return (
+          <FolioCategoryPage
+            title="Legal Documents"
+            icon={<HistoryEduIcon sx={{ fontSize: 28 }} />}
+            accentColor="#7b2cbf"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+          >
+            <Typography variant="h5" sx={{ color: '#7b2cbf', mb: 2 }}>Legal Documents</Typography>
+            <Typography color="text.secondary">Coming soon — wills, trusts, powers of attorney, deeds, and certificates.</Typography>
+          </FolioCategoryPage>
+        );
+
+      case 'category-legacy-life-story':
+        return (
+          <FolioCategoryPage
+            title="Legacy & Life Story"
+            icon={<VideoLibraryIcon sx={{ fontSize: 28 }} />}
+            accentColor="#c9a227"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+          >
+            <Typography variant="h5" sx={{ color: '#c9a227', mb: 2 }}>Legacy & Life Story</Typography>
+            <Typography color="text.secondary">Coming soon — video messages, life lessons, family history, and memories.</Typography>
+          </FolioCategoryPage>
+        );
+
+      case 'category-home-property':
+        return (
+          <FolioCategoryPage
+            title="Home & Property"
+            icon={<HomeIcon sx={{ fontSize: 28 }} />}
+            accentColor="#e07a2f"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+          >
+            <Typography variant="h5" sx={{ color: '#e07a2f', mb: 2 }}>Home & Property</Typography>
+            <Typography color="text.secondary">Coming soon — residence details, property records, and access information.</Typography>
+          </FolioCategoryPage>
+        );
+
+      case 'category-family-dependents':
+        return (
+          <FolioCategoryPage
+            title="Family & Dependents"
+            icon={<FamilyRestroomIcon sx={{ fontSize: 28 }} />}
+            accentColor="#d4497a"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+          >
+            <BeneficiariesSection />
+          </FolioCategoryPage>
         );
 
       // Placeholder pages for future services
@@ -1352,6 +1564,8 @@ export default function MainPage() {
             onNavigate={handleNavigate}
             onLogin={handleLogin}
             onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
           />
         );
     }

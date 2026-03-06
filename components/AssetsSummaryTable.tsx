@@ -471,6 +471,17 @@ interface DigitalAssetItem {
   value: string;
 }
 
+export type AssetCategoryType =
+  | 'realEstate'
+  | 'bankAccount'
+  | 'nonQualifiedInvestment'
+  | 'retirementAccount'
+  | 'lifeInsurance'
+  | 'vehicle'
+  | 'otherAsset'
+  | 'businessInterest'
+  | 'digitalAsset';
+
 interface AssetsSummaryTableProps {
   realEstate: RealEstateItem[];
   bankAccounts: BankAccountItem[];
@@ -499,6 +510,8 @@ interface AssetsSummaryTableProps {
   onAddOtherAsset: () => void;
   onAddBusinessInterest: () => void;
   onAddDigitalAsset: () => void;
+  visibleCategories?: AssetCategoryType[];
+  hideHeader?: boolean;
 }
 
 const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
@@ -529,7 +542,10 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
   onAddOtherAsset,
   onAddBusinessInterest,
   onAddDigitalAsset,
+  visibleCategories,
+  hideHeader,
 }) => {
+  const show = (cat: AssetCategoryType) => !visibleCategories || visibleCategories.includes(cat);
   // Help modal state
   const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
   const openHelp = (helpId: number) => setActiveHelpId(helpId);
@@ -625,122 +641,147 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
     };
   });
 
-  // Calculate grand total
-  const grandTotal =
-    realEstateRows.reduce((sum, row) => sum + row.value, 0) +
-    bankAccountRows.reduce((sum, row) => sum + row.value, 0) +
-    nonQualifiedInvestmentRows.reduce((sum, row) => sum + row.value, 0) +
-    retirementAccountRows.reduce((sum, row) => sum + row.value, 0) +
-    lifeInsuranceRows.reduce((sum, row) => sum + row.value, 0) +
-    vehicleRows.reduce((sum, row) => sum + row.value, 0) +
-    otherAssetRows.reduce((sum, row) => sum + row.value, 0) +
-    businessInterestRows.reduce((sum, row) => sum + row.value, 0) +
-    digitalAssetRows.reduce((sum, row) => sum + row.value, 0);
+
+  // Compute visible grand total based on filtered categories
+  const filteredTotal = [
+    show('realEstate') ? realEstateRows : [],
+    show('bankAccount') ? bankAccountRows : [],
+    show('nonQualifiedInvestment') ? nonQualifiedInvestmentRows : [],
+    show('retirementAccount') ? retirementAccountRows : [],
+    show('lifeInsurance') ? lifeInsuranceRows : [],
+    show('vehicle') ? vehicleRows : [],
+    show('otherAsset') ? otherAssetRows : [],
+    show('businessInterest') ? businessInterestRows : [],
+    show('digitalAsset') ? digitalAssetRows : [],
+  ].flat().reduce((sum, row) => sum + row.value, 0);
+
+  // Auto-number visible categories
+  let catNum = 0;
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
-          ASSETS
-        </Typography>
-        <VideoHelpIcon helpId={105} onClick={() => openHelp(105)} size="medium" />
-      </Box>
+      {!hideHeader && (
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+            ASSETS
+          </Typography>
+          <VideoHelpIcon helpId={105} onClick={() => openHelp(105)} size="medium" />
+        </Box>
+      )}
 
-      <RealEstateCategory
-        rows={realEstateRows}
-        onRowClick={onEditRealEstate}
-        onAddClick={onAddRealEstate}
-        helpId={110}
-        onHelpClick={openHelp}
-      />
+      {show('realEstate') && (
+        <RealEstateCategory
+          rows={realEstateRows}
+          onRowClick={onEditRealEstate}
+          onAddClick={onAddRealEstate}
+          helpId={110}
+          onHelpClick={openHelp}
+        />
+      )}
 
-      <InstitutionAssetCategory
-        title="Cash, Bank Accounts and CDs"
-        categoryNumber={2}
-        rows={bankAccountRows}
-        onRowClick={onEditBankAccount}
-        onAddClick={onAddBankAccount}
-        addButtonLabel="Add Account"
-        helpId={111}
-        onHelpClick={openHelp}
-      />
+      {show('bankAccount') && (
+        <InstitutionAssetCategory
+          title="Cash, Bank Accounts and CDs"
+          categoryNumber={++catNum}
+          rows={bankAccountRows}
+          onRowClick={onEditBankAccount}
+          onAddClick={onAddBankAccount}
+          addButtonLabel="Add Account"
+          helpId={111}
+          onHelpClick={openHelp}
+        />
+      )}
 
-      <InstitutionAssetCategory
-        title="Non-Qualified Investment Accounts"
-        categoryNumber={3}
-        rows={nonQualifiedInvestmentRows}
-        onRowClick={onEditNonQualifiedInvestment}
-        onAddClick={onAddNonQualifiedInvestment}
-        addButtonLabel="Add Account"
-        helpId={112}
-        onHelpClick={openHelp}
-      />
+      {show('nonQualifiedInvestment') && (
+        <InstitutionAssetCategory
+          title="Non-Qualified Investment Accounts"
+          categoryNumber={++catNum}
+          rows={nonQualifiedInvestmentRows}
+          onRowClick={onEditNonQualifiedInvestment}
+          onAddClick={onAddNonQualifiedInvestment}
+          addButtonLabel="Add Account"
+          helpId={112}
+          onHelpClick={openHelp}
+        />
+      )}
 
-      <InstitutionAssetCategory
-        title="IRAs and Retirement Accounts"
-        categoryNumber={4}
-        rows={retirementAccountRows}
-        onRowClick={onEditRetirementAccount}
-        onAddClick={onAddRetirementAccount}
-        addButtonLabel="Add Account"
-        helpId={113}
-        onHelpClick={openHelp}
-      />
+      {show('retirementAccount') && (
+        <InstitutionAssetCategory
+          title="IRAs and Retirement Accounts"
+          categoryNumber={++catNum}
+          rows={retirementAccountRows}
+          onRowClick={onEditRetirementAccount}
+          onAddClick={onAddRetirementAccount}
+          addButtonLabel="Add Account"
+          helpId={113}
+          onHelpClick={openHelp}
+        />
+      )}
 
-      <CompanyAssetCategory
-        title="Life Insurance (Death Benefit)"
-        categoryNumber={5}
-        rows={lifeInsuranceRows}
-        onRowClick={onEditLifeInsurance}
-        onAddClick={onAddLifeInsurance}
-        addButtonLabel="Add Policy"
-        helpId={114}
-        onHelpClick={openHelp}
-      />
+      {show('lifeInsurance') && (
+        <CompanyAssetCategory
+          title="Life Insurance (Death Benefit)"
+          categoryNumber={++catNum}
+          rows={lifeInsuranceRows}
+          onRowClick={onEditLifeInsurance}
+          onAddClick={onAddLifeInsurance}
+          addButtonLabel="Add Policy"
+          helpId={114}
+          onHelpClick={openHelp}
+        />
+      )}
 
-      <AssetCategory
-        title="Vehicles"
-        categoryNumber={6}
-        rows={vehicleRows}
-        onRowClick={onEditVehicle}
-        onAddClick={onAddVehicle}
-        addButtonLabel="Add Vehicle"
-        helpId={115}
-        onHelpClick={openHelp}
-      />
+      {show('vehicle') && (
+        <AssetCategory
+          title="Vehicles"
+          categoryNumber={++catNum}
+          rows={vehicleRows}
+          onRowClick={onEditVehicle}
+          onAddClick={onAddVehicle}
+          addButtonLabel="Add Vehicle"
+          helpId={115}
+          onHelpClick={openHelp}
+        />
+      )}
 
-      <AssetCategory
-        title="Business Interests"
-        categoryNumber={7}
-        rows={businessInterestRows}
-        onRowClick={onEditBusinessInterest}
-        onAddClick={onAddBusinessInterest}
-        addButtonLabel="Add Business"
-        helpId={117}
-        onHelpClick={openHelp}
-      />
+      {show('businessInterest') && (
+        <AssetCategory
+          title="Business Interests"
+          categoryNumber={++catNum}
+          rows={businessInterestRows}
+          onRowClick={onEditBusinessInterest}
+          onAddClick={onAddBusinessInterest}
+          addButtonLabel="Add Business"
+          helpId={117}
+          onHelpClick={openHelp}
+        />
+      )}
 
-      <AssetCategory
-        title="Digital Assets"
-        categoryNumber={8}
-        rows={digitalAssetRows}
-        onRowClick={onEditDigitalAsset}
-        onAddClick={onAddDigitalAsset}
-        addButtonLabel="Add Asset"
-        helpId={118}
-        onHelpClick={openHelp}
-      />
+      {show('digitalAsset') && (
+        <AssetCategory
+          title="Digital Assets"
+          categoryNumber={++catNum}
+          rows={digitalAssetRows}
+          onRowClick={onEditDigitalAsset}
+          onAddClick={onAddDigitalAsset}
+          addButtonLabel="Add Asset"
+          helpId={118}
+          onHelpClick={openHelp}
+        />
+      )}
 
-      <AssetCategory
-        title="Other Assets"
-        categoryNumber={9}
-        rows={otherAssetRows}
-        onRowClick={onEditOtherAsset}
-        onAddClick={onAddOtherAsset}
-        addButtonLabel="Add Asset"
-        helpId={116}
-        onHelpClick={openHelp}
-      />
+      {show('otherAsset') && (
+        <AssetCategory
+          title="Other Assets"
+          categoryNumber={++catNum}
+          rows={otherAssetRows}
+          onRowClick={onEditOtherAsset}
+          onAddClick={onAddOtherAsset}
+          addButtonLabel="Add Asset"
+          helpId={116}
+          onHelpClick={openHelp}
+        />
+      )}
 
       {/* Grand Total */}
       <Paper variant="outlined" sx={{ p: 2, bgcolor: '#1a237e', color: 'white', mt: 2 }}>
@@ -749,7 +790,7 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
             TOTAL ASSETS
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {formatCurrency(grandTotal)}
+            {formatCurrency(filteredTotal)}
           </Typography>
         </Box>
       </Paper>

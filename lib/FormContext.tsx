@@ -51,6 +51,34 @@ export interface MedicalInsurance {
   otherInsuranceCost: string;  // Monthly cost
 }
 
+// Royalty types
+export type RoyaltyCategory =
+  | ''
+  | 'Intellectual Property Royalties'
+  | 'Digital & Online Income Streams'
+  | 'Natural Resource Rights'
+  | 'Real Property & Land-Based Streams'
+  | 'Financial & Investment Streams'
+  | 'Business & Commercial Streams'
+  | 'Government & Settlement Streams';
+
+export type PaymentFrequency = '' | 'Monthly' | 'Quarterly' | 'Semi-Annually' | 'Annually' | 'Weekly' | 'Bi-Weekly' | 'Irregular';
+
+export type Transferability = '' | 'Assignable' | 'Heritable' | 'Assignable & Heritable' | 'Non-Transferable' | 'Unknown';
+
+export interface RoyaltyItem {
+  category: RoyaltyCategory;
+  type: string;
+  payor: string;
+  paymentFrequency: PaymentFrequency;
+  approximateAmount: string;
+  amountPeriod: 'Monthly' | 'Annually';
+  contractExpirationDate: string;
+  underlyingAssetOrRight: string;
+  transferability: Transferability;
+  documentedInEstatePlan: '' | 'Yes' | 'No' | 'Unsure';
+}
+
 // Uploaded document metadata for Supabase Storage
 export interface UploadedDocumentInfo {
   name: string;           // Unique filename in storage
@@ -796,6 +824,9 @@ export interface FormData {
   // Current Estate Plan - Spouse
   spouseCurrentEstatePlan: CurrentEstatePlanData;
 
+  // Royalties & Income Streams
+  royalties: RoyaltyItem[];
+
   // Pet Care
   hasPetsForCare: boolean;
   pets: PetData[];
@@ -1395,6 +1426,9 @@ const initialFormData: FormData = {
     hasLivingWillDocument: false,
     comments: '',
   },
+
+  // Royalties & Income Streams
+  royalties: [],
 
   // Pet Care
   hasPetsForCare: false,

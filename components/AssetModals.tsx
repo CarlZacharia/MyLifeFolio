@@ -1064,50 +1064,6 @@ const DispositionSection: React.FC<DispositionSectionProps> = ({
           </>
         )}
 
-        {hasBeneficiaryDesignation === false && (
-          <>
-            <FormControl component="fieldset" sx={{ mb: 2 }}>
-              <FormLabel component="legend">
-                Do you want this as a specific bequest identified in your will?
-              </FormLabel>
-              <RadioGroup
-                row
-                value={wantsSpecificBequest === true ? 'yes' : wantsSpecificBequest === false ? 'no' : ''}
-                onChange={(e) => onWantsSpecificBequestChange?.(e.target.value === 'yes')}
-              >
-                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-              </RadioGroup>
-            </FormControl>
-
-            {wantsSpecificBequest === true && (
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <BeneficiarySelector
-                    label="Primary Legatees"
-                    selectedBeneficiaries={primaryLegatees}
-                    options={filteredBeneficiaryOptions}
-                    onChange={onPrimaryLegateesChange}
-                    showDistributionType={true}
-                    distributionType={primaryLegateeDistributionType}
-                    onDistributionTypeChange={onPrimaryLegateeDistributionTypeChange}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <BeneficiarySelector
-                    label="Secondary Legatees"
-                    selectedBeneficiaries={secondaryLegatees}
-                    options={filteredBeneficiaryOptions}
-                    onChange={onSecondaryLegateesChange}
-                    showDistributionType={true}
-                    distributionType={secondaryLegateeDistributionType}
-                    onDistributionTypeChange={onSecondaryLegateeDistributionTypeChange}
-                  />
-                </Grid>
-              </Grid>
-            )}
-          </>
-        )}
       </Box>
     );
   }

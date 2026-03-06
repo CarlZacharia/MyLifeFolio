@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { Box } from '@mui/material';
 import { useFormContext, MaritalStatus } from '../lib/FormContext';
-import AssetsSummaryTable from './AssetsSummaryTable';
+import AssetsSummaryTable, { AssetCategoryType } from './AssetsSummaryTable';
 
 import {
   RealEstateModal,
@@ -48,7 +48,12 @@ interface ModalState {
   editIndex: number | null;
 }
 
-const AssetsSection = () => {
+interface AssetsSectionProps {
+  visibleCategories?: AssetCategoryType[];
+  hideHeader?: boolean;
+}
+
+const AssetsSection = ({ visibleCategories, hideHeader }: AssetsSectionProps = {}) => {
   const { formData, updateFormData } = useFormContext();
 
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
@@ -354,6 +359,8 @@ const AssetsSection = () => {
   return (
     <Box>
       <AssetsSummaryTable
+        visibleCategories={visibleCategories}
+        hideHeader={hideHeader}
         realEstate={formData.realEstate}
         bankAccounts={formData.bankAccounts}
         nonQualifiedInvestments={formData.nonQualifiedInvestments}
