@@ -8,11 +8,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
   Box,
-  Typography,
 } from '@mui/material';
 import FolioModal, {
   folioTextFieldSx,
@@ -28,10 +24,11 @@ import FolioModal, {
 export interface BeneficiaryData {
   name: string;
   address: string;
+  telephone: string;
+  email: string;
   relationship: string;
   relationshipOther: string;
   age: string;
-  distributionType: 'Per Stirpes' | 'Per Capita' | '';
   notes: string;
 }
 
@@ -56,10 +53,11 @@ interface BeneficiaryModalProps {
 const getDefaultBeneficiaryData = (): BeneficiaryData => ({
   name: '',
   address: '',
+  telephone: '',
+  email: '',
   relationship: '',
   relationshipOther: '',
   age: '',
-  distributionType: '',
   notes: '',
 });
 
@@ -107,8 +105,8 @@ export const BeneficiaryModal: React.FC<BeneficiaryModalProps> = ({
     <FolioModal
       open={open}
       onClose={onClose}
-      title={isEdit ? 'Edit Beneficiary' : 'Add Beneficiary'}
-      eyebrow="My Life Folio — Beneficiaries"
+      title={isEdit ? 'Edit Other Family Member' : 'Add Other Family Member'}
+      eyebrow="My Life Folio — Other Family Members"
       maxWidth="md"
       footer={
         <>
@@ -120,7 +118,7 @@ export const BeneficiaryModal: React.FC<BeneficiaryModalProps> = ({
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             <FolioCancelButton onClick={onClose} />
             <FolioSaveButton onClick={handleSave} disabled={!formData.name}>
-              {isEdit ? 'Save Changes' : 'Add Beneficiary'}
+              {isEdit ? 'Save Changes' : 'Add Other Family Member'}
             </FolioSaveButton>
           </Box>
         </>
@@ -203,52 +201,28 @@ export const BeneficiaryModal: React.FC<BeneficiaryModalProps> = ({
               sx={{ ...folioTextFieldSx }}
             />
           </Grid>
-          <Grid item xs={12}>
-            <Box sx={{ display: 'flex', alignItems: 'center', height: '40px' }}>
-              <Typography
-                variant="body2"
-                sx={{
-                  mr: 2,
-                  fontFamily: '"Jost", sans-serif',
-                  fontWeight: 500,
-                  fontSize: '13px',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: folioColors.inkLight,
-                }}
-              >
-                Distribution Type
-              </Typography>
-              <RadioGroup
-                row
-                value={formData.distributionType}
-                onChange={(e) => setFormData((prev) => ({ ...prev, distributionType: e.target.value as BeneficiaryData['distributionType'] }))}
-                sx={{ flexWrap: 'nowrap' }}
-              >
-                <FormControlLabel
-                  value="Per Stirpes"
-                  control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />}
-                  label="Per Stirpes"
-                  sx={{ mr: 1, '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }}
-                />
-                <FormControlLabel
-                  value="Per Capita"
-                  control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />}
-                  label="Per Capita"
-                  sx={{ '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }}
-                />
-              </RadioGroup>
-            </Box>
-            <Typography
-              variant="caption"
-              sx={{
-                fontFamily: '"Jost", sans-serif',
-                color: folioColors.inkFaint,
-                fontWeight: 300,
-              }}
-            >
-              Per Stirpes: Share passes to descendants. Per Capita: Share divided among survivors only.
-            </Typography>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Telephone"
+              value={formData.telephone}
+              onChange={handleChange('telephone')}
+              variant="outlined"
+              size="small"
+              sx={{ ...folioTextFieldSx }}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Email"
+              value={formData.email}
+              onChange={handleChange('email')}
+              variant="outlined"
+              size="small"
+              type="email"
+              sx={{ ...folioTextFieldSx }}
+            />
           </Grid>
           <Grid item xs={12}>
             <TextField
@@ -260,7 +234,7 @@ export const BeneficiaryModal: React.FC<BeneficiaryModalProps> = ({
               size="small"
               multiline
               rows={3}
-              placeholder="Any additional comments or notes about this beneficiary"
+              placeholder="Any additional comments or notes about this family member"
               sx={{ ...folioTextFieldSx }}
             />
           </Grid>
@@ -319,7 +293,7 @@ export const CharityModal: React.FC<CharityModalProps> = ({
       open={open}
       onClose={onClose}
       title={isEdit ? 'Edit Charity' : 'Add Charity'}
-      eyebrow="My Life Folio — Beneficiaries"
+      eyebrow="My Life Folio — Charities"
       maxWidth="sm"
       footer={
         <>

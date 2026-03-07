@@ -29,7 +29,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import PersonIcon from '@mui/icons-material/Person';
+import PeopleIcon from '@mui/icons-material/People';
 import ExploreIcon from '@mui/icons-material/Explore';
 import QuizIcon from '@mui/icons-material/Quiz';
 import CalculateIcon from '@mui/icons-material/Calculate';
@@ -193,9 +193,9 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({
               {user ? (
                 <>
                   {onProfile && (
-                    <Button variant="outlined" onClick={onProfile} startIcon={<PersonIcon />}
+                    <Button variant="outlined" onClick={onProfile} startIcon={<PeopleIcon />}
                       sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', fontWeight: 600, fontSize: '0.9rem', px: { xs: 2, md: 3 }, py: 1, '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
-                      Profile
+                      Family Access
                     </Button>
                   )}
                   {isAdminUser(user.email) && onAdmin && (

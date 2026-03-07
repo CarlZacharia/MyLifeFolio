@@ -17,6 +17,7 @@ import BalanceIcon from '@mui/icons-material/Balance';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PersonIcon from '@mui/icons-material/Person';
+import PeopleIcon from '@mui/icons-material/People';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import SaveIcon from '@mui/icons-material/Save';
@@ -245,9 +246,9 @@ const FolioCategoryPage: React.FC<FolioCategoryPageProps> = ({
                     )}
                   </Box>
                   {onProfile && (
-                    <Button variant="outlined" onClick={onProfile} startIcon={<PersonIcon />}
+                    <Button variant="outlined" onClick={onProfile} startIcon={<PeopleIcon />}
                       sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', fontWeight: 600, fontSize: '0.9rem', px: { xs: 2, md: 3 }, py: 1, '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
-                      Profile
+                      Family Access
                     </Button>
                   )}
                   {onResources && (

@@ -5,11 +5,13 @@ import {
 import LogoutIcon from '@mui/icons-material/Logout';
 import ChatIcon from '@mui/icons-material/Chat';
 import DescriptionIcon from '@mui/icons-material/Description';
+import FolderIcon from '@mui/icons-material/Folder';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import { filterFolioByAccess, FilteredFolio } from './utils/filterFolioByAccess';
 import ChatInterface from './ChatInterface';
 import ReportViewer from './ReportViewer';
+import DocumentViewer from './DocumentViewer';
 
 interface AuthorizedAccess {
   id: string;
@@ -29,6 +31,7 @@ const FamilyPortal: React.FC = () => {
   const [filteredFolio, setFilteredFolio] = useState<FilteredFolio | null>(null);
   const [tab, setTab] = useState(0);
   const [userEmail, setUserEmail] = useState('');
+  const [folioLastUpdated, setFolioLastUpdated] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,7 +78,7 @@ const FamilyPortal: React.FC = () => {
         // Fetch the owner's folio data from intakes_raw
         const { data: intakeRows, error: intakeError } = await supabase
           .from('intakes_raw')
-          .select('form_data')
+          .select('form_data, created_at')
           .eq('user_id', auth.owner_id)
           .order('created_at', { ascending: false })
           .limit(1);
@@ -89,6 +92,7 @@ const FamilyPortal: React.FC = () => {
         }
 
         const folioData = intakeRows[0].form_data as Record<string, unknown>;
+        setFolioLastUpdated(intakeRows[0].created_at as string);
         const filtered = filterFolioByAccess(folioData, auth.access_sections);
         setFilteredFolio(filtered);
       } catch (err) {
@@ -154,6 +158,11 @@ const FamilyPortal: React.FC = () => {
           <Typography variant="body1" sx={{ color: 'text.secondary', mt: 0.5 }}>
             You are viewing {filteredFolio.ownerName}'s folio. You have access to: {filteredFolio.sectionsIncluded.join(', ')}.
           </Typography>
+          {folioLastUpdated && (
+            <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1, fontStyle: 'italic' }}>
+              Folio last updated: {new Date(folioLastUpdated).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </Typography>
+          )}
         </Paper>
 
         {/* Tabs */}
@@ -170,6 +179,7 @@ const FamilyPortal: React.FC = () => {
           >
             <Tab icon={<ChatIcon />} label="Chat" iconPosition="start" />
             <Tab icon={<DescriptionIcon />} label="Reports" iconPosition="start" />
+            <Tab icon={<FolderIcon />} label="Documents" iconPosition="start" />
           </Tabs>
         </Paper>
 
@@ -186,6 +196,13 @@ const FamilyPortal: React.FC = () => {
               ownerName={filteredFolio.ownerName}
               ownerId={access.owner_id}
               accessSections={access.access_sections}
+              accessorEmail={userEmail}
+              accessorName={access.display_name}
+            />
+          )}
+          {tab === 2 && (
+            <DocumentViewer
+              ownerId={access.owner_id}
               accessorEmail={userEmail}
               accessorName={access.display_name}
             />

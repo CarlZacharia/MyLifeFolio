@@ -27,7 +27,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DownloadIcon from '@mui/icons-material/Download';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import PersonIcon from '@mui/icons-material/Person';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import SaveIcon from '@mui/icons-material/Save';
 import ReactMarkdown from 'react-markdown';
@@ -51,7 +50,6 @@ import { TrustPlanSection } from '../components/TrustPlan';
 import LandingPage from '../components/LandingPage';
 import MyLifeFolioHome from '../components/MyLifeFolioHome';
 import AdminDashboard from '../components/AdminDashboard';
-import Profile from '../components/Profile';
 import PlanningPathfinder from '../components/PlanningPathfinder';
 import ResourcesPage from '../components/ResourcesPage';
 import FolioCategoryPage from '../components/FolioCategoryPage';
@@ -395,7 +393,7 @@ const ALL_STEPS = [
 ];
 
 // Page type for routing
-type PageType = 'landing' | 'mylifefolio-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'profile' | 'planning-pathfinder' | 'education-center' | 'resources'
+type PageType = 'landing' | 'mylifefolio-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'planning-pathfinder' | 'education-center' | 'resources'
   | 'category-personal-information' | 'category-health-medical' | 'category-emergency-care' | 'category-financial-life'
   | 'category-people-advisors' | 'category-legal-documents' | 'category-legacy-life-story' | 'category-home-property' | 'category-family-dependents'
   | 'category-insurance-coverage' | 'category-end-of-life' | 'category-care-decisions' | 'category-reports'
@@ -991,7 +989,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
                 <Button
                   variant="outlined"
                   onClick={onProfile}
-                  startIcon={<PersonIcon />}
+                  startIcon={<PeopleIcon />}
                   sx={{
                     borderColor: 'rgba(255,255,255,0.5)',
                     color: 'white',
@@ -1003,7 +1001,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
                     },
                   }}
                 >
-                  Profile
+                  Family Access
                 </Button>
               )}
               {onResources && (
@@ -1257,12 +1255,7 @@ export default function MainPage() {
   };
 
   const handleProfileClick = () => {
-    handleNavigate('profile');
-  };
-
-  const handleProfileBack = () => {
-    setCurrentPage(previousPage);
-    window.scrollTo(0, 0);
+    handleNavigate('family-access-settings');
   };
 
   const handleLogout = async () => {
@@ -1339,22 +1332,6 @@ export default function MainPage() {
           return <AdminDashboard onBack={handleAdminBack} />;
         }
         // Redirect non-admin users to landing
-        return (
-          <LandingPage
-            onNavigate={handleNavigate}
-            onLogin={handleLogin}
-            onRegister={handleRegister}
-            onAdmin={handleAdminClick}
-            onProfile={handleProfileClick}
-          />
-        );
-
-      // Profile page (only accessible to logged-in users)
-      case 'profile':
-        if (user) {
-          return <Profile onBack={handleProfileBack} />;
-        }
-        // Redirect non-logged-in users to landing
         return (
           <LandingPage
             onNavigate={handleNavigate}

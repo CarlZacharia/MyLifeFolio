@@ -34,7 +34,7 @@ export const BeneficiariesSummaryTable: React.FC<BeneficiariesSummaryTableProps>
     return (
       <Box sx={{ textAlign: 'center', py: 4 }}>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-          No beneficiaries added yet.
+          No other family members added yet.
         </Typography>
         <Button
           variant="contained"
@@ -42,7 +42,7 @@ export const BeneficiariesSummaryTable: React.FC<BeneficiariesSummaryTableProps>
           onClick={onAddBeneficiary}
           sx={{ bgcolor: folioColors.ink }}
         >
-          Add Beneficiary
+          Add Other Family Member
         </Button>
       </Box>
     );
@@ -52,7 +52,7 @@ export const BeneficiariesSummaryTable: React.FC<BeneficiariesSummaryTableProps>
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: folioColors.ink }}>
-          Beneficiaries ({beneficiaries.length})
+          Other Family Members ({beneficiaries.length})
         </Typography>
         <Button
           variant="outlined"
@@ -60,7 +60,7 @@ export const BeneficiariesSummaryTable: React.FC<BeneficiariesSummaryTableProps>
           onClick={onAddBeneficiary}
           size="small"
         >
-          Add Beneficiary
+          Add Other Family Member
         </Button>
       </Box>
 

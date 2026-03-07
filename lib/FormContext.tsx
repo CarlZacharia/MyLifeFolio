@@ -505,6 +505,8 @@ export interface FormData {
   children: Array<{
     name: string;
     address: string;
+    telephone: string;
+    email: string;
     birthDate: string;
     age: string;
     relationship: string;
@@ -512,8 +514,6 @@ export interface FormData {
     hasChildren: boolean;
     numberOfChildren: number;
     hasMinorChildren: boolean;
-    distributionType: 'Per Stirpes' | 'Per Capita' | '';
-    distributionMethod: BeneficiaryDistributionMethod;
     disinherit: boolean;
     isDeceased: boolean;
     comments: string;
@@ -575,10 +575,11 @@ export interface FormData {
   otherBeneficiaries: Array<{
     name: string;
     address: string;
+    telephone: string;
+    email: string;
     relationship: string;
     relationshipOther: string;
     age: string;
-    distributionType: 'Per Stirpes' | 'Per Capita' | '';
     notes: string;
   }>;
 

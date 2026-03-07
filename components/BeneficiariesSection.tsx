@@ -244,12 +244,12 @@ const BeneficiariesSection = () => {
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 500 }}>
-            {hasChildren ? 'Other Beneficiaries' : 'Beneficiaries'}
+            {hasChildren ? 'Other Family Members' : 'Other Family Members'}
           </Typography>
           <VideoHelpIcon helpId={102} onClick={() => openHelp(102)} size="small" />
         </Box>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Include grandchildren, cousins, friends, or any other individuals you wish to name as beneficiaries.
+          Include grandchildren, cousins, friends, or any other individuals you wish to include.
         </Typography>
         <BeneficiariesSummaryTable
           beneficiaries={formData.otherBeneficiaries}
@@ -270,7 +270,7 @@ const BeneficiariesSection = () => {
               <VideoHelpIcon helpId={103} onClick={() => openHelp(103)} size="small" />
             </Box>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Include any charitable organizations you wish to name as beneficiaries.
+              Include any charitable organizations you wish to include.
             </Typography>
             <CharitiesSummaryTable
               charities={formData.charities}
@@ -288,12 +288,12 @@ const BeneficiariesSection = () => {
           <Box sx={{ mb: 4 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: 500 }}>
-                Beneficiary Concerns
+                Family Member Concerns
               </Typography>
               <HelpIcon helpId={30} onClick={() => openHelp(30)} />
             </Box>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Please answer the following questions about any of your beneficiaries (children, other individuals, etc.).
+              Please answer the following questions about any of your family members (children, other individuals, etc.).
             </Typography>
 
             <Grid container spacing={3}>
@@ -301,7 +301,7 @@ const BeneficiariesSection = () => {
               <Grid item xs={12} md={6}>
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <FormLabel component="legend">Are any of your beneficiaries under the age of 21?</FormLabel>
+                    <FormLabel component="legend">Are any of your family members under the age of 21?</FormLabel>
                     <HelpIcon helpId={31} onClick={() => openHelp(31)} />
                   </Box>
                   <RadioGroup
@@ -330,7 +330,7 @@ const BeneficiariesSection = () => {
               <Grid item xs={12} md={6}>
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <FormLabel component="legend">Are any of your beneficiaries disabled or blind?</FormLabel>
+                    <FormLabel component="legend">Are any of your family members disabled or blind?</FormLabel>
                     <HelpIcon helpId={32} onClick={() => openHelp(32)} />
                   </Box>
                   <RadioGroup
@@ -360,7 +360,7 @@ const BeneficiariesSection = () => {
               <Grid item xs={12} md={6}>
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <FormLabel component="legend">Do any of your beneficiaries have marital problems?</FormLabel>
+                    <FormLabel component="legend">Do any of your family members have marital problems?</FormLabel>
                     <HelpIcon helpId={34} onClick={() => openHelp(34)} />
                   </Box>
                   <RadioGroup
@@ -390,7 +390,7 @@ const BeneficiariesSection = () => {
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
                     <FormLabel component="legend" sx={{ display: 'inline' }}>
-                      Are any of your beneficiaries receiving SSI or other government entitlement?
+                      Are any of your family members receiving SSI or other government entitlement?
                       <HelpIcon helpId={35} onClick={() => openHelp(35)} />
                     </FormLabel>
                   </Box>
@@ -421,7 +421,7 @@ const BeneficiariesSection = () => {
               <Grid item xs={12} md={6}>
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <FormLabel component="legend">Does any beneficiary have a drug addiction?</FormLabel>
+                    <FormLabel component="legend">Does any family member have a drug addiction?</FormLabel>
                     <HelpIcon helpId={36} onClick={() => openHelp(36)} />
                   </Box>
                   <RadioGroup
@@ -450,7 +450,7 @@ const BeneficiariesSection = () => {
               <Grid item xs={12} md={6}>
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <FormLabel component="legend">Does any beneficiary have alcoholism?</FormLabel>
+                    <FormLabel component="legend">Does any family member have alcoholism?</FormLabel>
                     <HelpIcon helpId={37} onClick={() => openHelp(37)} />
                   </Box>
                   <RadioGroup
@@ -480,7 +480,7 @@ const BeneficiariesSection = () => {
               <Grid item xs={12} md={6}>
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <FormLabel component="legend">Does any beneficiary have financial problems?</FormLabel>
+                    <FormLabel component="legend">Does any family member have financial problems?</FormLabel>
                     <HelpIcon helpId={38} onClick={() => openHelp(38)} />
                   </Box>
                   <RadioGroup
@@ -509,7 +509,7 @@ const BeneficiariesSection = () => {
               <Grid item xs={12} md={6}>
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <FormLabel component="legend">Are there any other concerns about your beneficiaries?</FormLabel>
+                    <FormLabel component="legend">Are there any other concerns about your family members?</FormLabel>
                     <HelpIcon helpId={39} onClick={() => openHelp(39)} />
                   </Box>
                   <RadioGroup
@@ -539,13 +539,13 @@ const BeneficiariesSection = () => {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Additional notes about your beneficiaries"
+                  label="Additional notes about your family members"
                   value={formData.beneficiaryNotes}
                   onChange={handleChange('beneficiaryNotes')}
                   variant="outlined"
                   multiline
                   rows={3}
-                  placeholder="Enter any additional comments or information about your beneficiaries..."
+                  placeholder="Enter any additional comments or information about your family members..."
                 />
               </Grid>
             </Grid>

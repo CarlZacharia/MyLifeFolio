@@ -22,7 +22,7 @@ import CalculateIcon from '@mui/icons-material/Calculate';
 import BalanceIcon from '@mui/icons-material/Balance';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import PersonIcon from '@mui/icons-material/Person';
+import PeopleIcon from '@mui/icons-material/People';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import { useAuth } from '../lib/AuthContext';
 import IraRmdCalculator from './IraRmdCalculator';
@@ -289,7 +289,7 @@ const PlanningPathfinder: React.FC<PlanningPathfinderProps> = ({
                     <Button
                       variant="outlined"
                       onClick={onProfile}
-                      startIcon={<PersonIcon />}
+                      startIcon={<PeopleIcon />}
                       sx={{
                         borderColor: 'rgba(255,255,255,0.5)',
                         color: 'white',
@@ -303,7 +303,7 @@ const PlanningPathfinder: React.FC<PlanningPathfinderProps> = ({
                         },
                       }}
                     >
-                      Profile
+                      Family Access
                     </Button>
                   )}
                   {isAdminUser(user.email) && onAdmin && (

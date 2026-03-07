@@ -421,13 +421,13 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
               {/* Auth Buttons */}
               <Box sx={{ position: 'absolute', right: 16, display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
                 {user ? (
-                  // User is logged in - show Profile, Admin (if admin), and Logout buttons
+                  // User is logged in - show Family Access, Admin (if admin), and Logout buttons
                   <>
                     {onProfile && (
                       <Button
                         variant="outlined"
                         onClick={onProfile}
-                        startIcon={<PersonIcon />}
+                        startIcon={<PeopleIcon />}
                         sx={{
                           borderColor: 'rgba(255,255,255,0.5)',
                           color: 'white',
@@ -441,7 +441,7 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
                           },
                         }}
                       >
-                        Profile
+                        Family Access
                       </Button>
                     )}
                     <Button

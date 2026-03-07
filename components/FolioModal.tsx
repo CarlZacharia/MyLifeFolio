@@ -70,8 +70,8 @@ export const folioInputSx = {
 export const folioTextFieldSx = {
   '& .MuiInputLabel-root': {
     fontFamily: '"Jost", sans-serif',
-    fontWeight: 500,
-    fontSize: '13px',
+    fontWeight: 700,
+    fontSize: '14px',
     letterSpacing: '0.1em',
     textTransform: 'uppercase' as const,
     color: folioColors.inkLight,
@@ -376,7 +376,7 @@ const FolioModal: React.FC<FolioModalProps> = ({
           '&::-webkit-scrollbar': { width: 6 },
           '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
           '&::-webkit-scrollbar-thumb': {
-            bgcolor: folioColors.parchment,
+            bgcolor: folioColors.inkLight,
             borderRadius: 3,
           },
         }}

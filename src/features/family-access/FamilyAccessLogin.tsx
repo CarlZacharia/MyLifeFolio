@@ -54,7 +54,7 @@ const FamilyAccessLogin: React.FC = () => {
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email: email.trim().toLowerCase(),
         options: {
-          shouldCreateUser: false,
+          shouldCreateUser: true,
           emailRedirectTo: `${window.location.origin}/family-portal`,
         },
       });

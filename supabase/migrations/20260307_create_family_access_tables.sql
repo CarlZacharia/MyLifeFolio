@@ -24,6 +24,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS folio_authorized_users_updated_at ON folio_authorized_users;
 CREATE TRIGGER folio_authorized_users_updated_at
   BEFORE UPDATE ON folio_authorized_users
   FOR EACH ROW

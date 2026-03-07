@@ -19,7 +19,6 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import PersonIcon from '@mui/icons-material/Person';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
@@ -259,9 +258,9 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }) =>
               {user ? (
                 <>
                   {onProfile && (
-                    <Button variant="outlined" onClick={onProfile} startIcon={<PersonIcon />}
+                    <Button variant="outlined" onClick={onProfile} startIcon={<PeopleIcon />}
                       sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
-                      Profile
+                      Family Access
                     </Button>
                   )}
                   <Button variant="outlined" onClick={() => onNavigate('resources')} startIcon={<LibraryBooksIcon />}

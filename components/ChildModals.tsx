@@ -5,7 +5,6 @@ import {
   TextField,
   Grid,
   FormControl,
-  FormLabel,
   InputLabel,
   Select,
   MenuItem,
@@ -16,7 +15,7 @@ import {
   Box,
   Typography,
 } from '@mui/material';
-import { useFormContext, BeneficiaryDistributionMethod } from '../lib/FormContext';
+import { useFormContext } from '../lib/FormContext';
 import FolioModal, {
   folioTextFieldSx,
   folioColors,
@@ -32,6 +31,8 @@ export type ChildMaritalStatus = 'Single' | 'Married' | 'Divorced' | 'Widowed' |
 export interface ChildData {
   name: string;
   address: string;
+  telephone: string;
+  email: string;
   birthDate: string;
   age: string;
   relationship: string;
@@ -39,21 +40,12 @@ export interface ChildData {
   hasChildren: boolean;
   numberOfChildren: number;
   hasMinorChildren: boolean;
-  distributionType: 'Per Stirpes' | 'Per Capita' | '';
-  distributionMethod: BeneficiaryDistributionMethod;
   disinherit: boolean;
   isDeceased: boolean;
   comments: string;
 }
 
 const CHILD_MARITAL_STATUS_OPTIONS: ChildMaritalStatus[] = ['Single', 'Married', 'Divorced', 'Widowed'];
-
-const DISTRIBUTION_METHOD_OPTIONS: { value: BeneficiaryDistributionMethod; label: string }[] = [
-  { value: 'Outright', label: 'Outright distribution' },
-  { value: 'Trust for Term of Years', label: 'Distribution in trust for a term of years' },
-  { value: 'Trust for Life', label: 'Distribution in trust for life' },
-  { value: 'Unsure', label: 'Unsure' },
-];
 
 const RELATIONSHIP_OPTIONS = [
   'Son of Both',
@@ -77,6 +69,8 @@ interface ChildModalProps {
 const getDefaultChildData = (): ChildData => ({
   name: '',
   address: '',
+  telephone: '',
+  email: '',
   birthDate: '',
   age: '',
   relationship: '',
@@ -84,8 +78,6 @@ const getDefaultChildData = (): ChildData => ({
   hasChildren: false,
   numberOfChildren: 0,
   hasMinorChildren: false,
-  distributionType: '',
-  distributionMethod: '',
   disinherit: false,
   isDeceased: false,
   comments: '',
@@ -295,6 +287,34 @@ export const ChildModal: React.FC<ChildModalProps> = ({
               InputLabelProps={{ shrink: true }}
               sx={{ ...folioTextFieldSx }}
             />
+          </Grid>
+          {/* Row 2b: Telephone, Email */}
+          <Grid item xs={12} md={4}>
+            <TextField
+              fullWidth
+              label="Telephone"
+              value={formData.telephone}
+              onChange={handleChange('telephone')}
+              variant="outlined"
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              sx={{ ...folioTextFieldSx }}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              fullWidth
+              label="Email"
+              value={formData.email}
+              onChange={handleChange('email')}
+              variant="outlined"
+              size="small"
+              type="email"
+              InputLabelProps={{ shrink: true }}
+              sx={{ ...folioTextFieldSx }}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
             {formData.birthDate && calculateAge(formData.birthDate) && (
               <Typography
                 variant="body2"
@@ -317,8 +337,8 @@ export const ChildModal: React.FC<ChildModalProps> = ({
                 sx={{
                   mr: 2,
                   fontFamily: '"Jost", sans-serif',
-                  fontWeight: 500,
-                  fontSize: '13px',
+                  fontWeight: 700,
+                  fontSize: '14px',
                   letterSpacing: '0.05em',
                   color: folioColors.inkLight,
                 }}
@@ -385,8 +405,8 @@ export const ChildModal: React.FC<ChildModalProps> = ({
                     sx={{
                       mr: 2,
                       fontFamily: '"Jost", sans-serif',
-                      fontWeight: 500,
-                      fontSize: '13px',
+                      fontWeight: 700,
+                      fontSize: '14px',
                       letterSpacing: '0.05em',
                       color: folioColors.inkLight,
                     }}
@@ -404,77 +424,8 @@ export const ChildModal: React.FC<ChildModalProps> = ({
                   </RadioGroup>
                 </Box>
               </Grid>
-              <Grid item xs={12} md={8}>
-                <Box sx={{ display: 'flex', alignItems: 'center', height: '40px' }}>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      mr: 2,
-                      fontFamily: '"Jost", sans-serif',
-                      fontWeight: 500,
-                      fontSize: '13px',
-                      letterSpacing: '0.05em',
-                      color: folioColors.inkLight,
-                    }}
-                  >
-                    Distribution Type
-                  </Typography>
-                  <RadioGroup
-                    row
-                    value={formData.distributionType}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, distributionType: e.target.value as ChildData['distributionType'] }))}
-                    sx={{ flexWrap: 'nowrap' }}
-                  >
-                    <FormControlLabel value="Per Stirpes" control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />} label="Per Stirpes" sx={{ mr: 1, '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }} />
-                    <FormControlLabel value="Per Capita" control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />} label="Per Capita" sx={{ '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }} />
-                  </RadioGroup>
-                </Box>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: folioColors.inkFaint,
-                    fontFamily: '"Jost", sans-serif',
-                    fontSize: '12px',
-                  }}
-                >
-                  Per Stirpes: Share passes to descendants. Per Capita: Share divided among survivors only.
-                </Typography>
-              </Grid>
             </>
           )}
-          {/* Distribution Method */}
-          <Grid item xs={12}>
-            <FormControl component="fieldset" fullWidth>
-              <FormLabel
-                component="legend"
-                sx={{
-                  fontFamily: '"Jost", sans-serif',
-                  fontWeight: 500,
-                  fontSize: '13px',
-                  letterSpacing: '0.05em',
-                  color: folioColors.inkLight,
-                  mb: 1,
-                  '&.Mui-focused': { color: folioColors.accent },
-                }}
-              >
-                What type of distribution do you foresee for this beneficiary?
-              </FormLabel>
-              <RadioGroup
-                value={formData.distributionMethod || ''}
-                onChange={(e) => setFormData((prev) => ({ ...prev, distributionMethod: e.target.value as BeneficiaryDistributionMethod }))}
-              >
-                {DISTRIBUTION_METHOD_OPTIONS.map((option) => (
-                  <FormControlLabel
-                    key={option.value}
-                    value={option.value}
-                    control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />}
-                    label={option.label}
-                    sx={{ '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }}
-                  />
-                ))}
-              </RadioGroup>
-            </FormControl>
-          </Grid>
           <Grid item xs={12}>
             <TextField
               fullWidth
