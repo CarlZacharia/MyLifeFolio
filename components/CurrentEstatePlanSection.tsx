@@ -53,6 +53,7 @@ import {
   PersonType,
   DocumentType,
 } from '../lib/supabaseStorage';
+import { folioColors } from './FolioModal';
 
 const OTHER_VALUE = '__OTHER__';
 
@@ -590,7 +591,7 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
   updateFormData,
   personType,
   clientFolderName,
-  headerColor = '#1a237e',
+  headerColor = folioColors.ink,
   openHelp,
   showSpouse,
   beneficiaryOptions,
@@ -1229,7 +1230,7 @@ const CurrentEstatePlanSection: React.FC = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           Estate Plan
         </Typography>
         <VideoHelpIcon helpId={209} onClick={() => openHelp(209)} />
@@ -1252,8 +1253,8 @@ const CurrentEstatePlanSection: React.FC = () => {
               iconPosition="start"
               label={clientName}
               sx={{
-                color: activeTab === 0 ? '#1a237e' : 'text.secondary',
-                '&.Mui-selected': { color: '#1a237e' },
+                color: activeTab === 0 ? folioColors.ink : 'text.secondary',
+                '&.Mui-selected': { color: folioColors.ink },
               }}
             />
             <Tab
@@ -1261,8 +1262,8 @@ const CurrentEstatePlanSection: React.FC = () => {
               iconPosition="start"
               label={spouseName}
               sx={{
-                color: activeTab === 1 ? '#2e7d32' : 'text.secondary',
-                '&.Mui-selected': { color: '#2e7d32' },
+                color: activeTab === 1 ? folioColors.accent : 'text.secondary',
+                '&.Mui-selected': { color: folioColors.accent },
               }}
             />
           </Tabs>

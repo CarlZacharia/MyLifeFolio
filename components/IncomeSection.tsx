@@ -30,6 +30,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useFormContext, MaritalStatus, IncomeSource, IncomeFrequency, MedicalInsurance, MedicareCoverageType, RoyaltyCategory, RoyaltyItem, PaymentFrequency, Transferability } from '../lib/FormContext';
 import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
+import { folioColors } from './FolioModal';
 
 const INCOME_FREQUENCY_OPTIONS: { value: IncomeFrequency; label: string }[] = [
   { value: 'Monthly', label: 'Monthly' },
@@ -1101,7 +1102,7 @@ const IncomeSection: React.FC = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           Income &amp; Medical Insurance
         </Typography>
         <VideoHelpIcon helpId={230} onClick={() => openHelp(230)} size="medium" />
@@ -1123,8 +1124,8 @@ const IncomeSection: React.FC = () => {
               iconPosition="start"
               label={clientName}
               sx={{
-                color: activeTab === 0 ? '#1a237e' : 'text.secondary',
-                '&.Mui-selected': { color: '#1a237e' },
+                color: activeTab === 0 ? folioColors.ink : 'text.secondary',
+                '&.Mui-selected': { color: folioColors.ink },
               }}
             />
             <Tab
@@ -1132,8 +1133,8 @@ const IncomeSection: React.FC = () => {
               iconPosition="start"
               label={spouseName}
               sx={{
-                color: activeTab === 1 ? '#2e7d32' : 'text.secondary',
-                '&.Mui-selected': { color: '#2e7d32' },
+                color: activeTab === 1 ? folioColors.accent : 'text.secondary',
+                '&.Mui-selected': { color: folioColors.accent },
               }}
             />
           </Tabs>

@@ -17,6 +17,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { ChildData } from './ChildModals';
+import { folioColors } from './FolioModal';
 import { VideoHelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
 
@@ -80,7 +81,7 @@ const ChildrenSummaryTable: React.FC<ChildrenSummaryTableProps> = ({
           variant="contained"
           startIcon={<AddIcon />}
           onClick={onAdd}
-          sx={{ bgcolor: '#1a237e' }}
+          sx={{ bgcolor: folioColors.ink }}
         >
           Add Child
         </Button>
@@ -116,7 +117,7 @@ const ChildrenSummaryTable: React.FC<ChildrenSummaryTableProps> = ({
       <TableContainer component={Paper} variant="outlined">
         <Table size="small">
           <TableHead>
-            <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+            <TableRow sx={{ bgcolor: folioColors.cream }}>
               <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Birth Date</TableCell>
@@ -129,7 +130,7 @@ const ChildrenSummaryTable: React.FC<ChildrenSummaryTableProps> = ({
               <TableRow
                 key={index}
                 sx={{
-                  '&:hover': { bgcolor: '#f5f5f5', cursor: 'pointer' },
+                  '&:hover': { bgcolor: folioColors.cream, cursor: 'pointer' },
                 }}
                 onClick={() => onEdit(index)}
               >

@@ -27,6 +27,7 @@ import PhoneInput from './PhoneInput';
 import { SSNInput } from './SSNInput';
 import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
+import { folioColors } from './FolioModal';
 
 const calculateAge = (birthDate: Date | null): string => {
   if (!birthDate) return '';
@@ -170,7 +171,7 @@ const PersonalDataSection = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           PERSONAL DATA
         </Typography>
         <VideoHelpIcon helpId={100} onClick={() => openHelp(100)} size="medium" />

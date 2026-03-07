@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useFormContext, MaritalStatus } from '../lib/FormContext';
+import { folioColors } from './FolioModal';
 import {
   BusinessInterestModal,
   BusinessInterestData,
@@ -133,7 +134,7 @@ const BusinessAssetsTab = () => {
               ))}
 
               {/* Total row */}
-              <TableRow sx={{ bgcolor: '#0a5c36' }}>
+              <TableRow sx={{ bgcolor: folioColors.ink }}>
                 <TableCell colSpan={5} sx={{ fontWeight: 700, color: 'white', fontSize: '0.95rem' }}>
                   Total Business Interests
                 </TableCell>

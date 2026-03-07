@@ -21,6 +21,7 @@ import DigitalAssetsTab from './DigitalAssetsTab';
 import OtherAssetsTab from './OtherAssetsTab';
 import { AssetCategoryType } from './AssetsSummaryTable';
 import ExpensesSection from './ExpensesSection';
+import { folioColors } from './FolioModal';
 
 const PRIMARY_TABS = [
   { label: 'Assets', icon: <AccountBalanceWalletIcon /> },
@@ -102,10 +103,10 @@ const FinancialLifeSection = () => {
                 border: '1px solid',
                 borderColor: 'divider',
                 '&.Mui-selected': {
-                  bgcolor: '#0a5c36',
+                  bgcolor: folioColors.ink,
                   color: 'white',
-                  borderColor: '#0a5c36',
-                  '&:hover': { bgcolor: '#084a2c' },
+                  borderColor: folioColors.ink,
+                  '&:hover': { bgcolor: '#3d3224' },
                 },
               },
             }}

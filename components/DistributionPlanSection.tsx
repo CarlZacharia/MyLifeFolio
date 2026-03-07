@@ -39,6 +39,7 @@ import {
   ResiduaryBeneficiary,
 } from '../lib/FormContext';
 import { CashGiftModal } from './CashGiftModal';
+import { folioColors } from './FolioModal';
 
 // Helper to format currency
 const formatCurrency = (value: string | number): string => {
@@ -419,12 +420,12 @@ const DistributionPlanSection: React.FC<DistributionPlanSectionProps> = ({
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500, color: '#1a237e' }}>
+      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500, color: folioColors.ink }}>
         {personName}&apos;s Distribution Plan
       </Typography>
 
       {/* Distribution Plan Type Options */}
-      <Box sx={{ mb: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+      <Box sx={{ mb: 3, p: 2, bgcolor: folioColors.cream, borderRadius: 1 }}>
         <FormControl component="fieldset">
           <FormLabel component="legend" sx={{ fontWeight: 500 }}>
             How would you like to distribute your estate?
@@ -528,7 +529,7 @@ const DistributionPlanSection: React.FC<DistributionPlanSectionProps> = ({
                 <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
                   <Table size="small">
                     <TableHead>
-                      <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                      <TableRow sx={{ bgcolor: folioColors.cream }}>
                         <TableCell sx={{ fontWeight: 600 }}>Beneficiary</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
                         <TableCell sx={{ fontWeight: 600, width: 120 }}>Share %</TableCell>
@@ -648,7 +649,7 @@ const DistributionPlanSection: React.FC<DistributionPlanSectionProps> = ({
                 <TableContainer component={Paper} variant="outlined">
                   <Table size="small">
                     <TableHead>
-                      <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                      <TableRow sx={{ bgcolor: folioColors.cream }}>
                         <TableCell sx={{ fontWeight: 600 }}>Asset</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
                         <TableCell sx={{ fontWeight: 600, textAlign: 'right' }}>Value</TableCell>
@@ -707,7 +708,7 @@ const DistributionPlanSection: React.FC<DistributionPlanSectionProps> = ({
                 <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
                   <Table size="small">
                     <TableHead>
-                      <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                      <TableRow sx={{ bgcolor: folioColors.cream }}>
                         <TableCell sx={{ fontWeight: 600 }}>Recipient</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
                         <TableCell sx={{ fontWeight: 600, textAlign: 'right' }}>Amount</TableCell>
@@ -794,7 +795,7 @@ const DistributionPlanSection: React.FC<DistributionPlanSectionProps> = ({
                 <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
                   <Table size="small">
                     <TableHead>
-                      <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                      <TableRow sx={{ bgcolor: folioColors.cream }}>
                         <TableCell sx={{ fontWeight: 600 }}>Beneficiary</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
                         <TableCell sx={{ fontWeight: 600, width: 120 }}>Share %</TableCell>

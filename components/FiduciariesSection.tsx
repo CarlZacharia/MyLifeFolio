@@ -14,6 +14,7 @@ import {
 import { useFormContext, FormData, MaritalStatus } from '../lib/FormContext';
 import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
+import { folioColors } from './FolioModal';
 
 const OTHER_VALUE = '__OTHER__';
 
@@ -163,7 +164,7 @@ const FiduciariesSection = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           FIDUCIARIES
         </Typography>
         <VideoHelpIcon helpId={104} onClick={() => openHelp(104)} size="medium" />

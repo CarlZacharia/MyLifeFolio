@@ -41,6 +41,7 @@ import {
 } from '../lib/FormContext';
 import { VideoHelpIcon, HelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
+import { folioColors } from './FolioModal';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -180,7 +181,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
   onChange,
   personLabel,
   showSpouse,
-  headerColor = '#1a237e',
+  headerColor = folioColors.ink,
   openHelp,
 }) => {
   const handleCheckboxArray = (field: keyof LongTermCareData, value: string, checked: boolean) => {
@@ -1461,7 +1462,7 @@ const LongTermCareSection: React.FC = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           LONG-TERM CARE PLANNING
         </Typography>
         <VideoHelpIcon helpId={130} onClick={() => openHelp(130)} size="medium" />
@@ -1483,7 +1484,7 @@ const LongTermCareSection: React.FC = () => {
               variant="fullWidth"
               TabIndicatorProps={{
                 style: {
-                  backgroundColor: activeTab === 0 ? '#1a237e' : '#2e7d32',
+                  backgroundColor: activeTab === 0 ? folioColors.ink : folioColors.accent,
                   height: 3,
                 },
               }}
@@ -1502,7 +1503,7 @@ const LongTermCareSection: React.FC = () => {
                 sx={{
                   gap: 1,
                   '&.Mui-selected': {
-                    color: '#1a237e',
+                    color: folioColors.ink,
                     fontWeight: 600,
                   },
                 }}
@@ -1514,7 +1515,7 @@ const LongTermCareSection: React.FC = () => {
                 sx={{
                   gap: 1,
                   '&.Mui-selected': {
-                    color: '#2e7d32',
+                    color: folioColors.accent,
                     fontWeight: 600,
                   },
                 }}
@@ -1553,7 +1554,7 @@ const LongTermCareSection: React.FC = () => {
       ) : (
         /* Single person - no tabs needed */
         <Paper variant="outlined" sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: folioColors.ink, mb: 2 }}>
             {formData.name || 'Client'} - Long-Term Care Information
           </Typography>
           <PersonLongTermCare

@@ -7,6 +7,7 @@ import { BeneficiaryModal, CharityModal, BeneficiaryData, CharityData } from './
 import { BeneficiariesSummaryTable, CharitiesSummaryTable } from './BeneficiariesSummaryTable';
 import { VideoHelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
+import { folioColors } from './FolioModal';
 
 type ModalType = 'beneficiary' | 'charity' | null;
 
@@ -96,7 +97,7 @@ const OtherBeneficiariesSection = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           OTHER BENEFICIARIES
         </Typography>
         <VideoHelpIcon helpId={102} onClick={() => openHelp(102)} size="medium" />
@@ -117,7 +118,7 @@ const OtherBeneficiariesSection = () => {
       {/* Charities */}
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
             CHARITIES
           </Typography>
           <VideoHelpIcon helpId={103} onClick={() => openHelp(103)} size="medium" />

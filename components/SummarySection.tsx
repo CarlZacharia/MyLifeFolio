@@ -16,6 +16,7 @@ import {
   Chip,
 } from '@mui/material';
 import { useFormContext, MaritalStatus, IncomeSource, IncomeFrequency, MedicalInsurance } from '../lib/FormContext';
+import { folioColors } from './FolioModal';
 import WarningIcon from '@mui/icons-material/Warning';
 import { categorizeAssets, calculateCategoryTotal, CategorizedAsset } from '../lib/assetCategorization';
 
@@ -83,7 +84,7 @@ const hasMedicalInsuranceData = (insurance: MedicalInsurance): boolean => {
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
 const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
-  <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a237e', mb: 1, mt: 2 }}>
+  <Typography variant="h6" sx={{ fontWeight: 600, color: folioColors.ink, mb: 1, mt: 2 }}>
     {title}
   </Typography>
 );
@@ -182,7 +183,7 @@ const SummarySection = () => {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: folioColors.ink, mb: 3 }}>
         SUMMARY
       </Typography>
 
@@ -238,7 +239,7 @@ const SummarySection = () => {
               <TableContainer sx={{ mb: 2 }}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: folioColors.cream }}>
                       <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Frequency</TableCell>
@@ -280,7 +281,7 @@ const SummarySection = () => {
               <TableContainer sx={{ mb: 2 }}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: folioColors.cream }}>
                       <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Frequency</TableCell>
@@ -372,7 +373,7 @@ const SummarySection = () => {
               <TableContainer sx={{ mb: 2 }}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: folioColors.cream }}>
                       <TableCell sx={{ fontWeight: 600 }}>Coverage Type</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
                       <TableCell sx={{ fontWeight: 600 }} align="right">Monthly Cost</TableCell>
@@ -429,7 +430,7 @@ const SummarySection = () => {
               <TableContainer sx={{ mb: 2 }}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: folioColors.cream }}>
                       <TableCell sx={{ fontWeight: 600 }}>Coverage Type</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
                       <TableCell sx={{ fontWeight: 600 }} align="right">Monthly Cost</TableCell>
@@ -496,7 +497,7 @@ const SummarySection = () => {
       {/* Children */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, mt: 3 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a237e' }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: folioColors.ink }}>
             Children
           </Typography>
           {childrenIncomplete && (
@@ -525,7 +526,7 @@ const SummarySection = () => {
           <TableContainer>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                <TableRow sx={{ bgcolor: folioColors.cream }}>
                   <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Birth Date</TableCell>
@@ -572,7 +573,7 @@ const SummarySection = () => {
           <TableContainer>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                <TableRow sx={{ bgcolor: folioColors.cream }}>
                   <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Address</TableCell>
@@ -607,7 +608,7 @@ const SummarySection = () => {
           <TableContainer>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                <TableRow sx={{ bgcolor: folioColors.cream }}>
                   <TableCell sx={{ fontWeight: 600 }}>Charity Name</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Address</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
@@ -696,7 +697,7 @@ const SummarySection = () => {
             <TableContainer>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                  <TableRow sx={{ bgcolor: folioColors.cream }}>
                     <TableCell sx={{ fontWeight: 600 }}>Recipient</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Item/Description</TableCell>
@@ -728,7 +729,7 @@ const SummarySection = () => {
             <TableContainer>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                  <TableRow sx={{ bgcolor: folioColors.cream }}>
                     <TableCell sx={{ fontWeight: 600 }}>Beneficiary</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
@@ -1247,7 +1248,7 @@ const SummarySection = () => {
               <TableContainer sx={{ mb: 2 }}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: folioColors.cream }}>
                       <TableCell sx={{ fontWeight: 600 }}>Address</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Owner</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Ownership Form</TableCell>
@@ -1301,7 +1302,7 @@ const SummarySection = () => {
               <TableContainer sx={{ mb: 2 }}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: folioColors.cream }}>
                       <TableCell sx={{ fontWeight: 600 }}>Institution</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Owner</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
@@ -1329,7 +1330,7 @@ const SummarySection = () => {
               <TableContainer sx={{ mb: 2 }}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: folioColors.cream }}>
                       <TableCell sx={{ fontWeight: 600 }}>Institution</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Owner</TableCell>
@@ -1359,7 +1360,7 @@ const SummarySection = () => {
               <TableContainer sx={{ mb: 2 }}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: folioColors.cream }}>
                       <TableCell sx={{ fontWeight: 600 }}>Company</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Insured</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Death Benefit</TableCell>
@@ -1389,7 +1390,7 @@ const SummarySection = () => {
               <TableContainer sx={{ mb: 2 }}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: folioColors.cream }}>
                       <TableCell sx={{ fontWeight: 600 }}>Year/Make/Model</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Owner</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Value</TableCell>
@@ -1417,7 +1418,7 @@ const SummarySection = () => {
               <TableContainer>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: folioColors.cream }}>
                       <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Owner</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Value</TableCell>
@@ -1439,7 +1440,7 @@ const SummarySection = () => {
 
           {/* Assets by Ownership Category */}
           <Divider sx={{ my: 3 }} />
-          <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: folioColors.ink, mb: 2 }}>
             Assets by Ownership Category
           </Typography>
 
@@ -1493,7 +1494,7 @@ const SummarySection = () => {
                     </TableCell>
                   </TableRow>
                 )}
-                <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                <TableRow sx={{ bgcolor: folioColors.cream }}>
                   <TableCell sx={{ fontWeight: 600 }}>Total Estate Value</TableCell>
                   <TableCell align="right" sx={{ fontWeight: 600 }}>
                     {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
@@ -1824,7 +1825,7 @@ const SummarySection = () => {
             <TableContainer>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                  <TableRow sx={{ bgcolor: folioColors.cream }}>
                     <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
                   </TableRow>

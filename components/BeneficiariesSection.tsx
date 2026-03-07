@@ -21,6 +21,7 @@ import { BeneficiariesSummaryTable, CharitiesSummaryTable } from './Beneficiarie
 import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
 import PetCareSection from './PetCareSection';
+import { folioColors } from './FolioModal';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -219,7 +220,7 @@ const BeneficiariesSection = () => {
     <Box>
       {/* Main Section Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           CHILDREN
         </Typography>
         <VideoHelpIcon helpId={101} onClick={() => openHelp(101)} size="medium" />

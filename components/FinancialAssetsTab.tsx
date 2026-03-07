@@ -18,6 +18,7 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SavingsIcon from '@mui/icons-material/Savings';
 import { useFormContext, MaritalStatus } from '../lib/FormContext';
+import { folioColors } from './FolioModal';
 import {
   BankAccountModal,
   NonQualifiedInvestmentModal,
@@ -193,12 +194,12 @@ const FinancialAssetsTab = () => {
                   <TableRow>
                     <TableCell
                       colSpan={4}
-                      sx={{ bgcolor: '#e8f5e9', fontWeight: 700, fontSize: '0.9rem', py: 1.2, borderBottom: '2px solid #0a5c36' }}
+                      sx={{ bgcolor: folioColors.creamDark, fontWeight: 700, fontSize: '0.9rem', py: 1.2, borderBottom: `2px solid ${folioColors.ink}` }}
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <AccountBalanceIcon sx={{ fontSize: 18, color: '#0a5c36' }} />
+                        <AccountBalanceIcon sx={{ fontSize: 18, color: folioColors.ink }} />
                         Bank Accounts
-                        <Typography component="span" sx={{ ml: 'auto', fontWeight: 600, color: '#0a5c36', fontSize: '0.85rem' }}>
+                        <Typography component="span" sx={{ ml: 'auto', fontWeight: 600, color: folioColors.ink, fontSize: '0.85rem' }}>
                           {fmtTotal(bankTotal)}
                         </Typography>
                       </Box>
@@ -226,12 +227,12 @@ const FinancialAssetsTab = () => {
                   <TableRow>
                     <TableCell
                       colSpan={4}
-                      sx={{ bgcolor: '#e8f5e9', fontWeight: 700, fontSize: '0.9rem', py: 1.2, borderBottom: '2px solid #0a5c36' }}
+                      sx={{ bgcolor: folioColors.creamDark, fontWeight: 700, fontSize: '0.9rem', py: 1.2, borderBottom: `2px solid ${folioColors.ink}` }}
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <TrendingUpIcon sx={{ fontSize: 18, color: '#0a5c36' }} />
+                        <TrendingUpIcon sx={{ fontSize: 18, color: folioColors.ink }} />
                         Non-Qualified Investment Accounts
-                        <Typography component="span" sx={{ ml: 'auto', fontWeight: 600, color: '#0a5c36', fontSize: '0.85rem' }}>
+                        <Typography component="span" sx={{ ml: 'auto', fontWeight: 600, color: folioColors.ink, fontSize: '0.85rem' }}>
                           {fmtTotal(nqTotal)}
                         </Typography>
                       </Box>
@@ -259,12 +260,12 @@ const FinancialAssetsTab = () => {
                   <TableRow>
                     <TableCell
                       colSpan={4}
-                      sx={{ bgcolor: '#e8f5e9', fontWeight: 700, fontSize: '0.9rem', py: 1.2, borderBottom: '2px solid #0a5c36' }}
+                      sx={{ bgcolor: folioColors.creamDark, fontWeight: 700, fontSize: '0.9rem', py: 1.2, borderBottom: `2px solid ${folioColors.ink}` }}
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <SavingsIcon sx={{ fontSize: 18, color: '#0a5c36' }} />
+                        <SavingsIcon sx={{ fontSize: 18, color: folioColors.ink }} />
                         IRAs &amp; Retirement Accounts
-                        <Typography component="span" sx={{ ml: 'auto', fontWeight: 600, color: '#0a5c36', fontSize: '0.85rem' }}>
+                        <Typography component="span" sx={{ ml: 'auto', fontWeight: 600, color: folioColors.ink, fontSize: '0.85rem' }}>
                           {fmtTotal(retTotal)}
                         </Typography>
                       </Box>
@@ -287,7 +288,7 @@ const FinancialAssetsTab = () => {
               )}
 
               {/* Grand total */}
-              <TableRow sx={{ bgcolor: '#0a5c36' }}>
+              <TableRow sx={{ bgcolor: folioColors.ink }}>
                 <TableCell colSpan={3} sx={{ fontWeight: 700, color: 'white', fontSize: '0.95rem' }}>
                   Total Financial Assets
                 </TableCell>

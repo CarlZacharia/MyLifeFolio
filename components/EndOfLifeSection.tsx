@@ -17,6 +17,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useFormContext } from '../lib/FormContext';
 import { END_OF_LIFE_CATEGORIES } from '../lib/endOfLifeCategories';
 import EndOfLifeModal, { EndOfLifeData } from './EndOfLifeModal';
+import { folioColors } from './FolioModal';
 
 const EndOfLifeSection = () => {
   const { formData, updateFormData } = useFormContext();
@@ -110,9 +111,9 @@ const EndOfLifeSection = () => {
                 justifyContent: 'flex-start',
                 textAlign: 'left',
                 ...(completed && {
-                  bgcolor: '#6a1b9a',
+                  bgcolor: folioColors.ink,
                   color: 'white',
-                  '&:hover': { bgcolor: '#4a148c' },
+                  '&:hover': { bgcolor: '#3d3224' },
                 }),
               }}
             >

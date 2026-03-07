@@ -17,6 +17,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useFormContext } from '../lib/FormContext';
 import { CARE_PREFERENCE_CATEGORIES } from '../lib/carePreferenceCategories';
 import CarePreferenceModal, { CarePreferenceData } from './CarePreferenceModal';
+import { folioColors } from './FolioModal';
 
 const CarePreferencesSection = () => {
   const { formData, updateFormData } = useFormContext();
@@ -74,9 +75,9 @@ const CarePreferencesSection = () => {
                 justifyContent: 'flex-start',
                 textAlign: 'left',
                 ...(completed && {
-                  bgcolor: '#00838f',
+                  bgcolor: folioColors.ink,
                   color: 'white',
-                  '&:hover': { bgcolor: '#006064' },
+                  '&:hover': { bgcolor: '#3d3224' },
                 }),
               }}
             >

@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { VideoHelpIcon } from './FieldWithHelp';
+import { folioColors } from './FolioModal';
 import HelpModal from './HelpModal';
 
 // Helper to parse currency values
@@ -662,7 +663,7 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
     <Box>
       {!hideHeader && (
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
             ASSETS
           </Typography>
           <VideoHelpIcon helpId={105} onClick={() => openHelp(105)} size="medium" />
@@ -784,7 +785,7 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
       )}
 
       {/* Grand Total */}
-      <Paper variant="outlined" sx={{ p: 2, bgcolor: '#1a237e', color: 'white', mt: 2 }}>
+      <Paper variant="outlined" sx={{ p: 2, bgcolor: folioColors.ink, color: 'white', mt: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
             TOTAL ASSETS

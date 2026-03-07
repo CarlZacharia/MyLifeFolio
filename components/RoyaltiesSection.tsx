@@ -28,6 +28,7 @@ import {
 } from '../lib/FormContext';
 import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
 import HelpModal from './HelpModal';
+import { folioColors } from './FolioModal';
 
 // Category -> specific types mapping
 const ROYALTY_TYPES: Record<string, string[]> = {
@@ -186,7 +187,7 @@ const RoyaltiesSection: React.FC = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           Royalties &amp; Income Streams
         </Typography>
         <VideoHelpIcon helpId={300} onClick={() => openHelp(300)} size="medium" />

@@ -17,6 +17,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { BeneficiaryData, CharityData } from './BeneficiaryModals';
+import { folioColors } from './FolioModal';
 
 interface BeneficiariesSummaryTableProps {
   beneficiaries: BeneficiaryData[];
@@ -39,7 +40,7 @@ export const BeneficiariesSummaryTable: React.FC<BeneficiariesSummaryTableProps>
           variant="contained"
           startIcon={<AddIcon />}
           onClick={onAddBeneficiary}
-          sx={{ bgcolor: '#1a237e' }}
+          sx={{ bgcolor: folioColors.ink }}
         >
           Add Beneficiary
         </Button>
@@ -50,7 +51,7 @@ export const BeneficiariesSummaryTable: React.FC<BeneficiariesSummaryTableProps>
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a237e' }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: folioColors.ink }}>
           Beneficiaries ({beneficiaries.length})
         </Typography>
         <Button
@@ -66,7 +67,7 @@ export const BeneficiariesSummaryTable: React.FC<BeneficiariesSummaryTableProps>
       <TableContainer component={Paper} variant="outlined">
         <Table size="small">
           <TableHead>
-            <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+            <TableRow sx={{ bgcolor: folioColors.cream }}>
               <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Age</TableCell>
@@ -78,7 +79,7 @@ export const BeneficiariesSummaryTable: React.FC<BeneficiariesSummaryTableProps>
               <TableRow
                 key={index}
                 sx={{
-                  '&:hover': { bgcolor: '#f5f5f5', cursor: 'pointer' },
+                  '&:hover': { bgcolor: folioColors.cream, cursor: 'pointer' },
                 }}
                 onClick={() => onEditBeneficiary(index)}
               >
@@ -130,7 +131,7 @@ export const CharitiesSummaryTable: React.FC<CharitiesSummaryTableProps> = ({
           variant="contained"
           startIcon={<AddIcon />}
           onClick={onAddCharity}
-          sx={{ bgcolor: '#1a237e' }}
+          sx={{ bgcolor: folioColors.ink }}
         >
           Add Charity
         </Button>
@@ -141,7 +142,7 @@ export const CharitiesSummaryTable: React.FC<CharitiesSummaryTableProps> = ({
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a237e' }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: folioColors.ink }}>
           Charities ({charities.length})
         </Typography>
         <Button
@@ -157,7 +158,7 @@ export const CharitiesSummaryTable: React.FC<CharitiesSummaryTableProps> = ({
       <TableContainer component={Paper} variant="outlined">
         <Table size="small">
           <TableHead>
-            <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+            <TableRow sx={{ bgcolor: folioColors.cream }}>
               <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
               <TableCell sx={{ fontWeight: 600, width: 60 }}>Edit</TableCell>
@@ -168,7 +169,7 @@ export const CharitiesSummaryTable: React.FC<CharitiesSummaryTableProps> = ({
               <TableRow
                 key={index}
                 sx={{
-                  '&:hover': { bgcolor: '#f5f5f5', cursor: 'pointer' },
+                  '&:hover': { bgcolor: folioColors.cream, cursor: 'pointer' },
                 }}
                 onClick={() => onEditCharity(index)}
               >

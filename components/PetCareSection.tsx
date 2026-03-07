@@ -26,6 +26,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PetsIcon from '@mui/icons-material/Pets';
 import { PetData } from '../lib/FormContext';
+import { folioColors } from './FolioModal';
 
 const PET_TYPES = ['Dog', 'Cat', 'Bird', 'Fish', 'Reptile', 'Horse', 'Rabbit', 'Other'];
 const PET_SEX_OPTIONS = ['Male', 'Female', 'Unknown'];
@@ -161,7 +162,7 @@ export default function PetCareSection({ pets, onUpdatePets }: PetCareSectionPro
           </AccordionSummary>
           <AccordionDetails>
             {/* Section 1: Basic Pet Information */}
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: folioColors.ink, mb: 2 }}>
               Basic Pet Information
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -314,7 +315,7 @@ export default function PetCareSection({ pets, onUpdatePets }: PetCareSectionPro
             <Divider sx={{ my: 2 }} />
 
             {/* Section 2: Veterinary Care */}
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: folioColors.ink, mb: 2 }}>
               Veterinary Care
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -424,7 +425,7 @@ export default function PetCareSection({ pets, onUpdatePets }: PetCareSectionPro
             <Divider sx={{ my: 2 }} />
 
             {/* Section 3: Daily Care Instructions */}
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: folioColors.ink, mb: 2 }}>
               Daily Care Instructions
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -508,7 +509,7 @@ export default function PetCareSection({ pets, onUpdatePets }: PetCareSectionPro
             <Divider sx={{ my: 2 }} />
 
             {/* Section 4: Behavioral Profile */}
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: folioColors.ink, mb: 2 }}>
               Behavioral Profile
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -594,7 +595,7 @@ export default function PetCareSection({ pets, onUpdatePets }: PetCareSectionPro
             <Divider sx={{ my: 2 }} />
 
             {/* Section 5: Care Preferences & Wishes */}
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: folioColors.ink, mb: 2 }}>
               Care Preferences & Wishes
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -684,7 +685,7 @@ export default function PetCareSection({ pets, onUpdatePets }: PetCareSectionPro
             <Divider sx={{ my: 2 }} />
 
             {/* Section 6: Financial Provisions */}
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: folioColors.ink, mb: 2 }}>
               Financial Provisions
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -763,7 +764,7 @@ export default function PetCareSection({ pets, onUpdatePets }: PetCareSectionPro
             <Divider sx={{ my: 2 }} />
 
             {/* Section 7: Emergency Instructions */}
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1a237e', mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: folioColors.ink, mb: 2 }}>
               Emergency Instructions
             </Typography>
             <Grid container spacing={2} sx={{ mb: 1 }}>

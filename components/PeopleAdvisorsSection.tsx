@@ -18,6 +18,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useFormContext } from '../lib/FormContext';
 import AdvisorModal, { AdvisorData, ADVISOR_TYPES } from './AdvisorModal';
 import FriendNeighborModal, { FriendNeighborData } from './FriendNeighborModal';
+import { folioColors } from './FolioModal';
 
 const formatPhone = (phone: string): string => {
   const digits = phone.replace(/\D/g, '');
@@ -178,7 +179,7 @@ const PeopleAdvisorsSection = () => {
                       <TableCell
                         colSpan={4}
                         sx={{
-                          bgcolor: '#2d6a4f',
+                          bgcolor: folioColors.ink,
                           color: 'white',
                           fontWeight: 700,
                           fontSize: '0.9rem',

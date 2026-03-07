@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useFormContext } from '../lib/FormContext';
+import { folioColors } from './FolioModal';
 
 const MaritalInfoSection = () => {
   const { formData, updateFormData } = useFormContext();
@@ -32,7 +33,7 @@ const MaritalInfoSection = () => {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: folioColors.ink, mb: 3 }}>
         MARITAL INFORMATION
       </Typography>
 

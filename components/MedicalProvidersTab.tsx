@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useFormContext, MaritalStatus } from '../lib/FormContext';
+import { folioColors } from './FolioModal';
 import MedicalProviderModal, { MedicalProviderData } from './MedicalProviderModal';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
@@ -146,7 +147,7 @@ const MedicalProvidersTab = () => {
                     <TableCell
                       colSpan={4}
                       sx={{
-                        bgcolor: '#0077b6',
+                        bgcolor: folioColors.ink,
                         color: 'white',
                         fontWeight: 700,
                         fontSize: '0.9rem',
@@ -178,7 +179,7 @@ const MedicalProvidersTab = () => {
                     <TableCell
                       colSpan={4}
                       sx={{
-                        bgcolor: '#0077b6',
+                        bgcolor: folioColors.ink,
                         color: 'white',
                         fontWeight: 700,
                         fontSize: '0.9rem',
