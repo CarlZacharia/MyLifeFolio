@@ -5,8 +5,6 @@ import { Box, Typography } from '@mui/material';
 import { useFormContext } from '../lib/FormContext';
 import { BeneficiaryModal, CharityModal, BeneficiaryData, CharityData } from './BeneficiaryModals';
 import { BeneficiariesSummaryTable, CharitiesSummaryTable } from './BeneficiariesSummaryTable';
-import { VideoHelpIcon } from './FieldWithHelp';
-import HelpModal from './HelpModal';
 import { folioColors } from './FolioModal';
 
 type ModalType = 'beneficiary' | 'charity' | null;
@@ -26,11 +24,6 @@ const OtherBeneficiariesSection = () => {
     isEdit: false,
     editIndex: null,
   });
-
-  // Help modal state
-  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
-  const openHelp = (helpId: number) => setActiveHelpId(helpId);
-  const closeHelp = () => setActiveHelpId(null);
 
   // Modal handlers
   const openAddModal = (type: ModalType) => {
@@ -100,7 +93,6 @@ const OtherBeneficiariesSection = () => {
         <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           OTHER FAMILY MEMBERS
         </Typography>
-        <VideoHelpIcon helpId={102} onClick={() => openHelp(102)} size="medium" />
       </Box>
 
       {/* Other Beneficiaries */}
@@ -121,7 +113,6 @@ const OtherBeneficiariesSection = () => {
           <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
             CHARITIES
           </Typography>
-          <VideoHelpIcon helpId={103} onClick={() => openHelp(103)} size="medium" />
         </Box>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Include any charitable organizations you wish to include.
@@ -153,12 +144,6 @@ const OtherBeneficiariesSection = () => {
         isEdit={modalState.isEdit}
       />
 
-      {/* Help Modal */}
-      <HelpModal
-        open={activeHelpId !== null}
-        onClose={closeHelp}
-        helpId={activeHelpId}
-      />
     </Box>
   );
 };

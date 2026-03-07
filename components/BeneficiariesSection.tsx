@@ -18,8 +18,6 @@ import { ChildModal, ChildData } from './ChildModals';
 import ChildrenSummaryTable from './ChildrenSummaryTable';
 import { BeneficiaryModal, CharityModal, BeneficiaryData, CharityData } from './BeneficiaryModals';
 import { BeneficiariesSummaryTable, CharitiesSummaryTable } from './BeneficiariesSummaryTable';
-import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
-import HelpModal from './HelpModal';
 import PetCareSection from './PetCareSection';
 import { folioColors } from './FolioModal';
 
@@ -114,11 +112,6 @@ const BeneficiariesSection = () => {
     isEdit: false,
     editIndex: null,
   });
-
-  // Help modal state
-  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
-  const openHelp = (helpId: number) => setActiveHelpId(helpId);
-  const closeHelp = () => setActiveHelpId(null);
 
   const handleRadioChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     updateFormData({ [field]: event.target.value === 'yes' });
@@ -223,7 +216,6 @@ const BeneficiariesSection = () => {
         <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           CHILDREN
         </Typography>
-        <VideoHelpIcon helpId={101} onClick={() => openHelp(101)} size="medium" />
       </Box>
 
       {/* Category 1: Children */}
@@ -246,7 +238,6 @@ const BeneficiariesSection = () => {
           <Typography variant="h6" sx={{ fontWeight: 500 }}>
             {hasChildren ? 'Other Family Members' : 'Other Family Members'}
           </Typography>
-          <VideoHelpIcon helpId={102} onClick={() => openHelp(102)} size="small" />
         </Box>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Include grandchildren, cousins, friends, or any other individuals you wish to include.
@@ -267,7 +258,6 @@ const BeneficiariesSection = () => {
               <Typography variant="h6" sx={{ fontWeight: 500 }}>
                 3. Charities
               </Typography>
-              <VideoHelpIcon helpId={103} onClick={() => openHelp(103)} size="small" />
             </Box>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
               Include any charitable organizations you wish to include.
@@ -290,7 +280,6 @@ const BeneficiariesSection = () => {
               <Typography variant="h6" sx={{ fontWeight: 500 }}>
                 Family Member Concerns
               </Typography>
-              <HelpIcon helpId={30} onClick={() => openHelp(30)} />
             </Box>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               Please answer the following questions about any of your family members (children, other individuals, etc.).
@@ -302,7 +291,6 @@ const BeneficiariesSection = () => {
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <FormLabel component="legend">Are any of your family members under the age of 21?</FormLabel>
-                    <HelpIcon helpId={31} onClick={() => openHelp(31)} />
                   </Box>
                   <RadioGroup
                     row
@@ -331,7 +319,6 @@ const BeneficiariesSection = () => {
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <FormLabel component="legend">Are any of your family members disabled or blind?</FormLabel>
-                    <HelpIcon helpId={32} onClick={() => openHelp(32)} />
                   </Box>
                   <RadioGroup
                     row
@@ -361,7 +348,6 @@ const BeneficiariesSection = () => {
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <FormLabel component="legend">Do any of your family members have marital problems?</FormLabel>
-                    <HelpIcon helpId={34} onClick={() => openHelp(34)} />
                   </Box>
                   <RadioGroup
                     row
@@ -391,7 +377,6 @@ const BeneficiariesSection = () => {
                   <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
                     <FormLabel component="legend" sx={{ display: 'inline' }}>
                       Are any of your family members receiving SSI or other government entitlement?
-                      <HelpIcon helpId={35} onClick={() => openHelp(35)} />
                     </FormLabel>
                   </Box>
                   <RadioGroup
@@ -422,7 +407,6 @@ const BeneficiariesSection = () => {
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <FormLabel component="legend">Does any family member have a drug addiction?</FormLabel>
-                    <HelpIcon helpId={36} onClick={() => openHelp(36)} />
                   </Box>
                   <RadioGroup
                     row
@@ -451,7 +435,6 @@ const BeneficiariesSection = () => {
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <FormLabel component="legend">Does any family member have alcoholism?</FormLabel>
-                    <HelpIcon helpId={37} onClick={() => openHelp(37)} />
                   </Box>
                   <RadioGroup
                     row
@@ -481,7 +464,6 @@ const BeneficiariesSection = () => {
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <FormLabel component="legend">Does any family member have financial problems?</FormLabel>
-                    <HelpIcon helpId={38} onClick={() => openHelp(38)} />
                   </Box>
                   <RadioGroup
                     row
@@ -510,7 +492,6 @@ const BeneficiariesSection = () => {
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <FormLabel component="legend">Are there any other concerns about your family members?</FormLabel>
-                    <HelpIcon helpId={39} onClick={() => openHelp(39)} />
                   </Box>
                   <RadioGroup
                     row
@@ -560,7 +541,6 @@ const BeneficiariesSection = () => {
           <Typography variant="h6" sx={{ fontWeight: 500 }}>
             Pet Care
           </Typography>
-          <HelpIcon helpId={40} onClick={() => openHelp(40)} />
         </Box>
         <FormControl component="fieldset" sx={{ mb: 2 }}>
           <FormLabel component="legend">
@@ -614,12 +594,6 @@ const BeneficiariesSection = () => {
         isEdit={modalState.isEdit}
       />
 
-      {/* Help Modal */}
-      <HelpModal
-        open={activeHelpId !== null}
-        onClose={closeHelp}
-        helpId={activeHelpId}
-      />
     </Box>
   );
 };

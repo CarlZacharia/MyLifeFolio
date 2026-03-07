@@ -18,6 +18,7 @@ import {
   Radio,
   Tabs,
   Tab,
+  Button,
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import PeopleIcon from '@mui/icons-material/People';
@@ -25,8 +26,6 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { useFormContext, MaritalStatus, Sex, IncomeSource, IncomeFrequency, MedicalInsurance, MedicareCoverageType } from '../lib/FormContext';
 import PhoneInput from './PhoneInput';
 import { SSNInput } from './SSNInput';
-import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
-import HelpModal from './HelpModal';
 import { folioColors } from './FolioModal';
 
 const calculateAge = (birthDate: Date | null): string => {
@@ -123,11 +122,14 @@ const MEDICARE_COVERAGE_OPTIONS: { value: MedicareCoverageType; label: string }[
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
-const PersonalDataSection = () => {
+interface PersonalDataSectionProps {
+  onSaveAndContinue?: () => void;
+}
+
+const PersonalDataSection: React.FC<PersonalDataSectionProps> = ({ onSaveAndContinue }) => {
   const { formData, updateFormData } = useFormContext();
   const [clientAge, setClientAge] = useState<string>('');
   const [spouseAge, setSpouseAge] = useState<string>('');
-  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
 
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
@@ -135,9 +137,6 @@ const PersonalDataSection = () => {
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
-
-  const openHelp = (helpId: number) => setActiveHelpId(helpId);
-  const closeHelp = () => setActiveHelpId(null);
 
   // Calculate ages when birth dates change
   useEffect(() => {
@@ -174,7 +173,6 @@ const PersonalDataSection = () => {
         <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           PERSONAL DATA
         </Typography>
-        <VideoHelpIcon helpId={100} onClick={() => openHelp(100)} size="medium" />
       </Box>
 
       {/* Tabs - only shown when married/partnered */}
@@ -241,7 +239,6 @@ const PersonalDataSection = () => {
                 },
               }}
             />
-            <HelpIcon helpId={1} onClick={() => openHelp(1)} />
           </Box>
         </Grid>
 
@@ -256,20 +253,23 @@ const PersonalDataSection = () => {
               size="small"
               InputLabelProps={{ shrink: true }}
             />
-            <HelpIcon helpId={2} onClick={() => openHelp(2)} />
           </Box>
         </Grid>
 
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
+        <Grid item xs={12} md={6}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
               label="Mailing Address"
               value={formData.mailingAddress}
               onChange={handleChange('mailingAddress')}
+              onBlur={() => {
+                if (showSpouseInfo && formData.mailingAddress && !formData.spouseMailingAddress) {
+                  updateFormData({ spouseMailingAddress: formData.mailingAddress });
+                }
+              }}
               variant="outlined"
-              multiline
-              rows={2}
+              size="small"
               InputLabelProps={{ shrink: true }}
               sx={{
                 '& .MuiOutlinedInput-root': {
@@ -286,8 +286,55 @@ const PersonalDataSection = () => {
                 },
               }}
             />
-            <HelpIcon helpId={3} onClick={() => openHelp(3)} />
           </Box>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <TextField
+            fullWidth
+            label="City"
+            value={formData.mailingCity}
+            onChange={handleChange('mailingCity')}
+            onBlur={() => {
+              if (showSpouseInfo && formData.mailingCity && !formData.spouseMailingCity) {
+                updateFormData({ spouseMailingCity: formData.mailingCity });
+              }
+            }}
+            variant="outlined"
+            size="small"
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        <Grid item xs={6} md={1.5}>
+          <TextField
+            fullWidth
+            label="State"
+            value={formData.mailingState}
+            onChange={handleChange('mailingState')}
+            onBlur={() => {
+              if (showSpouseInfo && formData.mailingState && !formData.spouseMailingState) {
+                updateFormData({ spouseMailingState: formData.mailingState });
+              }
+            }}
+            variant="outlined"
+            size="small"
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        <Grid item xs={6} md={1.5}>
+          <TextField
+            fullWidth
+            label="Zip"
+            value={formData.mailingZip}
+            onChange={handleChange('mailingZip')}
+            onBlur={() => {
+              if (showSpouseInfo && formData.mailingZip && !formData.spouseMailingZip) {
+                updateFormData({ spouseMailingZip: formData.mailingZip });
+              }
+            }}
+            variant="outlined"
+            size="small"
+            InputLabelProps={{ shrink: true }}
+          />
         </Grid>
 
         {/* Domicile Fields */}
@@ -303,51 +350,8 @@ const PersonalDataSection = () => {
               placeholder="e.g., Ohio"
               InputLabelProps={{ shrink: true }}
             />
-            <HelpIcon helpId={29} onClick={() => openHelp(29)} />
           </Box>
         </Grid>
-
-        <Grid item xs={12} md={4}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
-              Are you looking to change domicile to another state?
-            </FormLabel>
-            <RadioGroup
-              row
-              value={formData.lookingToChangeDomicile ? 'yes' : 'no'}
-              onChange={(e) => {
-                const isYes = e.target.value === 'yes';
-                updateFormData({
-                  lookingToChangeDomicile: isYes,
-                  newDomicileState: isYes ? formData.newDomicileState : ''
-                });
-              }}
-            >
-              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
-
-        {formData.lookingToChangeDomicile && (
-          <Grid item xs={12} md={4}>
-            <FormControl fullWidth size="small">
-              <InputLabel shrink>New State of Domicile</InputLabel>
-              <Select
-                label="New State of Domicile"
-                value={formData.newDomicileState}
-                onChange={(e) => updateFormData({ newDomicileState: e.target.value })}
-                notched
-                displayEmpty
-              >
-                <MenuItem value="" disabled>Select a state</MenuItem>
-                <MenuItem value="Florida">Florida</MenuItem>
-                <MenuItem value="Pennsylvania">Pennsylvania</MenuItem>
-                <MenuItem value="Other">Other</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        )}
 
         <Grid item xs={12} md={3}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -385,7 +389,6 @@ const PersonalDataSection = () => {
               </Select>
               <InputLabel shrink>Sex</InputLabel>
             </FormControl>
-            <HelpIcon helpId={9} onClick={() => openHelp(9)} />
           </Box>
         </Grid>
 
@@ -401,7 +404,6 @@ const PersonalDataSection = () => {
               name="homePhone"
               InputLabelProps={{ shrink: true }}
             />
-            <HelpIcon helpId={7} onClick={() => openHelp(7)} />
           </Box>
         </Grid>
 
@@ -417,7 +419,6 @@ const PersonalDataSection = () => {
               name="workPhone"
               InputLabelProps={{ shrink: true }}
             />
-            <HelpIcon helpId={8} onClick={() => openHelp(8)} />
           </Box>
         </Grid>
 
@@ -433,7 +434,6 @@ const PersonalDataSection = () => {
               name="cellPhone"
               InputLabelProps={{ shrink: true }}
             />
-            <HelpIcon helpId={6} onClick={() => openHelp(6)} />
           </Box>
         </Grid>
 
@@ -463,7 +463,6 @@ const PersonalDataSection = () => {
                 },
               }}
             />
-            <HelpIcon helpId={10} onClick={() => openHelp(10)} />
           </Box>
         </Grid>
 
@@ -497,7 +496,6 @@ const PersonalDataSection = () => {
                 },
               }}
             />
-            <HelpIcon helpId={11} onClick={() => openHelp(11)} />
           </Box>
         </Grid>
 
@@ -522,8 +520,6 @@ const PersonalDataSection = () => {
             value={formData.socialSecurityNumber}
             onChange={(value) => updateFormData({ socialSecurityNumber: value })}
             fullWidth
-            helpId={234}
-            onHelpClick={openHelp}
           />
         </Grid>
 
@@ -562,7 +558,6 @@ const PersonalDataSection = () => {
                 ))}
               </Select>
             </FormControl>
-            <HelpIcon helpId={12} onClick={() => openHelp(12)} />
           </Box>
         </Grid>
 
@@ -583,7 +578,6 @@ const PersonalDataSection = () => {
               inputProps={{ min: 0, style: { textAlign: 'center' } }}
               InputLabelProps={{ shrink: true }}
             />
-            <HelpIcon helpId={13} onClick={() => openHelp(13)} />
           </Box>
         </Grid>
 
@@ -596,7 +590,6 @@ const PersonalDataSection = () => {
                   <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
                     Children from prior relationship?
                   </FormLabel>
-                  <HelpIcon helpId={14} onClick={() => openHelp(14)} />
                 </Box>
                 <RadioGroup
                   row
@@ -637,26 +630,6 @@ const PersonalDataSection = () => {
           </>
         )}
 
-        {/* Desire to Leave to Charity */}
-        <Grid item xs={12} md={4}>
-          <FormControl component="fieldset">
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
-                Do you desire to leave anything to charity?
-              </FormLabel>
-              <HelpIcon helpId={103} onClick={() => openHelp(103)} />
-            </Box>
-            <RadioGroup
-              row
-              value={formData.leaveToCharity ? 'yes' : 'no'}
-              onChange={(e) => updateFormData({ leaveToCharity: e.target.value === 'yes' })}
-            >
-              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
-
 
         {/* Client's Military Service */}
         <Grid item xs={12}>
@@ -665,7 +638,6 @@ const PersonalDataSection = () => {
             <Typography variant="h6" sx={{ fontWeight: 500 }}>
               Military Service
             </Typography>
-            <HelpIcon helpId={40} onClick={() => openHelp(40)} />
           </Box>
         </Grid>
 
@@ -675,7 +647,6 @@ const PersonalDataSection = () => {
               <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
                 Did you serve in the Armed Forces?
               </FormLabel>
-              <HelpIcon helpId={42} onClick={() => openHelp(42)} />
             </Box>
             <RadioGroup
               row
@@ -752,7 +723,6 @@ const PersonalDataSection = () => {
             <Typography variant="h6" sx={{ fontWeight: 500 }}>
               Safe Deposit Box
             </Typography>
-            <HelpIcon helpId={56} onClick={() => openHelp(56)} />
           </Box>
         </Grid>
 
@@ -762,7 +732,6 @@ const PersonalDataSection = () => {
               <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
                 Do you have a safe deposit box?
               </FormLabel>
-              <HelpIcon helpId={57} onClick={() => openHelp(57)} />
             </Box>
             <RadioGroup
               row
@@ -852,108 +821,6 @@ const PersonalDataSection = () => {
           </>
         )}
 
-        {/* Client's Funeral Preferences */}
-        <Grid item xs={12}>
-          <Divider sx={{ my: 2 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 500 }}>
-              Funeral Preferences
-            </Typography>
-            <HelpIcon helpId={41} onClick={() => openHelp(41)} />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <FormControl component="fieldset">
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
-                Do you have a prepaid funeral policy?
-              </FormLabel>
-              <HelpIcon helpId={43} onClick={() => openHelp(43)} />
-            </Box>
-            <RadioGroup
-              row
-              value={formData.clientHasPrepaidFuneral ? 'yes' : 'no'}
-              onChange={(e) => {
-                const hasPrepaid = e.target.value === 'yes';
-                updateFormData({
-                  clientHasPrepaidFuneral: hasPrepaid,
-                  clientPrepaidFuneralDetails: hasPrepaid ? formData.clientPrepaidFuneralDetails : '',
-                });
-              }}
-            >
-              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
-
-        {formData.clientHasPrepaidFuneral && (
-          <Grid item xs={12} md={4}>
-            <TextField
-              fullWidth
-              label="Prepaid Funeral Details"
-              value={formData.clientPrepaidFuneralDetails}
-              onChange={handleChange('clientPrepaidFuneralDetails')}
-              variant="outlined"
-              size="small"
-              placeholder="Policy number, funeral home, etc."
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-        )}
-
-        <Grid item xs={12} md={4}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <FormControl fullWidth variant="outlined" size="small">
-              <InputLabel shrink>Burial or Cremation Preference</InputLabel>
-              <Select
-                label="Burial or Cremation Preference"
-                value={formData.clientBurialOrCremation}
-                onChange={handleSelectChange('clientBurialOrCremation')}
-                notched
-              >
-                <MenuItem value="">Select...</MenuItem>
-                <MenuItem value="Burial">Burial</MenuItem>
-                <MenuItem value="Cremation">Cremation</MenuItem>
-                <MenuItem value="Undecided">Undecided</MenuItem>
-              </Select>
-            </FormControl>
-            <HelpIcon helpId={44} onClick={() => openHelp(44)} />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <TextField
-              fullWidth
-              label="Preferred Funeral Home"
-              value={formData.clientPreferredFuneralHome}
-              onChange={handleChange('clientPreferredFuneralHome')}
-              variant="outlined"
-              size="small"
-              InputLabelProps={{ shrink: true }}
-            />
-            <HelpIcon helpId={45} onClick={() => openHelp(45)} />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <TextField
-              fullWidth
-              label="Preferred Church for Service"
-              value={formData.clientPreferredChurch}
-              onChange={handleChange('clientPreferredChurch')}
-              variant="outlined"
-              size="small"
-              InputLabelProps={{ shrink: true }}
-            />
-            <HelpIcon helpId={46} onClick={() => openHelp(46)} />
-          </Box>
-        </Grid>
-
-
       </Grid>
       )}
 
@@ -966,7 +833,6 @@ const PersonalDataSection = () => {
             <Typography variant="h6" sx={{ fontWeight: 500 }}>
               Spouse/Partner Information
             </Typography>
-            <VideoHelpIcon helpId={51} onClick={() => openHelp(51)} />
           </Box>
         </Grid>
 
@@ -995,7 +861,6 @@ const PersonalDataSection = () => {
                 },
               }}
             />
-            <HelpIcon helpId={17} onClick={() => openHelp(17)} />
           </Box>
         </Grid>
 
@@ -1010,25 +875,54 @@ const PersonalDataSection = () => {
               size="small"
               InputLabelProps={{ shrink: true }}
             />
-            <HelpIcon helpId={18} onClick={() => openHelp(18)} />
           </Box>
         </Grid>
 
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
+        <Grid item xs={12} md={6}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
               fullWidth
               label="Spouse Mailing Address"
               value={formData.spouseMailingAddress}
               onChange={handleChange('spouseMailingAddress')}
               variant="outlined"
-              multiline
-              rows={2}
-              helperText="Leave blank if same as client"
+              size="small"
               InputLabelProps={{ shrink: true }}
             />
-            <HelpIcon helpId={19} onClick={() => openHelp(19)} />
           </Box>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <TextField
+            fullWidth
+            label="City"
+            value={formData.spouseMailingCity}
+            onChange={handleChange('spouseMailingCity')}
+            variant="outlined"
+            size="small"
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        <Grid item xs={6} md={1.5}>
+          <TextField
+            fullWidth
+            label="State"
+            value={formData.spouseMailingState}
+            onChange={handleChange('spouseMailingState')}
+            variant="outlined"
+            size="small"
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        <Grid item xs={6} md={1.5}>
+          <TextField
+            fullWidth
+            label="Zip"
+            value={formData.spouseMailingZip}
+            onChange={handleChange('spouseMailingZip')}
+            variant="outlined"
+            size="small"
+            InputLabelProps={{ shrink: true }}
+          />
         </Grid>
 
         <Grid item xs={12} md={3}>
@@ -1043,7 +937,6 @@ const PersonalDataSection = () => {
               name="spouseCellPhone"
               InputLabelProps={{ shrink: true }}
             />
-            <HelpIcon helpId={20} onClick={() => openHelp(20)} />
           </Box>
         </Grid>
 
@@ -1059,7 +952,6 @@ const PersonalDataSection = () => {
               name="spouseHomePhone"
               InputLabelProps={{ shrink: true }}
             />
-            <HelpIcon helpId={21} onClick={() => openHelp(21)} />
           </Box>
         </Grid>
 
@@ -1075,7 +967,6 @@ const PersonalDataSection = () => {
               name="spouseWorkPhone"
               InputLabelProps={{ shrink: true }}
             />
-            <HelpIcon helpId={22} onClick={() => openHelp(22)} />
           </Box>
         </Grid>
 
@@ -1114,7 +1005,6 @@ const PersonalDataSection = () => {
                 ))}
               </Select>
             </FormControl>
-            <HelpIcon helpId={23} onClick={() => openHelp(23)} />
           </Box>
         </Grid>
 
@@ -1144,7 +1034,6 @@ const PersonalDataSection = () => {
                 },
               }}
             />
-            <HelpIcon helpId={24} onClick={() => openHelp(24)} />
           </Box>
         </Grid>
 
@@ -1178,7 +1067,6 @@ const PersonalDataSection = () => {
                 },
               }}
             />
-            <HelpIcon helpId={25} onClick={() => openHelp(25)} />
           </Box>
         </Grid>
 
@@ -1203,8 +1091,6 @@ const PersonalDataSection = () => {
             value={formData.spouseSocialSecurityNumber}
             onChange={(value) => updateFormData({ spouseSocialSecurityNumber: value })}
             fullWidth
-            helpId={234}
-            onHelpClick={openHelp}
           />
         </Grid>
 
@@ -1214,7 +1100,6 @@ const PersonalDataSection = () => {
               <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
                 Prior Marriage?
               </FormLabel>
-              <HelpIcon helpId={16} onClick={() => openHelp(16)} />
             </Box>
             <RadioGroup
               row
@@ -1249,7 +1134,6 @@ const PersonalDataSection = () => {
               error={formData.childrenTogether > formData.numberOfChildren - formData.clientChildrenFromPrior}
               helperText={formData.numberOfChildren > 0 ? `Max: ${Math.max(0, formData.numberOfChildren - formData.clientChildrenFromPrior)}` : ''}
             />
-            <HelpIcon helpId={15} onClick={() => openHelp(15)} />
           </Box>
         </Grid>
 
@@ -1259,7 +1143,6 @@ const PersonalDataSection = () => {
               <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
                 Spouse has children from prior?
               </FormLabel>
-              <HelpIcon helpId={26} onClick={() => openHelp(26)} />
             </Box>
             <RadioGroup
               row
@@ -1309,7 +1192,6 @@ const PersonalDataSection = () => {
               <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
                 Did your spouse serve in the Armed Forces?
               </FormLabel>
-              <HelpIcon helpId={47} onClick={() => openHelp(47)} />
             </Box>
             <RadioGroup
               row
@@ -1379,113 +1261,30 @@ const PersonalDataSection = () => {
           </>
         )}
 
-        {/* Spouse's Funeral Preferences */}
-        <Grid item xs={12}>
-          <Divider sx={{ my: 2 }} />
-          <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
-            Spouse&apos;s Funeral Preferences
-          </Typography>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <FormControl component="fieldset">
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>
-                Does your spouse have a prepaid funeral policy?
-              </FormLabel>
-              <HelpIcon helpId={48} onClick={() => openHelp(48)} />
-            </Box>
-            <RadioGroup
-              row
-              value={formData.spouseHasPrepaidFuneral ? 'yes' : 'no'}
-              onChange={(e) => {
-                const hasPrepaid = e.target.value === 'yes';
-                updateFormData({
-                  spouseHasPrepaidFuneral: hasPrepaid,
-                  spousePrepaidFuneralDetails: hasPrepaid ? formData.spousePrepaidFuneralDetails : '',
-                });
-              }}
-            >
-              <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
-              <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
-
-        {formData.spouseHasPrepaidFuneral && (
-          <Grid item xs={12} md={4}>
-            <TextField
-              fullWidth
-              label="Prepaid Funeral Details"
-              value={formData.spousePrepaidFuneralDetails}
-              onChange={handleChange('spousePrepaidFuneralDetails')}
-              variant="outlined"
-              size="small"
-              placeholder="Policy number, funeral home, etc."
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-        )}
-
-        <Grid item xs={12} md={4}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <FormControl fullWidth variant="outlined" size="small">
-              <InputLabel shrink>Burial or Cremation Preference</InputLabel>
-              <Select
-                label="Burial or Cremation Preference"
-                value={formData.spouseBurialOrCremation}
-                onChange={handleSelectChange('spouseBurialOrCremation')}
-                notched
-              >
-                <MenuItem value="">Select...</MenuItem>
-                <MenuItem value="Burial">Burial</MenuItem>
-                <MenuItem value="Cremation">Cremation</MenuItem>
-                <MenuItem value="Undecided">Undecided</MenuItem>
-              </Select>
-            </FormControl>
-            <HelpIcon helpId={49} onClick={() => openHelp(49)} />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <TextField
-              fullWidth
-              label="Preferred Funeral Home"
-              value={formData.spousePreferredFuneralHome}
-              onChange={handleChange('spousePreferredFuneralHome')}
-              variant="outlined"
-              size="small"
-              InputLabelProps={{ shrink: true }}
-            />
-            <HelpIcon helpId={52} onClick={() => openHelp(52)} />
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <TextField
-              fullWidth
-              label="Preferred Church for Service"
-              value={formData.spousePreferredChurch}
-              onChange={handleChange('spousePreferredChurch')}
-              variant="outlined"
-              size="small"
-              InputLabelProps={{ shrink: true }}
-            />
-            <HelpIcon helpId={53} onClick={() => openHelp(53)} />
-          </Box>
-        </Grid>
-
       </Grid>
       )}
 
-      {/* Help Modal */}
-      <HelpModal
-        open={activeHelpId !== null}
-        onClose={closeHelp}
-        helpId={activeHelpId}
-      />
+      {onSaveAndContinue && (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, mb: 2 }}>
+          <Button
+            variant="contained"
+            onClick={onSaveAndContinue}
+            sx={{
+              bgcolor: folioColors.accent,
+              '&:hover': { bgcolor: '#0d2340' },
+              fontFamily: '"Jost", sans-serif',
+              fontWeight: 600,
+              fontSize: '14px',
+              letterSpacing: '0.05em',
+              px: 4,
+              py: 1.2,
+            }}
+          >
+            Save and Continue
+          </Button>
+        </Box>
+      )}
+
     </Box>
   );
 };

@@ -39,8 +39,6 @@ import {
   Likelihood,
   CarePreference,
 } from '../lib/FormContext';
-import { VideoHelpIcon, HelpIcon } from './FieldWithHelp';
-import HelpModal from './HelpModal';
 import { folioColors } from './FolioModal';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
@@ -173,7 +171,6 @@ interface PersonLongTermCareProps {
   personLabel: string;
   showSpouse: boolean;
   headerColor?: string;
-  openHelp: (helpId: number) => void;
 }
 
 const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
@@ -182,7 +179,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
   personLabel,
   showSpouse,
   headerColor = folioColors.ink,
-  openHelp,
 }) => {
   const handleCheckboxArray = (field: keyof LongTermCareData, value: string, checked: boolean) => {
     const currentArray = (data[field] as string[]) || [];
@@ -230,7 +226,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl fullWidth>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>How concerned are you about paying for long-term care in the future?</FormLabel>
-                  <HelpIcon helpId={131} onClick={() => openHelp(131)} />
                 </Box>
                 <Select
                   value={data.ltcConcernLevel}
@@ -249,7 +244,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Have you previously met with an attorney or advisor about long-term care or Medicaid planning?</FormLabel>
-                  <HelpIcon helpId={132} onClick={() => openHelp(132)} />
                 </Box>
                 <RadioGroup
                   row
@@ -291,7 +285,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl fullWidth>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>How would you describe your overall health?</FormLabel>
-                  <HelpIcon helpId={133} onClick={() => openHelp(133)} />
                 </Box>
                 <Select
                   value={data.overallHealth}
@@ -310,7 +303,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Have you been diagnosed with any of the following? (Check all that apply)</FormLabel>
-                  <HelpIcon helpId={134} onClick={() => openHelp(134)} />
                 </Box>
                 <FormGroup row>
                   {DIAGNOSES_OPTIONS.map((diagnosis) => (
@@ -347,7 +339,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Have you experienced any recent hospitalizations, surgeries, or rehab stays in the last 2 years?</FormLabel>
-                  <HelpIcon helpId={135} onClick={() => openHelp(135)} />
                 </Box>
                 <RadioGroup
                   row
@@ -378,7 +369,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you have any mobility limitations? (Check all that apply)</FormLabel>
-                  <HelpIcon helpId={136} onClick={() => openHelp(136)} />
                 </Box>
                 <FormGroup row>
                   {MOBILITY_OPTIONS.map((limitation) => (
@@ -402,7 +392,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you require help with any Activities of Daily Living (ADLs)? (Check all that apply)</FormLabel>
-                  <HelpIcon helpId={137} onClick={() => openHelp(137)} />
                 </Box>
                 <FormGroup row>
                   {ADL_OPTIONS.map((adl) => (
@@ -439,7 +428,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you require help with any Instrumental Activities of Daily Living (IADLs)? (Check all that apply)</FormLabel>
-                  <HelpIcon helpId={138} onClick={() => openHelp(138)} />
                 </Box>
                 <FormGroup row>
                   {IADL_OPTIONS.map((iadl) => (
@@ -463,7 +451,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Have you been diagnosed with dementia or memory impairment?</FormLabel>
-                  <HelpIcon helpId={139} onClick={() => openHelp(139)} />
                 </Box>
                 <RadioGroup
                   row
@@ -481,7 +468,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                 <FormControl fullWidth>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Stage or severity</FormLabel>
-                    <HelpIcon helpId={140} onClick={() => openHelp(140)} />
                   </Box>
                   <Select
                     value={data.dementiaStage}
@@ -501,7 +487,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Is there a family history of dementia, stroke, or other conditions that may affect long-term care needs?</FormLabel>
-                  <HelpIcon helpId={141} onClick={() => openHelp(141)} />
                 </Box>
                 <RadioGroup
                   row
@@ -543,7 +528,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl fullWidth>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Where do you currently live?</FormLabel>
-                  <HelpIcon helpId={142} onClick={() => openHelp(142)} />
                 </Box>
                 <Select
                   value={data.currentLivingSituation}
@@ -575,7 +559,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Are you currently residing in any long-term care community or facility?</FormLabel>
-                  <HelpIcon helpId={143} onClick={() => openHelp(143)} />
                 </Box>
                 <RadioGroup
                   row
@@ -594,7 +577,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                   <FormControl fullWidth>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Level of care</FormLabel>
-                      <HelpIcon helpId={144} onClick={() => openHelp(144)} />
                     </Box>
                     <Select
                       value={data.currentCareLevel}
@@ -650,7 +632,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you currently receive help at home (paid or unpaid)?</FormLabel>
-                  <HelpIcon helpId={145} onClick={() => openHelp(145)} />
                 </Box>
                 <RadioGroup
                   row
@@ -669,7 +650,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                   <FormControl component="fieldset">
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Who provides help? (Check all that apply)</FormLabel>
-                      <HelpIcon helpId={146} onClick={() => openHelp(146)} />
                     </Box>
                     <FormGroup row>
                       {HOME_HELP_PROVIDERS.map((provider) => (
@@ -693,7 +673,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                   <FormControl fullWidth>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>How many hours per week of help do you receive?</FormLabel>
-                      <HelpIcon helpId={147} onClick={() => openHelp(147)} />
                     </Box>
                     <Select
                       value={data.hoursOfHelpPerWeek}
@@ -714,7 +693,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Is there an expectation that your level of care will increase in the next 6-12 months?</FormLabel>
-                  <HelpIcon helpId={148} onClick={() => openHelp(148)} />
                 </Box>
                 <RadioGroup
                   row
@@ -757,7 +735,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl fullWidth>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>How likely do you think it is that you will need long-term care (more than 90 consecutive days of help) within the next 5 years?</FormLabel>
-                  <HelpIcon helpId={149} onClick={() => openHelp(149)} />
                 </Box>
                 <Select
                   value={data.likelihoodOfLtcIn5Years}
@@ -776,7 +753,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl fullWidth>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>If long-term care becomes necessary, where would you prefer to receive that care?</FormLabel>
-                  <HelpIcon helpId={150} onClick={() => openHelp(150)} />
                 </Box>
                 <Select
                   value={data.carePreference}
@@ -813,8 +789,7 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                   <FormControl component="fieldset">
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you already have a specific provider or location in mind?</FormLabel>
-                      <HelpIcon helpId={151} onClick={() => openHelp(151)} />
-                    </Box>
+                        </Box>
                     <RadioGroup
                       row
                       value={data.hasSpecificProvider ? 'yes' : 'no'}
@@ -846,7 +821,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                 <FormControl component="fieldset">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>What supports do you think you would need? (Check all that apply)</FormLabel>
-                    <HelpIcon helpId={152} onClick={() => openHelp(152)} />
                   </Box>
                   <FormGroup row>
                     {HOME_SUPPORTS.map((support) => (
@@ -895,7 +869,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Who are your primary caregivers now or who would likely step into that role? (Check all that apply)</FormLabel>
-                  <HelpIcon helpId={153} onClick={() => openHelp(153)} />
                 </Box>
                 <FormGroup row>
                   {CAREGIVER_OPTIONS.filter((caregiver) => showSpouse || caregiver !== 'Spouse/partner').map((caregiver) => (
@@ -919,7 +892,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Are any of your children or potential caregivers disabled, in poor health, or otherwise limited in their ability to assist?</FormLabel>
-                  <HelpIcon helpId={154} onClick={() => openHelp(154)} />
                 </Box>
                 <RadioGroup
                   row
@@ -973,7 +945,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you have Medicare? (Check all that apply)</FormLabel>
-                  <HelpIcon helpId={155} onClick={() => openHelp(155)} />
                 </Box>
                 <FormGroup row>
                   {MEDICARE_OPTIONS.map((part) => (
@@ -997,7 +968,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you have a Medicare supplement (Medigap) or other private health insurance?</FormLabel>
-                  <HelpIcon helpId={156} onClick={() => openHelp(156)} />
                 </Box>
                 <RadioGroup
                   row
@@ -1027,7 +997,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Do you have long-term care insurance or a life/annuity hybrid with long-term care benefits?</FormLabel>
-                  <HelpIcon helpId={157} onClick={() => openHelp(157)} />
                 </Box>
                 <RadioGroup
                   row
@@ -1103,7 +1072,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Are you currently receiving any of the following benefits? (Check all that apply)</FormLabel>
-                  <HelpIcon helpId={158} onClick={() => openHelp(158)} />
                 </Box>
                 <FormGroup row>
                   {BENEFITS_OPTIONS.map((benefit) => (
@@ -1131,7 +1099,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                       ? 'Have you or your spouse ever applied for Medicaid for long-term care?'
                       : 'Have you ever applied for Medicaid for long-term care?'}
                   </FormLabel>
-                  <HelpIcon helpId={159} onClick={() => openHelp(159)} />
                 </Box>
                 <RadioGroup
                   row
@@ -1185,7 +1152,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Have you made gifts or transfers of more than a modest amount in the last 5 years?</FormLabel>
-                  <HelpIcon helpId={160} onClick={() => openHelp(160)} />
                 </Box>
                 <RadioGroup
                   row
@@ -1216,7 +1182,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
               <FormControl component="fieldset">
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Are you expecting any large inheritance, lawsuit settlement, or other significant windfall?</FormLabel>
-                  <HelpIcon helpId={161} onClick={() => openHelp(161)} />
                 </Box>
                 <RadioGroup
                   row
@@ -1265,7 +1230,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                       <FormControl fullWidth size="small">
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                           <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Staying with spouse/partner</FormLabel>
-                          <HelpIcon helpId={162} onClick={() => openHelp(162)} />
                         </Box>
                         <Select
                           value={data.careSettingImportance.stayWithSpouse}
@@ -1284,7 +1248,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                     <FormControl fullWidth size="small">
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Being near family</FormLabel>
-                        <HelpIcon helpId={163} onClick={() => openHelp(163)} />
                       </Box>
                       <Select
                         value={data.careSettingImportance.nearFamily}
@@ -1302,7 +1265,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                     <FormControl fullWidth size="small">
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Religious or cultural environment</FormLabel>
-                        <HelpIcon helpId={164} onClick={() => openHelp(164)} />
                       </Box>
                       <Select
                         value={data.careSettingImportance.religiousCultural}
@@ -1320,7 +1282,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                     <FormControl fullWidth size="small">
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Pet-friendly policies</FormLabel>
-                        <HelpIcon helpId={165} onClick={() => openHelp(165)} />
                       </Box>
                       <Select
                         value={data.careSettingImportance.petFriendly}
@@ -1338,7 +1299,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                     <FormControl fullWidth size="small">
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Private room</FormLabel>
-                        <HelpIcon helpId={166} onClick={() => openHelp(166)} />
                       </Box>
                       <Select
                         value={data.careSettingImportance.privateRoom}
@@ -1356,7 +1316,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                     <FormControl fullWidth size="small">
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>Social activities</FormLabel>
-                        <HelpIcon helpId={167} onClick={() => openHelp(167)} />
                       </Box>
                       <Select
                         value={data.careSettingImportance.socialActivities}
@@ -1374,7 +1333,6 @@ const PersonLongTermCare: React.FC<PersonLongTermCareProps> = ({
                     <FormControl fullWidth size="small">
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <FormLabel sx={{ fontWeight: 500, color: 'text.primary' }}>On-site medical staff</FormLabel>
-                        <HelpIcon helpId={168} onClick={() => openHelp(168)} />
                       </Box>
                       <Select
                         value={data.careSettingImportance.onSiteMedicalStaff}
@@ -1425,11 +1383,7 @@ const LongTermCareSection: React.FC = () => {
   const { formData, updateFormData } = useFormContext();
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
-  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<number>(0);
-
-  const openHelp = (helpId: number) => setActiveHelpId(helpId);
-  const closeHelp = () => setActiveHelpId(null);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -1465,7 +1419,6 @@ const LongTermCareSection: React.FC = () => {
         <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           LONG-TERM CARE PLANNING
         </Typography>
-        <VideoHelpIcon helpId={130} onClick={() => openHelp(130)} size="medium" />
       </Box>
 
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
@@ -1532,7 +1485,6 @@ const LongTermCareSection: React.FC = () => {
                 personLabel="Client"
                 showSpouse={showSpouseInfo}
                 headerColor="#1a237e"
-                openHelp={openHelp}
               />
             </Paper>
           )}
@@ -1546,7 +1498,6 @@ const LongTermCareSection: React.FC = () => {
                 personLabel="Spouse"
                 showSpouse={showSpouseInfo}
                 headerColor="#2e7d32"
-                openHelp={openHelp}
               />
             </Paper>
           )}
@@ -1562,16 +1513,10 @@ const LongTermCareSection: React.FC = () => {
             onChange={handleClientChange}
             personLabel="Client"
             showSpouse={showSpouseInfo}
-            openHelp={openHelp}
           />
         </Paper>
       )}
 
-      <HelpModal
-        open={activeHelpId !== null}
-        onClose={closeHelp}
-        helpId={activeHelpId}
-      />
     </Box>
   );
 };

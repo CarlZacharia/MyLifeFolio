@@ -4,7 +4,6 @@
  * A secure input field for Social Security Numbers with:
  * - Automatic formatting (###-##-####)
  * - Input masking
- * - Help icon with encryption information
  */
 
 import React, { ChangeEvent } from 'react';
@@ -20,8 +19,6 @@ interface SSNInputProps {
   required?: boolean;
   disabled?: boolean;
   fullWidth?: boolean;
-  helpId?: number;
-  onHelpClick?: (helpId: number) => void;
 }
 
 export function SSNInput({
@@ -33,8 +30,6 @@ export function SSNInput({
   required = false,
   disabled = false,
   fullWidth = true,
-  helpId,
-  onHelpClick,
 }: SSNInputProps) {
   /**
    * Format SSN with dashes: ###-##-####
@@ -108,38 +103,6 @@ export function SSNInput({
           ),
         }}
       />
-      {helpId && onHelpClick && (
-        <Box
-          component="span"
-          onClick={() => onHelpClick(helpId)}
-          sx={{
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            color: 'primary.main',
-            '&:hover': {
-              color: 'primary.dark',
-            },
-          }}
-        >
-          <Box
-            component="span"
-            sx={{
-              width: 18,
-              height: 18,
-              borderRadius: '50%',
-              border: '2px solid currentColor',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '12px',
-              fontWeight: 'bold',
-            }}
-          >
-            ?
-          </Box>
-        </Box>
-      )}
     </Box>
   );
 }

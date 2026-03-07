@@ -73,12 +73,10 @@ import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import Login from '../components/Login';
 import Register from '../components/Register';
-import { VideoHelpIcon } from '../components/FieldWithHelp';
-import HelpModal from '../components/HelpModal';
 import { MaritalStatus } from '../lib/FormContext';
 import { analyzeEstatePlan, ANALYSIS_PROMPTS } from '../lib/claudeApi';
 import { categorizeAssets } from '../lib/assetCategorization';
-import { saveIntakeFull } from '../lib/supabaseIntake';
+import { saveIntakeFull, loadIntakeFromRaw } from '../lib/supabaseIntake';
 import {
   generateClientFolderName,
   saveAnalysisReports,
@@ -412,15 +410,15 @@ interface QuestionnaireContentProps {
   onAdmin?: () => void;
   onProfile?: () => void;
   onResources?: () => void;
+  onHome?: () => void;
 }
 
-const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateBack, onLogout, onAdmin, onProfile, onResources }) => {
-  const { formData, updateFormData, currentStep, setCurrentStep, clearFormData } = useFormContext();
+const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateBack, onLogout, onAdmin, onProfile, onResources, onHome }) => {
+  const { formData, updateFormData, loadFormData, currentStep, setCurrentStep, clearFormData } = useFormContext();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
-  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
 
   // Auto-save state
@@ -481,10 +479,16 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
           .eq('intake_type', 'EstatePlanning')
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (rawData?.id) {
           setExistingRawId(rawData.id);
+
+          // Load saved form data back into the form
+          const savedData = await loadIntakeFromRaw(rawData.id);
+          if (savedData) {
+            loadFormData(savedData);
+          }
         }
 
         // Check for existing normalized intake for this user
@@ -494,7 +498,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (intakeData?.id) {
           setExistingIntakeId(intakeData.id);
@@ -506,7 +510,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
     };
 
     loadExistingIntakeIds();
-  }, [user]);
+  }, [user, loadFormData]);
 
   // Auto-save to Supabase with debouncing (save 3 seconds after user stops typing)
   React.useEffect(() => {
@@ -595,8 +599,6 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
     };
   }, [formData, user, existingRawId, existingIntakeId]);
 
-  const openHelp = (helpId: number) => setActiveHelpId(helpId);
-  const closeHelp = () => setActiveHelpId(null);
 
   // Debug function to log all form data
   const debugFormData = () => {
@@ -985,6 +987,25 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
           </Box>
           {user && (
             <Box sx={{ position: 'absolute', right: 16, display: 'flex', alignItems: 'center', gap: 1 }}>
+              {onHome && (
+                <Button
+                  variant="outlined"
+                  onClick={onHome}
+                  startIcon={<HomeIcon />}
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    '&:hover': {
+                      borderColor: 'white',
+                      bgcolor: 'rgba(255,255,255,0.1)',
+                    },
+                  }}
+                >
+                  Home
+                </Button>
+              )}
               {onProfile && (
                 <Button
                   variant="outlined"
@@ -1069,12 +1090,9 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
         <Paper elevation={3} sx={{ p: 4 }}>
           {/* Header */}
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-              <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#1e3a5f', mb: 0 }} onClick={debugFormData}>
-                My Folio Builder
-              </Typography>
-              <VideoHelpIcon helpId={0} onClick={() => openHelp(0)} size="large" />
-            </Box>
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#1e3a5f' }} onClick={debugFormData}>
+              My Folio Builder
+            </Typography>
 
 
             {/* Auto-save indicator */}
@@ -1110,12 +1128,6 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
             )}
           </Box>
 
-          {/* Help Modal */}
-          <HelpModal
-            open={activeHelpId !== null}
-            onClose={closeHelp}
-            helpId={activeHelpId ?? 0}
-          />
 
           {/* Stepper */}
           {currentStep < totalSteps && (
@@ -1238,6 +1250,16 @@ export default function MainPage() {
   const [previousPage, setPreviousPage] = useState<PageType>('landing');
   const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
   const { user, signOut } = useAuth();
+  const prevUserRef = React.useRef(user);
+
+  // Redirect to landing whenever user logs out
+  React.useEffect(() => {
+    if (prevUserRef.current && !user) {
+      setCurrentPage('landing');
+      window.scrollTo(0, 0);
+    }
+    prevUserRef.current = user;
+  }, [user]);
 
   const handleNavigate = (page: string) => {
     setPreviousPage(currentPage);
@@ -1323,6 +1345,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onResources={() => handleNavigate('resources')}
             onProfile={handleProfileClick}
+            onHome={() => handleNavigate('mylifefolio-home')}
           />
         );
 
@@ -1382,7 +1405,7 @@ export default function MainPage() {
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
           >
-            <PersonalDataSection />
+            <PersonalDataSection onSaveAndContinue={() => handleNavigate('mylifefolio-home')} />
           </FolioCategoryPage>
         );
 

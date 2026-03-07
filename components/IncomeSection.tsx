@@ -28,8 +28,6 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useFormContext, MaritalStatus, IncomeSource, IncomeFrequency, MedicalInsurance, MedicareCoverageType, RoyaltyCategory, RoyaltyItem, PaymentFrequency, Transferability } from '../lib/FormContext';
-import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
-import HelpModal from './HelpModal';
 import { folioColors } from './FolioModal';
 
 const INCOME_FREQUENCY_OPTIONS: { value: IncomeFrequency; label: string }[] = [
@@ -218,15 +216,11 @@ const EMPTY_ROYALTY: RoyaltyItem = {
 
 const IncomeSection: React.FC = () => {
   const { formData, updateFormData } = useFormContext();
-  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
 
   const [selectedCategory, setSelectedCategory] = useState<RoyaltyCategory>('');
   const [selectedType, setSelectedType] = useState('');
   const [editIndex, setEditIndex] = useState<number | null>(null);
-
-  const openHelp = (helpId: number) => setActiveHelpId(helpId);
-  const closeHelp = () => setActiveHelpId(null);
 
   const showSpouse = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
@@ -265,12 +259,9 @@ const IncomeSection: React.FC = () => {
     <Grid container spacing={2}>
       {/* Client's Income Sources */}
       <Grid item xs={12}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 500 }}>
-            Income Sources
-          </Typography>
-          <HelpIcon helpId={230} onClick={() => openHelp(230)} />
-        </Box>
+        <Typography variant="h6" sx={{ fontWeight: 500, mb: 2 }}>
+          Income Sources
+        </Typography>
       </Grid>
 
       {formData.clientIncomeSources.map((incomeSource, index) => (
@@ -362,12 +353,9 @@ const IncomeSection: React.FC = () => {
       {/* Client's Medical Insurance */}
       <Grid item xs={12}>
         <Divider sx={{ my: 2 }} />
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 500 }}>
-            Medical Insurance
-          </Typography>
-          <HelpIcon helpId={231} onClick={() => openHelp(231)} />
-        </Box>
+        <Typography variant="h6" sx={{ fontWeight: 500, mb: 2, mt: 2 }}>
+          Medical Insurance
+        </Typography>
       </Grid>
 
       <Grid item xs={12} md={4}>
@@ -559,12 +547,9 @@ const IncomeSection: React.FC = () => {
     <Grid container spacing={2}>
       {/* Spouse's Income Sources */}
       <Grid item xs={12}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 500 }}>
-            Spouse&apos;s Income Sources
-          </Typography>
-          <HelpIcon helpId={232} onClick={() => openHelp(232)} />
-        </Box>
+        <Typography variant="h6" sx={{ fontWeight: 500, mb: 2 }}>
+          Spouse&apos;s Income Sources
+        </Typography>
       </Grid>
 
       {formData.spouseIncomeSources.map((incomeSource, index) => (
@@ -656,12 +641,9 @@ const IncomeSection: React.FC = () => {
       {/* Spouse's Medical Insurance */}
       <Grid item xs={12}>
         <Divider sx={{ my: 2 }} />
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 500 }}>
-            Spouse&apos;s Medical Insurance
-          </Typography>
-          <HelpIcon helpId={233} onClick={() => openHelp(233)} />
-        </Box>
+        <Typography variant="h6" sx={{ fontWeight: 500, mb: 2, mt: 2 }}>
+          Spouse&apos;s Medical Insurance
+        </Typography>
       </Grid>
 
       <Grid item xs={12} md={4}>
@@ -855,12 +837,9 @@ const IncomeSection: React.FC = () => {
     <Grid container spacing={2} sx={{ mt: 3 }}>
       <Grid item xs={12}>
         <Divider sx={{ my: 2 }} />
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 500 }}>
-            Royalties &amp; Income Streams
-          </Typography>
-          <HelpIcon helpId={300} onClick={() => openHelp(300)} />
-        </Box>
+        <Typography variant="h6" sx={{ fontWeight: 500, mb: 2, mt: 2 }}>
+          Royalties &amp; Income Streams
+        </Typography>
         <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
           Document any royalties, licensing fees, or recurring income streams you receive. Select a category, then choose the specific type to add it.
         </Typography>
@@ -1105,7 +1084,6 @@ const IncomeSection: React.FC = () => {
         <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           Income &amp; Medical Insurance
         </Typography>
-        <VideoHelpIcon helpId={230} onClick={() => openHelp(230)} size="medium" />
       </Box>
 
       <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
@@ -1147,12 +1125,6 @@ const IncomeSection: React.FC = () => {
       )}
 
       {renderRoyalties()}
-
-      <HelpModal
-        open={activeHelpId !== null}
-        onClose={closeHelp}
-        helpId={activeHelpId}
-      />
     </Box>
   );
 };

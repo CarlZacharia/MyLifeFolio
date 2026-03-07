@@ -26,8 +26,6 @@ import {
   PaymentFrequency,
   Transferability,
 } from '../lib/FormContext';
-import { HelpIcon, VideoHelpIcon } from './FieldWithHelp';
-import HelpModal from './HelpModal';
 import { folioColors } from './FolioModal';
 
 // Category -> specific types mapping
@@ -149,13 +147,9 @@ const EMPTY_ROYALTY: RoyaltyItem = {
 
 const RoyaltiesSection: React.FC = () => {
   const { formData, updateFormData } = useFormContext();
-  const [activeHelpId, setActiveHelpId] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<RoyaltyCategory>('');
   const [selectedType, setSelectedType] = useState('');
   const [editIndex, setEditIndex] = useState<number | null>(null);
-
-  const openHelp = (helpId: number) => setActiveHelpId(helpId);
-  const closeHelp = () => setActiveHelpId(null);
 
   const handleAddRoyalty = () => {
     if (!selectedCategory || !selectedType) return;
@@ -190,7 +184,6 @@ const RoyaltiesSection: React.FC = () => {
         <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           Royalties &amp; Income Streams
         </Typography>
-        <VideoHelpIcon helpId={300} onClick={() => openHelp(300)} size="medium" />
       </Box>
 
       <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
@@ -424,11 +417,6 @@ const RoyaltiesSection: React.FC = () => {
         </Paper>
       ))}
 
-      <HelpModal
-        open={activeHelpId !== null}
-        onClose={closeHelp}
-        helpId={activeHelpId}
-      />
     </Box>
   );
 };

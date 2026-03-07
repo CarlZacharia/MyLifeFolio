@@ -43,8 +43,6 @@ import {
   FormData,
   UploadedDocumentInfo,
 } from '../lib/FormContext';
-import { VideoHelpIcon, HelpIcon } from './FieldWithHelp';
-import HelpModal from './HelpModal';
 import {
   uploadEstatePlanDocuments,
   deleteEstatePlanDocument,
@@ -578,7 +576,6 @@ interface PersonCurrentEstatePlanProps {
   personType: PersonType;
   clientFolderName: string;
   headerColor?: string;
-  openHelp: (helpId: number) => void;
   showSpouse: boolean;
   beneficiaryOptions: BeneficiaryOption[];
 }
@@ -592,7 +589,6 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
   personType,
   clientFolderName,
   headerColor = folioColors.ink,
-  openHelp,
   showSpouse,
   beneficiaryOptions,
 }) => {
@@ -923,7 +919,6 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
           <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
             Estate Planning Documents
           </Typography>
-          <HelpIcon helpId={210} onClick={() => openHelp(210)} />
         </Box>
 
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
@@ -987,7 +982,6 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
             <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
               Guardian
             </Typography>
-            <HelpIcon helpId={124} onClick={() => openHelp(124)} />
           </Box>
           <Typography variant="body2" sx={{ mb: 2 }}>
             If you have minor or disabled child/children, whom do you want to act as Guardian?
@@ -1035,7 +1029,6 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
           <Typography variant="h6" sx={{ fontWeight: 500, color: headerColor }}>
             Additional Comments
           </Typography>
-          <HelpIcon helpId={211} onClick={() => openHelp(211)} />
         </Box>
         <TextField
           fullWidth
@@ -1134,18 +1127,11 @@ const getDefaultEstatePlanData = (): CurrentEstatePlanData => ({
 const CurrentEstatePlanSection: React.FC = () => {
   const { formData, updateFormData } = useFormContext();
   const [activeTab, setActiveTab] = useState(0);
-  const [helpOpen, setHelpOpen] = useState(false);
-  const [helpId, setHelpId] = useState<number | null>(null);
 
   const showSpouse = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
   const clientData = formData.clientCurrentEstatePlan || getDefaultEstatePlanData();
   const spouseData = formData.spouseCurrentEstatePlan || getDefaultEstatePlanData();
-
-  const openHelp = (id: number) => {
-    setHelpId(id);
-    setHelpOpen(true);
-  };
 
   // Build beneficiary options for Client
   const clientBeneficiaryOptions = useMemo((): BeneficiaryOption[] => {
@@ -1233,7 +1219,6 @@ const CurrentEstatePlanSection: React.FC = () => {
         <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           Estate Plan
         </Typography>
-        <VideoHelpIcon helpId={209} onClick={() => openHelp(209)} />
       </Box>
 
       <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
@@ -1278,7 +1263,6 @@ const CurrentEstatePlanSection: React.FC = () => {
               personType="client"
               clientFolderName={clientFolderName}
               headerColor="#1a237e"
-              openHelp={openHelp}
               showSpouse={showSpouse}
               beneficiaryOptions={clientBeneficiaryOptions}
             />
@@ -1294,7 +1278,6 @@ const CurrentEstatePlanSection: React.FC = () => {
               personType="spouse"
               clientFolderName={clientFolderName}
               headerColor="#2e7d32"
-              openHelp={openHelp}
               showSpouse={showSpouse}
               beneficiaryOptions={spouseBeneficiaryOptions}
             />
@@ -1310,13 +1293,11 @@ const CurrentEstatePlanSection: React.FC = () => {
           personType="client"
           clientFolderName={clientFolderName}
           headerColor="#1a237e"
-          openHelp={openHelp}
           showSpouse={showSpouse}
           beneficiaryOptions={clientBeneficiaryOptions}
         />
       )}
 
-      <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} helpId={helpId} />
     </Box>
   );
 };

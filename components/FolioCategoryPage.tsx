@@ -124,7 +124,7 @@ const FolioCategoryPage: React.FC<FolioCategoryPageProps> = ({
           .eq('intake_type', 'EstatePlanning')
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
         if (rawData?.id) setExistingRawId(rawData.id);
 
         const { data: intakeData } = await supabase
@@ -133,7 +133,7 @@ const FolioCategoryPage: React.FC<FolioCategoryPageProps> = ({
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
         if (intakeData?.id) setExistingIntakeId(intakeData.id);
       } catch {
         // No existing intake found

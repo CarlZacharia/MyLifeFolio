@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
@@ -18,8 +18,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { ChildData } from './ChildModals';
 import { folioColors } from './FolioModal';
-import { VideoHelpIcon } from './FieldWithHelp';
-import HelpModal from './HelpModal';
 
 // Format date from yyyy-mm-dd to mm/dd/yyyy
 const formatDate = (dateString: string | null | undefined): string => {
@@ -69,8 +67,6 @@ const ChildrenSummaryTable: React.FC<ChildrenSummaryTableProps> = ({
   onEdit,
   onAdd,
 }) => {
-  const [helpOpen, setHelpOpen] = useState(false);
-
   if (children.length === 0) {
     return (
       <Box sx={{ textAlign: 'center', py: 4 }}>
@@ -96,7 +92,6 @@ const ChildrenSummaryTable: React.FC<ChildrenSummaryTableProps> = ({
           <Typography variant="h6" sx={{ fontWeight: 500 }}>
             1. Children ({children.length})
           </Typography>
-          <VideoHelpIcon helpId={101} onClick={() => setHelpOpen(true)} size="small" />
         </Box>
         <Button
           variant="outlined"
@@ -107,12 +102,6 @@ const ChildrenSummaryTable: React.FC<ChildrenSummaryTableProps> = ({
           Add Child
         </Button>
       </Box>
-
-      <HelpModal
-        open={helpOpen}
-        onClose={() => setHelpOpen(false)}
-        helpId={101}
-      />
 
       <TableContainer component={Paper} variant="outlined">
         <Table size="small">

@@ -418,6 +418,9 @@ export interface FormData {
   clientChildrenFromPrior: number;
   aka: string;
   mailingAddress: string;
+  mailingCity: string;
+  mailingState: string;
+  mailingZip: string;
   stateOfDomicile: string;
   lookingToChangeDomicile: boolean;
   newDomicileState: string;
@@ -430,6 +433,9 @@ export interface FormData {
   spouseName: string;
   spouseAka: string;
   spouseMailingAddress: string;
+  spouseMailingCity: string;
+  spouseMailingState: string;
+  spouseMailingZip: string;
   spouseCellPhone: string;
   spouseHomePhone: string;
   spouseWorkPhone: string;
@@ -1053,6 +1059,9 @@ const initialFormData: FormData = {
   clientChildrenFromPrior: 0,
   aka: '',
   mailingAddress: '',
+  mailingCity: '',
+  mailingState: '',
+  mailingZip: '',
   stateOfDomicile: '',
   lookingToChangeDomicile: false,
   newDomicileState: '',
@@ -1065,6 +1074,9 @@ const initialFormData: FormData = {
   spouseName: '',
   spouseAka: '',
   spouseMailingAddress: '',
+  spouseMailingCity: '',
+  spouseMailingState: '',
+  spouseMailingZip: '',
   spouseCellPhone: '',
   spouseHomePhone: '',
   spouseWorkPhone: '',
