@@ -2,17 +2,18 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   TextField,
   Box,
   MenuItem,
-  IconButton,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import FolioModal, {
+  folioTextFieldSx,
+  FolioCancelButton,
+  FolioSaveButton,
+  FolioDeleteButton,
+  FolioFieldFade,
+  useFolioFieldAnimation,
+} from './FolioModal';
 import {
   EXPENSE_CATEGORIES,
   EXPENSE_FREQUENCY_OPTIONS,
@@ -59,6 +60,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
     initialData || emptyExpense(category)
   );
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   useEffect(() => {
     if (open) {
@@ -97,24 +99,31 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
   const categoryLabel = data.category || category || 'Expense';
 
+  let fieldIndex = 0;
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontWeight: 600,
-        }}
-      >
-        {isEdit ? `Edit ${categoryLabel} Expense` : `Add ${categoryLabel} Expense`}
-        <IconButton onClick={onClose} size="small">
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent dividers>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
-          {!category && (
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? `Edit ${categoryLabel} Expense` : `Add ${categoryLabel} Expense`}
+      eyebrow="My Life Folio — Expenses"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!canSave}>
+              {isEdit ? 'Save Changes' : 'Add Entry'}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+        {!category && (
+          <FolioFieldFade visible={fieldsVisible} index={fieldIndex++}>
             <TextField
               select
               label="Category"
@@ -125,6 +134,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
               InputLabelProps={{ shrink: true }}
               fullWidth
               required
+              sx={{ ...folioTextFieldSx }}
             >
               {EXPENSE_CATEGORIES.map((cat) => (
                 <MenuItem key={cat.label} value={cat.label}>
@@ -132,8 +142,10 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 </MenuItem>
               ))}
             </TextField>
-          )}
+          </FolioFieldFade>
+        )}
 
+        <FolioFieldFade visible={fieldsVisible} index={fieldIndex++}>
           <TextField
             select
             label="Expense Type"
@@ -146,6 +158,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
             fullWidth
             required
             disabled={expenseTypes.length === 0}
+            sx={{ ...folioTextFieldSx }}
           >
             {expenseTypes.map((type) => (
               <MenuItem key={type} value={type}>
@@ -153,7 +166,9 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
               </MenuItem>
             ))}
           </TextField>
+        </FolioFieldFade>
 
+        <FolioFieldFade visible={fieldsVisible} index={fieldIndex++}>
           <TextField
             label="Paid To"
             value={data.paidTo}
@@ -161,8 +176,11 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
             InputLabelProps={{ shrink: true }}
             placeholder="e.g., Florida Power & Light"
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
+        </FolioFieldFade>
 
+        <FolioFieldFade visible={fieldsVisible} index={fieldIndex++}>
           <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
               select
@@ -170,7 +188,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
               value={data.frequency}
               onChange={(e) => handleChange({ frequency: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ flex: 1, ...folioTextFieldSx }}
             >
               {EXPENSE_FREQUENCY_OPTIONS.map((freq) => (
                 <MenuItem key={freq} value={freq}>
@@ -184,10 +202,12 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
               onChange={(e) => handleChange({ amount: e.target.value })}
               InputLabelProps={{ shrink: true }}
               placeholder="$0.00"
-              sx={{ flex: 1 }}
+              sx={{ flex: 1, ...folioTextFieldSx }}
             />
           </Box>
+        </FolioFieldFade>
 
+        <FolioFieldFade visible={fieldsVisible} index={fieldIndex++}>
           <TextField
             label="Notes"
             value={data.notes}
@@ -196,23 +216,11 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
             multiline
             minRows={2}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        {isEdit && onDelete && (
-          <Button onClick={onDelete} color="error" sx={{ mr: 'auto' }}>
-            Delete
-          </Button>
-        )}
-        <Button onClick={onClose} variant="outlined">
-          Cancel
-        </Button>
-        <Button onClick={handleSave} variant="contained" disabled={!canSave}>
-          {isEdit ? 'Save Changes' : 'Add Expense'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </FolioFieldFade>
+      </Box>
+    </FolioModal>
   );
 };
 

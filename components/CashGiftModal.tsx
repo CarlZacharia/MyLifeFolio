@@ -2,17 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   TextField,
   Grid,
   Box,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { CashGift } from '../lib/FormContext';
+import FolioModal, {
+  folioTextFieldSx,
+  FolioCancelButton,
+  FolioSaveButton,
+  FolioDeleteButton,
+  FolioFieldFade,
+  useFolioFieldAnimation,
+} from './FolioModal';
 
 interface CashGiftModalProps {
   open: boolean;
@@ -57,81 +59,90 @@ export const CashGiftModal: React.FC<CashGiftModalProps> = ({
   };
 
   const isValid = formData.recipientName.trim() !== '' && formData.amount.trim() !== '';
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Cash Gift' : 'Add Cash Gift'}</DialogTitle>
-      <DialogContent>
-        <Box sx={{ pt: 1 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Recipient Name"
-                value={formData.recipientName}
-                onChange={handleChange('recipientName')}
-                variant="outlined"
-                size="small"
-                required
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Relationship"
-                value={formData.relationship}
-                onChange={handleChange('relationship')}
-                variant="outlined"
-                size="small"
-                placeholder="e.g., Friend, Niece, Caregiver"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Amount"
-                value={formData.amount}
-                onChange={handleChange('amount')}
-                variant="outlined"
-                size="small"
-                required
-                helperText="e.g., $10,000 or 'My diamond ring'"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Notes"
-                value={formData.notes}
-                onChange={handleChange('notes')}
-                variant="outlined"
-                size="small"
-                multiline
-                rows={2}
-                placeholder="Any additional notes about this gift..."
-              />
-            </Grid>
-          </Grid>
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2, justifyContent: 'space-between' }}>
-        <Box>
-          {isEdit && onDelete && (
-            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
-              Delete
-            </Button>
-          )}
-        </Box>
-        <Box>
-          <Button onClick={onClose} sx={{ mr: 1 }}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} variant="contained" disabled={!isValid}>
-            {isEdit ? 'Save Changes' : 'Add Gift'}
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? 'Edit Cash Gift' : 'Add Cash Gift'}
+      eyebrow="My Life Folio — Gifts & Bequests"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!isValid}>
+              {isEdit ? 'Save Changes' : 'Add Gift'}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={6}>
+          <FolioFieldFade visible={fieldsVisible} index={0}>
+            <TextField
+              fullWidth
+              label="Recipient Name"
+              value={formData.recipientName}
+              onChange={handleChange('recipientName')}
+              variant="outlined"
+              size="small"
+              required
+              sx={{ ...folioTextFieldSx }}
+            />
+          </FolioFieldFade>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <FolioFieldFade visible={fieldsVisible} index={1}>
+            <TextField
+              fullWidth
+              label="Relationship"
+              value={formData.relationship}
+              onChange={handleChange('relationship')}
+              variant="outlined"
+              size="small"
+              placeholder="e.g., Friend, Niece, Caregiver"
+              sx={{ ...folioTextFieldSx }}
+            />
+          </FolioFieldFade>
+        </Grid>
+        <Grid item xs={12}>
+          <FolioFieldFade visible={fieldsVisible} index={2}>
+            <TextField
+              fullWidth
+              label="Amount"
+              value={formData.amount}
+              onChange={handleChange('amount')}
+              variant="outlined"
+              size="small"
+              required
+              helperText="e.g., $10,000 or 'My diamond ring'"
+              sx={{ ...folioTextFieldSx }}
+            />
+          </FolioFieldFade>
+        </Grid>
+        <Grid item xs={12}>
+          <FolioFieldFade visible={fieldsVisible} index={3}>
+            <TextField
+              fullWidth
+              label="Notes"
+              value={formData.notes}
+              onChange={handleChange('notes')}
+              variant="outlined"
+              size="small"
+              multiline
+              rows={2}
+              placeholder="Any additional notes about this gift..."
+              sx={{ ...folioTextFieldSx }}
+            />
+          </FolioFieldFade>
+        </Grid>
+      </Grid>
+    </FolioModal>
   );
 };
 

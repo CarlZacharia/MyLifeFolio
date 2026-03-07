@@ -2,17 +2,18 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   TextField,
   Box,
   MenuItem,
-  IconButton,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import FolioModal, {
+  folioTextFieldSx,
+  FolioCancelButton,
+  FolioSaveButton,
+  FolioDeleteButton,
+  FolioFieldFade,
+  useFolioFieldAnimation,
+} from './FolioModal';
 import { END_OF_LIFE_CATEGORIES } from '../lib/endOfLifeCategories';
 
 export interface EndOfLifeData {
@@ -51,6 +52,7 @@ const EndOfLifeModal: React.FC<EndOfLifeModalProps> = ({
   const [data, setData] = useState<EndOfLifeData>(
     initialData || emptyEndOfLife(category)
   );
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   useEffect(() => {
     if (open) {
@@ -73,32 +75,37 @@ const EndOfLifeModal: React.FC<EndOfLifeModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontWeight: 600,
-        }}
-      >
-        {isEdit ? `Edit ${category}` : `Add ${category}`}
-        <IconButton onClick={onClose} size="small">
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent dividers>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
-          {fields.map((field) =>
-            field.type === 'select' && field.options ? (
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? `Edit ${category}` : `Add ${category}`}
+      eyebrow="My Life Folio — End of Life"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave}>
+              {isEdit ? 'Save Changes' : 'Add Entry'}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+        {fields.map((field, idx) => (
+          <FolioFieldFade key={field.name} visible={fieldsVisible} index={idx}>
+            {field.type === 'select' && field.options ? (
               <TextField
-                key={field.name}
                 select
                 label={field.label}
                 value={data[field.name] || ''}
                 onChange={(e) => handleChange(field.name, e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               >
                 {field.options.map((opt) => (
                   <MenuItem key={opt} value={opt}>
@@ -108,7 +115,6 @@ const EndOfLifeModal: React.FC<EndOfLifeModalProps> = ({
               </TextField>
             ) : (
               <TextField
-                key={field.name}
                 label={field.label}
                 value={data[field.name] || ''}
                 onChange={(e) => handleChange(field.name, e.target.value)}
@@ -116,25 +122,13 @@ const EndOfLifeModal: React.FC<EndOfLifeModalProps> = ({
                 multiline={field.name === 'notes' || field.type === 'textarea'}
                 minRows={field.name === 'notes' || field.type === 'textarea' ? 3 : undefined}
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               />
-            )
-          )}
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        {isEdit && onDelete && (
-          <Button onClick={onDelete} color="error" sx={{ mr: 'auto' }}>
-            Delete
-          </Button>
-        )}
-        <Button onClick={onClose} variant="outlined">
-          Cancel
-        </Button>
-        <Button onClick={handleSave} variant="contained">
-          {isEdit ? 'Save Changes' : 'Add Entry'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+            )}
+          </FolioFieldFade>
+        ))}
+      </Box>
+    </FolioModal>
   );
 };
 

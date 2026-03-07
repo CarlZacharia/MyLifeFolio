@@ -2,21 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   TextField,
   Box,
   MenuItem,
-  IconButton,
   FormControlLabel,
   Switch,
   Typography,
   Divider,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import FolioModal, {
+  folioTextFieldSx,
+  FolioCancelButton,
+  FolioSaveButton,
+  FolioDeleteButton,
+  FolioFieldFade,
+  useFolioFieldAnimation,
+} from './FolioModal';
 
 export const COVERAGE_TYPES = [
   'Vehicle',
@@ -293,6 +294,8 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
   const providerError = touched.provider && !data.provider;
   const canSave = data.provider.length > 0;
 
+  const fieldsVisible = useFolioFieldAnimation(open);
+
   const handleSave = () => {
     if (!canSave) {
       setTouched({ provider: true });
@@ -302,24 +305,31 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
     onClose();
   };
 
+  const title = isEdit
+    ? `Edit ${personLabel} ${typeLabel} Insurance`
+    : `Add ${personLabel} ${typeLabel} Insurance`;
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontWeight: 600,
-        }}
-      >
-        {isEdit
-          ? `Edit ${personLabel} ${typeLabel} Insurance`
-          : `Add ${personLabel} ${typeLabel} Insurance`}
-        <IconButton onClick={onClose} size="small">
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent dividers>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={title}
+      eyebrow="My Life Folio — Insurance Coverage"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!canSave}>
+              {isEdit ? 'Save Changes' : 'Add Policy'}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <FolioFieldFade visible={fieldsVisible} index={0}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           {!coverageType && (
             <TextField
@@ -330,6 +340,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
               InputLabelProps={{ shrink: true }}
               fullWidth
               required
+              sx={{ ...folioTextFieldSx }}
             >
               {COVERAGE_TYPES.map((type) => (
                 <MenuItem key={type} value={type}>
@@ -349,14 +360,14 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
               helperText={providerError ? 'Provider is required' : ''}
               required
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ ...folioTextFieldSx, flex: 1 }}
             />
             <TextField
               label="Policy No."
               value={data.policyNo}
               onChange={(e) => handleChange({ policyNo: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ ...folioTextFieldSx, flex: 1 }}
             />
           </Box>
 
@@ -367,6 +378,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
             InputLabelProps={{ shrink: true }}
             placeholder="$0.00"
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
 
           <TextField
@@ -375,6 +387,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
             onChange={(e) => handleChange({ contactName: e.target.value })}
             InputLabelProps={{ shrink: true }}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
 
           <TextField
@@ -383,6 +396,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
             onChange={(e) => handleChange({ contactAddress: e.target.value })}
             InputLabelProps={{ shrink: true }}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
 
           <Box sx={{ display: 'flex', gap: 2 }}>
@@ -391,14 +405,14 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
               value={data.contactPhone}
               onChange={(e) => handleChange({ contactPhone: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ ...folioTextFieldSx, flex: 1 }}
             />
             <TextField
               label="Contact Email"
               value={data.contactEmail}
               onChange={(e) => handleChange({ contactEmail: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ ...folioTextFieldSx, flex: 1 }}
             />
           </Box>
 
@@ -417,6 +431,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                 InputLabelProps={{ shrink: true }}
                 placeholder="e.g., 100/300/100"
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               />
 
               <Box sx={{ display: 'flex', gap: 2 }}>
@@ -428,7 +443,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Collision Coverage"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <FormControlLabel
                   control={
@@ -438,7 +453,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Rental Insurance"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -459,7 +474,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     onChange={(e) => handleChange({ comprehensiveDeductible: e.target.value })}
                     InputLabelProps={{ shrink: true }}
                     placeholder="$0.00"
-                    sx={{ flex: 1 }}
+                    sx={{ ...folioTextFieldSx, flex: 1 }}
                   />
                 )}
               </Box>
@@ -471,7 +486,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   onChange={(e) => handleChange({ uninsuredAmount: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                   placeholder="$0.00"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <TextField
                   label="Underinsured Coverage Amount"
@@ -479,7 +494,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   onChange={(e) => handleChange({ underinsuredAmount: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                   placeholder="$0.00"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -490,6 +505,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                 InputLabelProps={{ shrink: true }}
                 placeholder="$0.00"
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               />
             </>
           )}
@@ -509,7 +525,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   value={data.hoPolicyType || ''}
                   onChange={(e) => handleChange({ hoPolicyType: e.target.value })}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 >
                   {HOMEOWNER_POLICY_TYPES.map((type) => (
                     <MenuItem key={type} value={type}>
@@ -525,7 +541,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Auto-Renewal"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -536,7 +552,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   value={data.effectiveDate || ''}
                   onChange={(e) => handleChange({ effectiveDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <TextField
                   label="Expiration Date"
@@ -544,7 +560,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   value={data.expirationDate || ''}
                   onChange={(e) => handleChange({ expirationDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -555,6 +571,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                 InputLabelProps={{ shrink: true }}
                 placeholder="e.g., 123 Main St, Anytown, USA"
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               />
 
               <Box sx={{ display: 'flex', gap: 2 }}>
@@ -564,7 +581,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   onChange={(e) => handleChange({ coverageAmounts: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                   placeholder="$0.00"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <TextField
                   label="Deductibles"
@@ -572,7 +589,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   onChange={(e) => handleChange({ deductibles: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                   placeholder="$0.00"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -583,6 +600,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                 InputLabelProps={{ shrink: true }}
                 placeholder="$0.00 or percentage"
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               />
 
               <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
@@ -602,7 +620,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     onChange={(e) => handleChange({ scheduledPersonalPropertyLimit: e.target.value })}
                     InputLabelProps={{ shrink: true }}
                     placeholder="$0.00"
-                    sx={{ flex: 1 }}
+                    sx={{ ...folioTextFieldSx, flex: 1 }}
                   />
                 )}
               </Box>
@@ -616,7 +634,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Fine Arts Rider"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <FormControlLabel
                   control={
@@ -626,7 +644,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Home Business Endorsement"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -647,7 +665,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     onChange={(e) => handleChange({ waterBackupLimit: e.target.value })}
                     InputLabelProps={{ shrink: true }}
                     placeholder="$0.00"
-                    sx={{ flex: 1 }}
+                    sx={{ ...folioTextFieldSx, flex: 1 }}
                   />
                 )}
               </Box>
@@ -661,7 +679,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Service Line Coverage"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <FormControlLabel
                   control={
@@ -671,7 +689,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Equipment Breakdown"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -701,6 +719,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                 onChange={(e) => handleChange({ ltcInsuredName: e.target.value })}
                 InputLabelProps={{ shrink: true }}
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               />
 
               <Box sx={{ display: 'flex', gap: 2 }}>
@@ -710,7 +729,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   value={data.ltcIssueDate || ''}
                   onChange={(e) => handleChange({ ltcIssueDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <TextField
                   select
@@ -718,7 +737,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   value={data.ltcPolicyStatus || ''}
                   onChange={(e) => handleChange({ ltcPolicyStatus: e.target.value })}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 >
                   {LTC_POLICY_STATUSES.map((s) => (
                     <MenuItem key={s} value={s}>{s}</MenuItem>
@@ -733,7 +752,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   onChange={(e) => handleChange({ ltcDailyBenefitAmount: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                   placeholder="$0.00"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <TextField
                   label="Monthly Benefit Amount"
@@ -741,7 +760,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   onChange={(e) => handleChange({ ltcMonthlyBenefitAmount: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                   placeholder="$0.00"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -752,7 +771,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   value={data.ltcBenefitPeriod || ''}
                   onChange={(e) => handleChange({ ltcBenefitPeriod: e.target.value })}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 >
                   {LTC_BENEFIT_PERIODS.map((p) => (
                     <MenuItem key={p} value={p}>{p}</MenuItem>
@@ -764,7 +783,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   onChange={(e) => handleChange({ ltcMaxLifetimeBenefitPool: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                   placeholder="$0.00"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -775,7 +794,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   value={data.ltcInflationProtectionType || ''}
                   onChange={(e) => handleChange({ ltcInflationProtectionType: e.target.value })}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 >
                   {LTC_INFLATION_TYPES.map((t) => (
                     <MenuItem key={t} value={t}>{t}</MenuItem>
@@ -787,7 +806,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   onChange={(e) => handleChange({ ltcCurrentBenefitAfterInflation: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                   placeholder="$0.00 /day or /month"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -800,7 +819,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Shared Care Rider"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <TextField
                   select
@@ -808,7 +827,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   value={data.ltcEliminationPeriod || ''}
                   onChange={(e) => handleChange({ ltcEliminationPeriod: e.target.value })}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 >
                   {LTC_ELIMINATION_PERIODS.map((p) => (
                     <MenuItem key={p} value={p}>{p}</MenuItem>
@@ -830,7 +849,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Nursing Facility"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <FormControlLabel
                   control={
@@ -840,7 +859,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Assisted Living"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -853,7 +872,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Memory Care"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <FormControlLabel
                   control={
@@ -863,7 +882,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Adult Day Care"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -876,7 +895,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Home Health Care"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <FormControlLabel
                   control={
@@ -886,7 +905,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     />
                   }
                   label="Hospice"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -917,7 +936,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     onChange={(e) => handleChange({ ltcBedReservationDays: e.target.value })}
                     InputLabelProps={{ shrink: true }}
                     placeholder="e.g., 30"
-                    sx={{ flex: 1 }}
+                    sx={{ ...folioTextFieldSx, flex: 1 }}
                   />
                 )}
               </Box>
@@ -929,6 +948,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                 InputLabelProps={{ shrink: true }}
                 placeholder="$0.00"
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               />
             </>
           )}
@@ -948,7 +968,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   value={data.umbPolicyType || ''}
                   onChange={(e) => handleChange({ umbPolicyType: e.target.value })}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 >
                   {UMBRELLA_POLICY_TYPES.map((type) => (
                     <MenuItem key={type} value={type}>
@@ -962,7 +982,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   value={data.umbLimit || ''}
                   onChange={(e) => handleChange({ umbLimit: e.target.value })}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 >
                   {UMBRELLA_LIMITS.map((lim) => (
                     <MenuItem key={lim} value={lim}>
@@ -980,6 +1000,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   InputLabelProps={{ shrink: true }}
                   placeholder="$0.00"
                   fullWidth
+                  sx={{ ...folioTextFieldSx }}
                 />
               )}
 
@@ -990,7 +1011,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   value={data.umbEffectiveDate || ''}
                   onChange={(e) => handleChange({ umbEffectiveDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <TextField
                   label="Expiration Date"
@@ -998,7 +1019,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   value={data.umbExpirationDate || ''}
                   onChange={(e) => handleChange({ umbExpirationDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -1009,6 +1030,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                 InputLabelProps={{ shrink: true }}
                 placeholder="$0.00"
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               />
 
               <Divider sx={{ my: 0.5 }} />
@@ -1023,7 +1045,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   onChange={(e) => handleChange({ umbAutoLiabilityRequired: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                   placeholder="e.g., 250/500/100"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
                 <TextField
                   label="Homeowners Liability Underlying Limit"
@@ -1031,7 +1053,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                   onChange={(e) => handleChange({ umbHomeownersLiabilityRequired: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                   placeholder="e.g., $300,000"
-                  sx={{ flex: 1 }}
+                  sx={{ ...folioTextFieldSx, flex: 1 }}
                 />
               </Box>
 
@@ -1052,7 +1074,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     onChange={(e) => handleChange({ umbWatercraftLimit: e.target.value })}
                     InputLabelProps={{ shrink: true }}
                     placeholder="$0.00"
-                    sx={{ flex: 1 }}
+                    sx={{ ...folioTextFieldSx, flex: 1 }}
                   />
                 )}
               </Box>
@@ -1074,7 +1096,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                     onChange={(e) => handleChange({ umbRentalPropertyLimit: e.target.value })}
                     InputLabelProps={{ shrink: true }}
                     placeholder="$0.00"
-                    sx={{ flex: 1 }}
+                    sx={{ ...folioTextFieldSx, flex: 1 }}
                   />
                 )}
               </Box>
@@ -1087,6 +1109,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                 multiline
                 minRows={2}
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               />
 
               <FormControlLabel
@@ -1110,6 +1133,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                 onChange={(e) => handleChange({ umbNamedInsured: e.target.value })}
                 InputLabelProps={{ shrink: true }}
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               />
 
               <TextField
@@ -1121,6 +1145,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                 multiline
                 minRows={2}
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               />
 
               <TextField
@@ -1130,6 +1155,7 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
                 InputLabelProps={{ shrink: true }}
                 placeholder="$0.00"
                 fullWidth
+                sx={{ ...folioTextFieldSx }}
               />
             </>
           )}
@@ -1142,23 +1168,11 @@ const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
             multiline
             minRows={2}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
         </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        {isEdit && onDelete && (
-          <Button onClick={onDelete} color="error" sx={{ mr: 'auto' }}>
-            Delete
-          </Button>
-        )}
-        <Button onClick={onClose} variant="outlined">
-          Cancel
-        </Button>
-        <Button onClick={handleSave} variant="contained" disabled={!canSave}>
-          {isEdit ? 'Save Changes' : 'Add Policy'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };
 

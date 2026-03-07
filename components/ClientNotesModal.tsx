@@ -2,18 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   TextField,
   Typography,
   Box,
-  IconButton,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import NotesIcon from '@mui/icons-material/Notes';
+import FolioModal, {
+  folioTextFieldSx,
+  FolioCancelButton,
+  FolioSaveButton,
+  FolioFieldFade,
+  useFolioFieldAnimation,
+} from './FolioModal';
 
 interface ClientNotesModalProps {
   open: boolean;
@@ -48,45 +47,33 @@ const ClientNotesModal: React.FC<ClientNotesModalProps> = ({
     onClose();
   };
 
+  const fieldsVisible = useFolioFieldAnimation(open);
+
   return (
-    <Dialog
+    <FolioModal
       open={open}
       onClose={handleClose}
+      title="Client Notes"
+      eyebrow="My Life Folio"
       maxWidth="md"
-      fullWidth
-      PaperProps={{
-        sx: {
-          minHeight: '60vh',
-        },
-      }}
+      footer={
+        <>
+          <Box />
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={handleClose} />
+            <FolioSaveButton onClick={handleSave}>
+              Save Notes
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
     >
-      <DialogTitle
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          bgcolor: '#1a237e',
-          color: 'white',
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <NotesIcon />
-          <Typography variant="h6" component="span">
-            Client Notes
-          </Typography>
-        </Box>
-        <IconButton
-          aria-label="close"
-          onClick={handleClose}
-          sx={{ color: 'white' }}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent sx={{ pt: 3 }}>
-        <Typography variant="body1" sx={{ mb: 3, mt: 2.5, fontWeight: 500, color: 'text.primary' }}>
+      <FolioFieldFade visible={fieldsVisible} index={0}>
+        <Typography variant="body1" sx={{ mb: 3, fontWeight: 500, color: 'text.primary' }}>
           Save any questions or comments you want to ask or tell the attorneys at MyLifeFolio at your meeting.
         </Typography>
+      </FolioFieldFade>
+      <FolioFieldFade visible={fieldsVisible} index={1}>
         <TextField
           fullWidth
           multiline
@@ -95,28 +82,10 @@ const ClientNotesModal: React.FC<ClientNotesModalProps> = ({
           onChange={(e) => setLocalNotes(e.target.value)}
           placeholder="Enter your questions and comments here..."
           variant="outlined"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-              fontSize: '1rem',
-              lineHeight: 1.6,
-            },
-          }}
+          sx={{ ...folioTextFieldSx }}
         />
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={handleClose} color="inherit">
-          Cancel
-        </Button>
-        <Button
-          onClick={handleSave}
-          variant="contained"
-          sx={{ bgcolor: '#1a237e' }}
-        >
-          Save Notes
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };
 

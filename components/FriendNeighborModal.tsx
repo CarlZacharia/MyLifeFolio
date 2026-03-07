@@ -2,17 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   TextField,
   Box,
-  IconButton,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import PeopleIcon from '@mui/icons-material/People';
+import FolioModal, {
+  folioTextFieldSx,
+  FolioCancelButton,
+  FolioSaveButton,
+  FolioDeleteButton,
+  FolioFieldFade,
+  useFolioFieldAnimation,
+} from './FolioModal';
 
 export interface FriendNeighborData {
   name: string;
@@ -51,6 +51,7 @@ const FriendNeighborModal: React.FC<FriendNeighborModalProps> = ({
 }) => {
   const [data, setData] = useState<FriendNeighborData>(initialData || emptyFriendNeighbor);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   useEffect(() => {
     if (open) {
@@ -80,27 +81,27 @@ const FriendNeighborModal: React.FC<FriendNeighborModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontWeight: 600,
-          bgcolor: '#6a1b9a',
-          color: 'white',
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <PeopleIcon />
-          {isEdit ? 'Edit Friend or Neighbor' : 'Add Friend or Neighbor'}
-        </Box>
-        <IconButton onClick={onClose} size="small" sx={{ color: 'white' }}>
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent dividers>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? 'Edit Friend or Neighbor' : 'Add Friend or Neighbor'}
+      eyebrow="My Life Folio — Friends & Neighbors"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!canSave}>
+              {isEdit ? 'Save Changes' : 'Add Entry'}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+        <FolioFieldFade visible={fieldsVisible} index={0}>
           <TextField
             label="Name"
             value={data.name}
@@ -111,41 +112,52 @@ const FriendNeighborModal: React.FC<FriendNeighborModalProps> = ({
             required
             InputLabelProps={{ shrink: true }}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
+        </FolioFieldFade>
 
+        <FolioFieldFade visible={fieldsVisible} index={1}>
           <TextField
             label="Relationship"
             value={data.relationship}
             onChange={(e) => handleChange({ relationship: e.target.value })}
             InputLabelProps={{ shrink: true }}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
+        </FolioFieldFade>
 
+        <FolioFieldFade visible={fieldsVisible} index={2}>
           <TextField
             label="Address"
             value={data.address}
             onChange={(e) => handleChange({ address: e.target.value })}
             InputLabelProps={{ shrink: true }}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
+        </FolioFieldFade>
 
+        <FolioFieldFade visible={fieldsVisible} index={3}>
           <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
               label="Phone"
               value={data.phone}
               onChange={(e) => handleChange({ phone: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ flex: 1, ...folioTextFieldSx }}
             />
             <TextField
               label="Email"
               value={data.email}
               onChange={(e) => handleChange({ email: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ flex: 1, ...folioTextFieldSx }}
             />
           </Box>
+        </FolioFieldFade>
 
+        <FolioFieldFade visible={fieldsVisible} index={4}>
           <TextField
             label="Notes"
             value={data.notes}
@@ -154,21 +166,11 @@ const FriendNeighborModal: React.FC<FriendNeighborModalProps> = ({
             multiline
             minRows={2}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        {isEdit && onDelete && (
-          <Button onClick={onDelete} color="error" sx={{ mr: 'auto' }}>
-            Delete
-          </Button>
-        )}
-        <Button onClick={onClose} variant="outlined">Cancel</Button>
-        <Button onClick={handleSave} variant="contained" disabled={!canSave}>
-          {isEdit ? 'Save Changes' : 'Add Contact'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </FolioFieldFade>
+      </Box>
+    </FolioModal>
   );
 };
 

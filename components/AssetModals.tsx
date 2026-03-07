@@ -2,11 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   TextField,
   Grid,
   FormControl,
@@ -25,9 +20,16 @@ import {
   RadioGroup,
   Alert,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { RealEstateOwner, OwnershipForm } from "../lib/FormContext";
 import CurrencyInput from "./CurrencyInput";
+import FolioModal, {
+  folioTextFieldSx,
+  FolioCancelButton,
+  FolioSaveButton,
+  FolioDeleteButton,
+  FolioFieldFade,
+  useFolioFieldAnimation,
+} from "./FolioModal";
 
 // Validation helpers
 type TouchedFields<T> = Partial<Record<keyof T, boolean>>;
@@ -248,7 +250,7 @@ const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
             onChange(newValue.map((v) => v.value));
           }}
           renderInput={(params) => (
-            <TextField {...params} label={label} variant="outlined" />
+            <TextField {...params} label={label} variant="outlined" sx={{ ...folioTextFieldSx }} />
           )}
           isOptionEqualToValue={(option, value) => option.value === value.value}
         />
@@ -378,6 +380,7 @@ const JointOwnerSelector: React.FC<JointOwnerSelectorProps> = ({
             onChange={(e) => onChange({ jointOwnerOther: e.target.value })}
             variant="outlined"
             placeholder="Enter name(s) of other owner(s)"
+            sx={{ ...folioTextFieldSx }}
           />
         </Box>
       )}
@@ -479,6 +482,8 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
 
+  const fieldsVisible = useFolioFieldAnimation(open);
+
   const handleOwnerChange = (newOwner: RealEstateOwner) => {
     const updates: Partial<RealEstateData> = {
       owner: newOwner,
@@ -543,9 +548,27 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{isEdit ? "Edit Property" : "Add Property"}</DialogTitle>
-      <DialogContent>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? "Edit Property" : "Add Property"}
+      eyebrow="My Life Folio — Assets"
+      maxWidth="md"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!isValid}>
+              {isEdit ? "Save Changes" : "Add Property"}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <FolioFieldFade visible={fieldsVisible} index={0}>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12} md={6}>
             <FormControl
@@ -689,6 +712,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
                           }
                           variant="outlined"
                           placeholder="e.g., 50"
+                          sx={{ ...folioTextFieldSx }}
                         />
                       </Grid>
                     )}
@@ -711,6 +735,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
                         }
                         variant="outlined"
                         placeholder="e.g., 50"
+                        sx={{ ...folioTextFieldSx }}
                       />
                     </Grid>
                   )}
@@ -733,6 +758,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
                         }
                         variant="outlined"
                         placeholder="e.g., 50"
+                        sx={{ ...folioTextFieldSx }}
                       />
                     </Grid>
                   )}
@@ -752,6 +778,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
               size="small"
               error={touched.street && errors.street}
               helperText={touched.street && errors.street ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12} md={5}>
@@ -765,6 +792,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
               size="small"
               error={touched.city && errors.city}
               helperText={touched.city && errors.city ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12} md={3}>
@@ -778,6 +806,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
               size="small"
               error={touched.state && errors.state}
               helperText={touched.state && errors.state ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -788,6 +817,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
               onChange={(e) => handleChange({ zip: e.target.value })}
               variant="outlined"
               size="small"
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -802,6 +832,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
               name="realEstateValue"
               error={touched.value && errors.value}
               helperText={touched.value && errors.value ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -815,6 +846,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
               variant="outlined"
               size="small"
               name="mortgageBalance"
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -826,6 +858,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
               variant="outlined"
               size="small"
               name="costBasis"
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
 
@@ -853,6 +886,7 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
                   }
                   variant="outlined"
                   placeholder="Enter name if not listed above"
+                  sx={{ ...folioTextFieldSx }}
                 />
               </Grid>
             </>
@@ -867,27 +901,13 @@ export const RealEstateModal: React.FC<RealEstateModalProps> = ({
               variant="outlined"
               multiline
               rows={4}
+              sx={{ ...folioTextFieldSx }}
               placeholder="Enter any additional notes about this property..."
             />
           </Grid>
         </Grid>
-      </DialogContent>
-      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
-        <Box>
-          {isEdit && onDelete && (
-            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
-              Delete
-            </Button>
-          )}
-        </Box>
-        <Box>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? "Save Changes" : "Add Property"}
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };
 
@@ -1288,6 +1308,7 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
 
   // Combine all owner options
   const allOwnerOptions = [...ownerOptions, ...trustOwnerOptions];
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   useEffect(() => {
     if (open) {
@@ -1324,11 +1345,26 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        {isEdit ? "Edit Bank Account" : "Add Bank Account"}
-      </DialogTitle>
-      <DialogContent>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? "Edit Bank Account" : "Add Bank Account"}
+      eyebrow="My Life Folio — Assets"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!isValid}>
+              {isEdit ? "Save Changes" : "Add Account"}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <FolioFieldFade visible={fieldsVisible} index={0}>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12} md={6}>
             <FormControl
@@ -1387,6 +1423,7 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
               size="small"
               error={touched.institution && errors.institution}
               helperText={touched.institution && errors.institution ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -1401,6 +1438,7 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
               name="bankAmount"
               error={touched.amount && errors.amount}
               helperText={touched.amount && errors.amount ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           {data.owner && (
@@ -1469,27 +1507,13 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
               variant="outlined"
               multiline
               rows={4}
+              sx={{ ...folioTextFieldSx }}
               placeholder="Enter any additional notes about this account..."
             />
           </Grid>
         </Grid>
-      </DialogContent>
-      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
-        <Box>
-          {isEdit && onDelete && (
-            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
-              Delete
-            </Button>
-          )}
-        </Box>
-        <Box>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? "Save Changes" : "Add Account"}
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };
 
@@ -1587,6 +1611,7 @@ export const NonQualifiedInvestmentModal: React.FC<
 
   // Combine all owner options
   const allOwnerOptions = [...ownerOptions, ...trustOwnerOptions];
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   useEffect(() => {
     if (open) {
@@ -1622,11 +1647,26 @@ export const NonQualifiedInvestmentModal: React.FC<
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        {isEdit ? "Edit Investment Account" : "Add Investment Account"}
-      </DialogTitle>
-      <DialogContent>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? "Edit Investment Account" : "Add Investment Account"}
+      eyebrow="My Life Folio — Assets"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!isValid}>
+              {isEdit ? "Save Changes" : "Add Account"}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <FolioFieldFade visible={fieldsVisible} index={0}>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12}>
             <FormControl
@@ -1662,6 +1702,7 @@ export const NonQualifiedInvestmentModal: React.FC<
               size="small"
               error={touched.institution && errors.institution}
               helperText={touched.institution && errors.institution ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -1673,6 +1714,7 @@ export const NonQualifiedInvestmentModal: React.FC<
               variant="outlined"
               size="small"
               placeholder="e.g., Brokerage, Stocks, Bonds, Mutual Funds"
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -1687,6 +1729,7 @@ export const NonQualifiedInvestmentModal: React.FC<
               name="investmentValue"
               error={touched.value && errors.value}
               helperText={touched.value && errors.value ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           {data.owner && (
@@ -1755,27 +1798,13 @@ export const NonQualifiedInvestmentModal: React.FC<
               variant="outlined"
               multiline
               rows={4}
+              sx={{ ...folioTextFieldSx }}
               placeholder="Enter any additional notes about this investment..."
             />
           </Grid>
         </Grid>
-      </DialogContent>
-      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
-        <Box>
-          {isEdit && onDelete && (
-            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
-              Delete
-            </Button>
-          )}
-        </Box>
-        <Box>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? "Save Changes" : "Add Account"}
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };
 
@@ -1847,6 +1876,7 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
   // Note: Retirement accounts (IRAs, 401ks, etc.) can only be owned by individuals, not trusts
   // A trust can be a beneficiary but not an owner
   const individualOwnerOptions = getIndividualOwnerOptions(showSpouse);
+  const fieldsVisible = useFolioFieldAnimation(open);
   const [data, setData] = useState<RetirementAccountData>(
     initialData || emptyRetirementAccount
   );
@@ -1887,11 +1917,26 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        {isEdit ? "Edit Retirement Account" : "Add Retirement Account"}
-      </DialogTitle>
-      <DialogContent>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? "Edit Retirement Account" : "Add Retirement Account"}
+      eyebrow="My Life Folio — Assets"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!isValid}>
+              {isEdit ? "Save Changes" : "Add Account"}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <FolioFieldFade visible={fieldsVisible} index={0}>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12}>
             <FormControl
@@ -1927,6 +1972,7 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
               size="small"
               error={touched.institution && errors.institution}
               helperText={touched.institution && errors.institution ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -1941,6 +1987,7 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
               placeholder="e.g., IRA, 401k, Pension"
               error={touched.accountType && errors.accountType}
               helperText={touched.accountType && errors.accountType ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -1955,6 +2002,7 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
               name="retirementValue"
               error={touched.value && errors.value}
               helperText={touched.value && errors.value ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           {data.owner && (
@@ -2023,27 +2071,13 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
               variant="outlined"
               multiline
               rows={4}
+              sx={{ ...folioTextFieldSx }}
               placeholder="Enter any additional notes about this account..."
             />
           </Grid>
         </Grid>
-      </DialogContent>
-      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
-        <Box>
-          {isEdit && onDelete && (
-            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
-              Delete
-            </Button>
-          )}
-        </Box>
-        <Box>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? "Save Changes" : "Add Account"}
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };
 
@@ -2158,6 +2192,7 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
 
   // Combine all owner options
   const allOwnerOptions = [...individualOwnerOptions, ...trustOwnerOptions];
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   // For single clients, default insured to 'Client'
   const getInitialData = (): LifeInsuranceData => {
@@ -2215,11 +2250,26 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        {isEdit ? "Edit Life Insurance Policy" : "Add Life Insurance Policy"}
-      </DialogTitle>
-      <DialogContent>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? "Edit Life Insurance Policy" : "Add Life Insurance Policy"}
+      eyebrow="My Life Folio — Assets"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!isValid}>
+              {isEdit ? "Save Changes" : "Add Policy"}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <FolioFieldFade visible={fieldsVisible} index={0}>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12} md={showSpouse ? 6 : 12}>
             <FormControl
@@ -2273,6 +2323,7 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
               size="small"
               error={touched.company && errors.company}
               helperText={touched.company && errors.company ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -2318,6 +2369,7 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
               variant="outlined"
               size="small"
               name="faceAmount"
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid
@@ -2341,6 +2393,7 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
               name="deathBenefit"
               error={touched.deathBenefit && errors.deathBenefit}
               helperText={touched.deathBenefit && errors.deathBenefit ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           {data.policyType !== "Term Life" &&
@@ -2354,6 +2407,7 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
                   variant="outlined"
                   size="small"
                   name="cashValue"
+                  sx={{ ...folioTextFieldSx }}
                 />
               </Grid>
             )}
@@ -2423,27 +2477,13 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
               variant="outlined"
               multiline
               rows={4}
+              sx={{ ...folioTextFieldSx }}
               placeholder="Enter any additional notes about this policy..."
             />
           </Grid>
         </Grid>
-      </DialogContent>
-      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
-        <Box>
-          {isEdit && onDelete && (
-            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
-              Delete
-            </Button>
-          )}
-        </Box>
-        <Box>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? "Save Changes" : "Add Policy"}
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };
 
@@ -2535,6 +2575,7 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
 
   // Combine all owner options
   const allOwnerOptions = [...ownerOptions, ...trustOwnerOptions];
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   useEffect(() => {
     if (open) {
@@ -2570,9 +2611,26 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? "Edit Vehicle" : "Add Vehicle"}</DialogTitle>
-      <DialogContent>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? "Edit Vehicle" : "Add Vehicle"}
+      eyebrow="My Life Folio — Assets"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!isValid}>
+              {isEdit ? "Save Changes" : "Add Vehicle"}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <FolioFieldFade visible={fieldsVisible} index={0}>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12}>
             <FormControl
@@ -2609,6 +2667,7 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
               placeholder="e.g., 2020 Toyota Camry"
               error={touched.yearMakeModel && errors.yearMakeModel}
               helperText={touched.yearMakeModel && errors.yearMakeModel ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -2623,6 +2682,7 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
               name="vehicleValue"
               error={touched.value && errors.value}
               helperText={touched.value && errors.value ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           {data.owner && (
@@ -2691,27 +2751,13 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
               variant="outlined"
               multiline
               rows={4}
+              sx={{ ...folioTextFieldSx }}
               placeholder="Enter any additional notes about this vehicle..."
             />
           </Grid>
         </Grid>
-      </DialogContent>
-      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
-        <Box>
-          {isEdit && onDelete && (
-            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
-              Delete
-            </Button>
-          )}
-        </Box>
-        <Box>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? "Save Changes" : "Add Vehicle"}
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };
 
@@ -2807,6 +2853,7 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
 
   // Combine all owner options
   const allOwnerOptions = [...ownerOptions, ...trustOwnerOptions];
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   useEffect(() => {
     if (open) {
@@ -2842,9 +2889,26 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? "Edit Asset" : "Add Asset"}</DialogTitle>
-      <DialogContent>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? "Edit Asset" : "Add Asset"}
+      eyebrow="My Life Folio — Assets"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!isValid}>
+              {isEdit ? "Save Changes" : "Add Asset"}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <FolioFieldFade visible={fieldsVisible} index={0}>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12}>
             <FormControl
@@ -2881,6 +2945,7 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
               placeholder="e.g., Business interest, collectibles, jewelry"
               error={touched.description && errors.description}
               helperText={touched.description && errors.description ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -2895,6 +2960,7 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
               name="otherAssetValue"
               error={touched.value && errors.value}
               helperText={touched.value && errors.value ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           {data.owner && (
@@ -2980,27 +3046,13 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
               variant="outlined"
               multiline
               rows={4}
+              sx={{ ...folioTextFieldSx }}
               placeholder="Enter any additional notes about this asset..."
             />
           </Grid>
         </Grid>
-      </DialogContent>
-      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
-        <Box>
-          {isEdit && onDelete && (
-            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
-              Delete
-            </Button>
-          )}
-        </Box>
-        <Box>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? "Save Changes" : "Add Asset"}
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };
 
@@ -3106,6 +3158,7 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
 
   // Combine all owner options
   const allOwnerOptions = [...ownerOptions, ...trustOwnerOptions];
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   useEffect(() => {
     if (open) {
@@ -3148,11 +3201,26 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
   );
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        {isEdit ? "Edit Business Interest" : "Add Business Interest"}
-      </DialogTitle>
-      <DialogContent>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? "Edit Business Interest" : "Add Business Interest"}
+      eyebrow="My Life Folio — Assets"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!isValid}>
+              {isEdit ? "Save Changes" : "Add Business"}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <FolioFieldFade visible={fieldsVisible} index={0}>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12} md={6}>
             <FormControl
@@ -3213,6 +3281,7 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
               size="small"
               error={touched.businessName && errors.businessName}
               helperText={touched.businessName && errors.businessName ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -3227,6 +3296,7 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
               name="businessFullValue"
               error={touched.fullValue && errors.fullValue}
               helperText={touched.fullValue && errors.fullValue ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -3240,6 +3310,7 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
               variant="outlined"
               size="small"
               placeholder="e.g., 50"
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -3253,6 +3324,7 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
                 readOnly: true,
               }}
               helperText="Auto-calculated"
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -3264,6 +3336,7 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
               variant="outlined"
               size="small"
               placeholder="Names of other owners"
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -3288,27 +3361,13 @@ export const BusinessInterestModal: React.FC<BusinessInterestModalProps> = ({
               variant="outlined"
               multiline
               rows={4}
+              sx={{ ...folioTextFieldSx }}
               placeholder="Enter any additional notes about this business interest..."
             />
           </Grid>
         </Grid>
-      </DialogContent>
-      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
-        <Box>
-          {isEdit && onDelete && (
-            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
-              Delete
-            </Button>
-          )}
-        </Box>
-        <Box>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? "Save Changes" : "Add Business"}
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };
 
@@ -3397,6 +3456,7 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
 
   // Combine all owner options
   const allOwnerOptions = [...individualOwnerOptions, ...trustOwnerOptions];
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   useEffect(() => {
     if (open) {
@@ -3433,11 +3493,26 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        {isEdit ? "Edit Digital Asset" : "Add Digital Asset"}
-      </DialogTitle>
-      <DialogContent>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? "Edit Digital Asset" : "Add Digital Asset"}
+      eyebrow="My Life Folio — Assets"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!isValid}>
+              {isEdit ? "Save Changes" : "Add Asset"}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <FolioFieldFade visible={fieldsVisible} index={0}>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12} md={6}>
             <FormControl
@@ -3496,6 +3571,7 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
               variant="outlined"
               size="small"
               placeholder="e.g., Coinbase, GoDaddy, Etsy"
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -3510,6 +3586,7 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
               name="digitalAssetValue"
               error={touched.value && errors.value}
               helperText={touched.value && errors.value ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -3524,6 +3601,7 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
               placeholder="e.g., Bitcoin holdings, domain portfolio, Etsy store"
               error={touched.description && errors.description}
               helperText={touched.description && errors.description ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -3535,26 +3613,12 @@ export const DigitalAssetModal: React.FC<DigitalAssetModalProps> = ({
               variant="outlined"
               multiline
               rows={4}
+              sx={{ ...folioTextFieldSx }}
               placeholder="Enter any additional notes about this digital asset..."
             />
           </Grid>
         </Grid>
-      </DialogContent>
-      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
-        <Box>
-          {isEdit && onDelete && (
-            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
-              Delete
-            </Button>
-          )}
-        </Box>
-        <Box>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained" sx={{ ml: 1 }}>
-            {isEdit ? "Save Changes" : "Add Asset"}
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };

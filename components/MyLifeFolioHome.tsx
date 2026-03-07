@@ -160,23 +160,23 @@ const AnimatedSection: React.FC<{ children: React.ReactNode; delay?: number }> =
 const folioCategories = [
   {
     id: 'personal-information', title: 'Personal Information', icon: <PeopleIcon sx={{ fontSize: 26 }} />, accentColor: '#1e3a5f',
-    items: ['Client & spouse details', 'Contact information', 'Marital status & children', 'Military service', 'Funeral preferences'],
+    items: ['Client & spouse details', 'Contact info & identification', 'Domicile & marital status', 'Military service', 'Safe deposit box', 'Medicare & medical insurance'],
   },
   {
     id: 'family-dependents', title: 'Family & Dependents', icon: <FamilyRestroomIcon sx={{ fontSize: 26 }} />, accentColor: '#d4497a',
-    items: ['Children & grandchildren', 'Beneficiary designations', 'Special needs dependents', 'Guardianship wishes'],
+    items: ['Children & grandchildren', 'Other beneficiaries', 'Charitable organizations', 'Beneficiary concerns', 'Pet care'],
   },
   {
     id: 'financial-life', title: 'Financial Life', icon: <AccountBalanceIcon sx={{ fontSize: 26 }} />, accentColor: '#0a5c36',
-    items: ['Bank & investment accounts', 'Income sources & pensions', 'Insurance policies', 'Debts & obligations'],
+    items: ['Assets: financial, real property, vehicles, business, digital, personal property', 'Income sources', 'Expenses', 'Debts'],
   },
   {
     id: 'people-advisors', title: 'My People & Advisors', icon: <ContactsIcon sx={{ fontSize: 26 }} />, accentColor: '#2d6a4f',
-    items: ['Attorney & estate planner', 'Financial advisor & CPA', 'Insurance agents', 'Close friends & neighbors'],
+    items: ['Attorney, accountant, financial advisor', 'Insurance & real estate agents', 'Business advisor & other', 'Friends & neighbors'],
   },
   {
     id: 'legal-documents', title: 'Legal Documents', icon: <HistoryEduIcon sx={{ fontSize: 26 }} />, accentColor: '#7b2cbf',
-    items: ['Will & trust documents', 'Powers of attorney', 'Deeds & titles', 'Birth & marriage certificates'],
+    items: ['Will (Last Will & Testament)', 'Revocable living trust', 'Irrevocable trust', 'Financial power of attorney', 'Health care power of attorney'],
   },
   {
     id: 'emergency-care', title: 'Medical Data', icon: <LocalHospitalIcon sx={{ fontSize: 26 }} />, accentColor: '#0077b6',
@@ -184,23 +184,23 @@ const folioCategories = [
   },
   {
     id: 'insurance-coverage', title: 'Insurance Coverage', icon: <HealthAndSafetyIcon sx={{ fontSize: 26 }} />, accentColor: '#2e7d32',
-    items: ['Medical, vehicle & homeowners', 'Long-term care & disability', 'Life & umbrella policies', 'Policy details & contacts'],
+    items: ['Medical & vehicle insurance', 'Homeowners & umbrella', 'Long-term care & disability', 'Life insurance & other policies'],
   },
   {
     id: 'home-property', title: 'Home & Property', icon: <HomeIcon sx={{ fontSize: 26 }} />, accentColor: '#e07a2f',
-    items: ['Residence details & access', 'Real estate & property', 'Vehicles & titled assets', 'Safe & storage locations'],
+    items: ['Coming soon'],
   },
   {
     id: 'end-of-life', title: 'End of Life Issues', icon: <VolunteerActivismIcon sx={{ fontSize: 26 }} />, accentColor: '#6a1b9a',
-    items: ['Advance directives', 'DNR & living will', 'Organ donation wishes', 'Funeral & burial preferences'],
+    items: ['Advance directives', 'Prepaid funeral & desires', 'Funeral home & burial', 'Religious preferences'],
   },
   {
     id: 'care-decisions', title: 'Care Decisions', icon: <FavoriteBorderIcon sx={{ fontSize: 26 }} />, accentColor: '#00838f',
-    items: ['Care setting preferences', 'Medical & diet preferences', 'Daily routine & activities', 'End-of-life preferences'],
+    items: ['Care setting & medical preferences', 'Diet, hygiene & daily routine', 'Activities, family & social', 'Cognitive, communication & spiritual', 'Financial & end-of-life preferences'],
   },
   {
     id: 'legacy-life-story', title: 'Legacy & Life Story', icon: <VideoLibraryIcon sx={{ fontSize: 26 }} />, accentColor: '#c9a227',
-    items: ['Video messages to loved ones', 'Life lessons & wisdom', 'Family history & memories', 'Photos & keepsakes index'],
+    items: ['Coming soon'],
   },
   {
     id: 'reports', title: 'Reports', icon: <LibraryBooksIcon sx={{ fontSize: 26 }} />, accentColor: '#455a64',

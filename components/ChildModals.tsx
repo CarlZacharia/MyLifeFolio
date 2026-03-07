@@ -2,11 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   TextField,
   Grid,
   FormControl,
@@ -21,8 +16,16 @@ import {
   Box,
   Typography,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useFormContext, BeneficiaryDistributionMethod } from '../lib/FormContext';
+import FolioModal, {
+  folioTextFieldSx,
+  folioColors,
+  FolioCancelButton,
+  FolioSaveButton,
+  FolioDeleteButton,
+  FolioFieldFade,
+  useFolioFieldAnimation,
+} from './FolioModal';
 
 export type ChildMaritalStatus = 'Single' | 'Married' | 'Divorced' | 'Widowed' | '';
 
@@ -121,6 +124,7 @@ export const ChildModal: React.FC<ChildModalProps> = ({
 }) => {
   const [formData, setFormData] = useState<ChildData>(getDefaultChildData());
   const { formData: contextFormData } = useFormContext();
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   useEffect(() => {
     if (open) {
@@ -190,234 +194,305 @@ export const ChildModal: React.FC<ChildModalProps> = ({
     return options;
   }, [showSpouse, contextFormData.clientHasChildrenFromPrior, contextFormData.spouseHasChildrenFromPrior, contextFormData.childrenTogether]);
 
+  const footer = (
+    <>
+      <Box>
+        {isEdit && onDelete && (
+          <FolioDeleteButton onClick={onDelete} />
+        )}
+      </Box>
+      <Box sx={{ display: 'flex', gap: 1.5 }}>
+        <FolioCancelButton onClick={onClose} />
+        <FolioSaveButton onClick={handleSave} disabled={!formData.name || !formData.relationship}>
+          {isEdit ? 'Save Changes' : 'Add Child'}
+        </FolioSaveButton>
+      </Box>
+    </>
+  );
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Child' : 'Add Child'}</DialogTitle>
-      <DialogContent>
-        <Box sx={{ pt: 1 }}>
-          <Grid container spacing={2}>
-            {/* Row 1: Name, Relationship, Marital Status */}
-            <Grid item xs={12} md={5}>
-              <TextField
-                fullWidth
-                label="Legal Name"
-                value={formData.name}
-                onChange={handleChange('name')}
-                variant="outlined"
-                size="small"
-                required
-                helperText="Enter full legal name, not nickname (e.g., James P. Jones, not Jimmy)"
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <FormControl fullWidth size="small" required>
-                <InputLabel>Relationship</InputLabel>
-                <Select
-                  value={formData.relationship}
-                  label="Relationship"
-                  onChange={(e) => setFormData((prev) => ({ ...prev, relationship: e.target.value }))}
-                >
-                  {relationshipOptions.map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Marital Status</InputLabel>
-                <Select
-                  value={formData.maritalStatus}
-                  label="Marital Status"
-                  onChange={(e) => setFormData((prev) => ({ ...prev, maritalStatus: e.target.value as ChildMaritalStatus }))}
-                >
-                  {CHILD_MARITAL_STATUS_OPTIONS.map((status) => (
-                    <MenuItem key={status} value={status}>
-                      {status}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            {/* Row 2: Address, Date of Birth */}
-            <Grid item xs={12} md={8}>
-              <TextField
-                fullWidth
-                label="Address"
-                value={formData.address}
-                onChange={handleChange('address')}
-                variant="outlined"
-                size="small"
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <TextField
-                fullWidth
-                label="Date of Birth"
-                value={formData.birthDate}
-                onChange={handleChange('birthDate')}
-                variant="outlined"
-                size="small"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-              />
-              {formData.birthDate && calculateAge(formData.birthDate) && (
-                <Typography variant="body2" sx={{ mt: 0.5, color: 'text.secondary' }}>
-                  Age: {calculateAge(formData.birthDate)} years old
-                </Typography>
-              )}
-            </Grid>
-            {/* Row 3: Has Children, Disinherit, Is Deceased */}
-            <Grid item xs={12} md={4}>
-              <Box sx={{ display: 'flex', alignItems: 'center', height: '40px' }}>
-                <Typography variant="body2" sx={{ mr: 2 }}>
-                  Has Children?
-                </Typography>
-                <RadioGroup
-                  row
-                  value={formData.hasChildren ? 'yes' : 'no'}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, hasChildren: e.target.value === 'yes' }))}
-                  sx={{ flexWrap: 'nowrap' }}
-                >
-                  <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" sx={{ mr: 1 }} />
-                  <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-                </RadioGroup>
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.disinherit || false}
-                    onChange={handleCheckboxChange('disinherit')}
-                    sx={{ color: 'error.main', '&.Mui-checked': { color: 'error.main' } }}
-                  />
-                }
-                label="Disinherit this child"
-                sx={{ color: 'error.main' }}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.isDeceased || false}
-                    onChange={handleCheckboxChange('isDeceased')}
-                    sx={{ color: 'error.main', '&.Mui-checked': { color: 'error.main' } }}
-                  />
-                }
-                label="Is Deceased?"
-                sx={{ color: 'error.main' }}
-              />
-            </Grid>
-            {formData.hasChildren && (
-              <>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="No. Children"
-                    type="number"
-                    value={formData.numberOfChildren || ''}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, numberOfChildren: parseInt(e.target.value) || 0 }))}
-                    variant="outlined"
-                    size="small"
-                    inputProps={{ min: 0 }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', height: '40px' }}>
-                    <Typography variant="body2" sx={{ mr: 2 }}>
-                      Are any minors?
-                    </Typography>
-                    <RadioGroup
-                      row
-                      value={formData.hasMinorChildren ? 'yes' : 'no'}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, hasMinorChildren: e.target.value === 'yes' }))}
-                      sx={{ flexWrap: 'nowrap' }}
-                    >
-                      <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" sx={{ mr: 1 }} />
-                      <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
-                    </RadioGroup>
-                  </Box>
-                </Grid>
-                <Grid item xs={12} md={8}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', height: '40px' }}>
-                    <Typography variant="body2" sx={{ mr: 2 }}>
-                      Distribution Type
-                    </Typography>
-                    <RadioGroup
-                      row
-                      value={formData.distributionType}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, distributionType: e.target.value as ChildData['distributionType'] }))}
-                      sx={{ flexWrap: 'nowrap' }}
-                    >
-                      <FormControlLabel value="Per Stirpes" control={<Radio size="small" />} label="Per Stirpes" sx={{ mr: 1 }} />
-                      <FormControlLabel value="Per Capita" control={<Radio size="small" />} label="Per Capita" />
-                    </RadioGroup>
-                  </Box>
-                  <Typography variant="caption" color="text.secondary">
-                    Per Stirpes: Share passes to descendants. Per Capita: Share divided among survivors only.
-                  </Typography>
-                </Grid>
-              </>
-            )}
-            {/* Distribution Method */}
-            <Grid item xs={12}>
-              <FormControl component="fieldset" fullWidth>
-                <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1 }}>
-                  What type of distribution do you foresee for this beneficiary?
-                </FormLabel>
-                <RadioGroup
-                  value={formData.distributionMethod || ''}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, distributionMethod: e.target.value as BeneficiaryDistributionMethod }))}
-                >
-                  {DISTRIBUTION_METHOD_OPTIONS.map((option) => (
-                    <FormControlLabel
-                      key={option.value}
-                      value={option.value}
-                      control={<Radio size="small" />}
-                      label={option.label}
-                    />
-                  ))}
-                </RadioGroup>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Comments"
-                value={formData.comments || ''}
-                onChange={handleChange('comments')}
-                variant="outlined"
-                size="small"
-                multiline
-                rows={3}
-                placeholder="Any additional notes about this child"
-              />
-            </Grid>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? 'Edit Child' : 'Add Child'}
+      eyebrow="My Life Folio — Family & Dependents"
+      maxWidth="md"
+      footer={footer}
+    >
+      <FolioFieldFade visible={fieldsVisible} index={0}>
+        <Grid container spacing={2}>
+          {/* Row 1: Name, Relationship, Marital Status */}
+          <Grid item xs={12} md={5}>
+            <TextField
+              fullWidth
+              label="Legal Name"
+              value={formData.name}
+              onChange={handleChange('name')}
+              variant="outlined"
+              size="small"
+              required
+              helperText="Enter full legal name, not nickname (e.g., James P. Jones, not Jimmy)"
+              InputLabelProps={{ shrink: true }}
+              sx={{ ...folioTextFieldSx }}
+            />
           </Grid>
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2, justifyContent: 'space-between' }}>
-        <Box>
-          {isEdit && onDelete && (
-            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
-              Delete
-            </Button>
+          <Grid item xs={12} md={4}>
+            <FormControl fullWidth size="small" required sx={{ ...folioTextFieldSx }}>
+              <InputLabel shrink>Relationship</InputLabel>
+              <Select
+                value={formData.relationship}
+                label="Relationship"
+                notched
+                onChange={(e) => setFormData((prev) => ({ ...prev, relationship: e.target.value }))}
+              >
+                {relationshipOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <FormControl fullWidth size="small" sx={{ ...folioTextFieldSx }}>
+              <InputLabel shrink>Marital Status</InputLabel>
+              <Select
+                value={formData.maritalStatus}
+                label="Marital Status"
+                notched
+                onChange={(e) => setFormData((prev) => ({ ...prev, maritalStatus: e.target.value as ChildMaritalStatus }))}
+              >
+                {CHILD_MARITAL_STATUS_OPTIONS.map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {status}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          {/* Row 2: Address, Date of Birth */}
+          <Grid item xs={12} md={8}>
+            <TextField
+              fullWidth
+              label="Address"
+              value={formData.address}
+              onChange={handleChange('address')}
+              variant="outlined"
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              sx={{ ...folioTextFieldSx }}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              fullWidth
+              label="Date of Birth"
+              value={formData.birthDate}
+              onChange={handleChange('birthDate')}
+              variant="outlined"
+              size="small"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              sx={{ ...folioTextFieldSx }}
+            />
+            {formData.birthDate && calculateAge(formData.birthDate) && (
+              <Typography
+                variant="body2"
+                sx={{
+                  mt: 0.5,
+                  color: folioColors.inkLight,
+                  fontFamily: '"Jost", sans-serif',
+                  fontSize: '13px',
+                }}
+              >
+                Age: {calculateAge(formData.birthDate)} years old
+              </Typography>
+            )}
+          </Grid>
+          {/* Row 3: Has Children, Disinherit, Is Deceased */}
+          <Grid item xs={12} md={4}>
+            <Box sx={{ display: 'flex', alignItems: 'center', height: '40px' }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  mr: 2,
+                  fontFamily: '"Jost", sans-serif',
+                  fontWeight: 500,
+                  fontSize: '13px',
+                  letterSpacing: '0.05em',
+                  color: folioColors.inkLight,
+                }}
+              >
+                Has Children?
+              </Typography>
+              <RadioGroup
+                row
+                value={formData.hasChildren ? 'yes' : 'no'}
+                onChange={(e) => setFormData((prev) => ({ ...prev, hasChildren: e.target.value === 'yes' }))}
+                sx={{ flexWrap: 'nowrap' }}
+              >
+                <FormControlLabel value="yes" control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />} label="Yes" sx={{ mr: 1, '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }} />
+                <FormControlLabel value="no" control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />} label="No" sx={{ '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }} />
+              </RadioGroup>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.disinherit || false}
+                  onChange={handleCheckboxChange('disinherit')}
+                  sx={{ color: '#c62828', '&.Mui-checked': { color: '#c62828' } }}
+                />
+              }
+              label="Disinherit this child"
+              sx={{ color: '#c62828', '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px' } }}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.isDeceased || false}
+                  onChange={handleCheckboxChange('isDeceased')}
+                  sx={{ color: '#c62828', '&.Mui-checked': { color: '#c62828' } }}
+                />
+              }
+              label="Is Deceased?"
+              sx={{ color: '#c62828', '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px' } }}
+            />
+          </Grid>
+          {formData.hasChildren && (
+            <>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="No. Children"
+                  type="number"
+                  value={formData.numberOfChildren || ''}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, numberOfChildren: parseInt(e.target.value) || 0 }))}
+                  variant="outlined"
+                  size="small"
+                  inputProps={{ min: 0 }}
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ ...folioTextFieldSx }}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Box sx={{ display: 'flex', alignItems: 'center', height: '40px' }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      mr: 2,
+                      fontFamily: '"Jost", sans-serif',
+                      fontWeight: 500,
+                      fontSize: '13px',
+                      letterSpacing: '0.05em',
+                      color: folioColors.inkLight,
+                    }}
+                  >
+                    Are any minors?
+                  </Typography>
+                  <RadioGroup
+                    row
+                    value={formData.hasMinorChildren ? 'yes' : 'no'}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, hasMinorChildren: e.target.value === 'yes' }))}
+                    sx={{ flexWrap: 'nowrap' }}
+                  >
+                    <FormControlLabel value="yes" control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />} label="Yes" sx={{ mr: 1, '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }} />
+                    <FormControlLabel value="no" control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />} label="No" sx={{ '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }} />
+                  </RadioGroup>
+                </Box>
+              </Grid>
+              <Grid item xs={12} md={8}>
+                <Box sx={{ display: 'flex', alignItems: 'center', height: '40px' }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      mr: 2,
+                      fontFamily: '"Jost", sans-serif',
+                      fontWeight: 500,
+                      fontSize: '13px',
+                      letterSpacing: '0.05em',
+                      color: folioColors.inkLight,
+                    }}
+                  >
+                    Distribution Type
+                  </Typography>
+                  <RadioGroup
+                    row
+                    value={formData.distributionType}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, distributionType: e.target.value as ChildData['distributionType'] }))}
+                    sx={{ flexWrap: 'nowrap' }}
+                  >
+                    <FormControlLabel value="Per Stirpes" control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />} label="Per Stirpes" sx={{ mr: 1, '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }} />
+                    <FormControlLabel value="Per Capita" control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />} label="Per Capita" sx={{ '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }} />
+                  </RadioGroup>
+                </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: folioColors.inkFaint,
+                    fontFamily: '"Jost", sans-serif',
+                    fontSize: '12px',
+                  }}
+                >
+                  Per Stirpes: Share passes to descendants. Per Capita: Share divided among survivors only.
+                </Typography>
+              </Grid>
+            </>
           )}
-        </Box>
-        <Box>
-          <Button onClick={onClose} sx={{ mr: 1 }}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} variant="contained" disabled={!formData.name || !formData.relationship}>
-            {isEdit ? 'Save Changes' : 'Add Child'}
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+          {/* Distribution Method */}
+          <Grid item xs={12}>
+            <FormControl component="fieldset" fullWidth>
+              <FormLabel
+                component="legend"
+                sx={{
+                  fontFamily: '"Jost", sans-serif',
+                  fontWeight: 500,
+                  fontSize: '13px',
+                  letterSpacing: '0.05em',
+                  color: folioColors.inkLight,
+                  mb: 1,
+                  '&.Mui-focused': { color: folioColors.accent },
+                }}
+              >
+                What type of distribution do you foresee for this beneficiary?
+              </FormLabel>
+              <RadioGroup
+                value={formData.distributionMethod || ''}
+                onChange={(e) => setFormData((prev) => ({ ...prev, distributionMethod: e.target.value as BeneficiaryDistributionMethod }))}
+              >
+                {DISTRIBUTION_METHOD_OPTIONS.map((option) => (
+                  <FormControlLabel
+                    key={option.value}
+                    value={option.value}
+                    control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />}
+                    label={option.label}
+                    sx={{ '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }}
+                  />
+                ))}
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Comments"
+              value={formData.comments || ''}
+              onChange={handleChange('comments')}
+              variant="outlined"
+              size="small"
+              multiline
+              rows={3}
+              placeholder="Any additional notes about this child"
+              InputLabelProps={{ shrink: true }}
+              sx={{ ...folioTextFieldSx }}
+            />
+          </Grid>
+        </Grid>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };
 

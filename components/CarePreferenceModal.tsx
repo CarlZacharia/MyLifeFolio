@@ -1,18 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Box,
-  IconButton,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Box } from '@mui/material';
 import { CARE_PREFERENCE_CATEGORIES } from '../lib/carePreferenceCategories';
+import FolioModal, {
+  folioColors,
+  folioLabelSx,
+  folioInputSx,
+  FolioOptionalBadge,
+  FolioCancelButton,
+  FolioSaveButton,
+  FolioFieldFade,
+  useFolioFieldAnimation,
+} from './FolioModal';
 
 export interface CarePreferenceData {
   category: string;
@@ -48,13 +48,12 @@ const CarePreferenceModal: React.FC<CarePreferenceModalProps> = ({
   );
   const items = selectedCategory?.items || [];
 
-  // Map of item label -> response value
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState('');
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   useEffect(() => {
     if (open) {
-      // Pre-populate from existing entries
       const map: Record<string, string> = {};
       let existingNotes = '';
       existingEntries.forEach((entry) => {
@@ -75,7 +74,6 @@ const CarePreferenceModal: React.FC<CarePreferenceModalProps> = ({
   };
 
   const handleSave = () => {
-    // Build entries for items that have a response
     const entries: CarePreferenceData[] = items
       .filter((item) => responses[item]?.trim())
       .map((item, idx) => ({
@@ -90,55 +88,73 @@ const CarePreferenceModal: React.FC<CarePreferenceModalProps> = ({
 
   const filledCount = items.filter((item) => responses[item]?.trim()).length;
 
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle
+  const footer = (
+    <>
+      <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontWeight: 600,
+          fontFamily: '"Jost", sans-serif',
+          fontSize: '13px',
+          fontWeight: 400,
+          color: folioColors.inkLight,
         }}
       >
-        {category}
-        <IconButton onClick={onClose} size="small">
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent dividers>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-          {items.map((item) => (
-            <TextField
-              key={item}
-              label={item}
-              value={responses[item] || ''}
-              onChange={(e) => handleResponseChange(item, e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              size="small"
-            />
-          ))}
+        {filledCount} of {items.length} fields completed
+      </Box>
+      <Box sx={{ display: 'flex', gap: 1.5 }}>
+        <FolioCancelButton onClick={onClose} />
+        <FolioSaveButton onClick={handleSave}>Save Preferences</FolioSaveButton>
+      </Box>
+    </>
+  );
 
-          <TextField
-            label="Notes"
+  return (
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={category}
+      eyebrow="My Life Folio — Care Preferences"
+      footer={footer}
+    >
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+        {items.map((item, idx) => (
+          <FolioFieldFade key={item} visible={fieldsVisible} index={idx}>
+            <Box sx={folioLabelSx}>{item}</Box>
+            <Box
+              component="input"
+              type="text"
+              value={responses[item] || ''}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleResponseChange(item, e.target.value)
+              }
+              placeholder="Enter your preference..."
+              sx={folioInputSx}
+            />
+          </FolioFieldFade>
+        ))}
+
+        {/* Notes field */}
+        <FolioFieldFade visible={fieldsVisible} index={items.length}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+            <Box sx={folioLabelSx}>Notes</Box>
+            <FolioOptionalBadge />
+          </Box>
+          <Box
+            component="textarea"
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-            multiline
-            minRows={2}
-            fullWidth
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+              setNotes(e.target.value)
+            }
+            placeholder="Any additional notes for this category..."
+            rows={3}
+            sx={{
+              ...folioInputSx,
+              resize: 'vertical' as const,
+              minHeight: '72px',
+            }}
           />
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose} variant="outlined">
-          Cancel
-        </Button>
-        <Button onClick={handleSave} variant="contained">
-          Save ({filledCount}/{items.length})
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </FolioFieldFade>
+      </Box>
+    </FolioModal>
   );
 };
 

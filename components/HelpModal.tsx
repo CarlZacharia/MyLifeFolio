@@ -2,19 +2,13 @@
 
 import React from "react";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   Typography,
   Box,
-  IconButton,
   Link,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
+import FolioModal, { folioColors, FolioCancelButton } from "./FolioModal";
 // Help content types
 export type HelpContentType = "Text" | "Video" | "Link";
 
@@ -2681,7 +2675,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ open, onClose, helpId }) => {
                   }}
                 >
                   <PlayCircleOutlineIcon
-                    sx={{ color: "#1a237e", fontSize: 40 }}
+                    sx={{ color: folioColors.ink, fontSize: 40 }}
                   />
                   <Box>
                     <Typography variant="body2" color="text.secondary">
@@ -2691,7 +2685,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ open, onClose, helpId }) => {
                       href={videoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      sx={{ color: "#1a237e" }}
+                      sx={{ color: folioColors.accent }}
                     >
                       Watch Video{" "}
                       <OpenInNewIcon
@@ -2716,7 +2710,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ open, onClose, helpId }) => {
                   "& p": { mb: 2, lineHeight: 1.7 },
                   "& ul": { pl: 3, mb: 2 },
                   "& li": { mb: 0.5, lineHeight: 1.6 },
-                  "& strong": { color: "#1a237e" },
+                  "& strong": { color: folioColors.ink },
                 }}
               />
             )}
@@ -2764,7 +2758,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ open, onClose, helpId }) => {
               "& p": { mb: 2, lineHeight: 1.7 },
               "& ul": { pl: 3, mb: 2 },
               "& li": { mb: 0.5, lineHeight: 1.6 },
-              "& strong": { color: "#1a237e" },
+              "& strong": { color: folioColors.ink },
               "& em": { color: "text.secondary", fontStyle: "italic" },
             }}
           />
@@ -2773,87 +2767,37 @@ const HelpModal: React.FC<HelpModalProps> = ({ open, onClose, helpId }) => {
   };
 
   return (
-    <Dialog
+    <FolioModal
       open={open}
       onClose={onClose}
+      title={helpContent.title}
+      eyebrow="Help"
       maxWidth="sm"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 2,
-          boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-        },
-      }}
-    >
-      <DialogTitle
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          bgcolor: "#1a237e",
-          color: "white",
-          py: 1.5,
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Box
-            sx={{
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              bgcolor: "#FFD700",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "1rem",
-              fontWeight: 700,
-              color: "#1a237e",
-            }}
-          >
-            ?
+      footer={
+        <>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <img
+              src="/logo.jpg"
+              alt="Company Logo"
+              style={{ height: 32, width: "auto" }}
+            />
+            <Typography
+              variant="caption"
+              sx={{
+                color: folioColors.inkFaint,
+                fontSize: "0.7rem",
+                fontFamily: '"Jost", sans-serif',
+              }}
+            >
+              MyLifeFolio &copy; 2026
+            </Typography>
           </Box>
-          <Typography variant="h6" component="span" sx={{ fontWeight: 600 }}>
-            {helpContent.title}
-          </Typography>
-        </Box>
-        <IconButton
-          onClick={onClose}
-          sx={{
-            color: "white",
-            "&:hover": { bgcolor: "rgba(255,255,255,0.1)" },
-          }}
-          size="small"
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent sx={{ pt: 3 }}>{renderContent()}</DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2, justifyContent: "space-between" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <img
-            src="/logo.jpg"
-            alt="Company Logo"
-            style={{ height: 32, width: "auto" }}
-          />
-          <Typography
-            variant="caption"
-            sx={{ color: "text.secondary", fontSize: "0.7rem" }}
-          >
-            MyLifeFolio &copy; 2026
-          </Typography>
-        </Box>
-        <Button
-          onClick={onClose}
-          variant="contained"
-          sx={{
-            bgcolor: "#1a237e",
-            "&:hover": { bgcolor: "#0d1642" },
-          }}
-        >
-          Got It
-        </Button>
-      </DialogActions>
-    </Dialog>
+          <FolioCancelButton onClick={onClose} />
+        </>
+      }
+    >
+      {renderContent()}
+    </FolioModal>
   );
 };
 

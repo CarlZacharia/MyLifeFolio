@@ -2,17 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   TextField,
   Grid,
   Box,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { SpecificGiftItem } from '../lib/FormContext';
+import FolioModal, {
+  folioTextFieldSx,
+  FolioCancelButton,
+  FolioSaveButton,
+  FolioDeleteButton,
+  FolioFieldFade,
+  useFolioFieldAnimation,
+} from './FolioModal';
 
 interface SpecificGiftModalProps {
   open: boolean;
@@ -57,84 +59,94 @@ export const SpecificGiftModal: React.FC<SpecificGiftModalProps> = ({
   };
 
   const isValid = formData.recipientName.trim() !== '' && formData.description.trim() !== '';
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Specific Gift' : 'Add Specific Gift'}</DialogTitle>
-      <DialogContent>
-        <Box sx={{ pt: 1 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Recipient Name"
-                value={formData.recipientName}
-                onChange={handleChange('recipientName')}
-                variant="outlined"
-                size="small"
-                required
-                placeholder="e.g., John Smith"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Relationship"
-                value={formData.relationship}
-                onChange={handleChange('relationship')}
-                variant="outlined"
-                size="small"
-                placeholder="e.g., Nephew, Friend, Caregiver"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Item/Description"
-                value={formData.description}
-                onChange={handleChange('description')}
-                variant="outlined"
-                size="small"
-                required
-                multiline
-                rows={2}
-                placeholder="e.g., My grandmother's diamond ring, the antique grandfather clock in the living room"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Notes"
-                value={formData.notes}
-                onChange={handleChange('notes')}
-                variant="outlined"
-                size="small"
-                multiline
-                rows={2}
-                placeholder="Any additional notes about this gift..."
-              />
-            </Grid>
-          </Grid>
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2, justifyContent: 'space-between' }}>
-        <Box>
-          {isEdit && onDelete && (
-            <Button onClick={onDelete} color="error" startIcon={<DeleteIcon />}>
-              Delete
-            </Button>
-          )}
-        </Box>
-        <Box>
-          <Button onClick={onClose} sx={{ mr: 1 }}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} variant="contained" disabled={!isValid}>
-            {isEdit ? 'Save Changes' : 'Add Gift'}
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? 'Edit Specific Gift' : 'Add Specific Gift'}
+      eyebrow="My Life Folio — Gifts & Bequests"
+      maxWidth="md"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!isValid}>
+              {isEdit ? 'Save Changes' : 'Add Gift'}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={6}>
+          <FolioFieldFade visible={fieldsVisible} index={0}>
+            <TextField
+              fullWidth
+              label="Recipient Name"
+              value={formData.recipientName}
+              onChange={handleChange('recipientName')}
+              variant="outlined"
+              size="small"
+              required
+              placeholder="e.g., John Smith"
+              sx={{ ...folioTextFieldSx }}
+            />
+          </FolioFieldFade>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <FolioFieldFade visible={fieldsVisible} index={1}>
+            <TextField
+              fullWidth
+              label="Relationship"
+              value={formData.relationship}
+              onChange={handleChange('relationship')}
+              variant="outlined"
+              size="small"
+              placeholder="e.g., Nephew, Friend, Caregiver"
+              sx={{ ...folioTextFieldSx }}
+            />
+          </FolioFieldFade>
+        </Grid>
+        <Grid item xs={12}>
+          <FolioFieldFade visible={fieldsVisible} index={2}>
+            <TextField
+              fullWidth
+              label="Item/Description"
+              value={formData.description}
+              onChange={handleChange('description')}
+              variant="outlined"
+              size="small"
+              required
+              multiline
+              rows={2}
+              placeholder="e.g., My grandmother's diamond ring, the antique grandfather clock in the living room"
+              sx={{ ...folioTextFieldSx }}
+            />
+          </FolioFieldFade>
+        </Grid>
+        <Grid item xs={12}>
+          <FolioFieldFade visible={fieldsVisible} index={3}>
+            <TextField
+              fullWidth
+              label="Notes"
+              value={formData.notes}
+              onChange={handleChange('notes')}
+              variant="outlined"
+              size="small"
+              multiline
+              rows={2}
+              placeholder="Any additional notes about this gift..."
+              sx={{ ...folioTextFieldSx }}
+            />
+          </FolioFieldFade>
+        </Grid>
+      </Grid>
+    </FolioModal>
   );
 };
 

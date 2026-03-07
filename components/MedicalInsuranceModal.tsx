@@ -2,17 +2,18 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   TextField,
   Box,
   MenuItem,
-  IconButton,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import FolioModal, {
+  folioTextFieldSx,
+  FolioCancelButton,
+  FolioSaveButton,
+  FolioDeleteButton,
+  FolioFieldFade,
+  useFolioFieldAnimation,
+} from './FolioModal';
 
 export const INSURANCE_TYPES = [
   'Part B Medicare Advantage',
@@ -82,6 +83,7 @@ const MedicalInsuranceModal: React.FC<MedicalInsuranceModalProps> = ({
 }) => {
   const [data, setData] = useState<MedicalInsurancePolicyData>(initialData || emptyPolicy(person));
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const fieldsVisible = useFolioFieldAnimation(open);
 
   const personLabel = person === 'spouse' ? 'Spouse' : 'Client';
 
@@ -112,14 +114,31 @@ const MedicalInsuranceModal: React.FC<MedicalInsuranceModalProps> = ({
     onClose();
   };
 
+  const footer = (
+    <>
+      <Box>
+        {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+      </Box>
+      <Box sx={{ display: 'flex', gap: 1.5 }}>
+        <FolioCancelButton onClick={onClose} />
+        <FolioSaveButton onClick={handleSave} disabled={!canSave}>
+          {isEdit ? 'Save Changes' : 'Add Insurance'}
+        </FolioSaveButton>
+      </Box>
+    </>
+  );
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 600 }}>
-        {isEdit ? `Edit ${personLabel} Insurance` : `Add ${personLabel} Medical Insurance`}
-        <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
-      </DialogTitle>
-      <DialogContent dividers>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? `Edit ${personLabel} Insurance` : `Add ${personLabel} Medical Insurance`}
+      eyebrow="My Life Folio — Medical Insurance"
+      maxWidth="sm"
+      footer={footer}
+    >
+      <FolioFieldFade visible={fieldsVisible} index={0}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           <TextField
             select
             label="Type"
@@ -131,6 +150,7 @@ const MedicalInsuranceModal: React.FC<MedicalInsuranceModalProps> = ({
             required
             InputLabelProps={{ shrink: true }}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           >
             {INSURANCE_TYPES.map((type) => (
               <MenuItem key={type} value={type}>{type}</MenuItem>
@@ -143,14 +163,14 @@ const MedicalInsuranceModal: React.FC<MedicalInsuranceModalProps> = ({
               value={data.provider}
               onChange={(e) => handleChange({ provider: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ ...folioTextFieldSx, flex: 1 }}
             />
             <TextField
               label="Policy No."
               value={data.policyNo}
               onChange={(e) => handleChange({ policyNo: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ ...folioTextFieldSx, flex: 1 }}
             />
           </Box>
 
@@ -161,7 +181,7 @@ const MedicalInsuranceModal: React.FC<MedicalInsuranceModalProps> = ({
               value={data.paidBy}
               onChange={(e) => handleChange({ paidBy: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ ...folioTextFieldSx, flex: 1 }}
             >
               {PAID_BY_OPTIONS.map((opt) => (
                 <MenuItem key={opt} value={opt}>{opt}</MenuItem>
@@ -173,7 +193,7 @@ const MedicalInsuranceModal: React.FC<MedicalInsuranceModalProps> = ({
               onChange={(e) => handleChange({ monthlyCost: e.target.value })}
               InputLabelProps={{ shrink: true }}
               placeholder="$0.00"
-              sx={{ flex: 1 }}
+              sx={{ ...folioTextFieldSx, flex: 1 }}
             />
           </Box>
 
@@ -183,6 +203,7 @@ const MedicalInsuranceModal: React.FC<MedicalInsuranceModalProps> = ({
             onChange={(e) => handleChange({ contactName: e.target.value })}
             InputLabelProps={{ shrink: true }}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
 
           <TextField
@@ -191,6 +212,7 @@ const MedicalInsuranceModal: React.FC<MedicalInsuranceModalProps> = ({
             onChange={(e) => handleChange({ contactAddress: e.target.value })}
             InputLabelProps={{ shrink: true }}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
 
           <Box sx={{ display: 'flex', gap: 2 }}>
@@ -199,14 +221,14 @@ const MedicalInsuranceModal: React.FC<MedicalInsuranceModalProps> = ({
               value={data.contactPhone}
               onChange={(e) => handleChange({ contactPhone: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ ...folioTextFieldSx, flex: 1 }}
             />
             <TextField
               label="Contact Email"
               value={data.contactEmail}
               onChange={(e) => handleChange({ contactEmail: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ ...folioTextFieldSx, flex: 1 }}
             />
           </Box>
 
@@ -218,21 +240,11 @@ const MedicalInsuranceModal: React.FC<MedicalInsuranceModalProps> = ({
             multiline
             minRows={2}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
         </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        {isEdit && onDelete && (
-          <Button onClick={onDelete} color="error" sx={{ mr: 'auto' }}>
-            Delete
-          </Button>
-        )}
-        <Button onClick={onClose} variant="outlined">Cancel</Button>
-        <Button onClick={handleSave} variant="contained" disabled={!canSave}>
-          {isEdit ? 'Save Changes' : 'Add Insurance'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </FolioFieldFade>
+    </FolioModal>
   );
 };
 

@@ -2,17 +2,18 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   TextField,
   Box,
   MenuItem,
-  IconButton,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import FolioModal, {
+  folioTextFieldSx,
+  FolioCancelButton,
+  FolioSaveButton,
+  FolioDeleteButton,
+  FolioFieldFade,
+  useFolioFieldAnimation,
+} from './FolioModal';
 
 export const SPECIALIST_TYPES = [
   'Allergist/Immunologist',
@@ -124,15 +125,31 @@ const MedicalProviderModal: React.FC<MedicalProviderModalProps> = ({
     ? `Edit ${personLabel} ${isSpecialist ? 'Specialist' : 'PCP'}`
     : `Add ${personLabel} ${isSpecialist ? 'Specialist' : 'PCP'}`;
 
+  const fieldsVisible = useFolioFieldAnimation(open);
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 600 }}>
-        {title}
-        <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
-      </DialogTitle>
-      <DialogContent dividers>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
-          {isSpecialist && (
+    <FolioModal
+      open={open}
+      onClose={onClose}
+      title={title}
+      eyebrow="My Life Folio — Medical Providers"
+      footer={
+        <>
+          <Box>
+            {isEdit && onDelete && <FolioDeleteButton onClick={onDelete} />}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <FolioCancelButton onClick={onClose} />
+            <FolioSaveButton onClick={handleSave} disabled={!canSave}>
+              {isEdit ? 'Save Changes' : isSpecialist ? 'Add Specialist' : 'Add PCP'}
+            </FolioSaveButton>
+          </Box>
+        </>
+      }
+    >
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+        {isSpecialist && (
+          <FolioFieldFade visible={fieldsVisible} index={0}>
             <TextField
               select
               label="Advisor Type"
@@ -140,13 +157,16 @@ const MedicalProviderModal: React.FC<MedicalProviderModalProps> = ({
               onChange={(e) => handleChange({ specialistType: e.target.value })}
               InputLabelProps={{ shrink: true }}
               fullWidth
+              sx={{ ...folioTextFieldSx }}
             >
               {SPECIALIST_TYPES.map((type) => (
                 <MenuItem key={type} value={type}>{type}</MenuItem>
               ))}
             </TextField>
-          )}
+          </FolioFieldFade>
+        )}
 
+        <FolioFieldFade visible={fieldsVisible} index={isSpecialist ? 1 : 0}>
           <TextField
             label="Physician's Name"
             value={data.name}
@@ -157,41 +177,52 @@ const MedicalProviderModal: React.FC<MedicalProviderModalProps> = ({
             required
             InputLabelProps={{ shrink: true }}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
+        </FolioFieldFade>
 
+        <FolioFieldFade visible={fieldsVisible} index={isSpecialist ? 2 : 1}>
           <TextField
             label="Firm/Practice Name"
             value={data.firmName}
             onChange={(e) => handleChange({ firmName: e.target.value })}
             InputLabelProps={{ shrink: true }}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
+        </FolioFieldFade>
 
+        <FolioFieldFade visible={fieldsVisible} index={isSpecialist ? 3 : 2}>
           <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
               label="Phone"
               value={data.phone}
               onChange={(e) => handleChange({ phone: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ flex: 1, ...folioTextFieldSx }}
             />
             <TextField
               label="Email"
               value={data.email}
               onChange={(e) => handleChange({ email: e.target.value })}
               InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
+              sx={{ flex: 1, ...folioTextFieldSx }}
             />
           </Box>
+        </FolioFieldFade>
 
+        <FolioFieldFade visible={fieldsVisible} index={isSpecialist ? 4 : 3}>
           <TextField
             label="Address"
             value={data.address}
             onChange={(e) => handleChange({ address: e.target.value })}
             InputLabelProps={{ shrink: true }}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
+        </FolioFieldFade>
 
+        <FolioFieldFade visible={fieldsVisible} index={isSpecialist ? 5 : 4}>
           <TextField
             label="Notes"
             value={data.notes}
@@ -200,21 +231,11 @@ const MedicalProviderModal: React.FC<MedicalProviderModalProps> = ({
             multiline
             minRows={2}
             fullWidth
+            sx={{ ...folioTextFieldSx }}
           />
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        {isEdit && onDelete && (
-          <Button onClick={onDelete} color="error" sx={{ mr: 'auto' }}>
-            Delete
-          </Button>
-        )}
-        <Button onClick={onClose} variant="outlined">Cancel</Button>
-        <Button onClick={handleSave} variant="contained" disabled={!canSave}>
-          {isEdit ? 'Save Changes' : isSpecialist ? 'Add Specialist' : 'Add PCP'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </FolioFieldFade>
+      </Box>
+    </FolioModal>
   );
 };
 
