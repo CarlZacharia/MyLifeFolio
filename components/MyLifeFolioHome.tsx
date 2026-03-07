@@ -33,6 +33,7 @@ import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { useAuth } from '../lib/AuthContext';
+import FolioSearchBar from './FolioSearchBar';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
@@ -363,24 +364,27 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
               minHeight: { xs: 64, md: 72 },
             }}
           >
-              {/* Back Button */}
-              <Button
-                color="inherit"
-                startIcon={<ArrowBackIcon />}
-                onClick={onNavigateBack}
-                sx={{
-                  position: 'absolute',
-                  left: 16,
-                  fontWeight: 500,
-                  opacity: 0.9,
-                  '&:hover': {
-                    opacity: 1,
-                    bgcolor: 'rgba(255,255,255,0.08)',
-                  },
-                }}
-              >
-                Back
-              </Button>
+              {/* Back Button + Search */}
+              <Box sx={{ position: 'absolute', left: 16, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Button
+                  color="inherit"
+                  startIcon={<ArrowBackIcon />}
+                  onClick={onNavigateBack}
+                  sx={{
+                    fontWeight: 500,
+                    opacity: 0.9,
+                    '&:hover': {
+                      opacity: 1,
+                      bgcolor: 'rgba(255,255,255,0.08)',
+                    },
+                  }}
+                >
+                  Back
+                </Button>
+                {onNavigate && (
+                  <FolioSearchBar onNavigate={onNavigate} />
+                )}
+              </Box>
 
               {/* Logo and Firm Name - Centered */}
               <Box

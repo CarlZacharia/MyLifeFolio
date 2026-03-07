@@ -25,6 +25,7 @@ import { useAuth } from '../lib/AuthContext';
 import { useFormContext } from '../lib/FormContext';
 import { saveIntakeFull } from '../lib/supabaseIntake';
 import { supabase } from '../lib/supabase';
+import FolioSearchBar from './FolioSearchBar';
 
 const isAdminUser = (email: string | undefined): boolean => {
   if (!email) return false;
@@ -65,6 +66,7 @@ interface FolioCategoryPageProps {
   accentColor: string;
   children: React.ReactNode;
   onNavigateBack: () => void;
+  onNavigate?: (page: string) => void;
   onLogin?: () => void;
   onRegister?: () => void;
   onAdmin?: () => void;
@@ -78,6 +80,7 @@ const FolioCategoryPage: React.FC<FolioCategoryPageProps> = ({
   accentColor,
   children,
   onNavigateBack,
+  onNavigate,
   onLogin,
   onRegister,
   onAdmin,
@@ -207,17 +210,22 @@ const FolioCategoryPage: React.FC<FolioCategoryPageProps> = ({
           }}
         >
           <Toolbar sx={{ py: { xs: 1, md: 1.5 }, px: { xs: 2, md: 3 }, minHeight: { xs: 64, md: 72 } }}>
-            <Button
-              color="inherit"
-              startIcon={<ArrowBackIcon />}
-              onClick={onNavigateBack}
-              sx={{
-                position: 'absolute', left: 16, fontWeight: 500, opacity: 0.9,
-                '&:hover': { opacity: 1, bgcolor: 'rgba(255,255,255,0.08)' },
-              }}
-            >
-              Back
-            </Button>
+            <Box sx={{ position: 'absolute', left: 16, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Button
+                color="inherit"
+                startIcon={<ArrowBackIcon />}
+                onClick={onNavigateBack}
+                sx={{
+                  fontWeight: 500, opacity: 0.9,
+                  '&:hover': { opacity: 1, bgcolor: 'rgba(255,255,255,0.08)' },
+                }}
+              >
+                Back
+              </Button>
+              {onNavigate && (
+                <FolioSearchBar onNavigate={onNavigate} />
+              )}
+            </Box>
 
             <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
               <Box

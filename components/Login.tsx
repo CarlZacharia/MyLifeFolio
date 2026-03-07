@@ -11,8 +11,12 @@ import {
   Alert,
   CircularProgress,
   Link,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { supabase } from '../lib/supabase';
 
 interface LoginProps {
@@ -25,6 +29,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
     email: '',
     password: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
@@ -191,12 +196,25 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
           <TextField
             fullWidth
             label="Password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             value={formData.password}
             onChange={handleChange('password')}
             margin="normal"
             size="small"
             required
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                    size="small"
+                  >
+                    {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
 
           <Box sx={{ textAlign: 'right', mt: 1 }}>

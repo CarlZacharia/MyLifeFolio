@@ -1430,6 +1430,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <PersonalDataSection onSaveAndContinue={() => handleNavigate('mylifefolio-home')} />
           </FolioCategoryPage>
@@ -1447,6 +1448,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <Typography variant="h5" sx={{ color: '#9b2226', mb: 2 }}>Health & Medical</Typography>
             <Typography color="text.secondary">Coming soon — health history, medications, providers, and more.</Typography>
@@ -1465,6 +1467,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <MedicalDataSection />
           </FolioCategoryPage>
@@ -1482,6 +1485,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <FinancialLifeSection />
           </FolioCategoryPage>
@@ -1499,6 +1503,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <PeopleAdvisorsSection />
           </FolioCategoryPage>
@@ -1516,6 +1521,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <CurrentEstatePlanSection />
           </FolioCategoryPage>
@@ -1533,6 +1539,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <Typography variant="h5" sx={{ color: '#c9a227', mb: 2 }}>Legacy & Life Story</Typography>
             <Typography color="text.secondary">Coming soon — video messages, life lessons, family history, and memories.</Typography>
@@ -1551,6 +1558,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <Typography variant="h5" sx={{ color: '#e07a2f', mb: 2 }}>Home & Property</Typography>
             <Typography color="text.secondary">Coming soon — residence details, property records, and access information.</Typography>
@@ -1569,6 +1577,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <BeneficiariesSection />
           </FolioCategoryPage>
@@ -1586,6 +1595,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <InsuranceCoveragePage />
           </FolioCategoryPage>
@@ -1603,6 +1613,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <CarePreferencesSection />
           </FolioCategoryPage>
@@ -1620,6 +1631,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <EndOfLifeSection />
           </FolioCategoryPage>
@@ -1637,6 +1649,7 @@ export default function MainPage() {
             onAdmin={handleAdminClick}
             onProfile={handleProfileClick}
             onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
           >
             <ReportsSection />
           </FolioCategoryPage>
@@ -1655,6 +1668,7 @@ export default function MainPage() {
               onAdmin={handleAdminClick}
               onProfile={handleProfileClick}
               onResources={() => handleNavigate('resources')}
+              onNavigate={handleNavigate}
             >
               <FamilyAccessManager />
             </FolioCategoryPage>

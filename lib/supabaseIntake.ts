@@ -286,6 +286,13 @@ export async function saveIntakeNormalized(
       businessResult,
       digitalAssetsResult,
       medicalProvidersResult,
+      pharmaciesResult,
+      medicationsResult,
+      medicalEquipmentResult,
+      medicalConditionsResult,
+      allergiesResult,
+      surgeriesResult,
+      basicVitalsResult,
       medicalInsuranceResult,
       insuranceCoverageResult,
       advisorsResult,
@@ -310,6 +317,13 @@ export async function saveIntakeNormalized(
       saveBusinessInterests(formData.businessInterests, intakeId, user.id),
       saveDigitalAssets(formData.digitalAssets, intakeId, user.id),
       saveMedicalProviders(formData.medicalProviders, intakeId, user.id),
+      savePharmacies(formData.pharmacies, intakeId, user.id),
+      saveMedications(formData.medications, intakeId, user.id),
+      saveMedicalEquipment(formData.medicalEquipment, intakeId, user.id),
+      saveMedicalConditions(formData.medicalConditions, intakeId, user.id),
+      saveAllergies(formData.allergies, intakeId, user.id),
+      saveSurgeries(formData.surgeries, intakeId, user.id),
+      saveBasicVitals(formData.basicVitals, intakeId, user.id),
       saveMedicalInsurance(formData.medicalInsurancePolicies, intakeId, user.id),
       saveInsuranceCoverage(formData.insurancePolicies, intakeId, user.id),
       saveAdvisors(formData.advisors, intakeId, user.id),
@@ -340,6 +354,13 @@ export async function saveIntakeNormalized(
       businessResult,
       digitalAssetsResult,
       medicalProvidersResult,
+      pharmaciesResult,
+      medicationsResult,
+      medicalEquipmentResult,
+      medicalConditionsResult,
+      allergiesResult,
+      surgeriesResult,
+      basicVitalsResult,
       medicalInsuranceResult,
       insuranceCoverageResult,
       advisorsResult,
@@ -921,6 +942,161 @@ async function saveMedicalProviders(
   }));
 
   return deleteAndInsertRecords('folio_medical_providers', intakeId, userId, records);
+}
+
+async function savePharmacies(
+  pharmacies: FormData['pharmacies'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = pharmacies.map((p) => ({
+    pharmacy_name: p.pharmacyName || null,
+    pharmacy_chain: p.pharmacyChain || null,
+    phone: p.phone || null,
+    fax: p.fax || null,
+    address: p.address || null,
+    city: p.city || null,
+    state: p.state || null,
+    zip: p.zip || null,
+    hours: p.hours || null,
+    pharmacist_name: p.pharmacistName || null,
+    account_number: p.accountNumber || null,
+    specialty: p.specialty,
+    mail_order: p.mailOrder,
+    notes: p.notes || null,
+    is_primary: p.isPrimary,
+    is_active: p.isActive,
+  }));
+
+  return deleteAndInsertRecords('folio_pharmacies', intakeId, userId, records);
+}
+
+async function saveMedications(
+  medications: FormData['medications'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = medications.map((m) => ({
+    medication_name: m.medicationName || null,
+    dosage: m.dosage || null,
+    form: m.form || null,
+    frequency: m.frequency || null,
+    frequency_notes: m.frequencyNotes || null,
+    prescribing_physician: m.prescribingPhysician || null,
+    condition_treated: m.conditionTreated || null,
+    pharmacy_index: m.pharmacyIndex,
+    rx_number: m.rxNumber || null,
+    refills_remaining: m.refillsRemaining ? parseInt(m.refillsRemaining, 10) : null,
+    last_filled_date: m.lastFilledDate || null,
+    start_date: m.startDate || null,
+    end_date: m.endDate || null,
+    is_active: m.isActive,
+    ndc_number: m.ndcNumber || null,
+    requires_refrigeration: m.requiresRefrigeration,
+    controlled_substance: m.controlledSubstance,
+    notes: m.notes || null,
+  }));
+
+  return deleteAndInsertRecords('folio_medications', intakeId, userId, records);
+}
+
+async function saveMedicalEquipment(
+  equipment: FormData['medicalEquipment'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = equipment.map((e) => ({
+    equipment_name: e.equipmentName || null,
+    equipment_type: e.equipmentType || null,
+    make_model: e.makeModel || null,
+    serial_number: e.serialNumber || null,
+    prescribing_physician: e.prescribingPhysician || null,
+    supplier_name: e.supplierName || null,
+    supplier_phone: e.supplierPhone || null,
+    supplier_address: e.supplierAddress || null,
+    supplier_website: e.supplierWebsite || null,
+    date_obtained: e.dateObtained || null,
+    warranty_expiration: e.warrantyExpiration || null,
+    next_service_date: e.nextServiceDate || null,
+    maintenance_notes: e.maintenanceNotes || null,
+    battery_type: e.batteryType || null,
+    insurance_covers: e.insuranceCovers,
+    insurance_info: e.insuranceInfo || null,
+    replacement_cost: e.replacementCost || null,
+    is_active: e.isActive,
+    notes: e.notes || null,
+  }));
+
+  return deleteAndInsertRecords('folio_medical_equipment', intakeId, userId, records);
+}
+
+async function saveMedicalConditions(
+  conditions: FormData['medicalConditions'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = conditions.map((c) => ({
+    condition_name: c.conditionName || null,
+    diagnosed_date: c.diagnosedDate || null,
+    treating_physician: c.treatingPhysician || null,
+    status: c.status || null,
+    notes: c.notes || null,
+  }));
+
+  return deleteAndInsertRecords('folio_medical_conditions', intakeId, userId, records);
+}
+
+async function saveAllergies(
+  allergies: FormData['allergies'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = allergies.map((a) => ({
+    allergen: a.allergen || null,
+    allergy_type: a.allergyType || null,
+    reaction: a.reaction || null,
+    severity: a.severity || null,
+  }));
+
+  return deleteAndInsertRecords('folio_allergies', intakeId, userId, records);
+}
+
+async function saveSurgeries(
+  surgeries: FormData['surgeries'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = surgeries.map((s) => ({
+    procedure_name: s.procedureName || null,
+    procedure_type: s.procedureType || null,
+    procedure_date: s.procedureDate || null,
+    facility: s.facility || null,
+    surgeon_physician: s.surgeonPhysician || null,
+    notes: s.notes || null,
+  }));
+
+  return deleteAndInsertRecords('folio_surgeries', intakeId, userId, records);
+}
+
+async function saveBasicVitals(
+  vitals: FormData['basicVitals'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const hasData = vitals.bloodType || vitals.height || vitals.weight;
+  if (!hasData) {
+    await supabase.from('folio_basic_vitals').delete().eq('intake_id', intakeId);
+    return { success: true };
+  }
+
+  const records = [{
+    blood_type: vitals.bloodType || null,
+    height: vitals.height || null,
+    weight: vitals.weight || null,
+    as_of_date: vitals.asOfDate || null,
+  }];
+
+  return deleteAndInsertRecords('folio_basic_vitals', intakeId, userId, records);
 }
 
 async function saveMedicalInsurance(

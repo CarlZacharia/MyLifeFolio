@@ -823,6 +823,99 @@ export interface FormData {
     notes: string;
   }>;
 
+  pharmacies: Array<{
+    pharmacyName: string;
+    pharmacyChain: string;
+    phone: string;
+    fax: string;
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+    hours: string;
+    pharmacistName: string;
+    accountNumber: string;
+    specialty: boolean;
+    mailOrder: boolean;
+    notes: string;
+    isPrimary: boolean;
+    isActive: boolean;
+  }>;
+
+  medications: Array<{
+    medicationName: string;
+    dosage: string;
+    form: string;
+    frequency: string;
+    frequencyNotes: string;
+    prescribingPhysician: string;
+    conditionTreated: string;
+    pharmacyIndex: number | null;
+    rxNumber: string;
+    refillsRemaining: string;
+    lastFilledDate: string;
+    startDate: string;
+    endDate: string;
+    isActive: boolean;
+    ndcNumber: string;
+    requiresRefrigeration: boolean;
+    controlledSubstance: boolean;
+    notes: string;
+  }>;
+
+  medicalEquipment: Array<{
+    equipmentName: string;
+    equipmentType: string;
+    makeModel: string;
+    serialNumber: string;
+    prescribingPhysician: string;
+    supplierName: string;
+    supplierPhone: string;
+    supplierAddress: string;
+    supplierWebsite: string;
+    dateObtained: string;
+    warrantyExpiration: string;
+    nextServiceDate: string;
+    maintenanceNotes: string;
+    batteryType: string;
+    insuranceCovers: boolean;
+    insuranceInfo: string;
+    replacementCost: string;
+    isActive: boolean;
+    notes: string;
+  }>;
+
+  medicalConditions: Array<{
+    conditionName: string;
+    diagnosedDate: string;
+    treatingPhysician: string;
+    status: string;
+    notes: string;
+  }>;
+
+  allergies: Array<{
+    allergen: string;
+    allergyType: string;
+    reaction: string;
+    severity: string;
+  }>;
+
+  surgeries: Array<{
+    procedureName: string;
+    procedureType: string;
+    procedureDate: string;
+    facility: string;
+    surgeonPhysician: string;
+    notes: string;
+  }>;
+
+  basicVitals: {
+    bloodType: string;
+    height: string;
+    weight: string;
+    asOfDate: string;
+  };
+
   advisors: Array<{
     advisorType: string;
     name: string;
@@ -1291,6 +1384,18 @@ const initialFormData: FormData = {
   businessInterests: [],
   digitalAssets: [],
   medicalProviders: [],
+  pharmacies: [],
+  medications: [],
+  medicalEquipment: [],
+  medicalConditions: [],
+  allergies: [],
+  surgeries: [],
+  basicVitals: {
+    bloodType: '',
+    height: '',
+    weight: '',
+    asOfDate: '',
+  },
   advisors: [],
   friendsNeighbors: [],
   medicalInsurancePolicies: [],
@@ -1620,7 +1725,7 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const loadFormData = (data: FormData, step: number = 0) => {
-    setFormData(data);
+    setFormData({ ...initialFormData, ...data });
     setCurrentStep(step);
   };
 

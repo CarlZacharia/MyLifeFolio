@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep -l \"FolioCategoryPage\\\\|category.*page\")",
+      "Bash(grep -n \"category.id === ''emergency-care''\\\\|MedicalDataSection\" /c/Users/czach/apps/react/MyLifeFolio/components/MyLifeFolioHome.tsx)"
+    ]
+  }
+}
