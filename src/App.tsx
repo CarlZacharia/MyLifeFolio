@@ -3,10 +3,13 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import QuestionnairePage from '../app/page';
 import EducationCenter from '../components/EducationCenter';
 import { FormProvider, useFormContext } from '../lib/FormContext';
 import ClientNotesModal from '../components/ClientNotesModal';
+import FamilyAccessLogin from './features/family-access/FamilyAccessLogin';
+import FamilyPortal from './features/family-access/FamilyPortal';
 
 type CurrentPage = 'questionnaire' | 'education';
 
@@ -158,14 +161,22 @@ const AppContent = () => {
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <CssBaseline />
-        <FormProvider>
-          <AppContent />
-        </FormProvider>
-      </LocalizationProvider>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <CssBaseline />
+          <Routes>
+            <Route path="/family-access" element={<FamilyAccessLogin />} />
+            <Route path="/family-portal" element={<FamilyPortal />} />
+            <Route path="*" element={
+              <FormProvider>
+                <AppContent />
+              </FormProvider>
+            } />
+          </Routes>
+        </LocalizationProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }
 

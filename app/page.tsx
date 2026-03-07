@@ -59,6 +59,7 @@ import InsuranceCoveragePage from '../components/InsuranceCoveragePage';
 import CarePreferencesSection from '../components/CarePreferencesSection';
 import EndOfLifeSection from '../components/EndOfLifeSection';
 import ReportsSection from '../components/ReportsSection';
+import FamilyAccessManager from '../src/features/owner-settings/FamilyAccessManager';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import PeopleIcon from '@mui/icons-material/People';
@@ -397,7 +398,8 @@ const ALL_STEPS = [
 type PageType = 'landing' | 'mylifefolio-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'profile' | 'planning-pathfinder' | 'education-center' | 'resources'
   | 'category-personal-information' | 'category-health-medical' | 'category-emergency-care' | 'category-financial-life'
   | 'category-people-advisors' | 'category-legal-documents' | 'category-legacy-life-story' | 'category-home-property' | 'category-family-dependents'
-  | 'category-insurance-coverage' | 'category-end-of-life' | 'category-care-decisions' | 'category-reports';
+  | 'category-insurance-coverage' | 'category-end-of-life' | 'category-care-decisions' | 'category-reports'
+  | 'family-access-settings';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
@@ -1612,6 +1614,34 @@ export default function MainPage() {
           >
             <ReportsSection />
           </FolioCategoryPage>
+        );
+
+      case 'family-access-settings':
+        if (user) {
+          return (
+            <FolioCategoryPage
+              title="Family Access"
+              icon={<FamilyRestroomIcon sx={{ fontSize: 28 }} />}
+              accentColor="#1a237e"
+              onNavigateBack={() => handleNavigate('mylifefolio-home')}
+              onLogin={handleLogin}
+              onRegister={handleRegister}
+              onAdmin={handleAdminClick}
+              onProfile={handleProfileClick}
+              onResources={() => handleNavigate('resources')}
+            >
+              <FamilyAccessManager />
+            </FolioCategoryPage>
+          );
+        }
+        return (
+          <LandingPage
+            onNavigate={handleNavigate}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+          />
         );
 
       // Placeholder pages for future services

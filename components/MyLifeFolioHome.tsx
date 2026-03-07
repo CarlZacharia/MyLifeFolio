@@ -648,6 +648,35 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
               </Grid>
             ))}
           </Grid>
+
+          {/* Family Access Settings */}
+          {user && (
+            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+              <Card
+                onClick={() => onNavigate?.('family-access-settings')}
+                sx={{
+                  cursor: 'pointer',
+                  maxWidth: 400,
+                  width: '100%',
+                  borderLeft: '4px solid #1a237e',
+                  transition: 'all 0.2s',
+                  '&:hover': { boxShadow: 4, transform: 'translateY(-2px)' },
+                }}
+              >
+                <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <FamilyRestroomIcon sx={{ fontSize: 36, color: '#1a237e' }} />
+                  <Box>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1a237e' }}>
+                      Family Access Portal
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Grant family members access to view your folio
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Box>
+          )}
         </Container>
 
         {/* Footer */}
