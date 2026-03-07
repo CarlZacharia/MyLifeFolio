@@ -391,7 +391,7 @@ const ALL_STEPS = [
 ];
 
 // Page type for routing
-type PageType = 'landing' | 'mylifefolio-home' | 'estate-planning-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'planning-pathfinder' | 'education-center' | 'resources'
+type PageType = 'landing' | 'mylifefolio-home' | 'folio-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'planning-pathfinder' | 'education-center' | 'resources'
   | 'category-personal-information' | 'category-health-medical' | 'category-emergency-care' | 'category-financial-life'
   | 'category-people-advisors' | 'category-legal-documents' | 'category-legacy-life-story' | 'category-home-property' | 'category-family-dependents'
   | 'category-insurance-coverage' | 'category-end-of-life' | 'category-care-decisions' | 'category-reports'
@@ -414,7 +414,7 @@ interface QuestionnaireContentProps {
 }
 
 const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateBack, onLogout, onAdmin, onProfile, onResources, onHome }) => {
-  const { formData, updateFormData, loadFormData, currentStep, setCurrentStep, clearFormData } = useFormContext();
+  const { formData, updateFormData, currentStep, setCurrentStep, clearFormData } = useFormContext();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -483,12 +483,6 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
 
         if (rawData?.id) {
           setExistingRawId(rawData.id);
-
-          // Load saved form data back into the form
-          const savedData = await loadIntakeFromRaw(rawData.id);
-          if (savedData) {
-            loadFormData(savedData);
-          }
         }
 
         // Check for existing normalized intake for this user
@@ -510,7 +504,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
     };
 
     loadExistingIntakeIds();
-  }, [user, loadFormData]);
+  }, [user]);
 
   // Auto-save to Supabase with debouncing (save 3 seconds after user stops typing)
   React.useEffect(() => {
@@ -1250,16 +1244,48 @@ export default function MainPage() {
   const [previousPage, setPreviousPage] = useState<PageType>('landing');
   const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
   const { user, signOut } = useAuth();
+  const { loadFormData } = useFormContext();
   const prevUserRef = React.useRef(user);
+  const dataLoadedRef = React.useRef(false);
 
   // Redirect to landing whenever user logs out
   React.useEffect(() => {
     if (prevUserRef.current && !user) {
       setCurrentPage('landing');
+      dataLoadedRef.current = false;
       window.scrollTo(0, 0);
     }
     prevUserRef.current = user;
   }, [user]);
+
+  // Load saved form data when user logs in
+  React.useEffect(() => {
+    const loadSavedData = async () => {
+      if (!user || dataLoadedRef.current) return;
+      dataLoadedRef.current = true;
+
+      try {
+        const { data: rawData } = await supabase
+          .from('intakes_raw')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('intake_type', 'EstatePlanning')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (rawData?.id) {
+          const savedData = await loadIntakeFromRaw(rawData.id);
+          if (savedData) {
+            loadFormData(savedData);
+          }
+        }
+      } catch (err) {
+        console.log('No existing intake found for user');
+      }
+    };
+    loadSavedData();
+  }, [user, loadFormData]);
 
   const handleNavigate = (page: string) => {
     setPreviousPage(currentPage);
@@ -1337,7 +1363,7 @@ export default function MainPage() {
           />
         );
 
-      case 'estate-planning-questionnaire':
+      case 'folio-questionnaire':
         return (
           <QuestionnaireContent
             onNavigateBack={() => handleNavigate('mylifefolio-home')}

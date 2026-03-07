@@ -229,6 +229,19 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
           </Button>
         </Typography>
 
+        <Divider sx={{ my: 2 }} />
+
+        <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary' }}>
+          Are you a family member?{' '}
+          <Link
+            href="/family-access"
+            variant="body2"
+            sx={{ cursor: 'pointer', fontWeight: 500 }}
+          >
+            Access the Family Portal
+          </Link>
+        </Typography>
+
         <Typography
           variant="caption"
           sx={{
