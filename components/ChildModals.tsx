@@ -134,10 +134,18 @@ export const ChildModal: React.FC<ChildModalProps> = ({
     }
   }, [formData.birthDate, formData.age]);
 
+  const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  };
+
   const handleChange = (field: keyof ChildData) => (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: string } }
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: event.target.value }));
+    const value = field === 'telephone' ? formatPhoneNumber(event.target.value) : event.target.value;
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleCheckboxChange = (field: keyof ChildData) => (event: React.ChangeEvent<HTMLInputElement>) => {

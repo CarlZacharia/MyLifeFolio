@@ -78,10 +78,17 @@ export const BeneficiaryModal: React.FC<BeneficiaryModalProps> = ({
     }
   }, [open, initialData]);
 
+  const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  };
+
   const handleChange = (field: keyof BeneficiaryData) => (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: string } }
   ) => {
-    const value = event.target.value;
+    const value = field === 'telephone' ? formatPhoneNumber(event.target.value) : event.target.value;
     setFormData((prev) => {
       const updated = { ...prev, [field]: value };
       // Clear relationshipOther if relationship is not "Other"
