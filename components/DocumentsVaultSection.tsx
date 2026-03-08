@@ -8,18 +8,20 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DownloadIcon from '@mui/icons-material/Download';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LockIcon from '@mui/icons-material/Lock';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import FolderIcon from '@mui/icons-material/Folder';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import { folioColors } from './FolioModal';
 import { useFormContext } from '../lib/FormContext';
 import { useAuth } from '../lib/AuthContext';
 import { supabase } from '../lib/supabase';
 import {
-  VAULT_CATEGORIES, VaultCategoryDef, SENSITIVITY_LABELS, SensitivityLevel,
+  VAULT_CATEGORIES, VAULT_CATEGORY_MAP, VaultCategoryDef, SENSITIVITY_LABELS, SensitivityLevel,
 } from '../lib/documentVaultCategories';
 import {
   VaultDocumentRecord,
@@ -330,6 +332,181 @@ const DocumentRow: React.FC<DocumentRowProps> = ({ doc, accentColor, onDownload,
   );
 };
 
+// ── All Documents Table ────────────────────────────────────────────────────
+
+interface AllDocumentsTableProps {
+  documents: VaultDocumentRecord[];
+  onDownload: (doc: VaultDocumentRecord) => void;
+  onViewInline: (doc: VaultDocumentRecord) => void;
+}
+
+const AllDocumentsTable: React.FC<AllDocumentsTableProps> = ({ documents, onDownload, onViewInline }) => {
+  if (documents.length === 0) {
+    return (
+      <Typography variant="body2" sx={{ color: folioColors.inkFaint, textAlign: 'center', py: 3 }}>
+        No documents have been uploaded yet. Use the category cards above to upload your first document.
+      </Typography>
+    );
+  }
+
+  // Group documents by category, preserving VAULT_CATEGORIES order
+  const grouped: { category: VaultCategoryDef; docs: VaultDocumentRecord[] }[] = [];
+  const docsByCategory: Record<string, VaultDocumentRecord[]> = {};
+  for (const doc of documents) {
+    if (!docsByCategory[doc.category]) docsByCategory[doc.category] = [];
+    docsByCategory[doc.category].push(doc);
+  }
+  for (const cat of VAULT_CATEGORIES) {
+    if (docsByCategory[cat.id]?.length) {
+      grouped.push({ category: cat, docs: docsByCategory[cat.id] });
+    }
+  }
+
+  return (
+    <Box
+      component="table"
+      sx={{
+        width: '100%',
+        borderCollapse: 'collapse',
+        fontSize: '0.875rem',
+        '& th, & td': {
+          px: 2,
+          py: 1.25,
+          textAlign: 'left',
+          borderBottom: '1px solid #e0dcd5',
+        },
+      }}
+    >
+      <Box component="thead">
+        <Box component="tr" sx={{ '& th': { fontWeight: 600, color: folioColors.inkLight, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: `2px solid ${folioColors.parchment}` } }}>
+          <Box component="th">Document</Box>
+          <Box component="th" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Date</Box>
+          <Box component="th" sx={{ display: { xs: 'none', md: 'table-cell' } }}>Size</Box>
+          <Box component="th" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Sensitivity</Box>
+          <Box component="th" sx={{ textAlign: 'center', width: 100 }}>Actions</Box>
+        </Box>
+      </Box>
+      <Box component="tbody">
+        {grouped.map(({ category, docs }) => {
+          const CatIcon = category.icon;
+          return (
+            <React.Fragment key={category.id}>
+              {/* Category header row */}
+              <Box
+                component="tr"
+                sx={{
+                  '& td': {
+                    bgcolor: folioColors.ink,
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    letterSpacing: '0.02em',
+                    py: 1,
+                    borderBottom: 'none',
+                  },
+                }}
+              >
+                <Box component="td" colSpan={5}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CatIcon sx={{ fontSize: 18, color: category.accentColor }} />
+                    {category.label}
+                    <Chip
+                      label={docs.length}
+                      size="small"
+                      sx={{
+                        height: 20,
+                        minWidth: 20,
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        bgcolor: category.accentColor,
+                        color: '#fff',
+                        ml: 0.5,
+                      }}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* Document rows */}
+              {docs.map((doc) => {
+                const expired = isExpired(doc.expiration_date);
+                const expSoon = isExpiringSoon(doc.expiration_date);
+                const isViewable = /\.(pdf|jpg|jpeg|png|webp)$/i.test(doc.file_name);
+                return (
+                  <Box
+                    component="tr"
+                    key={doc.id}
+                    sx={{
+                      '&:hover td': { bgcolor: 'rgba(0,0,0,0.02)' },
+                      transition: 'background 0.15s',
+                    }}
+                  >
+                    <Box component="td">
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600, color: folioColors.ink }}>
+                          {doc.document_name}
+                        </Typography>
+                        {expired && (
+                          <Chip icon={<WarningAmberIcon sx={{ fontSize: 13 }} />} label="Expired" size="small"
+                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 600, bgcolor: '#ffebee', color: '#c62828', '& .MuiChip-icon': { color: '#c62828' } }}
+                          />
+                        )}
+                        {expSoon && !expired && (
+                          <Chip icon={<WarningAmberIcon sx={{ fontSize: 13 }} />} label="Expiring Soon" size="small"
+                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 600, bgcolor: '#fff8e1', color: '#f57f17', '& .MuiChip-icon': { color: '#f57f17' } }}
+                          />
+                        )}
+                      </Box>
+                      {doc.description && (
+                        <Typography variant="caption" sx={{ color: folioColors.inkFaint, display: 'block', mt: 0.25 }}>
+                          {doc.description}
+                        </Typography>
+                      )}
+                    </Box>
+                    <Box component="td" sx={{ display: { xs: 'none', sm: 'table-cell' }, color: folioColors.inkLight, fontSize: '0.82rem' }}>
+                      {doc.document_date ? formatDate(doc.document_date) : '—'}
+                    </Box>
+                    <Box component="td" sx={{ display: { xs: 'none', md: 'table-cell' }, color: folioColors.inkLight, fontSize: '0.82rem' }}>
+                      {formatFileSize(doc.file_size)}
+                    </Box>
+                    <Box component="td" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                      {doc.sensitivity === 'highly_sensitive' && (
+                        <Chip icon={<LockIcon sx={{ fontSize: 12 }} />} label="Highly Sensitive" size="small" variant="outlined"
+                          sx={{ height: 20, fontSize: '0.68rem', fontWeight: 600, bgcolor: '#ffebee', color: '#c62828', borderColor: '#ef9a9a', '& .MuiChip-icon': { color: '#c62828' } }}
+                        />
+                      )}
+                      {doc.sensitivity === 'restricted' && (
+                        <Chip label="Restricted" size="small" variant="outlined"
+                          sx={{ height: 20, fontSize: '0.68rem', fontWeight: 600, bgcolor: '#fff3e0', color: '#e65100', borderColor: '#ffcc80' }}
+                        />
+                      )}
+                      {doc.sensitivity === 'normal' && (
+                        <Typography variant="caption" sx={{ color: folioColors.inkFaint }}>Normal</Typography>
+                      )}
+                    </Box>
+                    <Box component="td" sx={{ textAlign: 'center' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5 }}>
+                        {isViewable && (
+                          <IconButton size="small" onClick={() => onViewInline(doc)} title="View inline" sx={{ color: '#0077b6' }}>
+                            <VisibilityIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                        <IconButton size="small" onClick={() => onDownload(doc)} title="Download" sx={{ color: folioColors.inkLight }}>
+                          <DownloadIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                  </Box>
+                );
+              })}
+            </React.Fragment>
+          );
+        })}
+      </Box>
+    </Box>
+  );
+};
+
 // ── Main Section ───────────────────────────────────────────────────────────
 
 const DocumentsVaultSection: React.FC = () => {
@@ -375,20 +552,28 @@ const DocumentsVaultSection: React.FC = () => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [documents, setDocuments] = useState<Record<string, VaultDocumentRecord[]>>({});
+  const [allDocuments, setAllDocuments] = useState<VaultDocumentRecord[]>([]);
   const [uploadCategory, setUploadCategory] = useState<VaultCategoryDef | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<VaultDocumentRecord | null>(null);
+  const [viewInlineUrl, setViewInlineUrl] = useState<{ url: string; name: string; type: string } | null>(null);
   const [snack, setSnack] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
     open: false, message: '', severity: 'success',
   });
 
-  // Load counts on mount
+  // Load counts and all documents on mount
+  const refreshAllDocuments = useCallback(async () => {
+    if (!intakeId) return;
+    const result = await listVaultDocuments(intakeId);
+    if (result.success && result.documents) setAllDocuments(result.documents);
+  }, [intakeId]);
+
   const refreshCounts = useCallback(async () => {
     if (!intakeId) return;
     const result = await getVaultDocumentCounts(intakeId);
     if (result.success && result.counts) setCounts(result.counts);
   }, [intakeId]);
 
-  useEffect(() => { refreshCounts(); }, [refreshCounts]);
+  useEffect(() => { refreshCounts(); refreshAllDocuments(); }, [refreshCounts, refreshAllDocuments]);
 
   // Load documents for a category when expanded
   const loadCategoryDocs = useCallback(async (categoryId: string) => {
@@ -428,6 +613,7 @@ const DocumentsVaultSection: React.FC = () => {
     setSnack({ open: true, message: 'Document uploaded successfully.', severity: 'success' });
     // Refresh
     await refreshCounts();
+    await refreshAllDocuments();
     if (expandedCategory === uploadCategory.id) {
       await loadCategoryDocs(uploadCategory.id);
     }
@@ -443,6 +629,16 @@ const DocumentsVaultSection: React.FC = () => {
     }
   };
 
+  // View inline
+  const handleViewInline = async (doc: VaultDocumentRecord) => {
+    const result = await getVaultDocumentUrl(doc.file_path);
+    if (result.success && result.url) {
+      setViewInlineUrl({ url: result.url, name: doc.document_name, type: doc.file_type });
+    } else {
+      setSnack({ open: true, message: 'Failed to load document preview.', severity: 'error' });
+    }
+  };
+
   // Delete
   const confirmDelete = async () => {
     if (!deleteTarget) return;
@@ -450,6 +646,7 @@ const DocumentsVaultSection: React.FC = () => {
     if (result.success) {
       setSnack({ open: true, message: 'Document deleted.', severity: 'success' });
       await refreshCounts();
+      await refreshAllDocuments();
       if (expandedCategory) await loadCategoryDocs(expandedCategory);
     } else {
       setSnack({ open: true, message: result.error || 'Delete failed.', severity: 'error' });
@@ -520,6 +717,77 @@ const DocumentsVaultSection: React.FC = () => {
           />
         ))}
       </Box>
+
+      {/* All Documents listing */}
+      {intakeId && (
+        <Paper
+          variant="outlined"
+          sx={{
+            mt: 4,
+            borderRadius: '10px',
+            overflow: 'hidden',
+            borderColor: folioColors.parchment,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2.5, py: 2, bgcolor: folioColors.cream, borderBottom: `1px solid ${folioColors.parchment}` }}>
+            <ListAltIcon sx={{ color: folioColors.ink, fontSize: 22 }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: folioColors.ink }}>
+              All Documents
+            </Typography>
+            {totalDocuments > 0 && (
+              <Chip
+                label={`${totalDocuments} total`}
+                size="small"
+                sx={{ bgcolor: folioColors.ink, color: '#fff', fontWeight: 600, fontSize: '0.75rem', height: 22 }}
+              />
+            )}
+          </Box>
+          <Box sx={{ overflowX: 'auto' }}>
+            <AllDocumentsTable
+              documents={allDocuments}
+              onDownload={handleDownload}
+              onViewInline={handleViewInline}
+            />
+          </Box>
+        </Paper>
+      )}
+
+      {/* Inline document viewer dialog */}
+      <Dialog
+        open={!!viewInlineUrl}
+        onClose={() => setViewInlineUrl(null)}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{ sx: { height: '85vh' } }}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1.5 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            {viewInlineUrl?.name}
+          </Typography>
+          <IconButton size="small" onClick={() => setViewInlineUrl(null)}>
+            <ExpandLessIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f5f5f5' }}>
+          {viewInlineUrl && (
+            viewInlineUrl.type.startsWith('image/') ? (
+              <Box
+                component="img"
+                src={viewInlineUrl.url}
+                alt={viewInlineUrl.name}
+                sx={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+              />
+            ) : (
+              <Box
+                component="iframe"
+                src={viewInlineUrl.url}
+                sx={{ width: '100%', height: '100%', border: 'none' }}
+                title={viewInlineUrl.name}
+              />
+            )
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Upload modal */}
       <DocumentUploadModal

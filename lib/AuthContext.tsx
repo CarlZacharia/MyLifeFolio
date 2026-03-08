@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  hasRegistered: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -25,16 +26,28 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
+const HAS_REGISTERED_KEY = 'mlf_has_account';
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasRegistered, setHasRegistered] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(HAS_REGISTERED_KEY) === 'true';
+    }
+    return false;
+  });
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        localStorage.setItem(HAS_REGISTERED_KEY, 'true');
+        setHasRegistered(true);
+      }
       setLoading(false);
     });
 
@@ -44,6 +57,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        localStorage.setItem(HAS_REGISTERED_KEY, 'true');
+        setHasRegistered(true);
+      }
       setLoading(false);
     });
 
@@ -60,6 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     session,
     loading,
+    hasRegistered,
     signOut,
   };
 

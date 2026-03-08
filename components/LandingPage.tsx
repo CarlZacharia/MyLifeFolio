@@ -26,6 +26,11 @@ import ContactsIcon from '@mui/icons-material/Contacts';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import HomeIcon from '@mui/icons-material/Home';
 import { useAuth } from '../lib/AuthContext';
 
 const isAdminUser = (email) => {
@@ -73,6 +78,7 @@ const ScrollFade = ({ children, delay = 0 }) => {
   }, [delay]);
   return (
     <Box ref={ref} sx={{
+      height: '100%',
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(28px)',
       transition: 'opacity 0.7s ease, transform 0.7s ease',
@@ -130,93 +136,89 @@ const ChapterCard = ({ icon, title, items, accentColor, delay = 0 }) => {
 
 const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }) => {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, hasRegistered } = useAuth();
 
   const handleLogout = async () => { await signOut(); onNavigate('landing'); };
 
   const primaryBtn = useMemo(() => user
     ? { text: 'Open My Folio', icon: <ArrowForwardIcon />, onClick: () => onNavigate('mylifefolio-home') }
-    : { text: 'Create Your Folio', icon: <AutoStoriesIcon />, onClick: onRegister },
-    [user, onNavigate, onRegister]);
+    : hasRegistered
+      ? { text: 'Sign In', icon: <ArrowForwardIcon />, onClick: onLogin }
+      : { text: 'Create Your Folio', icon: <AutoStoriesIcon />, onClick: onRegister },
+    [user, hasRegistered, onNavigate, onLogin, onRegister]);
 
   const chapters = [
     {
-      icon: <MedicalInformationIcon sx={{ fontSize: 26 }} />,
-      title: 'Health & Medical',
-      accentColor: '#9b2226',
-      items: [
-        'Medical history & diagnoses',
-        'Current medications & dosages',
-        'Healthcare providers & specialists',
-        'Insurance policies & ID numbers',
-        'DNR & advance directive wishes',
-        'Long-term care preferences',
-      ],
+      icon: <PeopleIcon sx={{ fontSize: 26 }} />,
+      title: 'Personal Information',
+      accentColor: '#1e3a5f',
+      items: ['Client & spouse details', 'Contact info & identification', 'Domicile & marital status', 'Military service', 'Safe deposit box', 'Medicare & medical insurance'],
     },
     {
-      icon: <LocalHospitalIcon sx={{ fontSize: 26 }} />,
-      title: 'Emergency & Care',
-      accentColor: '#0077b6',
-      items: [
-        'Emergency contacts & priorities',
-        'Trusted caregivers & aides',
-        'Where I live & access details',
-        'If I can\'t speak for myself…',
-        'My daily routine & needs',
-        'Dietary needs & allergies',
-      ],
+      icon: <FamilyRestroomIcon sx={{ fontSize: 26 }} />,
+      title: 'Family & Dependents',
+      accentColor: '#d4497a',
+      items: ['Children & grandchildren', 'Other beneficiaries', 'Charitable organizations', 'Beneficiary concerns', 'Pet care'],
     },
     {
       icon: <AccountBalanceIcon sx={{ fontSize: 26 }} />,
       title: 'Financial Life',
-      accentColor: '#1e3a5f',
-      items: [
-        'Bank & investment accounts',
-        'Real estate & property',
-        'Business interests',
-        'Insurance policies',
-        'Income sources & pensions',
-        'Debts & obligations',
-      ],
+      accentColor: '#0a5c36',
+      items: ['Assets: financial, real property, vehicles, business, digital, personal property', 'Income sources', 'Expenses', 'Debts'],
     },
     {
       icon: <ContactsIcon sx={{ fontSize: 26 }} />,
       title: 'My People & Advisors',
       accentColor: '#2d6a4f',
-      items: [
-        'Attorney & estate planner',
-        'Financial advisor & CPA',
-        'Insurance agents',
-        'Close friends & neighbors',
-        'Faith community contacts',
-        'Professional relationships',
-      ],
+      items: ['Attorney, accountant, financial advisor', 'Insurance & real estate agents', 'Business advisor & other', 'Friends & neighbors'],
     },
     {
       icon: <HistoryEduIcon sx={{ fontSize: 26 }} />,
       title: 'Legal Documents',
       accentColor: '#7b2cbf',
-      items: [
-        'Will & trust documents',
-        'Powers of attorney',
-        'Deeds & titles',
-        'Social Security & Medicare cards',
-        'Birth & marriage certificates',
-        'Location of important papers',
-      ],
+      items: ['Will (Last Will & Testament)', 'Revocable living trust', 'Irrevocable trust', 'Financial power of attorney', 'Health care power of attorney'],
+    },
+    {
+      icon: <LocalHospitalIcon sx={{ fontSize: 26 }} />,
+      title: 'Medical Data',
+      accentColor: '#0077b6',
+      items: ['Medical providers', 'Medications & equipment', 'Medical conditions', 'Insurance coverage'],
+    },
+    {
+      icon: <HealthAndSafetyIcon sx={{ fontSize: 26 }} />,
+      title: 'Insurance Coverage',
+      accentColor: '#2e7d32',
+      items: ['Medical & vehicle insurance', 'Homeowners & umbrella', 'Long-term care & disability', 'Life insurance & other policies'],
+    },
+    {
+      icon: <FavoriteBorderIcon sx={{ fontSize: 26 }} />,
+      title: 'Care Decisions',
+      accentColor: '#00838f',
+      items: ['Care setting & medical preferences', 'Diet, hygiene & daily routine', 'Activities, family & social', 'Cognitive, communication & spiritual', 'Financial & end-of-life preferences'],
+    },
+    {
+      icon: <VolunteerActivismIcon sx={{ fontSize: 26 }} />,
+      title: 'End of Life Issues',
+      accentColor: '#6a1b9a',
+      items: ['Advance directives', 'Prepaid funeral & desires', 'Funeral home & burial', 'Religious preferences'],
     },
     {
       icon: <VideoLibraryIcon sx={{ fontSize: 26 }} />,
       title: 'Legacy & Life Story',
       accentColor: '#c9a227',
-      items: [
-        'Video messages to loved ones',
-        'Life lessons & wisdom',
-        'Family history & memories',
-        'Why I made the choices I did',
-        'Photos & keepsakes index',
-        'Messages for future milestones',
-      ],
+      items: ['Obituary Info', 'Charitable Wishes', 'Letters to Family', 'Personal History', 'Life Stories', 'Reflections', 'Surprises', 'Favorites', 'Video Legacy', 'Memory Vault'],
+    },
+    {
+      icon: <HomeIcon sx={{ fontSize: 26 }} />,
+      title: 'Documents Vault',
+      accentColor: '#e07a2f',
+      items: ['Estate Planning & Legal', 'Real Estate & Property', 'Financial & Accounts', 'Insurance', 'Personal Identity', 'Military & Government', 'Medical & Health', 'Family & Genealogy', 'Personal Legacy & Memorabilia', 'Digital Assets', 'Other'],
+    },
+    {
+      icon: <LibraryBooksIcon sx={{ fontSize: 26 }} />,
+      title: 'Reports',
+      accentColor: '#455a64',
+      items: ['Emergency Medical Summary', 'Family Contact Sheet', 'Asset Inventory', 'Insurance Summary', 'Advisor Directory', 'Estate Planning Overview', 'Funeral Instructions', '"What To Do If I Die" Checklist', 'Family Briefing Report'],
     },
   ];
 
@@ -421,7 +423,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }) =>
                   What's Inside
                 </Typography>
                 <Typography variant="h2" sx={{ color: 'primary.main', fontSize: { xs: '2rem', md: '2.75rem' }, mb: 2 }}>
-                  The Six Chapters of Your Folio
+                  The Chapters of Your Folio
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 560, mx: 'auto' }}>
                   Each chapter captures a different dimension of your life — so whoever opens your folio finds everything they need.
@@ -430,7 +432,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }) =>
             </ScrollFade>
             <Grid container spacing={3}>
               {chapters.map((ch, i) => (
-                <Grid item xs={12} sm={6} lg={4} key={i}>
+                <Grid item xs={12} sm={6} lg={3} key={i}>
                   <ChapterCard {...ch} delay={i * 80} />
                 </Grid>
               ))}
