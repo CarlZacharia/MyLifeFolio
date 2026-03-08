@@ -12,9 +12,6 @@ import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import PeopleIcon from '@mui/icons-material/People';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import PhoneIcon from '@mui/icons-material/Phone';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import EmailIcon from '@mui/icons-material/Email';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -526,80 +523,6 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                     </Grid>
                   ))}
                 </Grid>
-              </Grid>
-            </Grid>
-          </Container>
-        </Box>
-
-        {/* ── STATS BAND ── */}
-        <Box sx={{ bgcolor: 'background.default', borderTop: '1px solid', borderBottom: '1px solid', borderColor: alpha('#1e3a5f', 0.08), py: { xs: 6, md: 8 } }}>
-          <Container maxWidth="lg">
-            <Grid container spacing={4} justifyContent="center">
-              {[
-                { number: '30+', label: 'Years of combined experience' },
-                { number: '4', label: 'State licenses (FL, PA, OH, WV)' },
-                { number: '1,000+', label: 'Families served' },
-                { number: '100%', label: 'Personalized attention' },
-              ].map((stat, i) => (
-                <Grid item xs={6} md={3} key={i}>
-                  <ScrollFade delay={i * 100}>
-                    <Box sx={{ textAlign: 'center', p: 2 }}>
-                      <Typography variant="h3" sx={{ color: 'secondary.dark', fontSize: { xs: '2rem', md: '2.5rem' }, mb: 0.5 }}>{stat.number}</Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ fontFamily: '"Source Sans 3", sans-serif', fontSize: '0.85rem' }}>{stat.label}</Typography>
-                    </Box>
-                  </ScrollFade>
-                </Grid>
-              ))}
-            </Grid>
-          </Container>
-        </Box>
-
-        {/* ── CONTACT ── */}
-        <Box sx={{ background: 'linear-gradient(165deg, #1e3a5f 0%, #0f2744 100%)', color: 'white', py: { xs: 8, md: 10 } }}>
-          <Container maxWidth="lg">
-            <Grid container spacing={6}>
-              <Grid item xs={12} md={6}>
-                <ScrollFade>
-                  <Typography component="span" sx={{ display: 'inline-block', color: 'secondary.main', fontFamily: '"Source Sans 3", sans-serif', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', fontSize: '0.72rem', mb: 2 }}>
-                    We're Here to Help
-                  </Typography>
-                  <Typography variant="h3" sx={{ fontSize: { xs: '1.8rem', md: '2.3rem' }, mb: 3 }}>
-                    Questions? Talk to a real person.
-                  </Typography>
-                  <Typography variant="body1" sx={{ opacity: 0.85, mb: 4, maxWidth: 420, lineHeight: 1.85 }}>
-                    Our team — including licensed estate planning attorneys in Florida and Pennsylvania —
-                    is here to help you build your folio, answer questions, and make sure it truly covers everything.
-                  </Typography>
-                  <Button variant="contained" size="large" onClick={() => onNavigate('mylifefolio-home')}
-                    sx={{ bgcolor: 'secondary.main', color: 'primary.dark', px: 4, py: 1.5, fontFamily: '"Source Sans 3", sans-serif', fontWeight: 700, '&:hover': { bgcolor: 'secondary.light' } }}>
-                    Schedule a Consultation
-                  </Button>
-                </ScrollFade>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Box sx={{ pl: { md: 4 } }}>
-                  {[
-                    { icon: <LocationOnIcon />, label: 'Office', lines: ['26811 South Bay Drive, Suite 270', 'Bonita Springs, Florida 34134'] },
-                    { icon: <PhoneIcon />, label: 'Telephone', lines: ['(239) 345-4545'] },
-                    { icon: <EmailIcon />, label: 'Email', lines: ['info@mylifefolio.com'] },
-                  ].map((item, i) => (
-                    <ScrollFade key={i} delay={i * 120}>
-                      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 3.5 }}>
-                        <Box sx={{ width: 44, height: 44, borderRadius: 1, bgcolor: alpha('#fff', 0.09), display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
-                          <Box sx={{ color: 'secondary.main', display: 'flex' }}>{item.icon}</Box>
-                        </Box>
-                        <Box>
-                          <Typography variant="h6" sx={{ fontSize: '0.9rem', mb: 0.4, fontFamily: '"Source Sans 3", sans-serif', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: alpha('#fff', 0.6) }}>
-                            {item.label}
-                          </Typography>
-                          {item.lines.map((l, li) => (
-                            <Typography key={li} variant="body2" sx={{ opacity: 0.85, fontFamily: '"Source Sans 3", sans-serif' }}>{l}</Typography>
-                          ))}
-                        </Box>
-                      </Box>
-                    </ScrollFade>
-                  ))}
-                </Box>
               </Grid>
             </Grid>
           </Container>
