@@ -316,7 +316,23 @@ const InsuranceCoveragePage = () => {
           onChange={(_, v) => setPersonTab(v)}
           sx={{
             mb: 2,
-            '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: '0.95rem' },
+            '& .MuiTabs-indicator': { display: 'none' },
+            '& .MuiTabs-flexContainer': { gap: 1 },
+            '& .MuiTab-root': {
+              textTransform: 'none',
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              fontFamily: '"Jost", sans-serif',
+              borderRadius: '8px',
+              minHeight: 44,
+              px: 3,
+              border: '2px solid #e8ddd0',
+              bgcolor: '#f9f5ef',
+              color: '#6b5c47',
+              transition: 'all 0.2s',
+              '&.Mui-selected': { bgcolor: '#2c2416', color: '#fff', border: '2px solid #2c2416' },
+              '&:not(.Mui-selected):hover': { bgcolor: '#f0e9dc', borderColor: '#a8977f' },
+            },
           }}
         >
           <Tab label="Client" />

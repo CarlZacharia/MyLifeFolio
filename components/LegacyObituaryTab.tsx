@@ -596,9 +596,23 @@ const LegacyObituaryTab = () => {
         onChange={(_, v) => setPersonTab(v)}
         sx={{
           mb: 3,
-          '& .MuiTab-root': { fontWeight: 600, textTransform: 'none', fontSize: '0.95rem' },
-          '& .Mui-selected': { color: folioColors.accent },
-          '& .MuiTabs-indicator': { backgroundColor: folioColors.accent },
+          '& .MuiTabs-indicator': { display: 'none' },
+          '& .MuiTabs-flexContainer': { gap: 1 },
+          '& .MuiTab-root': {
+            textTransform: 'none',
+            fontWeight: 600,
+            fontSize: '0.95rem',
+            fontFamily: '"Jost", sans-serif',
+            borderRadius: '8px',
+            minHeight: 44,
+            px: 3,
+            border: `2px solid ${folioColors.parchment}`,
+            bgcolor: folioColors.cream,
+            color: folioColors.inkLight,
+            transition: 'all 0.2s',
+            '&.Mui-selected': { bgcolor: folioColors.ink, color: '#fff', border: `2px solid ${folioColors.ink}` },
+            '&:not(.Mui-selected):hover': { bgcolor: folioColors.creamDark, borderColor: folioColors.inkFaint },
+          },
         }}
       >
         <Tab label="Client" />

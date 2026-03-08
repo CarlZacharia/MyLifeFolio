@@ -182,22 +182,39 @@ const PersonalDataSection: React.FC<PersonalDataSectionProps> = ({ onSaveAndCont
           onChange={handleTabChange}
           sx={{
             mb: 3,
-            borderBottom: 1,
-            borderColor: 'divider',
+            '& .MuiTabs-indicator': { display: 'none' },
+            '& .MuiTabs-flexContainer': { gap: 1 },
             '& .MuiTab-root': {
               textTransform: 'none',
-              fontWeight: 500,
-              fontSize: '1rem',
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              fontFamily: '"Jost", sans-serif',
+              borderRadius: '8px',
+              minHeight: 44,
+              px: 3,
+              border: `2px solid ${folioColors.parchment}`,
+              bgcolor: folioColors.cream,
+              color: folioColors.inkLight,
+              transition: 'all 0.2s',
+              '&.Mui-selected': {
+                bgcolor: folioColors.ink,
+                color: '#fff',
+                border: `2px solid ${folioColors.ink}`,
+              },
+              '&:not(.Mui-selected):hover': {
+                bgcolor: folioColors.creamDark,
+                borderColor: folioColors.inkFaint,
+              },
             },
           }}
         >
           <Tab
-            icon={<PersonIcon />}
+            icon={<PersonIcon sx={{ fontSize: 20 }} />}
             iconPosition="start"
             label="Client"
           />
           <Tab
-            icon={<PeopleIcon />}
+            icon={<PeopleIcon sx={{ fontSize: 20 }} />}
             iconPosition="start"
             label="Spouse/Partner"
           />
@@ -1262,6 +1279,33 @@ const PersonalDataSection: React.FC<PersonalDataSectionProps> = ({ onSaveAndCont
         )}
 
       </Grid>
+      )}
+
+      {showSpouseInfo && activeTab === 0 && (
+        <Box
+          sx={{
+            mt: 4,
+            p: 2,
+            bgcolor: folioColors.cream,
+            border: `1px solid ${folioColors.accentWarm}`,
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+          }}
+        >
+          <PeopleIcon sx={{ color: folioColors.accent, fontSize: 22 }} />
+          <Typography
+            sx={{
+              fontFamily: '"Jost", sans-serif',
+              fontSize: '13px',
+              color: folioColors.inkLight,
+              lineHeight: 1.5,
+            }}
+          >
+            Don't forget to click the <strong>Spouse/Partner</strong> tab above to complete your spouse's information as well.
+          </Typography>
+        </Box>
       )}
 
       {onSaveAndContinue && (

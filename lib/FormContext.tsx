@@ -813,7 +813,12 @@ export interface FormData {
   }>;
 
   medicalProviders: Array<{
-    providerCategory: 'clientPCP' | 'clientSpecialist' | 'spousePCP' | 'spouseSpecialist';
+    providerCategory: 'clientPCP' | 'clientSpecialist' | 'spousePCP' | 'spouseSpecialist'
+      | 'clientHospital' | 'spouseHospital'
+      | 'clientUrgentCare' | 'spouseUrgentCare'
+      | 'clientHomeHealth' | 'spouseHomeHealth'
+      | 'clientRehab' | 'spouseRehab'
+      | 'clientPhysicalTherapy' | 'spousePhysicalTherapy';
     specialistType: string;
     name: string;
     firmName: string;

@@ -134,6 +134,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
                 <Badge
                   badgeContent={count}
                   sx={{
+                    ml: 1.5,
                     '& .MuiBadge-badge': {
                       bgcolor: category.accentColor,
                       color: '#fff',

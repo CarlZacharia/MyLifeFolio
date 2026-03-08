@@ -75,6 +75,7 @@ import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import Login from '../components/Login';
 import Register from '../components/Register';
+import WelcomeModal from '../components/WelcomeModal';
 import { MaritalStatus } from '../lib/FormContext';
 import { analyzeEstatePlan, ANALYSIS_PROMPTS } from '../lib/claudeApi';
 import { categorizeAssets } from '../lib/assetCategorization';
@@ -1248,15 +1249,17 @@ export default function MainPage() {
   const [previousPage, setPreviousPage] = useState<PageType>('landing');
   const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
   const { user, signOut } = useAuth();
-  const { loadFormData } = useFormContext();
+  const { formData, loadFormData, updateFormData } = useFormContext();
   const prevUserRef = React.useRef(user);
   const dataLoadedRef = React.useRef(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   // Redirect to landing whenever user logs out
   React.useEffect(() => {
     if (prevUserRef.current && !user) {
       setCurrentPage('landing');
       dataLoadedRef.current = false;
+      setDataLoaded(false);
       window.scrollTo(0, 0);
     }
     prevUserRef.current = user;
@@ -1286,6 +1289,8 @@ export default function MainPage() {
         }
       } catch (err) {
         console.log('No existing intake found for user');
+      } finally {
+        setDataLoaded(true);
       }
     };
     loadSavedData();
@@ -1722,6 +1727,14 @@ export default function MainPage() {
   return (
     <>
       {renderPage()}
+
+      {/* Welcome Modal — shown once when client name is empty */}
+      <WelcomeModal
+        open={!!user && dataLoaded && !formData.name && currentPage !== 'landing'}
+        onSave={(data) => {
+          updateFormData(data);
+        }}
+      />
 
       {/* Authentication Modal */}
       <Dialog

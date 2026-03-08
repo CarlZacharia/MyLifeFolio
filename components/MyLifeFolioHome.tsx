@@ -182,7 +182,7 @@ const folioCategories = [
   },
   {
     id: 'emergency-care', title: 'Medical Data', icon: <LocalHospitalIcon sx={{ fontSize: 26 }} />, accentColor: '#0077b6',
-    items: ['Medical providers', 'Medications & equipment', 'Medical conditions', 'Insurance coverage'],
+    items: ['Medical providers', 'Medications',  'Equipment and Devices', 'Pharmacies', 'Medical conditions'],
   },
   {
     id: 'insurance-coverage', title: 'Insurance Coverage', icon: <HealthAndSafetyIcon sx={{ fontSize: 26 }} />, accentColor: '#2e7d32',

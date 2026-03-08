@@ -47,7 +47,12 @@ export const SPECIALIST_TYPES = [
 export type SpecialistType = (typeof SPECIALIST_TYPES)[number] | '';
 
 export interface MedicalProviderData {
-  providerCategory: 'clientPCP' | 'clientSpecialist' | 'spousePCP' | 'spouseSpecialist';
+  providerCategory: 'clientPCP' | 'clientSpecialist' | 'spousePCP' | 'spouseSpecialist'
+    | 'clientHospital' | 'spouseHospital'
+    | 'clientUrgentCare' | 'spouseUrgentCare'
+    | 'clientHomeHealth' | 'spouseHomeHealth'
+    | 'clientRehab' | 'spouseRehab'
+    | 'clientPhysicalTherapy' | 'spousePhysicalTherapy';
   specialistType: string;
   name: string;
   firmName: string;
@@ -56,6 +61,40 @@ export interface MedicalProviderData {
   address: string;
   notes: string;
 }
+
+export type FacilityCategory =
+  | 'clientHospital' | 'spouseHospital'
+  | 'clientUrgentCare' | 'spouseUrgentCare'
+  | 'clientHomeHealth' | 'spouseHomeHealth'
+  | 'clientRehab' | 'spouseRehab'
+  | 'clientPhysicalTherapy' | 'spousePhysicalTherapy';
+
+const FACILITY_CATEGORIES: FacilityCategory[] = [
+  'clientHospital', 'spouseHospital',
+  'clientUrgentCare', 'spouseUrgentCare',
+  'clientHomeHealth', 'spouseHomeHealth',
+  'clientRehab', 'spouseRehab',
+  'clientPhysicalTherapy', 'spousePhysicalTherapy',
+];
+
+const FACILITY_LABELS: Record<string, string> = {
+  clientHospital: 'Preferred Hospital',
+  spouseHospital: 'Preferred Hospital',
+  clientUrgentCare: 'Preferred Urgent Care / ER',
+  spouseUrgentCare: 'Preferred Urgent Care / ER',
+  clientHomeHealth: 'Preferred Home Health Agency',
+  spouseHomeHealth: 'Preferred Home Health Agency',
+  clientRehab: 'Preferred Rehabilitation Facility',
+  spouseRehab: 'Preferred Rehabilitation Facility',
+  clientPhysicalTherapy: 'Preferred Physical Therapy',
+  spousePhysicalTherapy: 'Preferred Physical Therapy',
+};
+
+export const isFacilityCategory = (cat: MedicalProviderData['providerCategory']): boolean =>
+  FACILITY_CATEGORIES.includes(cat as FacilityCategory);
+
+export const getFacilityLabel = (cat: MedicalProviderData['providerCategory']): string =>
+  FACILITY_LABELS[cat] || '';
 
 const emptyProvider = (category: MedicalProviderData['providerCategory']): MedicalProviderData => ({
   providerCategory: category,
@@ -91,7 +130,8 @@ const MedicalProviderModal: React.FC<MedicalProviderModalProps> = ({
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const isSpecialist = providerCategory === 'clientSpecialist' || providerCategory === 'spouseSpecialist';
-  const isSpouse = providerCategory === 'spousePCP' || providerCategory === 'spouseSpecialist';
+  const isFacility = isFacilityCategory(providerCategory);
+  const isSpouse = providerCategory.startsWith('spouse');
   const personLabel = isSpouse ? 'Spouse' : 'Client';
 
   useEffect(() => {
@@ -121,9 +161,11 @@ const MedicalProviderModal: React.FC<MedicalProviderModalProps> = ({
     onClose();
   };
 
+  const facilityLabel = getFacilityLabel(providerCategory);
+  const typeLabel = isFacility ? facilityLabel : isSpecialist ? 'Specialist' : 'PCP';
   const title = isEdit
-    ? `Edit ${personLabel} ${isSpecialist ? 'Specialist' : 'PCP'}`
-    : `Add ${personLabel} ${isSpecialist ? 'Specialist' : 'PCP'}`;
+    ? `Edit ${personLabel} ${typeLabel}`
+    : `Add ${personLabel} ${typeLabel}`;
 
   const fieldsVisible = useFolioFieldAnimation(open);
 
@@ -141,7 +183,7 @@ const MedicalProviderModal: React.FC<MedicalProviderModalProps> = ({
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             <FolioCancelButton onClick={onClose} />
             <FolioSaveButton onClick={handleSave} disabled={!canSave}>
-              {isEdit ? 'Save Changes' : isSpecialist ? 'Add Specialist' : 'Add PCP'}
+              {isEdit ? 'Save Changes' : `Add ${typeLabel}`}
             </FolioSaveButton>
           </Box>
         </>
@@ -168,7 +210,7 @@ const MedicalProviderModal: React.FC<MedicalProviderModalProps> = ({
 
         <FolioFieldFade visible={fieldsVisible} index={isSpecialist ? 1 : 0}>
           <TextField
-            label="Physician's Name"
+            label={isFacility ? 'Facility Name' : "Physician's Name"}
             value={data.name}
             onChange={(e) => handleChange({ name: e.target.value })}
             onBlur={() => handleBlur('name')}
@@ -183,7 +225,7 @@ const MedicalProviderModal: React.FC<MedicalProviderModalProps> = ({
 
         <FolioFieldFade visible={fieldsVisible} index={isSpecialist ? 2 : 1}>
           <TextField
-            label="Firm/Practice Name"
+            label={isFacility ? 'Organization / Network' : 'Firm/Practice Name'}
             value={data.firmName}
             onChange={(e) => handleChange({ firmName: e.target.value })}
             InputLabelProps={{ shrink: true }}
