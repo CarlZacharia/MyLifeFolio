@@ -57,6 +57,7 @@ import InsuranceCoveragePage from '../components/InsuranceCoveragePage';
 import CarePreferencesSection from '../components/CarePreferencesSection';
 import EndOfLifeSection from '../components/EndOfLifeSection';
 import ReportsSection from '../components/ReportsSection';
+import LegacySection from '../components/LegacySection';
 import FamilyAccessManager from '../src/features/owner-settings/FamilyAccessManager';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
@@ -414,7 +415,7 @@ interface QuestionnaireContentProps {
 }
 
 const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateBack, onLogout, onAdmin, onProfile, onResources, onHome }) => {
-  const { formData, updateFormData, currentStep, setCurrentStep, clearFormData } = useFormContext();
+  const { formData, updateFormData, currentStep, setCurrentStep, clearFormData, setIntakeId: setContextIntakeId } = useFormContext();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -558,6 +559,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
           }
           if (result.intakeId && !existingIntakeId) {
             setExistingIntakeId(result.intakeId);
+            setContextIntakeId(result.intakeId);
           }
         } else {
           // Check if error is authentication-related
@@ -690,6 +692,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
         }
         if (saveResult.intakeId && !existingIntakeId) {
           setExistingIntakeId(saveResult.intakeId);
+          setContextIntakeId(saveResult.intakeId);
         }
       }
 
@@ -1541,15 +1544,14 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <Typography variant="h5" sx={{ color: '#c9a227', mb: 2 }}>Legacy & Life Story</Typography>
-            <Typography color="text.secondary">Coming soon — video messages, life lessons, family history, and memories.</Typography>
+            <LegacySection />
           </FolioCategoryPage>
         );
 
       case 'category-home-property':
         return (
           <FolioCategoryPage
-            title="Home & Property"
+            title="Documents Vault"
             icon={<HomeIcon sx={{ fontSize: 28 }} />}
             accentColor="#e07a2f"
             onNavigateBack={() => handleNavigate('mylifefolio-home')}
@@ -1560,7 +1562,7 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <Typography variant="h5" sx={{ color: '#e07a2f', mb: 2 }}>Home & Property</Typography>
+            <Typography variant="h5" sx={{ color: '#e07a2f', mb: 2 }}>Documents Vault</Typography>
             <Typography color="text.secondary">Coming soon — residence details, property records, and access information.</Typography>
           </FolioCategoryPage>
         );

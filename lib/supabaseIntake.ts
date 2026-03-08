@@ -296,12 +296,28 @@ export async function saveIntakeNormalized(
       medicalInsuranceResult,
       insuranceCoverageResult,
       advisorsResult,
+      expensesResult,
+      subscriptionsResult,
+      carePreferencesResult,
+      endOfLifeResult,
       friendsNeighborsResult,
       specificGiftsResult,
       cashGiftsResult,
       ltcResult,
       cepResult,
       distPlansResult,
+      legacyObituaryResult,
+      legacyObituarySpouseResult,
+      legacyCharityOrgsResult,
+      legacyCharityPrefsResult,
+      legacyLettersResult,
+      legacyPersonalHistoryResult,
+      legacyStoriesResult,
+      legacyReflectionsResult,
+      legacySurprisesResult,
+      legacyFavoritesResult,
+      legacyVideosResult,
+      legacyMemoriesResult,
     ] = await Promise.all([
       saveChildren(formData.children, intakeId, user.id),
       saveBeneficiaries(formData.otherBeneficiaries, intakeId, user.id),
@@ -328,6 +344,7 @@ export async function saveIntakeNormalized(
       saveInsuranceCoverage(formData.insurancePolicies, intakeId, user.id),
       saveAdvisors(formData.advisors, intakeId, user.id),
       saveExpenses(formData.expenses, intakeId, user.id),
+      saveSubscriptions(formData.subscriptions, intakeId, user.id),
       saveCarePreferences(formData.carePreferences, intakeId, user.id),
       saveEndOfLife(formData.endOfLife, intakeId, user.id),
       saveFriendsNeighbors(formData.friendsNeighbors, intakeId, user.id),
@@ -336,6 +353,18 @@ export async function saveIntakeNormalized(
       saveLongTermCare(formData, intakeId, user.id),
       saveCurrentEstatePlan(formData, intakeId, user.id),
       saveDistributionPlans(formData, intakeId, user.id),
+      saveLegacyObituary(formData.legacyObituary, intakeId, user.id),
+      saveLegacyObituarySpouse(formData.legacyObituarySpouse, intakeId, user.id),
+      saveLegacyCharityOrganizations(formData.legacyCharityOrganizations, intakeId, user.id),
+      saveLegacyCharityPreferences(formData.legacyCharityPreferences, intakeId, user.id),
+      saveLegacyLetters(formData.legacyLetters, intakeId, user.id),
+      saveLegacyPersonalHistory(formData.legacyPersonalHistory, intakeId, user.id),
+      saveLegacyStories(formData.legacyStories, intakeId, user.id),
+      saveLegacyReflections(formData.legacyReflections, intakeId, user.id),
+      saveLegacySurprises(formData.legacySurprises, intakeId, user.id),
+      saveLegacyFavorites(formData.legacyFavorites, intakeId, user.id),
+      saveLegacyVideos(formData.legacyVideos, intakeId, user.id),
+      saveLegacyMemories(formData.legacyMemories, intakeId, user.id),
     ]);
 
     // Check for any errors
@@ -364,12 +393,28 @@ export async function saveIntakeNormalized(
       medicalInsuranceResult,
       insuranceCoverageResult,
       advisorsResult,
+      expensesResult,
+      subscriptionsResult,
+      carePreferencesResult,
+      endOfLifeResult,
       friendsNeighborsResult,
       specificGiftsResult,
       cashGiftsResult,
       ltcResult,
       cepResult,
       distPlansResult,
+      legacyObituaryResult,
+      legacyObituarySpouseResult,
+      legacyCharityOrgsResult,
+      legacyCharityPrefsResult,
+      legacyLettersResult,
+      legacyPersonalHistoryResult,
+      legacyStoriesResult,
+      legacyReflectionsResult,
+      legacySurprisesResult,
+      legacyFavoritesResult,
+      legacyVideosResult,
+      legacyMemoriesResult,
     ].filter((r) => !r.success);
 
     if (errors.length > 0) {
@@ -1242,6 +1287,318 @@ async function saveExpenses(
   }));
 
   return deleteAndInsertRecords('folio_expenses', intakeId, userId, records);
+}
+
+async function saveSubscriptions(
+  subscriptions: FormData['subscriptions'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = subscriptions.map((s) => ({
+    service_name: s.serviceName || null,
+    category: s.category || null,
+    frequency: s.frequency || null,
+    amount: s.amount || null,
+    payment_method: s.paymentMethod || null,
+    account_holder: s.accountHolder || null,
+    login_email: s.loginEmail || null,
+    auto_renew: s.autoRenew,
+    renewal_date: s.renewalDate || null,
+    is_active: s.isActive,
+    notes: s.notes || null,
+  }));
+
+  return deleteAndInsertRecords('folio_subscriptions', intakeId, userId, records);
+}
+
+// ============================================================================
+// LEGACY SECTION SAVE FUNCTIONS
+// ============================================================================
+
+async function saveLegacyObituary(
+  obit: FormData['legacyObituary'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const hasData = Object.values(obit).some((v) => typeof v === 'string' && v.trim());
+  if (!hasData) {
+    await supabase.from('legacy_obituary').delete().eq('intake_id', intakeId);
+    return { success: true };
+  }
+  const records = [{
+    // The Basics
+    preferred_name: obit.preferredName || null,
+    nicknames: obit.nicknames || null,
+    date_of_birth: obit.dateOfBirth || null,
+    place_of_birth: obit.placeOfBirth || null,
+    date_of_death: obit.dateOfDeath || null,
+    place_of_death: obit.placeOfDeath || null,
+    // Life Story
+    hometowns: obit.hometowns || null,
+    religious_affiliation: obit.religiousAffiliation || null,
+    military_service: obit.militaryService || null,
+    education: obit.education || null,
+    career_highlights: obit.careerHighlights || null,
+    community_involvement: obit.communityInvolvement || null,
+    awards_honors: obit.awardsHonors || null,
+    // Family
+    spouses: obit.spouses || null,
+    children: obit.children || null,
+    grandchildren: obit.grandchildren || null,
+    siblings: obit.siblings || null,
+    parents: obit.parents || null,
+    others_to_mention: obit.othersToMention || null,
+    preceded_in_death: obit.precededInDeath || null,
+    // Your Voice
+    tone: obit.tone || null,
+    quotes_to_include: obit.quotesToInclude || null,
+    what_to_remember: obit.whatToRemember || null,
+    personal_message: obit.personalMessage || null,
+    // Final Arrangements
+    preferred_funeral_home: obit.preferredFuneralHome || null,
+    burial_or_cremation: obit.burialOrCremation || null,
+    service_preferences: obit.servicePreferences || null,
+    charitable_donations: obit.charitableDonations || null,
+  }];
+  return deleteAndInsertRecords('legacy_obituary', intakeId, userId, records);
+}
+
+async function saveLegacyObituarySpouse(
+  obit: FormData['legacyObituarySpouse'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const hasData = Object.values(obit).some((v) => typeof v === 'string' && v.trim());
+  if (!hasData) {
+    await supabase.from('legacy_obituary_spouse').delete().eq('intake_id', intakeId);
+    return { success: true };
+  }
+  const records = [{
+    preferred_name: obit.preferredName || null,
+    nicknames: obit.nicknames || null,
+    date_of_birth: obit.dateOfBirth || null,
+    place_of_birth: obit.placeOfBirth || null,
+    date_of_death: obit.dateOfDeath || null,
+    place_of_death: obit.placeOfDeath || null,
+    hometowns: obit.hometowns || null,
+    religious_affiliation: obit.religiousAffiliation || null,
+    military_service: obit.militaryService || null,
+    education: obit.education || null,
+    career_highlights: obit.careerHighlights || null,
+    community_involvement: obit.communityInvolvement || null,
+    awards_honors: obit.awardsHonors || null,
+    spouses: obit.spouses || null,
+    children: obit.children || null,
+    grandchildren: obit.grandchildren || null,
+    siblings: obit.siblings || null,
+    parents: obit.parents || null,
+    others_to_mention: obit.othersToMention || null,
+    preceded_in_death: obit.precededInDeath || null,
+    tone: obit.tone || null,
+    quotes_to_include: obit.quotesToInclude || null,
+    what_to_remember: obit.whatToRemember || null,
+    personal_message: obit.personalMessage || null,
+    preferred_funeral_home: obit.preferredFuneralHome || null,
+    burial_or_cremation: obit.burialOrCremation || null,
+    service_preferences: obit.servicePreferences || null,
+    charitable_donations: obit.charitableDonations || null,
+  }];
+  return deleteAndInsertRecords('legacy_obituary_spouse', intakeId, userId, records);
+}
+
+async function saveLegacyCharityOrganizations(
+  orgs: FormData['legacyCharityOrganizations'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = orgs.map((o) => ({
+    organization_name: o.organizationName || null,
+    website: o.website || null,
+    contact_info: o.contactInfo || null,
+    notes: o.notes || null,
+  }));
+  return deleteAndInsertRecords('legacy_charity_organizations', intakeId, userId, records);
+}
+
+async function saveLegacyCharityPreferences(
+  prefs: FormData['legacyCharityPreferences'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const hasData = prefs.scholarshipFund || prefs.religiousDonations || prefs.legacyGivingNotes || prefs.whyTheseCauses || prefs.donationsInLieuOfFlowers;
+  if (!hasData) {
+    await supabase.from('legacy_charity_preferences').delete().eq('intake_id', intakeId);
+    return { success: true };
+  }
+  const records = [{
+    donations_in_lieu_of_flowers: prefs.donationsInLieuOfFlowers,
+    scholarship_fund: prefs.scholarshipFund || null,
+    religious_donations: prefs.religiousDonations || null,
+    legacy_giving_notes: prefs.legacyGivingNotes || null,
+    why_these_causes: prefs.whyTheseCauses || null,
+  }];
+  return deleteAndInsertRecords('legacy_charity_preferences', intakeId, userId, records);
+}
+
+async function saveLegacyLetters(
+  letters: FormData['legacyLetters'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = letters.map((l) => ({
+    recipient_type: l.recipientType || null,
+    recipient_name: l.recipientName || null,
+    letter_body: l.letterBody || null,
+    format: l.format || null,
+    media_url: l.mediaUrl || null,
+    is_private: l.isPrivate,
+  }));
+  return deleteAndInsertRecords('legacy_letters', intakeId, userId, records);
+}
+
+async function saveLegacyPersonalHistory(
+  hist: FormData['legacyPersonalHistory'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const hasData = Object.values(hist).some((v) => typeof v === 'string' && v.trim());
+  if (!hasData) {
+    await supabase.from('legacy_personal_history').delete().eq('intake_id', intakeId);
+    return { success: true };
+  }
+  const records = [{
+    birthplace: hist.birthplace || null,
+    childhood_memories: hist.childhoodMemories || null,
+    parents_background: hist.parentsBackground || null,
+    schools_attended: hist.schoolsAttended || null,
+    education_memories: hist.educationMemories || null,
+    first_job: hist.firstJob || null,
+    career_milestones: hist.careerMilestones || null,
+    proudest_professional: hist.proudestProfessional || null,
+    how_we_met: hist.howWeMet || null,
+    wedding_story: hist.weddingStory || null,
+    raising_children: hist.raisingChildren || null,
+    important_decisions: hist.importantDecisions || null,
+    biggest_challenges: hist.biggestChallenges || null,
+    risks_taken: hist.risksTaken || null,
+  }];
+  return deleteAndInsertRecords('legacy_personal_history', intakeId, userId, records);
+}
+
+async function saveLegacyStories(
+  stories: FormData['legacyStories'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = stories.map((s) => ({
+    story_title: s.storyTitle || null,
+    story_body: s.storyBody || null,
+    people_involved: s.peopleInvolved || null,
+    approximate_date: s.approximateDate || null,
+    location: s.location || null,
+    lessons_learned: s.lessonsLearned || null,
+  }));
+  return deleteAndInsertRecords('legacy_stories', intakeId, userId, records);
+}
+
+async function saveLegacyReflections(
+  refl: FormData['legacyReflections'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const hasData = refl.whatMattersMost || refl.adviceToYounger || refl.coreBeliefs ||
+    refl.greatestRegrets || refl.greatestJoys || refl.howRemembered ||
+    (refl.personalValues && refl.personalValues.length > 0);
+  if (!hasData) {
+    await supabase.from('legacy_reflections').delete().eq('intake_id', intakeId);
+    return { success: true };
+  }
+  const records = [{
+    what_matters_most: refl.whatMattersMost || null,
+    advice_to_younger: refl.adviceToYounger || null,
+    core_beliefs: refl.coreBeliefs || null,
+    greatest_regrets: refl.greatestRegrets || null,
+    greatest_joys: refl.greatestJoys || null,
+    how_remembered: refl.howRemembered || null,
+    personal_values: refl.personalValues?.join(',') || null,
+  }];
+  return deleteAndInsertRecords('legacy_reflections', intakeId, userId, records);
+}
+
+async function saveLegacySurprises(
+  surp: FormData['legacySurprises'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const hasData = Object.values(surp).some((v) => typeof v === 'string' && v.trim());
+  if (!hasData) {
+    await supabase.from('legacy_surprises').delete().eq('intake_id', intakeId);
+    return { success: true };
+  }
+  const records = [{
+    hidden_talents: surp.hiddenTalents || null,
+    unusual_experiences: surp.unusualExperiences || null,
+    fun_facts: surp.funFacts || null,
+    adventures: surp.adventures || null,
+    untold_stories: surp.untoldStories || null,
+  }];
+  return deleteAndInsertRecords('legacy_surprises', intakeId, userId, records);
+}
+
+async function saveLegacyFavorites(
+  favs: FormData['legacyFavorites'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const hasData = Object.values(favs).some((v) => typeof v === 'string' && v.trim());
+  if (!hasData) {
+    await supabase.from('legacy_favorites').delete().eq('intake_id', intakeId);
+    return { success: true };
+  }
+  const records = [{
+    favorite_music: favs.favoriteMusic || null,
+    favorite_books: favs.favoriteBooks || null,
+    favorite_movies: favs.favoriteMovies || null,
+    favorite_foods: favs.favoriteFoods || null,
+    favorite_restaurants: favs.favoriteRestaurants || null,
+    favorite_vacation_destinations: favs.favoriteVacationDestinations || null,
+    favorite_quotes_sayings: favs.favoriteQuotesSayings || null,
+    other_favorites: favs.otherFavorites || null,
+  }];
+  return deleteAndInsertRecords('legacy_favorites', intakeId, userId, records);
+}
+
+async function saveLegacyVideos(
+  videos: FormData['legacyVideos'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = videos.map((v) => ({
+    video_title: v.videoTitle || null,
+    recording_date: v.recordingDate || null,
+    description: v.description || null,
+    cloud_link: v.cloudLink || null,
+    is_private: v.isPrivate,
+    transcript: v.transcript || null,
+  }));
+  return deleteAndInsertRecords('legacy_videos', intakeId, userId, records);
+}
+
+async function saveLegacyMemories(
+  memories: FormData['legacyMemories'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = memories.map((m) => ({
+    memory_title: m.memoryTitle || null,
+    description: m.description || null,
+    people_in_photo: m.peopleInPhoto || null,
+    approximate_year: m.approximateYear || null,
+    location: m.location || null,
+    tags: m.tags || null,
+    media_url: m.mediaUrl || null,
+  }));
+  return deleteAndInsertRecords('legacy_memories', intakeId, userId, records);
 }
 
 async function saveCarePreferences(

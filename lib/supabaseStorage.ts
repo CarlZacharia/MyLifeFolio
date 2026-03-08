@@ -21,6 +21,7 @@ const BUCKET_NAME = 'estate-planning-intakes';
 export const FOLDERS = {
   EXISTING_ESTATE_PLAN: 'existing-estate-plan',
   NEW_PLAN_REPORTS: 'new-plan-reports',
+  LEGACY_OBITUARY: 'legacy/obituary',
 } as const;
 
 export type FolderType = typeof FOLDERS[keyof typeof FOLDERS];
@@ -443,6 +444,53 @@ export async function saveAnalysisReports(
     reports,
     errors,
   };
+}
+
+// ============================================================================
+// OBITUARY PDF UPLOAD
+// ============================================================================
+
+/**
+ * Upload a generated obituary PDF to Supabase Storage.
+ * Stores under: {user_id}/{clientFolderName}/legacy/obituary/{filename}.pdf
+ */
+export async function uploadObituaryPdf(
+  pdfBlob: Blob,
+  clientFolderName: string,
+  personName: string
+): Promise<StorageResult> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { success: false, error: 'User not authenticated' };
+    }
+
+    const date = new Date().toISOString().split('T')[0];
+    const cleanName = personName.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 40) || 'obituary';
+    const fileName = `${cleanName}_obituary_${date}.pdf`;
+    const filePath = `${user.id}/${clientFolderName}/${FOLDERS.LEGACY_OBITUARY}/${fileName}`;
+
+    const { data, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, pdfBlob, {
+        contentType: 'application/pdf',
+        cacheControl: '3600',
+        upsert: true,
+      });
+
+    if (error) {
+      console.error('Error uploading obituary PDF:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, path: data.path };
+  } catch (err) {
+    console.error('Error in uploadObituaryPdf:', err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Unknown error',
+    };
+  }
 }
 
 // ============================================================================

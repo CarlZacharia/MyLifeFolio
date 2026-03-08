@@ -49,6 +49,7 @@ const ACCEPTED_FILE_TYPES = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'application/vnd.ms-excel',
   'text/csv',
+  'text/plain',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/msword',
 ].join(',');
@@ -94,6 +95,7 @@ function getFileIcon(mimeType: string | null) {
   if (mimeType === 'application/pdf') return <PictureAsPdfIcon />;
   if (mimeType.startsWith('image/')) return <ImageIcon />;
   if (mimeType.includes('spreadsheet') || mimeType.includes('excel') || mimeType === 'text/csv') return <TableChartIcon />;
+  if (mimeType === 'text/plain') return <DescriptionIcon />;
   if (mimeType.includes('word')) return <DescriptionIcon />;
   return <InsertDriveFileIcon />;
 }

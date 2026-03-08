@@ -1034,6 +1034,20 @@ export interface FormData {
     notes: string;
   }>;
 
+  subscriptions: Array<{
+    serviceName: string;
+    category: string;
+    frequency: string;
+    amount: string;
+    paymentMethod: string;
+    accountHolder: string;
+    loginEmail: string;
+    autoRenew: boolean;
+    renewalDate: string;
+    isActive: boolean;
+    notes: string;
+  }>;
+
   carePreferences: Array<{
     category: string;
     preferenceItem: string;
@@ -1047,6 +1061,181 @@ export interface FormData {
   }>;
 
   additionalComments: string;
+
+  // Legacy section
+  legacyObituary: {
+    // The Basics
+    preferredName: string;
+    nicknames: string;
+    dateOfBirth: string;
+    placeOfBirth: string;
+    dateOfDeath: string;
+    placeOfDeath: string;
+    // Life Story
+    hometowns: string;
+    religiousAffiliation: string;
+    militaryService: string;
+    education: string;
+    careerHighlights: string;
+    communityInvolvement: string;
+    awardsHonors: string;
+    // Family
+    spouses: string;
+    children: string;
+    grandchildren: string;
+    siblings: string;
+    parents: string;
+    othersToMention: string;
+    precededInDeath: string;
+    // Your Voice
+    tone: string;
+    quotesToInclude: string;
+    whatToRemember: string;
+    personalMessage: string;
+    // Final Arrangements
+    preferredFuneralHome: string;
+    burialOrCremation: string;
+    servicePreferences: string;
+    charitableDonations: string;
+    // Generation tracking
+    obituaryGenerationCount: number;
+  };
+
+  legacyObituarySpouse: {
+    // The Basics
+    preferredName: string;
+    nicknames: string;
+    dateOfBirth: string;
+    placeOfBirth: string;
+    dateOfDeath: string;
+    placeOfDeath: string;
+    // Life Story
+    hometowns: string;
+    religiousAffiliation: string;
+    militaryService: string;
+    education: string;
+    careerHighlights: string;
+    communityInvolvement: string;
+    awardsHonors: string;
+    // Family
+    spouses: string;
+    children: string;
+    grandchildren: string;
+    siblings: string;
+    parents: string;
+    othersToMention: string;
+    precededInDeath: string;
+    // Your Voice
+    tone: string;
+    quotesToInclude: string;
+    whatToRemember: string;
+    personalMessage: string;
+    // Final Arrangements
+    preferredFuneralHome: string;
+    burialOrCremation: string;
+    servicePreferences: string;
+    charitableDonations: string;
+    // Generation tracking
+    obituaryGenerationCount: number;
+  };
+
+  legacyCharityOrganizations: Array<{
+    organizationName: string;
+    website: string;
+    contactInfo: string;
+    notes: string;
+  }>;
+
+  legacyCharityPreferences: {
+    donationsInLieuOfFlowers: boolean;
+    scholarshipFund: string;
+    religiousDonations: string;
+    legacyGivingNotes: string;
+    whyTheseCauses: string;
+  };
+
+  legacyLetters: Array<{
+    recipientType: string;
+    recipientName: string;
+    letterBody: string;
+    format: string;
+    mediaUrl: string;
+    isPrivate: boolean;
+  }>;
+
+  legacyPersonalHistory: {
+    birthplace: string;
+    childhoodMemories: string;
+    parentsBackground: string;
+    schoolsAttended: string;
+    educationMemories: string;
+    firstJob: string;
+    careerMilestones: string;
+    proudestProfessional: string;
+    howWeMet: string;
+    weddingStory: string;
+    raisingChildren: string;
+    importantDecisions: string;
+    biggestChallenges: string;
+    risksTaken: string;
+  };
+
+  legacyStories: Array<{
+    storyTitle: string;
+    storyBody: string;
+    peopleInvolved: string;
+    approximateDate: string;
+    location: string;
+    lessonsLearned: string;
+  }>;
+
+  legacyReflections: {
+    whatMattersMost: string;
+    adviceToYounger: string;
+    coreBeliefs: string;
+    greatestRegrets: string;
+    greatestJoys: string;
+    howRemembered: string;
+    personalValues: string[];
+  };
+
+  legacySurprises: {
+    hiddenTalents: string;
+    unusualExperiences: string;
+    funFacts: string;
+    adventures: string;
+    untoldStories: string;
+  };
+
+  legacyFavorites: {
+    favoriteMusic: string;
+    favoriteBooks: string;
+    favoriteMovies: string;
+    favoriteFoods: string;
+    favoriteRestaurants: string;
+    favoriteVacationDestinations: string;
+    favoriteQuotesSayings: string;
+    otherFavorites: string;
+  };
+
+  legacyVideos: Array<{
+    videoTitle: string;
+    recordingDate: string;
+    description: string;
+    cloudLink: string;
+    isPrivate: boolean;
+    transcript: string;
+  }>;
+
+  legacyMemories: Array<{
+    memoryTitle: string;
+    description: string;
+    peopleInPhoto: string;
+    approximateYear: string;
+    location: string;
+    tags: string;
+    mediaUrl: string;
+  }>;
 
   // Will/Trust Distribution Plans
   clientDistributionPlan: DistributionPlan;
@@ -1084,6 +1273,8 @@ interface FormContextType {
   currentStep: number;
   setCurrentStep: (step: number) => void;
   clearFormData: () => void;
+  intakeId: string | null;
+  setIntakeId: (id: string | null) => void;
 }
 
 // Fields that contain Date objects and need special serialization
@@ -1401,9 +1592,57 @@ const initialFormData: FormData = {
   medicalInsurancePolicies: [],
   insurancePolicies: [],
   expenses: [],
+  subscriptions: [],
   carePreferences: [],
   endOfLife: [],
   additionalComments: '',
+  legacyObituary: {
+    preferredName: '', nicknames: '', dateOfBirth: '', placeOfBirth: '', dateOfDeath: '', placeOfDeath: '',
+    hometowns: '', religiousAffiliation: '', militaryService: '', education: '', careerHighlights: '',
+    communityInvolvement: '', awardsHonors: '',
+    spouses: '', children: '', grandchildren: '', siblings: '', parents: '', othersToMention: '', precededInDeath: '',
+    tone: '', quotesToInclude: '', whatToRemember: '', personalMessage: '',
+    preferredFuneralHome: '', burialOrCremation: '', servicePreferences: '', charitableDonations: '',
+    obituaryGenerationCount: 0,
+  },
+  legacyObituarySpouse: {
+    preferredName: '', nicknames: '', dateOfBirth: '', placeOfBirth: '', dateOfDeath: '', placeOfDeath: '',
+    hometowns: '', religiousAffiliation: '', militaryService: '', education: '', careerHighlights: '',
+    communityInvolvement: '', awardsHonors: '',
+    spouses: '', children: '', grandchildren: '', siblings: '', parents: '', othersToMention: '', precededInDeath: '',
+    tone: '', quotesToInclude: '', whatToRemember: '', personalMessage: '',
+    preferredFuneralHome: '', burialOrCremation: '', servicePreferences: '', charitableDonations: '',
+    obituaryGenerationCount: 0,
+  },
+  legacyCharityOrganizations: [],
+  legacyCharityPreferences: {
+    donationsInLieuOfFlowers: false, scholarshipFund: '', religiousDonations: '',
+    legacyGivingNotes: '', whyTheseCauses: '',
+  },
+  legacyLetters: [],
+  legacyPersonalHistory: {
+    birthplace: '', childhoodMemories: '', parentsBackground: '',
+    schoolsAttended: '', educationMemories: '', firstJob: '',
+    careerMilestones: '', proudestProfessional: '', howWeMet: '',
+    weddingStory: '', raisingChildren: '', importantDecisions: '',
+    biggestChallenges: '', risksTaken: '',
+  },
+  legacyStories: [],
+  legacyReflections: {
+    whatMattersMost: '', adviceToYounger: '', coreBeliefs: '',
+    greatestRegrets: '', greatestJoys: '', howRemembered: '', personalValues: [],
+  },
+  legacySurprises: {
+    hiddenTalents: '', unusualExperiences: '', funFacts: '',
+    adventures: '', untoldStories: '',
+  },
+  legacyFavorites: {
+    favoriteMusic: '', favoriteBooks: '', favoriteMovies: '', favoriteFoods: '',
+    favoriteRestaurants: '', favoriteVacationDestinations: '',
+    favoriteQuotesSayings: '', otherFavorites: '',
+  },
+  legacyVideos: [],
+  legacyMemories: [],
   clientDistributionPlan: {
     distributionType: 'sweetheart',
     isSweetheartPlan: true,
@@ -1710,6 +1949,7 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [currentStep, setCurrentStep] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [intakeId, setIntakeId] = useState<string | null>(null);
   const isFirstRender = useRef(true);
 
   // Initialize on mount - data will be loaded from Supabase by parent component
@@ -1743,6 +1983,8 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
         currentStep,
         setCurrentStep,
         clearFormData,
+        intakeId,
+        setIntakeId,
       }}
     >
       {children}

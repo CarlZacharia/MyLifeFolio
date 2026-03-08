@@ -11,6 +11,7 @@ import {
   AppBar,
   Toolbar,
   Button,
+  Divider,
   Fade,
 } from '@mui/material';
 import { ThemeProvider, createTheme, alpha } from '@mui/material/styles';
@@ -188,19 +189,19 @@ const folioCategories = [
     items: ['Medical & vehicle insurance', 'Homeowners & umbrella', 'Long-term care & disability', 'Life insurance & other policies'],
   },
   {
-    id: 'home-property', title: 'Home & Property', icon: <HomeIcon sx={{ fontSize: 26 }} />, accentColor: '#e07a2f',
-    items: ['Coming soon'],
+    id: 'care-decisions', title: 'Care Decisions', icon: <FavoriteBorderIcon sx={{ fontSize: 26 }} />, accentColor: '#00838f',
+    items: ['Care setting & medical preferences', 'Diet, hygiene & daily routine', 'Activities, family & social', 'Cognitive, communication & spiritual', 'Financial & end-of-life preferences'],
   },
   {
     id: 'end-of-life', title: 'End of Life Issues', icon: <VolunteerActivismIcon sx={{ fontSize: 26 }} />, accentColor: '#6a1b9a',
     items: ['Advance directives', 'Prepaid funeral & desires', 'Funeral home & burial', 'Religious preferences'],
   },
   {
-    id: 'care-decisions', title: 'Care Decisions', icon: <FavoriteBorderIcon sx={{ fontSize: 26 }} />, accentColor: '#00838f',
-    items: ['Care setting & medical preferences', 'Diet, hygiene & daily routine', 'Activities, family & social', 'Cognitive, communication & spiritual', 'Financial & end-of-life preferences'],
+    id: 'legacy-life-story', title: 'Legacy & Life Story', icon: <VideoLibraryIcon sx={{ fontSize: 26 }} />, accentColor: '#c9a227',
+    items: ['Obituary Info', 'Charitable Wishes', 'Letters to Family', 'Personal History', 'Life Stories', 'Reflections', 'Surprises', 'Favorites', 'Video Legacy', 'Memory Vault'],
   },
   {
-    id: 'legacy-life-story', title: 'Legacy & Life Story', icon: <VideoLibraryIcon sx={{ fontSize: 26 }} />, accentColor: '#c9a227',
+    id: 'document-uploads', title: 'Documents Vault', icon: <HomeIcon sx={{ fontSize: 26 }} />, accentColor: '#e07a2f',
     items: ['Coming soon'],
   },
   {
@@ -714,6 +715,67 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
 
               <Typography variant="body2" sx={{ opacity: 0.5 }}>
                 © {new Date().getFullYear()} All rights reserved.
+              </Typography>
+            </Box>
+
+            <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)', my: 2.5 }} />
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+              <Typography variant="body2" sx={{ opacity: 0.7, fontWeight: 500 }}>
+                MyLifeFolio is a product of{' '}
+                <Typography
+                  component="a"
+                  href="https://SeniorCareRes.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="body2"
+                  sx={{
+                    color: 'secondary.main',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  Senior Care Resources LLC
+                </Typography>
+              </Typography>
+
+              <Typography variant="caption" sx={{ opacity: 0.45, textAlign: 'center', maxWidth: 600 }}>
+                MyLifeFolio is an organizational tool and does not provide legal, financial, or medical advice.
+                {' '}
+                <Typography
+                  component="a"
+                  href="/disclaimer"
+                  variant="caption"
+                  sx={{
+                    color: 'secondary.main',
+                    opacity: 1,
+                    textDecoration: 'none',
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  Full Disclaimer
+                </Typography>
+              </Typography>
+
+              <Typography variant="caption" sx={{ opacity: 0.5, mt: 0.5 }}>
+                Created in partnership with{' '}
+                <Typography
+                  component="a"
+                  href="https://ZacFreyLaw.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="caption"
+                  sx={{
+                    color: 'secondary.main',
+                    opacity: 1,
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  Zacharia Frey PLLC
+                </Typography>
               </Typography>
             </Box>
           </Container>

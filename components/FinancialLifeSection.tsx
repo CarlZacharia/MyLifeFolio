@@ -13,6 +13,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
+import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import IncomeSection from './IncomeSection';
 import AssetsSection from './AssetsSection';
 import FinancialAssetsTab from './FinancialAssetsTab';
@@ -21,12 +22,14 @@ import DigitalAssetsTab from './DigitalAssetsTab';
 import OtherAssetsTab from './OtherAssetsTab';
 import { AssetCategoryType } from './AssetsSummaryTable';
 import ExpensesSection from './ExpensesSection';
+import SubscriptionsTab from './SubscriptionsTab';
 import { folioColors } from './FolioModal';
 
 const PRIMARY_TABS = [
   { label: 'Assets', icon: <AccountBalanceWalletIcon /> },
   { label: 'Income', icon: <AttachMoneyIcon /> },
   { label: 'Expenses', icon: <ReceiptLongIcon /> },
+  { label: 'Subscriptions', icon: <SubscriptionsIcon /> },
   { label: 'Debts', icon: <CreditCardIcon /> },
 ] as const;
 
@@ -143,8 +146,11 @@ const FinancialLifeSection = () => {
       {/* Expenses tab */}
       {primaryTab === 2 && <ExpensesSection />}
 
+      {/* Subscriptions tab */}
+      {primaryTab === 3 && <SubscriptionsTab />}
+
       {/* Debts tab */}
-      {primaryTab === 3 && <PlaceholderTab title="Debts" />}
+      {primaryTab === 4 && <PlaceholderTab title="Debts" />}
     </Box>
   );
 };

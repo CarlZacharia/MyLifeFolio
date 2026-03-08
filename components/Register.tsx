@@ -358,7 +358,17 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
             }
             label={
               <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.5 }}>
-                I agree that all content, videos, and forms on this website are for educational purposes only and do not constitute legal advice. I understand that no attorney-client relationship exists with MyLifeFolio unless mutually agreed to in writing. I acknowledge that I may not rely on any information provided through this website without first obtaining review and advice from an attorney.
+              I understand that MyLifeFolio is owned and operated by Senior Care Resources LLC 
+(SeniorCareRes.com), a life documentation and planning platform. I agree that all 
+content, videos, tools, and forms on this website are for informational and 
+organizational purposes only and do not constitute legal advice. I acknowledge that 
+my use of this platform does not create an attorney-client relationship with Senior 
+Care Resources LLC, Zacharia Frey PLLC, or any of their attorneys or affiliates. 
+I understand that nothing provided through this platform should be relied upon as 
+legal advice, and that I should consult a licensed attorney before making any legal, 
+financial, or estate planning decisions. For estate planning and elder law services 
+in Pennsylvania or Florida, Zacharia Frey PLLC (ZacFreyLaw.com) is available for 
+consultation.
               </Typography>
             }
             sx={{
