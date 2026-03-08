@@ -26,6 +26,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
 import { supabase } from '../lib/supabase';
 import { cleanupDuplicateIntakes, CleanupResult } from '../lib/supabaseIntake';
+import AdminTestPanel from './AdminTestPanel';
 
 interface IntakeRecord {
   id: string;
@@ -488,6 +489,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          {/* Test Data Management Panel */}
+          <AdminTestPanel />
         </>
       )}
     </Box>

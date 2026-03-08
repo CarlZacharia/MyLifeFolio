@@ -33,7 +33,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import HomeIcon from '@mui/icons-material/Home';
 import { useAuth } from '../lib/AuthContext';
 
-const isAdminUser = (email) => {
+const isAdminUser = (email: string | undefined) => {
   if (!email) return false;
   return email.split('@')[1] === 'mylifefolio.com';
 };
@@ -65,7 +65,7 @@ const theme = createTheme({
 });
 
 // Fade-in on scroll using IntersectionObserver
-const ScrollFade = ({ children, delay = 0 }) => {
+const ScrollFade = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -89,7 +89,7 @@ const ScrollFade = ({ children, delay = 0 }) => {
 };
 
 // Chapter card for the "What's Inside" section
-const ChapterCard = ({ icon, title, items, accentColor, delay = 0 }) => {
+const ChapterCard = ({ icon, title, items, accentColor, delay = 0 }: { icon: React.ReactNode; title: string; items: string[]; accentColor: string; delay?: number }) => {
   const [hovered, setHovered] = useState(false);
   return (
     <ScrollFade delay={delay}>
@@ -134,7 +134,7 @@ const ChapterCard = ({ icon, title, items, accentColor, delay = 0 }) => {
   );
 };
 
-const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }) => {
+const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { onNavigate: (page: string) => void; onLogin: () => void; onRegister: () => void; onAdmin?: () => void; onProfile?: () => void }) => {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const { user, signOut, hasRegistered } = useAuth();
 

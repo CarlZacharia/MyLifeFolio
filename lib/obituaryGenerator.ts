@@ -5,6 +5,7 @@ export interface GenerateObituaryResult {
   obituary?: string;
   error?: string;
   isTimeout?: boolean;
+  limitReached?: boolean;
 }
 
 const TIMEOUT_MS = 30000; // 30 seconds
@@ -15,7 +16,9 @@ const TIMEOUT_MS = 30000; // 30 seconds
  * The edge function holds the Anthropic API key and makes the Claude call server-side.
  */
 export async function generateObituary(
-  obituaryData: Record<string, unknown>
+  obituaryData: Record<string, unknown>,
+  intakeId: string | null,
+  personType: 'client' | 'spouse' = 'client'
 ): Promise<GenerateObituaryResult> {
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -42,7 +45,11 @@ export async function generateObituary(
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ obituaryData: dataToSend }),
+        body: JSON.stringify({
+          obituaryData: dataToSend,
+          intake_id: intakeId,
+          person_type: personType,
+        }),
         signal: controller.signal,
       });
     } catch (fetchErr) {
@@ -57,6 +64,15 @@ export async function generateObituary(
       throw fetchErr;
     } finally {
       clearTimeout(timeoutId);
+    }
+
+    if (response.status === 429) {
+      const errorData = await response.json().catch(() => null);
+      return {
+        success: false,
+        limitReached: true,
+        error: errorData?.error || 'You have reached the maximum number of obituary generations.',
+      };
     }
 
     if (!response.ok) {

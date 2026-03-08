@@ -16,6 +16,7 @@ import { generateObituary } from '../lib/obituaryGenerator';
 import { buildObituaryFromTemplate } from '../lib/obituaryTemplate';
 import { saveDraft, loadDrafts, ObituaryDraft } from '../lib/obituaryDrafts';
 import { generateClientFolderName } from '../lib/supabaseStorage';
+import { supabase } from '../lib/supabase';
 import ObituaryPreviewModal from './ObituaryPreviewModal';
 
 const TONES = ['Formal', 'Warm & Personal', 'Lighthearted', 'Religious/Faith-Based', 'Brief'] as const;
@@ -104,6 +105,27 @@ const ObituaryForm: React.FC<ObituaryFormProps> = ({ obit, formDataKey, intakeId
   const [drafts, setDrafts] = useState<ObituaryDraft[]>([]);
   const [draftsExpanded, setDraftsExpanded] = useState(false);
 
+  const personType: 'client' | 'spouse' = formDataKey === 'legacyObituarySpouse' ? 'spouse' : 'client';
+  const tableName = personType === 'spouse' ? 'legacy_obituary_spouse' : 'legacy_obituary';
+
+  // Fetch generation_count from DB and sync to formData
+  const refreshGenerationCount = useCallback(async () => {
+    if (!intakeId) return;
+    const { data, error: fetchErr } = await supabase
+      .from(tableName)
+      .select('generation_count')
+      .eq('intake_id', intakeId)
+      .maybeSingle();
+    if (fetchErr) {
+      console.error('Error fetching generation count:', fetchErr);
+      return;
+    }
+    const dbCount = data?.generation_count ?? 0;
+    if (dbCount !== obit.obituaryGenerationCount) {
+      updateFormData({ [formDataKey]: { ...obit, obituaryGenerationCount: dbCount } });
+    }
+  }, [intakeId, tableName, formDataKey, obit, updateFormData]);
+
   // Load prior drafts when the tab mounts or intakeId changes
   const refreshDrafts = useCallback(async () => {
     if (!intakeId) return;
@@ -117,7 +139,9 @@ const ObituaryForm: React.FC<ObituaryFormProps> = ({ obit, formDataKey, intakeId
 
   useEffect(() => {
     refreshDrafts();
-  }, [refreshDrafts]);
+    refreshGenerationCount();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [intakeId]);
 
   const handleChange = (field: string, value: string) => {
     updateFormData({ [formDataKey]: { ...obit, [field]: value } });
@@ -194,23 +218,25 @@ const ObituaryForm: React.FC<ObituaryFormProps> = ({ obit, formDataKey, intakeId
     });
 
     try {
-      const result = await generateObituary(obit);
+      const result = await generateObituary(obit, intakeId, personType);
 
       timers.forEach(clearTimeout);
 
       if (result.success && result.obituary) {
-        const newCount = obit.obituaryGenerationCount + 1;
         setGeneratedText(result.obituary);
         setPreviewOpen(true);
-        updateFormData({
-          [formDataKey]: { ...obit, obituaryGenerationCount: newCount },
-        });
+
+        // Refresh count from DB (Edge Function owns the increment)
+        await refreshGenerationCount();
 
         // Auto-save draft to Supabase
         if (intakeId) {
+          const newCount = obit.obituaryGenerationCount + 1;
           await saveDraft(intakeId, result.obituary, obit.tone, obit.preferredName, newCount);
           refreshDrafts();
         }
+      } else if (result.limitReached) {
+        setError('You have reached the maximum of 5 AI-generated obituary drafts.');
       } else if (result.isTimeout) {
         setError('The request timed out. Claude may be under heavy load right now. Please wait a moment and try again.');
       } else {
@@ -483,10 +509,12 @@ const ObituaryForm: React.FC<ObituaryFormProps> = ({ obit, formDataKey, intakeId
             Export As Entered
           </Button>
         </Box>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" sx={{
+          ...(remaining <= 0 ? { color: '#d32f2f', fontWeight: 600 } : {}),
+        }}>
           {remaining > 0
-            ? `${remaining} of ${MAX_GENERATIONS} AI generation${remaining === 1 ? '' : 's'} remaining`
-            : 'Maximum AI generations reached'}
+            ? `${obit.obituaryGenerationCount} of ${MAX_GENERATIONS} drafts used`
+            : 'All 5 drafts used — generation limit reached'}
         </Typography>
       </Box>
 

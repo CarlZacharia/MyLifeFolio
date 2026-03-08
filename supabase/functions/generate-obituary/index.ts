@@ -3,6 +3,8 @@
 
 // @ts-ignore - Deno imports work in Supabase Edge Functions runtime
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+// @ts-ignore - Deno imports work in Supabase Edge Functions runtime
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 // @ts-ignore - Deno global available in Edge Functions runtime
 declare const Deno: { env: { get(key: string): string | undefined } };
@@ -11,6 +13,8 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const MAX_GENERATIONS = 5;
 
 interface ObituaryFields {
   preferredName: string;
@@ -129,11 +133,55 @@ serve(async (req: Request) => {
       throw new Error('ANTHROPIC_API_KEY is not configured');
     }
 
-    const { obituaryData } = await req.json() as { obituaryData: ObituaryFields };
+    const { obituaryData, intake_id, person_type = 'client' } = await req.json() as {
+      obituaryData: ObituaryFields;
+      intake_id?: string;
+      person_type?: 'client' | 'spouse';
+    };
+
     if (!obituaryData || !obituaryData.preferredName) {
       throw new Error('Obituary data with at least a name is required');
     }
 
+    // ── Rate limit check ──────────────────────────────────────────────
+    // Use service role client to bypass RLS for rate-limit bookkeeping
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+    const tableName = person_type === 'spouse' ? 'legacy_obituary_spouse' : 'legacy_obituary';
+    let currentCount = 0;
+
+    if (intake_id) {
+      const { data: row, error: lookupError } = await adminClient
+        .from(tableName)
+        .select('generation_count')
+        .eq('intake_id', intake_id)
+        .maybeSingle();
+
+      if (lookupError) {
+        console.error('Rate limit lookup error:', lookupError);
+        // Don't block generation on a lookup failure — proceed with caution
+      } else if (row) {
+        currentCount = row.generation_count ?? 0;
+      }
+
+      if (currentCount >= MAX_GENERATIONS) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Generation limit reached. You have used all 5 AI-generated obituary drafts.',
+            limitReached: true,
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 429,
+          }
+        );
+      }
+    }
+
+    // ── Call Claude API ───────────────────────────────────────────────
     const prompt = buildPrompt(obituaryData);
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -157,6 +205,22 @@ serve(async (req: Request) => {
     }
 
     const claudeResponse = await response.json();
+
+    // ── Increment generation count after successful generation ────────
+    if (intake_id) {
+      const { error: updateError } = await adminClient
+        .from(tableName)
+        .update({
+          generation_count: currentCount + 1,
+          last_generated_at: new Date().toISOString(),
+        })
+        .eq('intake_id', intake_id);
+
+      if (updateError) {
+        console.error('Failed to increment generation_count:', updateError);
+        // Don't fail the response — the obituary was already generated
+      }
+    }
 
     return new Response(
       JSON.stringify({
