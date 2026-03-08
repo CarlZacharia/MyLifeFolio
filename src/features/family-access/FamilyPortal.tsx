@@ -19,6 +19,7 @@ interface AuthorizedAccess {
   authorized_email: string;
   display_name: string;
   access_sections: string[];
+  allowed_reports: string[];
   is_active: boolean;
 }
 
@@ -198,6 +199,7 @@ const FamilyPortal: React.FC = () => {
               accessSections={access.access_sections}
               accessorEmail={userEmail}
               accessorName={access.display_name}
+              allowedReports={access.allowed_reports || []}
             />
           )}
           {tab === 2 && (

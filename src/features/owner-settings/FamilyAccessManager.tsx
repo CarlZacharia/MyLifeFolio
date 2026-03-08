@@ -30,6 +30,7 @@ import FolioModal, {
 import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../../lib/AuthContext';
 import { useFormContext } from '../../../lib/FormContext';
+import { REPORTS } from '../../../components/ReportsSection';
 
 const ALL_SECTIONS = [
   { key: 'personal', label: 'Personal Info' },
@@ -62,6 +63,7 @@ interface AuthorizedUser {
   authorized_email: string;
   display_name: string;
   access_sections: string[];
+  allowed_reports: string[];
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -122,6 +124,7 @@ const FamilyAccessManager: React.FC = () => {
   const [formName, setFormName] = useState('');
   const [formEmail, setFormEmail] = useState('');
   const [formSections, setFormSections] = useState<string[]>([]);
+  const [formReports, setFormReports] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const fieldsVisible = useFolioFieldAnimation(dialogOpen);
@@ -203,6 +206,7 @@ const FamilyAccessManager: React.FC = () => {
     setFormName(`${suggestion.name} (${suggestion.relationship})`);
     setFormEmail(suggestion.email);
     setFormSections([]);
+    setFormReports([]);
     setError('');
     setDialogOpen(true);
   };
@@ -213,6 +217,7 @@ const FamilyAccessManager: React.FC = () => {
     setFormName('');
     setFormEmail('');
     setFormSections([]);
+    setFormReports([]);
     setError('');
     setDialogOpen(true);
   };
@@ -222,6 +227,7 @@ const FamilyAccessManager: React.FC = () => {
     setFormName(u.display_name);
     setFormEmail(u.authorized_email);
     setFormSections(u.access_sections);
+    setFormReports(u.allowed_reports || []);
     setError('');
     setDialogOpen(true);
   };
@@ -246,6 +252,7 @@ const FamilyAccessManager: React.FC = () => {
             display_name: formName.trim(),
             authorized_email: formEmail.trim().toLowerCase(),
             access_sections: formSections,
+            allowed_reports: formReports,
           })
           .eq('id', editUser.id);
         if (updateError) throw updateError;
@@ -257,6 +264,7 @@ const FamilyAccessManager: React.FC = () => {
             display_name: formName.trim(),
             authorized_email: formEmail.trim().toLowerCase(),
             access_sections: formSections,
+            allowed_reports: formReports,
           });
         if (insertError) {
           if (insertError.message.includes('duplicate') || insertError.message.includes('unique')) {
@@ -294,6 +302,12 @@ const FamilyAccessManager: React.FC = () => {
   const toggleSection = (section: string) => {
     setFormSections((prev) =>
       prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]
+    );
+  };
+
+  const toggleReport = (reportId: string) => {
+    setFormReports((prev) =>
+      prev.includes(reportId) ? prev.filter((r) => r !== reportId) : [...prev, reportId]
     );
   };
 
@@ -544,6 +558,7 @@ const FamilyAccessManager: React.FC = () => {
               <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Sections</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Reports</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Active</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
             </TableRow>
@@ -551,7 +566,7 @@ const FamilyAccessManager: React.FC = () => {
           <TableBody>
             {users.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} sx={{ textAlign: 'center', py: 3, color: 'text.secondary' }}>
+                <TableCell colSpan={6} sx={{ textAlign: 'center', py: 3, color: 'text.secondary' }}>
                   No family members added yet.
                 </TableCell>
               </TableRow>
@@ -567,6 +582,18 @@ const FamilyAccessManager: React.FC = () => {
                     ))}
                     {u.access_sections.includes('full_sensitive') && (
                       <Chip label="full sensitive" size="small" color="warning" />
+                    )}
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                    {(u.allowed_reports || []).length === 0 ? (
+                      <Typography variant="caption" color="text.secondary">None</Typography>
+                    ) : (
+                      (u.allowed_reports || []).map((rId) => {
+                        const rDef = REPORTS.find((r) => r.id === rId);
+                        return <Chip key={rId} label={rDef?.label || rId} size="small" variant="outlined" />;
+                      })
                     )}
                   </Box>
                 </TableCell>
@@ -797,6 +824,46 @@ const FamilyAccessManager: React.FC = () => {
             <Button
               size="small"
               onClick={() => setFormSections([])}
+              sx={{ textTransform: 'none', fontWeight: 500, color: '#6b5c47', mt: 0.5 }}
+            >
+              Clear All
+            </Button>
+          </FolioFieldFade>
+
+          <FolioFieldFade visible={fieldsVisible} index={3}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                Allowed Reports
+              </Typography>
+              <Button
+                size="small"
+                onClick={() => setFormReports(REPORTS.map((r) => r.id))}
+                sx={{ textTransform: 'none', fontWeight: 500, color: '#8b6914' }}
+              >
+                Select All
+              </Button>
+            </Box>
+            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 1 }}>
+              Choose which reports this family member can view in the Family Portal.
+            </Typography>
+            <FormGroup>
+              {REPORTS.map((report) => (
+                <FormControlLabel
+                  key={report.id}
+                  control={
+                    <Checkbox
+                      checked={formReports.includes(report.id)}
+                      onChange={() => toggleReport(report.id)}
+                      sx={{ '&.Mui-checked': { color: '#8b6914' } }}
+                    />
+                  }
+                  label={report.label}
+                />
+              ))}
+            </FormGroup>
+            <Button
+              size="small"
+              onClick={() => setFormReports([])}
               sx={{ textTransform: 'none', fontWeight: 500, color: '#6b5c47', mt: 0.5 }}
             >
               Clear All

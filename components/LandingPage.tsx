@@ -215,7 +215,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
       icon: <LibraryBooksIcon sx={{ fontSize: 26 }} />,
       title: 'Reports',
       accentColor: '#455a64',
-      items: ['Emergency Medical Summary', 'Family Contact Sheet', 'Asset Inventory', 'Insurance Summary', 'Advisor Directory', 'Estate Planning Overview', 'Funeral Instructions', '"What To Do If I Die" Checklist', 'Family Briefing Report'],
+      items: ['Emergency Medical Summary', 'Family Contact Sheet', 'Asset Inventory', 'Insurance Summary', 'Advisor Directory', 'Estate Planning Overview', 'What to do if I need Care', 'Funeral Instructions', '"What To Do If I Die" Checklist', 'Family Briefing Report'],
     },
   ];
 

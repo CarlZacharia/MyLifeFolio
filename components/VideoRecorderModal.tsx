@@ -130,6 +130,14 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
     animFrameRef.current = requestAnimationFrame(drawTimestampOverlay);
   }, []);
 
+  // Attach the stream to the video element once it renders (state → previewing)
+  useEffect(() => {
+    if (state === 'previewing' && streamRef.current && videoPreviewRef.current) {
+      videoPreviewRef.current.srcObject = streamRef.current;
+      videoPreviewRef.current.play().catch(() => { /* autoplay may be blocked */ });
+    }
+  }, [state]);
+
   const startCamera = async () => {
     setError('');
     try {
@@ -138,9 +146,8 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
         audio: true,
       });
       streamRef.current = stream;
-      if (videoPreviewRef.current) {
-        videoPreviewRef.current.srcObject = stream;
-      }
+      // State change will cause the <video> element to mount;
+      // the useEffect above then wires up srcObject.
       setState('previewing');
     } catch (err) {
       console.error('Camera access error:', err);

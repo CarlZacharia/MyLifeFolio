@@ -3,9 +3,12 @@
 import React, { useState } from 'react';
 import {
   Box, Button, Card, CardContent, Chip, IconButton, Typography, Paper,
+  Dialog, DialogTitle, DialogContent,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import CloseIcon from '@mui/icons-material/Close';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import LockIcon from '@mui/icons-material/Lock';
@@ -34,6 +37,7 @@ const LegacyVideoLegacyTab = () => {
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [recorderOpen, setRecorderOpen] = useState(false);
   const [recorderTitle, setRecorderTitle] = useState('');
+  const [playbackIndex, setPlaybackIndex] = useState<number | null>(null);
 
   const openAdd = () => { setIsEdit(false); setEditIndex(null); setModalOpen(true); };
   const openEdit = (i: number) => { setIsEdit(true); setEditIndex(i); setModalOpen(true); };
@@ -121,9 +125,17 @@ const LegacyVideoLegacyTab = () => {
                       </Typography>
                     </Box>
                   </Box>
-                  <IconButton size="small" onClick={() => openEdit(i)} sx={{ color: folioColors.inkLight }}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
+                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    {video.cloudLink && (
+                      <IconButton size="small" onClick={() => setPlaybackIndex(i)}
+                        sx={{ color: folioColors.accent, '&:hover': { bgcolor: 'rgba(139,105,20,0.08)' } }}>
+                        <PlayArrowIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                    <IconButton size="small" onClick={() => openEdit(i)} sx={{ color: folioColors.inkLight }}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
                 </Box>
               </CardContent>
             </Card>
@@ -155,6 +167,62 @@ const LegacyVideoLegacyTab = () => {
       <VideoRecorderModal open={recorderOpen} onClose={() => setRecorderOpen(false)}
         onRecordingComplete={handleRecordingComplete}
         videoTitle={recorderTitle || 'legacy-video'} />
+
+      {/* Video Playback Dialog */}
+      <Dialog open={playbackIndex !== null} onClose={() => setPlaybackIndex(null)}
+        maxWidth="md" fullWidth
+        PaperProps={{ sx: { borderRadius: 3, bgcolor: '#1a1a1a', color: 'white' } }}>
+        {playbackIndex !== null && videos[playbackIndex] && (
+          <>
+            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                {videos[playbackIndex].videoTitle}
+              </Typography>
+              <IconButton onClick={() => setPlaybackIndex(null)} sx={{ color: 'white' }}>
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent sx={{ p: 0, pb: 2 }}>
+              {videos[playbackIndex].cloudLink && (() => {
+                const link = videos[playbackIndex].cloudLink;
+                const isYouTube = /youtu\.?be/.test(link);
+                const isVimeo = /vimeo\.com/.test(link);
+                if (isYouTube || isVimeo) {
+                  let embedUrl = link;
+                  if (isYouTube) {
+                    const match = link.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                    if (match) embedUrl = `https://www.youtube.com/embed/${match[1]}`;
+                  } else if (isVimeo) {
+                    const match = link.match(/vimeo\.com\/(\d+)/);
+                    if (match) embedUrl = `https://player.vimeo.com/video/${match[1]}`;
+                  }
+                  return (
+                    <Box sx={{ position: 'relative', pt: '56.25%' }}>
+                      <iframe
+                        src={embedUrl}
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowFullScreen
+                        title={videos[playbackIndex].videoTitle}
+                      />
+                    </Box>
+                  );
+                }
+                // Direct video file (e.g. Supabase storage URL or .mp4/.webm)
+                return (
+                  <video
+                    src={link}
+                    controls
+                    autoPlay
+                    playsInline
+                    style={{ width: '100%', maxHeight: 500, display: 'block', background: '#000' }}
+                  />
+                );
+              })()}
+            </DialogContent>
+          </>
+        )}
+      </Dialog>
     </Box>
   );
 };
