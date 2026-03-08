@@ -14,6 +14,8 @@ import { folioColors } from './FolioModal';
 import LegacyVideoModal, { VideoData, emptyVideo } from './LegacyVideoModal';
 import VideoRecorderModal from './VideoRecorderModal';
 
+const MAX_VIDEOS = 5;
+
 const VIDEO_PROMPTS = [
   'My life story — where I came from and what I\'ve done',
   'What I want my grandchildren to know',
@@ -25,6 +27,7 @@ const VIDEO_PROMPTS = [
 const LegacyVideoLegacyTab = () => {
   const { formData, updateFormData } = useFormContext();
   const videos = formData.legacyVideos;
+  const atLimit = videos.length >= MAX_VIDEOS;
 
   const [modalOpen, setModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -79,14 +82,17 @@ const LegacyVideoLegacyTab = () => {
         Record or link video messages for your loved ones. Seeing and hearing you will mean the world.
       </Typography>
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 1.5 }}>
-        <Button variant="outlined" startIcon={<FiberManualRecordIcon sx={{ color: '#d32f2f' }} />}
-          onClick={openRecorder} size="small"
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 2, gap: 1.5 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mr: 'auto' }}>
+          {videos.length} / {MAX_VIDEOS} videos
+        </Typography>
+        <Button variant="outlined" startIcon={<FiberManualRecordIcon sx={{ color: atLimit ? 'inherit' : '#d32f2f' }} />}
+          onClick={openRecorder} size="small" disabled={atLimit}
           sx={{ borderColor: folioColors.inkLight, color: folioColors.ink,
             '&:hover': { borderColor: folioColors.ink, bgcolor: 'rgba(201,162,39,0.06)' } }}>
           Record Now
         </Button>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd} size="small"
+        <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd} size="small" disabled={atLimit}
           sx={{ bgcolor: folioColors.ink, '&:hover': { bgcolor: '#3d3224' } }}>
           Add Video
         </Button>

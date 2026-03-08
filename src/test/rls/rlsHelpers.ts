@@ -128,13 +128,38 @@ export async function deleteTestUser(
   if (error) throw new Error(`Failed to delete user ${userId}: ${error.message}`);
 }
 
+// ── Session Cache ────────────────────────────────────────────────────────────
+
+const sessionCache = new Map<string, SupabaseClient>();
+
 /**
  * Sign in as a test user and return an authenticated client.
+ * Reuses cached sessions to avoid hitting Supabase auth rate limits.
  */
 export async function signInAsUser(
   email: string
 ): Promise<SupabaseClient> {
-  return createAuthenticatedClient(email, TEST_PASSWORD);
+  const cached = sessionCache.get(email);
+  if (cached) return cached;
+
+  const client = await createAuthenticatedClient(email, TEST_PASSWORD);
+  sessionCache.set(email, client);
+  return client;
+}
+
+/**
+ * Sign out all cached sessions and clear the cache.
+ * Call this in afterAll to clean up.
+ */
+export async function clearSessionCache(): Promise<void> {
+  for (const [, client] of sessionCache) {
+    try {
+      await client.auth.signOut();
+    } catch {
+      // best-effort
+    }
+  }
+  sessionCache.clear();
 }
 
 // ── Test Data Factories ──────────────────────────────────────────────────────

@@ -12,7 +12,9 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "test:rls": "vitest run src/test/rls/ --no-file-parallelism --environment node --config vitest.rls.config.ts"
+    "test:rls": "vitest run src/test/rls/ --no-file-parallelism --environment node --config vitest.rls.config.ts",
+    "test:rls:slow": "vitest run src/test/rls/ --no-file-parallelism --environment node --config vitest.rls.config.ts --pool forks --poolOptions.forks.maxForks 1",
+    "test:edge": "vitest run src/test/edge/ --reporter=verbose --config vitest.edge.config.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.11.0",

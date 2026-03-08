@@ -13,6 +13,9 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { folioColors } from './FolioModal';
 import { uploadRecordedVideo } from '../lib/videoStorage';
 
+const MAX_RECORDING_SECONDS = 300; // 5 minutes
+const WARNING_SECONDS = 30; // warn when 30 seconds remain
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -30,14 +33,18 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
 
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const videoPlaybackRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const blobRef = useRef<Blob | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const recordingStartTimeRef = useRef<string>('');
 
   const cleanup = useCallback(() => {
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    if (animFrameRef.current) { cancelAnimationFrame(animFrameRef.current); animFrameRef.current = null; }
     if (recorderRef.current && recorderRef.current.state !== 'inactive') {
       recorderRef.current.stop();
     }
@@ -61,6 +68,67 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
       blobRef.current = null;
     }
   }, [open, cleanup]);
+
+  // Auto-stop recording at max duration
+  useEffect(() => {
+    if (state === 'recording' && elapsed >= MAX_RECORDING_SECONDS) {
+      stopRecording();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [elapsed, state]);
+
+  const drawTimestampOverlay = useCallback(() => {
+    const video = videoPreviewRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas || video.readyState < 2) {
+      animFrameRef.current = requestAnimationFrame(drawTimestampOverlay);
+      return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+
+    // Draw the video frame
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Draw date/time stamp in bottom-right corner
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', {
+      month: '2-digit', day: '2-digit', year: 'numeric',
+    });
+    const timeStr = now.toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+    });
+    const stamp = `${dateStr}  ${timeStr}`;
+
+    const fontSize = Math.max(16, Math.round(canvas.height * 0.028));
+    ctx.font = `${fontSize}px monospace`;
+    ctx.textBaseline = 'bottom';
+    ctx.textAlign = 'right';
+
+    const padding = 12;
+    const textMetrics = ctx.measureText(stamp);
+    const textX = canvas.width - padding;
+    const textY = canvas.height - padding;
+
+    // Semi-transparent background for readability
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(
+      textX - textMetrics.width - 8,
+      textY - fontSize - 4,
+      textMetrics.width + 16,
+      fontSize + 10,
+    );
+
+    // White text
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(stamp, textX, textY);
+
+    animFrameRef.current = requestAnimationFrame(drawTimestampOverlay);
+  }, []);
 
   const startCamera = async () => {
     setError('');
@@ -91,13 +159,26 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
     chunksRef.current = [];
     setElapsed(0);
 
+    // Record the start time for the overlay
+    recordingStartTimeRef.current = new Date().toISOString();
+
+    // Start the canvas overlay loop
+    drawTimestampOverlay();
+
+    // Capture the canvas stream (video with timestamp) + original audio
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const canvasStream = canvas.captureStream(30);
+    const audioTracks = streamRef.current.getAudioTracks();
+    audioTracks.forEach((track) => canvasStream.addTrack(track));
+
     const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
       ? 'video/webm;codecs=vp9,opus'
       : MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')
         ? 'video/webm;codecs=vp8,opus'
         : 'video/webm';
 
-    const recorder = new MediaRecorder(streamRef.current, { mimeType });
+    const recorder = new MediaRecorder(canvasStream, { mimeType });
     recorderRef.current = recorder;
 
     recorder.ondataavailable = (e) => {
@@ -105,6 +186,7 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
     };
 
     recorder.onstop = () => {
+      if (animFrameRef.current) { cancelAnimationFrame(animFrameRef.current); animFrameRef.current = null; }
       const blob = new Blob(chunksRef.current, { type: 'video/webm' });
       blobRef.current = blob;
       const url = URL.createObjectURL(blob);
@@ -124,6 +206,7 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
 
   const stopRecording = () => {
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    if (animFrameRef.current) { cancelAnimationFrame(animFrameRef.current); animFrameRef.current = null; }
     if (recorderRef.current && recorderRef.current.state === 'recording') {
       recorderRef.current.stop();
     }
@@ -164,6 +247,8 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
     return `${m}:${s}`;
   };
 
+  const remaining = MAX_RECORDING_SECONDS - elapsed;
+
   return (
     <Dialog open={open} onClose={state === 'uploading' ? undefined : onClose}
       maxWidth="md" fullWidth
@@ -191,7 +276,7 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
         {state === 'idle' && (
           <Box sx={{ p: 4, textAlign: 'center' }}>
             <Typography variant="body1" sx={{ mb: 3, color: 'rgba(255,255,255,0.7)' }}>
-              Record a video message using your camera. You can review it before saving.
+              Record a video message using your camera (up to 5 minutes). The date and time will appear on the recording. You can review it before saving.
             </Typography>
             <Button variant="contained" size="large" onClick={startCamera}
               sx={{ bgcolor: folioColors.accent, '&:hover': { bgcolor: '#b8922a' }, px: 4 }}>
@@ -203,15 +288,34 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
         {(state === 'previewing' || state === 'recording') && (
           <Box sx={{ position: 'relative' }}>
             <video ref={videoPreviewRef} autoPlay muted playsInline
-              style={{ width: '100%', maxHeight: 480, objectFit: 'cover', display: 'block', background: '#000' }} />
+              style={{
+                width: '100%', maxHeight: 480, objectFit: 'cover', display: 'block', background: '#000',
+                // Hide the raw video when recording — show the canvas with timestamp instead
+                ...(state === 'recording' ? { position: 'absolute', opacity: 0, pointerEvents: 'none' } : {}),
+              }} />
+            <canvas ref={canvasRef}
+              style={{
+                width: '100%', maxHeight: 480, objectFit: 'cover', display: state === 'recording' ? 'block' : 'none',
+                background: '#000',
+              }} />
             {state === 'recording' && (
-              <Box sx={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 1,
-                bgcolor: 'rgba(0,0,0,0.6)', borderRadius: 2, px: 1.5, py: 0.5 }}>
-                <FiberManualRecordIcon sx={{ color: '#f44336', fontSize: 16, animation: 'pulse 1.5s infinite' }} />
-                <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
-                  {formatTime(elapsed)}
-                </Typography>
-              </Box>
+              <>
+                <Box sx={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 1,
+                  bgcolor: 'rgba(0,0,0,0.6)', borderRadius: 2, px: 1.5, py: 0.5 }}>
+                  <FiberManualRecordIcon sx={{ color: '#f44336', fontSize: 16, animation: 'pulse 1.5s infinite' }} />
+                  <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
+                    {formatTime(elapsed)} / {formatTime(MAX_RECORDING_SECONDS)}
+                  </Typography>
+                </Box>
+                {remaining <= WARNING_SECONDS && remaining > 0 && (
+                  <Box sx={{ position: 'absolute', top: 16, left: 16,
+                    bgcolor: 'rgba(211, 47, 47, 0.85)', borderRadius: 2, px: 1.5, py: 0.5 }}>
+                    <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
+                      {remaining}s remaining
+                    </Typography>
+                  </Box>
+                )}
+              </>
             )}
           </Box>
         )}

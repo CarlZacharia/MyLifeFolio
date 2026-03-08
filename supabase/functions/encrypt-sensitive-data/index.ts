@@ -21,7 +21,6 @@ const SENSITIVE_FIELDS = [
   'socialSecurityNumber',
   'spouseSocialSecurityNumber',
   'clientSocialSecurityNumber', // Alternative naming
-  'spouseSocialSecurityNumber', // Alternative naming
   // Add more sensitive fields here as needed:
   // 'bankAccountNumber',
   // 'routingNumber',
@@ -169,9 +168,28 @@ serve(async (req) => {
   }
 
   try {
-    // Supabase automatically validates the JWT token at the gateway level
-    // when "JWT verification" is enabled for this function.
-    // No need to manually check auth headers here.
+    // --- Authenticate the requesting user ---
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Unauthorized' }),
+        { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, status: 401 }
+      );
+    }
+
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Unauthorized' }),
+        { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, status: 401 }
+      );
+    }
 
     // Parse request body
     const { action, data } = await req.json();

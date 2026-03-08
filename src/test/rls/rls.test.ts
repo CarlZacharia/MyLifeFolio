@@ -13,7 +13,7 @@
  * Run with: npm run test:rls
  */
 
-import { describe, test, expect, beforeAll, afterEach } from 'vitest';
+import { describe, test, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import { SupabaseClient } from '@supabase/supabase-js';
 import {
   createAdminClient,
@@ -28,6 +28,7 @@ import {
   createTestFolioDocument,
   createTestAccessLog,
   logTargetInstance,
+  clearSessionCache,
 } from './rlsHelpers';
 
 // ── Shared state ─────────────────────────────────────────────────────────────
@@ -41,6 +42,10 @@ beforeAll(() => {
   logTargetInstance();
   admin = createAdminClient();
 });
+
+afterAll(async () => {
+  await clearSessionCache();
+}, 30_000);
 
 afterEach(async () => {
   // Clean up all users created during this test (CASCADE deletes everything)

@@ -122,6 +122,8 @@ const SENSITIVE_NESTED_KEYS = [
   "petInsurancePolicyNumber",
 ];
 
+const SSN_REGEX = /\b\d{3}-?\d{2}-?\d{4}\b/g;
+
 function maskLast4(value: string): string {
   if (!value || value.length <= 4) return "****";
   return "****" + value.slice(-4);
@@ -140,7 +142,17 @@ function maskSensitiveData(obj: unknown): unknown {
         result[k] = maskSensitiveData(v);
       }
     }
+    // Second pass: mask SSN patterns in any string values
+    for (const [k, v] of Object.entries(result)) {
+      if (typeof v === "string") {
+        result[k] = v.replace(SSN_REGEX, "***-**-****");
+      }
+    }
     return result;
+  }
+  // Mask SSN patterns in standalone string values
+  if (typeof obj === "string") {
+    return obj.replace(SSN_REGEX, "***-**-****");
   }
   return obj;
 }
