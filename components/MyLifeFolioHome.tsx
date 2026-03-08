@@ -202,7 +202,7 @@ const folioCategories = [
   },
   {
     id: 'document-uploads', title: 'Documents Vault', icon: <HomeIcon sx={{ fontSize: 26 }} />, accentColor: '#e07a2f',
-    items: ['Coming soon'],
+    items: ['Estate Planning & Legal', 'Real Estate & Property', 'Financial & Accounts', 'Insurance', 'Personal Identity', 'Military & Government', 'Medical & Health', 'Family & Genealogy', 'Personal Legacy & Memorabilia', 'Digital Assets', 'Other'],
   },
   {
     id: 'reports', title: 'Reports', icon: <LibraryBooksIcon sx={{ fontSize: 26 }} />, accentColor: '#455a64',

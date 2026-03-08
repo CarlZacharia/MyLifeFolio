@@ -58,6 +58,7 @@ import CarePreferencesSection from '../components/CarePreferencesSection';
 import EndOfLifeSection from '../components/EndOfLifeSection';
 import ReportsSection from '../components/ReportsSection';
 import LegacySection from '../components/LegacySection';
+import DocumentsVaultSection from '../components/DocumentsVaultSection';
 import FamilyAccessManager from '../src/features/owner-settings/FamilyAccessManager';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
@@ -394,7 +395,7 @@ const ALL_STEPS = [
 // Page type for routing
 type PageType = 'landing' | 'mylifefolio-home' | 'folio-questionnaire' | 'long-term-care' | 'medicaid' | 'estate-administration' | 'admin' | 'planning-pathfinder' | 'education-center' | 'resources'
   | 'category-personal-information' | 'category-health-medical' | 'category-emergency-care' | 'category-financial-life'
-  | 'category-people-advisors' | 'category-legal-documents' | 'category-legacy-life-story' | 'category-home-property' | 'category-family-dependents'
+  | 'category-people-advisors' | 'category-legal-documents' | 'category-legacy-life-story' | 'category-home-property' | 'category-document-uploads' | 'category-family-dependents'
   | 'category-insurance-coverage' | 'category-end-of-life' | 'category-care-decisions' | 'category-reports'
   | 'family-access-settings';
 
@@ -1549,6 +1550,7 @@ export default function MainPage() {
         );
 
       case 'category-home-property':
+      case 'category-document-uploads':
         return (
           <FolioCategoryPage
             title="Documents Vault"
@@ -1562,8 +1564,7 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <Typography variant="h5" sx={{ color: '#e07a2f', mb: 2 }}>Documents Vault</Typography>
-            <Typography color="text.secondary">Coming soon — residence details, property records, and access information.</Typography>
+            <DocumentsVaultSection />
           </FolioCategoryPage>
         );
 
