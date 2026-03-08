@@ -118,6 +118,12 @@ describe('Obituary Generation', () => {
       success: true,
       obituary: 'Mock generated obituary text for testing purposes.',
     });
+    // Re-initialize clipboard writeText mock after vi.clearAllMocks() clears it
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: vi.fn().mockResolvedValue(undefined) },
+      writable: true,
+      configurable: true,
+    });
   });
 
   describe('Generation Button', () => {
@@ -289,8 +295,16 @@ describe('Obituary Generation', () => {
         expect(screen.getByTestId('preview-copy')).toBeInTheDocument();
       });
 
+      // Set up clipboard spy after userEvent.setup() to avoid it being overridden
+      const writeTextSpy = vi.fn().mockResolvedValue(undefined);
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText: writeTextSpy },
+        writable: true,
+        configurable: true,
+      });
+
       await user.click(screen.getByTestId('preview-copy'));
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('Mock generated obituary text for testing purposes.');
+      expect(writeTextSpy).toHaveBeenCalledWith('Mock generated obituary text for testing purposes.');
     });
 
     test('download buttons are not shown during loading', async () => {

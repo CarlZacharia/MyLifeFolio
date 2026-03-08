@@ -428,7 +428,8 @@ describe('DocumentsVaultSection', () => {
         if (category === 'estate-planning-legal') {
           return Promise.resolve({ success: true, documents: [normalDoc] });
         }
-        return Promise.resolve({ success: true, documents: [normalDoc] });
+        // All Documents table call (no category) — return empty to avoid duplicate text
+        return Promise.resolve({ success: true, documents: [] });
       });
 
       renderVault();
@@ -448,7 +449,10 @@ describe('DocumentsVaultSection', () => {
         success: true,
         counts: { 'insurance': 1 },
       });
-      mockListVaultDocuments.mockResolvedValue({ success: true, documents: [expiredDoc] });
+      mockListVaultDocuments.mockImplementation((_intakeId: string, category?: string) => {
+        if (category === 'insurance') return Promise.resolve({ success: true, documents: [expiredDoc] });
+        return Promise.resolve({ success: true, documents: [] });
+      });
 
       renderVault();
       await waitFor(() => {
@@ -468,7 +472,10 @@ describe('DocumentsVaultSection', () => {
         success: true,
         counts: { 'personal-identity': 1 },
       });
-      mockListVaultDocuments.mockResolvedValue({ success: true, documents: [expiringSoonDoc] });
+      mockListVaultDocuments.mockImplementation((_intakeId: string, category?: string) => {
+        if (category === 'personal-identity') return Promise.resolve({ success: true, documents: [expiringSoonDoc] });
+        return Promise.resolve({ success: true, documents: [] });
+      });
 
       renderVault();
       await waitFor(() => {
@@ -488,7 +495,10 @@ describe('DocumentsVaultSection', () => {
         success: true,
         counts: { 'personal-identity': 1 },
       });
-      mockListVaultDocuments.mockResolvedValue({ success: true, documents: [sensitiveDoc] });
+      mockListVaultDocuments.mockImplementation((_intakeId: string, category?: string) => {
+        if (category === 'personal-identity') return Promise.resolve({ success: true, documents: [sensitiveDoc] });
+        return Promise.resolve({ success: true, documents: [] });
+      });
 
       renderVault();
       await waitFor(() => {
@@ -508,7 +518,10 @@ describe('DocumentsVaultSection', () => {
         success: true,
         counts: { 'estate-planning-legal': 1 },
       });
-      mockListVaultDocuments.mockResolvedValue({ success: true, documents: [normalDoc] });
+      mockListVaultDocuments.mockImplementation((_intakeId: string, category?: string) => {
+        if (category === 'estate-planning-legal') return Promise.resolve({ success: true, documents: [normalDoc] });
+        return Promise.resolve({ success: true, documents: [] });
+      });
 
       renderVault();
       await waitFor(() => {
@@ -536,7 +549,10 @@ describe('DocumentsVaultSection', () => {
         success: true,
         counts: { 'estate-planning-legal': 1 },
       });
-      mockListVaultDocuments.mockResolvedValue({ success: true, documents: [normalDoc] });
+      mockListVaultDocuments.mockImplementation((_intakeId: string, category?: string) => {
+        if (category === 'estate-planning-legal') return Promise.resolve({ success: true, documents: [normalDoc] });
+        return Promise.resolve({ success: true, documents: [] });
+      });
       mockDeleteVaultDocument.mockResolvedValue({ success: true });
 
       renderVault();
@@ -576,7 +592,10 @@ describe('DocumentsVaultSection', () => {
         success: true,
         counts: { 'estate-planning-legal': 1 },
       });
-      mockListVaultDocuments.mockResolvedValue({ success: true, documents: [normalDoc] });
+      mockListVaultDocuments.mockImplementation((_intakeId: string, category?: string) => {
+        if (category === 'estate-planning-legal') return Promise.resolve({ success: true, documents: [normalDoc] });
+        return Promise.resolve({ success: true, documents: [] });
+      });
 
       renderVault();
       await waitFor(() => {
