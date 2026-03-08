@@ -4,12 +4,14 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Box, Button, Typography, IconButton, LinearProgress, Alert,
+  Select, MenuItem, FormControl, InputLabel,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import StopIcon from '@mui/icons-material/Stop';
 import ReplayIcon from '@mui/icons-material/Replay';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CameraswitchIcon from '@mui/icons-material/Cameraswitch';
 import { folioColors } from './FolioModal';
 import { uploadRecordedVideo } from '../lib/videoStorage';
 
@@ -25,11 +27,18 @@ interface Props {
 
 type RecorderState = 'idle' | 'previewing' | 'recording' | 'recorded' | 'uploading';
 
+interface VideoDevice {
+  deviceId: string;
+  label: string;
+}
+
 const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplete, videoTitle }) => {
   const [state, setState] = useState<RecorderState>('idle');
   const [error, setError] = useState('');
   const [elapsed, setElapsed] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [videoDevices, setVideoDevices] = useState<VideoDevice[]>([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState('');
 
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const videoPlaybackRef = useRef<HTMLVideoElement>(null);
@@ -58,6 +67,7 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
     if (videoPlaybackRef.current) videoPlaybackRef.current.src = '';
   }, []);
 
+  // Enumerate cameras when dialog opens
   useEffect(() => {
     if (!open) {
       cleanup();
@@ -66,8 +76,43 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
       setElapsed(0);
       setUploadProgress(0);
       blobRef.current = null;
+      return;
     }
-  }, [open, cleanup]);
+
+    // Request a throwaway stream to trigger the permission prompt,
+    // then enumerate the real device labels.
+    const enumerateCameras = async () => {
+      try {
+        // A brief getUserMedia call unlocks device labels in most browsers
+        const tempStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        tempStream.getTracks().forEach((t) => t.stop());
+      } catch {
+        // If denied, we'll still try to enumerate (labels may be empty)
+      }
+
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const cameras = devices
+          .filter((d) => d.kind === 'videoinput')
+          .map((d, i) => ({
+            deviceId: d.deviceId,
+            label: d.label || `Camera ${i + 1}`,
+          }));
+        setVideoDevices(cameras);
+
+        // Auto-select: prefer a non-virtual camera if possible
+        if (cameras.length > 0 && !selectedDeviceId) {
+          const virtual = /virtual|prezi|obs|snap|manycam|xsplit|mmhmm/i;
+          const real = cameras.find((c) => !virtual.test(c.label));
+          setSelectedDeviceId(real ? real.deviceId : cameras[0].deviceId);
+        }
+      } catch (err) {
+        console.error('Device enumeration error:', err);
+      }
+    };
+
+    enumerateCameras();
+  }, [open, cleanup, selectedDeviceId]);
 
   // Auto-stop recording at max duration
   useEffect(() => {
@@ -138,11 +183,30 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
     }
   }, [state]);
 
-  const startCamera = async () => {
+  const startCamera = async (deviceId?: string) => {
     setError('');
+
+    // Stop any existing stream first
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+
+    const useDeviceId = deviceId || selectedDeviceId;
+
     try {
+      const videoConstraints: MediaTrackConstraints = {
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      };
+      if (useDeviceId) {
+        videoConstraints.deviceId = { exact: useDeviceId };
+      } else {
+        videoConstraints.facingMode = 'user';
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+        video: videoConstraints,
         audio: true,
       });
       streamRef.current = stream;
@@ -158,6 +222,13 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
       } else {
         setError('Could not access camera. Please check your device settings.');
       }
+    }
+  };
+
+  const handleSwitchCamera = async (deviceId: string) => {
+    setSelectedDeviceId(deviceId);
+    if (state === 'previewing') {
+      await startCamera(deviceId);
     }
   };
 
@@ -256,6 +327,29 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
 
   const remaining = MAX_RECORDING_SECONDS - elapsed;
 
+  // Camera selector dropdown (shown in idle + previewing states)
+  const cameraSelector = videoDevices.length > 1 && (
+    <FormControl size="small" sx={{ minWidth: 240, mb: 2 }}>
+      <InputLabel sx={{ color: 'rgba(255,255,255,0.7)' }}>Camera</InputLabel>
+      <Select
+        value={selectedDeviceId}
+        onChange={(e) => handleSwitchCamera(e.target.value)}
+        label="Camera"
+        sx={{
+          color: 'white',
+          '.MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.3)' },
+          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.5)' },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: folioColors.accentWarm },
+          '.MuiSvgIcon-root': { color: 'rgba(255,255,255,0.7)' },
+        }}
+      >
+        {videoDevices.map((d) => (
+          <MenuItem key={d.deviceId} value={d.deviceId}>{d.label}</MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+
   return (
     <Dialog open={open} onClose={state === 'uploading' ? undefined : onClose}
       maxWidth="md" fullWidth
@@ -285,15 +379,41 @@ const VideoRecorderModal: React.FC<Props> = ({ open, onClose, onRecordingComplet
             <Typography variant="body1" sx={{ mb: 3, color: 'rgba(255,255,255,0.7)' }}>
               Record a video message using your camera (up to 5 minutes). The date and time will appear on the recording. You can review it before saving.
             </Typography>
-            <Button variant="contained" size="large" onClick={startCamera}
-              sx={{ bgcolor: folioColors.accent, '&:hover': { bgcolor: '#b8922a' }, px: 4 }}>
-              Open Camera
-            </Button>
+            {cameraSelector}
+            <Box>
+              <Button variant="contained" size="large" onClick={() => startCamera()}
+                sx={{ bgcolor: folioColors.accent, '&:hover': { bgcolor: '#b8922a' }, px: 4 }}>
+                Open Camera
+              </Button>
+            </Box>
           </Box>
         )}
 
         {(state === 'previewing' || state === 'recording') && (
           <Box sx={{ position: 'relative' }}>
+            {state === 'previewing' && cameraSelector && (
+              <Box sx={{ position: 'absolute', top: 12, left: 12, zIndex: 2 }}>
+                <Select
+                  value={selectedDeviceId}
+                  onChange={(e) => handleSwitchCamera(e.target.value)}
+                  size="small"
+                  startAdornment={<CameraswitchIcon sx={{ mr: 0.5, fontSize: 18 }} />}
+                  sx={{
+                    color: 'white',
+                    bgcolor: 'rgba(0,0,0,0.6)',
+                    borderRadius: 2,
+                    fontSize: '0.8rem',
+                    '.MuiOutlinedInput-notchedOutline': { border: 'none' },
+                    '.MuiSvgIcon-root': { color: 'rgba(255,255,255,0.8)' },
+                    maxWidth: 280,
+                  }}
+                >
+                  {videoDevices.map((d) => (
+                    <MenuItem key={d.deviceId} value={d.deviceId} sx={{ fontSize: '0.85rem' }}>{d.label}</MenuItem>
+                  ))}
+                </Select>
+              </Box>
+            )}
             <video ref={videoPreviewRef} autoPlay muted playsInline
               style={{
                 width: '100%', maxHeight: 480, objectFit: 'cover', display: 'block', background: '#000',
