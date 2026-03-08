@@ -1,39 +1,40 @@
 import React from 'react';
-import { Typography, Box, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
-import ReportLayout from './ReportLayout';
+import { Box, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import ReportLayout, { ReportSectionTitle } from './ReportLayout';
+import { BaseReportProps } from './reportHelpers';
 
-interface AdvisorsContactsProps {
-  data: Record<string, unknown>;
-  ownerName: string;
-}
+interface AdvisorsContactsProps extends BaseReportProps {}
 
-const AdvisorsContacts: React.FC<AdvisorsContactsProps> = ({ data, ownerName }) => {
+const body = { fontSize: '12px', fontFamily: '"Jost", sans-serif' } as const;
+const thCell = { fontWeight: 600, fontSize: '12px', fontFamily: '"Jost", sans-serif' } as const;
+
+const AdvisorsContacts: React.FC<AdvisorsContactsProps> = ({ data, ownerName, embedded }) => {
   const advisors = (data.advisors || []) as Array<Record<string, string>>;
   const friends = (data.friendsNeighbors || []) as Array<Record<string, string>>;
 
-  return (
-    <ReportLayout title="Advisors & Contacts" ownerName={ownerName}>
+  const content = (
+    <>
       {advisors.length > 0 && (
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Professional Advisors</Typography>
+          <ReportSectionTitle>Professional Advisors</ReportSectionTitle>
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Firm</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Phone</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+                <TableCell sx={thCell}>Type</TableCell>
+                <TableCell sx={thCell}>Name</TableCell>
+                <TableCell sx={thCell}>Firm</TableCell>
+                <TableCell sx={thCell}>Phone</TableCell>
+                <TableCell sx={thCell}>Email</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {advisors.map((a, i) => (
                 <TableRow key={i}>
-                  <TableCell>{a.advisorType || 'N/A'}</TableCell>
-                  <TableCell>{a.name || 'N/A'}</TableCell>
-                  <TableCell>{a.firmName || 'N/A'}</TableCell>
-                  <TableCell>{a.phone || 'N/A'}</TableCell>
-                  <TableCell>{a.email || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{a.advisorType || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{a.name || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{a.firmName || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{a.phone || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{a.email || 'N/A'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -43,29 +44,37 @@ const AdvisorsContacts: React.FC<AdvisorsContactsProps> = ({ data, ownerName }) 
 
       {friends.length > 0 && (
         <Box>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Friends & Neighbors</Typography>
+          <ReportSectionTitle>Friends & Neighbors</ReportSectionTitle>
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Relationship</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Phone</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+                <TableCell sx={thCell}>Name</TableCell>
+                <TableCell sx={thCell}>Relationship</TableCell>
+                <TableCell sx={thCell}>Phone</TableCell>
+                <TableCell sx={thCell}>Email</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {friends.map((f, i) => (
                 <TableRow key={i}>
-                  <TableCell>{f.name || 'N/A'}</TableCell>
-                  <TableCell>{f.relationship || 'N/A'}</TableCell>
-                  <TableCell>{f.phone || 'N/A'}</TableCell>
-                  <TableCell>{f.email || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{f.name || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{f.relationship || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{f.phone || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{f.email || 'N/A'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </Box>
       )}
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <ReportLayout title="Advisors & Contacts" ownerName={ownerName}>
+      {content}
     </ReportLayout>
   );
 };

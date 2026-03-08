@@ -1,14 +1,13 @@
 import React from 'react';
 import { Typography, Box, Chip } from '@mui/material';
-import ReportLayout from './ReportLayout';
-import { str } from './reportHelpers';
+import ReportLayout, { ReportSectionTitle } from './ReportLayout';
+import { str, BaseReportProps } from './reportHelpers';
 
-interface LegalDocumentsSummaryProps {
-  data: Record<string, unknown>;
-  ownerName: string;
-}
+interface LegalDocumentsSummaryProps extends BaseReportProps {}
 
-const LegalDocumentsSummary: React.FC<LegalDocumentsSummaryProps> = ({ data, ownerName }) => {
+const body = { fontSize: '12px', fontFamily: '"Jost", sans-serif' } as const;
+
+const LegalDocumentsSummary: React.FC<LegalDocumentsSummaryProps> = ({ data, ownerName, embedded }) => {
   const clientPlan = data.clientCurrentEstatePlan as Record<string, unknown> | undefined;
   const spousePlan = data.spouseCurrentEstatePlan as Record<string, unknown> | undefined;
 
@@ -26,7 +25,7 @@ const LegalDocumentsSummary: React.FC<LegalDocumentsSummaryProps> = ({ data, own
 
     return (
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>{label}</Typography>
+        <ReportSectionTitle>{label}</ReportSectionTitle>
         {docs.map((doc) => (
           <Box key={doc.key} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
             <Chip
@@ -35,16 +34,16 @@ const LegalDocumentsSummary: React.FC<LegalDocumentsSummaryProps> = ({ data, own
               color={plan[doc.key] ? 'success' : 'default'}
               sx={{ minWidth: 48 }}
             />
-            <Typography variant="body1">{doc.label}</Typography>
+            <Typography sx={body}>{doc.label}</Typography>
             {!!plan[doc.key] && !!doc.date && (
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              <Typography sx={{ ...body, color: 'text.secondary' }}>
                 (Signed: {str(doc.date)}{doc.state ? `, ${str(doc.state)}` : ''})
               </Typography>
             )}
           </Box>
         ))}
         {!!plan.trustName && (
-          <Typography variant="body2" sx={{ mt: 1 }}>
+          <Typography sx={{ ...body, mt: 1 }}>
             <strong>Trust Name:</strong> {str(plan.trustName)}
           </Typography>
         )}
@@ -59,20 +58,20 @@ const LegalDocumentsSummary: React.FC<LegalDocumentsSummaryProps> = ({ data, own
     if (!p && !a1 && !a2) return null;
     return (
       <Box sx={{ mb: 1 }}>
-        <Typography variant="body1"><strong>{label}:</strong> {p || 'Not designated'}</Typography>
-        {a1 && <Typography variant="body2" sx={{ pl: 2 }}>1st Alternate: {a1}</Typography>}
-        {a2 && <Typography variant="body2" sx={{ pl: 2 }}>2nd Alternate: {a2}</Typography>}
+        <Typography sx={body}><strong>{label}:</strong> {p || 'Not designated'}</Typography>
+        {a1 && <Typography sx={{ ...body, pl: 2 }}>1st Alternate: {a1}</Typography>}
+        {a2 && <Typography sx={{ ...body, pl: 2 }}>2nd Alternate: {a2}</Typography>}
       </Box>
     );
   };
 
-  return (
-    <ReportLayout title="Legal Documents Summary" ownerName={ownerName}>
+  const content = (
+    <>
       {renderPlan(clientPlan, 'Client Estate Plan Documents')}
       {renderPlan(spousePlan, 'Spouse Estate Plan Documents')}
 
       <Box sx={{ mt: 2 }}>
-        <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Fiduciaries - Client</Typography>
+        <ReportSectionTitle>Fiduciaries - Client</ReportSectionTitle>
         {renderFiduciary('Executor', 'executorFirst', 'executorAlternate', 'executorSecondAlternate')}
         {renderFiduciary('Trustee', 'trusteeFirst', 'trusteeAlternate', 'trusteeSecondAlternate')}
         {renderFiduciary('Guardian', 'guardianFirst', 'guardianAlternate', 'guardianAlternate')}
@@ -82,13 +81,21 @@ const LegalDocumentsSummary: React.FC<LegalDocumentsSummaryProps> = ({ data, own
 
       {!!(data.spouseExecutorFirst || data.spouseTrusteeFirst) && (
         <Box sx={{ mt: 2 }}>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Fiduciaries - Spouse</Typography>
+          <ReportSectionTitle>Fiduciaries - Spouse</ReportSectionTitle>
           {renderFiduciary('Executor', 'spouseExecutorFirst', 'spouseExecutorAlternate', 'spouseExecutorSecondAlternate')}
           {renderFiduciary('Trustee', 'spouseTrusteeFirst', 'spouseTrusteeAlternate', 'spouseTrusteeSecondAlternate')}
           {renderFiduciary('Health Care Agent', 'spouseHealthCareAgentName', 'spouseHealthCareAlternateName', 'spouseHealthCareSecondAlternateName')}
           {renderFiduciary('Financial Agent', 'spouseFinancialAgentName', 'spouseFinancialAlternateName', 'spouseFinancialSecondAlternateName')}
         </Box>
       )}
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <ReportLayout title="Legal Documents Summary" ownerName={ownerName}>
+      {content}
     </ReportLayout>
   );
 };

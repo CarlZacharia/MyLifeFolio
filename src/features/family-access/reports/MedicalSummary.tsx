@@ -1,63 +1,61 @@
 import React from 'react';
 import { Typography, Box, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
-import ReportLayout from './ReportLayout';
-import { str } from './reportHelpers';
+import ReportLayout, { ReportSectionTitle } from './ReportLayout';
+import { str, BaseReportProps } from './reportHelpers';
 
-interface MedicalSummaryProps {
-  data: Record<string, unknown>;
-  ownerName: string;
-}
+interface MedicalSummaryProps extends BaseReportProps {}
 
-const MedicalSummary: React.FC<MedicalSummaryProps> = ({ data, ownerName }) => {
+const body = { fontSize: '12px', fontFamily: '"Jost", sans-serif' } as const;
+const thCell = { fontWeight: 600, fontSize: '12px', fontFamily: '"Jost", sans-serif' } as const;
+
+const MedicalSummary: React.FC<MedicalSummaryProps> = ({ data, ownerName, embedded }) => {
   const providers = (data.medicalProviders || []) as Array<Record<string, string>>;
   const medPolicies = (data.medicalInsurancePolicies || []) as Array<Record<string, string>>;
   const clientInsurance = data.clientMedicalInsurance as Record<string, string> | undefined;
   const spouseInsurance = data.spouseMedicalInsurance as Record<string, string> | undefined;
   const clientLtc = data.clientLongTermCare as Record<string, unknown> | undefined;
 
-  return (
-    <ReportLayout title="Medical Summary" ownerName={ownerName}>
-      {/* Medicare / Insurance */}
+  const content = (
+    <>
       {clientInsurance && (
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Client Medical Insurance</Typography>
-          <Typography><strong>Medicare Coverage:</strong> {clientInsurance.medicareCoverageType || 'N/A'}</Typography>
-          <Typography><strong>Plan:</strong> {clientInsurance.medicarePlanName || 'N/A'}</Typography>
-          <Typography><strong>Monthly Cost:</strong> {clientInsurance.medicareCoverageCost || 'N/A'}</Typography>
+          <ReportSectionTitle>Client Medical Insurance</ReportSectionTitle>
+          <Typography sx={body}><strong>Medicare Coverage:</strong> {clientInsurance.medicareCoverageType || 'N/A'}</Typography>
+          <Typography sx={body}><strong>Plan:</strong> {clientInsurance.medicarePlanName || 'N/A'}</Typography>
+          <Typography sx={body}><strong>Monthly Cost:</strong> {clientInsurance.medicareCoverageCost || 'N/A'}</Typography>
           {clientInsurance.privateInsuranceDescription && (
-            <Typography><strong>Private Insurance:</strong> {clientInsurance.privateInsuranceDescription} ({clientInsurance.privateInsuranceCost}/mo)</Typography>
+            <Typography sx={body}><strong>Private Insurance:</strong> {clientInsurance.privateInsuranceDescription} ({clientInsurance.privateInsuranceCost}/mo)</Typography>
           )}
         </Box>
       )}
 
       {spouseInsurance && spouseInsurance.medicareCoverageType && (
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Spouse Medical Insurance</Typography>
-          <Typography><strong>Medicare Coverage:</strong> {spouseInsurance.medicareCoverageType}</Typography>
-          <Typography><strong>Plan:</strong> {spouseInsurance.medicarePlanName || 'N/A'}</Typography>
+          <ReportSectionTitle>Spouse Medical Insurance</ReportSectionTitle>
+          <Typography sx={body}><strong>Medicare Coverage:</strong> {spouseInsurance.medicareCoverageType}</Typography>
+          <Typography sx={body}><strong>Plan:</strong> {spouseInsurance.medicarePlanName || 'N/A'}</Typography>
         </Box>
       )}
 
-      {/* Medical Policies */}
       {medPolicies.length > 0 && (
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Medical Insurance Policies</Typography>
+          <ReportSectionTitle>Medical Insurance Policies</ReportSectionTitle>
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>Person</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Provider</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Monthly Cost</TableCell>
+                <TableCell sx={thCell}>Person</TableCell>
+                <TableCell sx={thCell}>Type</TableCell>
+                <TableCell sx={thCell}>Provider</TableCell>
+                <TableCell sx={thCell}>Monthly Cost</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {medPolicies.map((p, i) => (
                 <TableRow key={i}>
-                  <TableCell>{p.person === 'client' ? 'Client' : 'Spouse'}</TableCell>
-                  <TableCell>{p.insuranceType || 'N/A'}</TableCell>
-                  <TableCell>{p.provider || 'N/A'}</TableCell>
-                  <TableCell>{p.monthlyCost || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.person === 'client' ? 'Client' : 'Spouse'}</TableCell>
+                  <TableCell sx={body}>{p.insuranceType || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.provider || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.monthlyCost || 'N/A'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -65,26 +63,25 @@ const MedicalSummary: React.FC<MedicalSummaryProps> = ({ data, ownerName }) => {
         </Box>
       )}
 
-      {/* Providers */}
       {providers.length > 0 && (
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Medical Providers</Typography>
+          <ReportSectionTitle>Medical Providers</ReportSectionTitle>
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Name / Firm</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Phone</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Notes</TableCell>
+                <TableCell sx={thCell}>Category</TableCell>
+                <TableCell sx={thCell}>Name / Firm</TableCell>
+                <TableCell sx={thCell}>Phone</TableCell>
+                <TableCell sx={thCell}>Notes</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {providers.map((p, i) => (
                 <TableRow key={i}>
-                  <TableCell>{p.specialistType || p.providerCategory}</TableCell>
-                  <TableCell>{p.name}{p.firmName ? ` - ${p.firmName}` : ''}</TableCell>
-                  <TableCell>{p.phone || 'N/A'}</TableCell>
-                  <TableCell>{p.notes || ''}</TableCell>
+                  <TableCell sx={body}>{p.specialistType || p.providerCategory}</TableCell>
+                  <TableCell sx={body}>{p.name}{p.firmName ? ` - ${p.firmName}` : ''}</TableCell>
+                  <TableCell sx={body}>{p.phone || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.notes || ''}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -92,20 +89,27 @@ const MedicalSummary: React.FC<MedicalSummaryProps> = ({ data, ownerName }) => {
         </Box>
       )}
 
-      {/* Long-Term Care */}
       {clientLtc && (
         <Box>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Long-Term Care</Typography>
-          <Typography><strong>Overall Health:</strong> {str(clientLtc.overallHealth)}</Typography>
-          <Typography><strong>LTC Concern Level:</strong> {str(clientLtc.ltcConcernLevel)}</Typography>
+          <ReportSectionTitle>Long-Term Care</ReportSectionTitle>
+          <Typography sx={body}><strong>Overall Health:</strong> {str(clientLtc.overallHealth)}</Typography>
+          <Typography sx={body}><strong>LTC Concern Level:</strong> {str(clientLtc.ltcConcernLevel)}</Typography>
           {!!clientLtc.hasLtcInsurance && (
-            <Typography><strong>LTC Insurance:</strong> {str(clientLtc.ltcInsuranceCompany, 'Yes')}</Typography>
+            <Typography sx={body}><strong>LTC Insurance:</strong> {str(clientLtc.ltcInsuranceCompany, 'Yes')}</Typography>
           )}
           {!!clientLtc.currentLivingSituation && (
-            <Typography><strong>Living Situation:</strong> {str(clientLtc.currentLivingSituation)}</Typography>
+            <Typography sx={body}><strong>Living Situation:</strong> {str(clientLtc.currentLivingSituation)}</Typography>
           )}
         </Box>
       )}
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <ReportLayout title="Medical Summary" ownerName={ownerName}>
+      {content}
     </ReportLayout>
   );
 };

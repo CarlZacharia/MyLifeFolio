@@ -9,7 +9,16 @@
       @media print {
         .no-print { display: none !important; }
         .print-only-header { display: block !important; }
-        body { background: white !important; }
+        body { background: white !important; margin: 0 !important; padding: 0 !important; }
+        .MuiPaper-root { box-shadow: none !important; border-radius: 0 !important; }
+        /* Keep header/footer visible on every printed page */
+        .report-header { break-inside: avoid; }
+        .report-footer { break-inside: avoid; }
+        /* Page setup */
+        @page {
+          margin: 0.35in 0;
+          size: letter;
+        }
       }
     </style>
   </head>

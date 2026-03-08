@@ -1,41 +1,41 @@
 import React from 'react';
 import { Typography, Box, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
-import ReportLayout from './ReportLayout';
+import ReportLayout, { ReportSectionTitle } from './ReportLayout';
+import { BaseReportProps } from './reportHelpers';
 
-interface InsuranceOverviewProps {
-  data: Record<string, unknown>;
-  ownerName: string;
-}
+interface InsuranceOverviewProps extends BaseReportProps {}
 
-const InsuranceOverview: React.FC<InsuranceOverviewProps> = ({ data, ownerName }) => {
+const body = { fontSize: '12px', fontFamily: '"Jost", sans-serif' } as const;
+const thCell = { fontWeight: 600, fontSize: '12px', fontFamily: '"Jost", sans-serif' } as const;
+
+const InsuranceOverview: React.FC<InsuranceOverviewProps> = ({ data, ownerName, embedded }) => {
   const medPolicies = (data.medicalInsurancePolicies || []) as Array<Record<string, string>>;
   const insPolicies = (data.insurancePolicies || []) as Array<Record<string, string>>;
   const lifeIns = (data.lifeInsurance || []) as Array<Record<string, string>>;
 
-  return (
-    <ReportLayout title="Insurance Overview" ownerName={ownerName}>
-      {/* Life Insurance */}
+  const content = (
+    <>
       {lifeIns.length > 0 && (
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Life Insurance</Typography>
+          <ReportSectionTitle>Life Insurance</ReportSectionTitle>
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>Company</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Insured</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Face Amount</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Cash Value</TableCell>
+                <TableCell sx={thCell}>Company</TableCell>
+                <TableCell sx={thCell}>Type</TableCell>
+                <TableCell sx={thCell}>Insured</TableCell>
+                <TableCell sx={thCell}>Face Amount</TableCell>
+                <TableCell sx={thCell}>Cash Value</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {lifeIns.map((p, i) => (
                 <TableRow key={i}>
-                  <TableCell>{p.company || 'N/A'}</TableCell>
-                  <TableCell>{p.policyType || 'N/A'}</TableCell>
-                  <TableCell>{p.insured || 'N/A'}</TableCell>
-                  <TableCell>{p.faceAmount || 'N/A'}</TableCell>
-                  <TableCell>{p.cashValue || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.company || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.policyType || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.insured || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.faceAmount || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.cashValue || 'N/A'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -43,28 +43,27 @@ const InsuranceOverview: React.FC<InsuranceOverviewProps> = ({ data, ownerName }
         </Box>
       )}
 
-      {/* Medical Insurance Policies */}
       {medPolicies.length > 0 && (
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Medical Insurance Policies</Typography>
+          <ReportSectionTitle>Medical Insurance Policies</ReportSectionTitle>
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>Person</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Provider</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Policy #</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Contact</TableCell>
+                <TableCell sx={thCell}>Person</TableCell>
+                <TableCell sx={thCell}>Type</TableCell>
+                <TableCell sx={thCell}>Provider</TableCell>
+                <TableCell sx={thCell}>Policy #</TableCell>
+                <TableCell sx={thCell}>Contact</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {medPolicies.map((p, i) => (
                 <TableRow key={i}>
-                  <TableCell>{p.person === 'client' ? 'Client' : 'Spouse'}</TableCell>
-                  <TableCell>{p.insuranceType || 'N/A'}</TableCell>
-                  <TableCell>{p.provider || 'N/A'}</TableCell>
-                  <TableCell>{p.policyNo || 'N/A'}</TableCell>
-                  <TableCell>{p.contactName || 'N/A'}{p.contactPhone ? ` - ${p.contactPhone}` : ''}</TableCell>
+                  <TableCell sx={body}>{p.person === 'client' ? 'Client' : 'Spouse'}</TableCell>
+                  <TableCell sx={body}>{p.insuranceType || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.provider || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.policyNo || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.contactName || 'N/A'}{p.contactPhone ? ` - ${p.contactPhone}` : ''}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -72,34 +71,41 @@ const InsuranceOverview: React.FC<InsuranceOverviewProps> = ({ data, ownerName }
         </Box>
       )}
 
-      {/* Other Insurance Policies */}
       {insPolicies.length > 0 && (
         <Box>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Other Insurance Policies</Typography>
+          <ReportSectionTitle>Other Insurance Policies</ReportSectionTitle>
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>Coverage Type</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Provider</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Policy #</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Annual Cost</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Contact</TableCell>
+                <TableCell sx={thCell}>Coverage Type</TableCell>
+                <TableCell sx={thCell}>Provider</TableCell>
+                <TableCell sx={thCell}>Policy #</TableCell>
+                <TableCell sx={thCell}>Annual Cost</TableCell>
+                <TableCell sx={thCell}>Contact</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {insPolicies.map((p, i) => (
                 <TableRow key={i}>
-                  <TableCell>{p.coverageType || 'N/A'}</TableCell>
-                  <TableCell>{p.provider || 'N/A'}</TableCell>
-                  <TableCell>{p.policyNo || 'N/A'}</TableCell>
-                  <TableCell>{p.annualCost || 'N/A'}</TableCell>
-                  <TableCell>{p.contactName || 'N/A'}{p.contactPhone ? ` - ${p.contactPhone}` : ''}</TableCell>
+                  <TableCell sx={body}>{p.coverageType || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.provider || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.policyNo || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.annualCost || 'N/A'}</TableCell>
+                  <TableCell sx={body}>{p.contactName || 'N/A'}{p.contactPhone ? ` - ${p.contactPhone}` : ''}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </Box>
       )}
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <ReportLayout title="Insurance Overview" ownerName={ownerName}>
+      {content}
     </ReportLayout>
   );
 };

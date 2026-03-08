@@ -24,48 +24,48 @@ const FullSummaryReport: React.FC<FullSummaryReportProps> = ({ data, ownerName, 
       <Box sx={{ '& > *': { mb: 4, boxShadow: 'none', border: 'none' } }}>
         {has(['personal', 'medical', 'advisors']) && (
           <>
-            <EmergencyContacts data={data} ownerName={ownerName} />
+            <EmergencyContacts data={data} ownerName={ownerName} embedded />
             <Divider sx={{ my: 3 }} />
           </>
         )}
         {has(['medical']) && (
           <>
-            <MedicalSummary data={data} ownerName={ownerName} />
+            <MedicalSummary data={data} ownerName={ownerName} embedded />
             <Divider sx={{ my: 3 }} />
           </>
         )}
         {has(['financial']) && (
           <>
-            <FinancialSnapshot data={data} ownerName={ownerName} />
+            <FinancialSnapshot data={data} ownerName={ownerName} embedded />
             <Divider sx={{ my: 3 }} />
           </>
         )}
         {has(['insurance', 'financial']) && (
           <>
-            <InsuranceOverview data={data} ownerName={ownerName} />
+            <InsuranceOverview data={data} ownerName={ownerName} embedded />
             <Divider sx={{ my: 3 }} />
           </>
         )}
         {has(['legal']) && (
           <>
-            <LegalDocumentsSummary data={data} ownerName={ownerName} />
+            <LegalDocumentsSummary data={data} ownerName={ownerName} embedded />
             <Divider sx={{ my: 3 }} />
           </>
         )}
         {has(['advisors']) && (
           <>
-            <AdvisorsContacts data={data} ownerName={ownerName} />
+            <AdvisorsContacts data={data} ownerName={ownerName} embedded />
             <Divider sx={{ my: 3 }} />
           </>
         )}
         {has(['end_of_life']) && (
           <>
-            <EndOfLifeWishes data={data} ownerName={ownerName} />
+            <EndOfLifeWishes data={data} ownerName={ownerName} embedded />
             <Divider sx={{ my: 3 }} />
           </>
         )}
         {has(['family']) && (
-          <FamilyOverview data={data} ownerName={ownerName} />
+          <FamilyOverview data={data} ownerName={ownerName} embedded />
         )}
       </Box>
     </ReportLayout>

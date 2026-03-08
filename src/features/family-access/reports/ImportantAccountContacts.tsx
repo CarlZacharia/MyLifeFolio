@@ -1,11 +1,14 @@
 import React from 'react';
-import { Typography, Box, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
-import ReportLayout from './ReportLayout';
+import { Box, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import ReportLayout, { ReportSectionTitle } from './ReportLayout';
 
 interface ImportantAccountContactsProps {
   data: Record<string, unknown>;
   ownerName: string;
 }
+
+const body = { fontSize: '12px', fontFamily: '"Jost", sans-serif' } as const;
+const thCell = { fontWeight: 600, fontSize: '12px', fontFamily: '"Jost", sans-serif' } as const;
 
 const ImportantAccountContacts: React.FC<ImportantAccountContactsProps> = ({ data, ownerName }) => {
   const bank = (data.bankAccounts || []) as Array<Record<string, string>>;
@@ -19,21 +22,21 @@ const ImportantAccountContacts: React.FC<ImportantAccountContactsProps> = ({ dat
     if (items.length === 0) return null;
     return (
       <Box sx={{ mb: 3 }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1a237e' }}>{title}</Typography>
+        <ReportSectionTitle>{title}</ReportSectionTitle>
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 600 }}>Institution</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Contact</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Phone</TableCell>
+              <TableCell sx={thCell}>Institution</TableCell>
+              <TableCell sx={thCell}>Contact</TableCell>
+              <TableCell sx={thCell}>Phone</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {items.map((item, i) => (
               <TableRow key={i}>
-                <TableCell>{item[nameKey] || item.institution || item.provider || 'N/A'}</TableCell>
-                <TableCell>{item.contactName || 'N/A'}</TableCell>
-                <TableCell>{item.contactPhone || item.phone || 'N/A'}</TableCell>
+                <TableCell sx={body}>{item[nameKey] || item.institution || item.provider || 'N/A'}</TableCell>
+                <TableCell sx={body}>{item.contactName || 'N/A'}</TableCell>
+                <TableCell sx={body}>{item.contactPhone || item.phone || 'N/A'}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -1,59 +1,66 @@
 import React from 'react';
 import { Typography, Box } from '@mui/material';
-import ReportLayout from './ReportLayout';
-import { str } from './reportHelpers';
+import ReportLayout, { ReportSectionTitle } from './ReportLayout';
+import { str, BaseReportProps } from './reportHelpers';
 
-interface EndOfLifeWishesProps {
-  data: Record<string, unknown>;
-  ownerName: string;
-}
+interface EndOfLifeWishesProps extends BaseReportProps {}
 
-const EndOfLifeWishes: React.FC<EndOfLifeWishesProps> = ({ data, ownerName }) => {
+const body = { fontSize: '12px', fontFamily: '"Jost", sans-serif' } as const;
+
+const EndOfLifeWishes: React.FC<EndOfLifeWishesProps> = ({ data, ownerName, embedded }) => {
   const endOfLife = (data.endOfLife || []) as Array<Record<string, string>>;
 
-  return (
-    <ReportLayout title="End of Life Wishes" ownerName={ownerName}>
+  const content = (
+    <>
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Client Funeral Preferences</Typography>
-        <Typography><strong>Burial or Cremation:</strong> {str(data.clientBurialOrCremation, 'Not specified')}</Typography>
-        <Typography><strong>Preferred Funeral Home:</strong> {str(data.clientPreferredFuneralHome, 'Not specified')}</Typography>
-        <Typography><strong>Preferred Church:</strong> {str(data.clientPreferredChurch, 'Not specified')}</Typography>
-        <Typography><strong>Prepaid Funeral:</strong> {data.clientHasPrepaidFuneral ? 'Yes' : 'No'}</Typography>
+        <ReportSectionTitle>Client Funeral Preferences</ReportSectionTitle>
+        <Typography sx={body}><strong>Burial or Cremation:</strong> {str(data.clientBurialOrCremation, 'Not specified')}</Typography>
+        <Typography sx={body}><strong>Preferred Funeral Home:</strong> {str(data.clientPreferredFuneralHome, 'Not specified')}</Typography>
+        <Typography sx={body}><strong>Preferred Church:</strong> {str(data.clientPreferredChurch, 'Not specified')}</Typography>
+        <Typography sx={body}><strong>Prepaid Funeral:</strong> {data.clientHasPrepaidFuneral ? 'Yes' : 'No'}</Typography>
         {!!data.clientPrepaidFuneralDetails && (
-          <Typography><strong>Details:</strong> {str(data.clientPrepaidFuneralDetails)}</Typography>
+          <Typography sx={body}><strong>Details:</strong> {str(data.clientPrepaidFuneralDetails)}</Typography>
         )}
       </Box>
 
       {!!(data.spouseBurialOrCremation || data.spousePreferredFuneralHome) && (
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>Spouse Funeral Preferences</Typography>
-          <Typography><strong>Burial or Cremation:</strong> {str(data.spouseBurialOrCremation, 'Not specified')}</Typography>
-          <Typography><strong>Preferred Funeral Home:</strong> {str(data.spousePreferredFuneralHome, 'Not specified')}</Typography>
-          <Typography><strong>Preferred Church:</strong> {str(data.spousePreferredChurch, 'Not specified')}</Typography>
-          <Typography><strong>Prepaid Funeral:</strong> {data.spouseHasPrepaidFuneral ? 'Yes' : 'No'}</Typography>
+          <ReportSectionTitle>Spouse Funeral Preferences</ReportSectionTitle>
+          <Typography sx={body}><strong>Burial or Cremation:</strong> {str(data.spouseBurialOrCremation, 'Not specified')}</Typography>
+          <Typography sx={body}><strong>Preferred Funeral Home:</strong> {str(data.spousePreferredFuneralHome, 'Not specified')}</Typography>
+          <Typography sx={body}><strong>Preferred Church:</strong> {str(data.spousePreferredChurch, 'Not specified')}</Typography>
+          <Typography sx={body}><strong>Prepaid Funeral:</strong> {data.spouseHasPrepaidFuneral ? 'Yes' : 'No'}</Typography>
           {!!data.spousePrepaidFuneralDetails && (
-            <Typography><strong>Details:</strong> {str(data.spousePrepaidFuneralDetails)}</Typography>
+            <Typography sx={body}><strong>Details:</strong> {str(data.spousePrepaidFuneralDetails)}</Typography>
           )}
         </Box>
       )}
 
       {endOfLife.length > 0 && (
         <Box>
-          <Typography variant="h6" sx={{ mb: 1, color: '#1a237e' }}>End of Life Preferences</Typography>
+          <ReportSectionTitle>End of Life Preferences</ReportSectionTitle>
           {endOfLife.map((item, i) => (
-            <Box key={i} sx={{ mb: 2, p: 1.5, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-              <Typography variant="subtitle2" sx={{ color: '#1a237e', fontWeight: 600 }}>
+            <Box key={i} sx={{ mb: 2, p: 1.5, bgcolor: '#f9f5ef', borderRadius: 1, border: '1px solid #e8ddd0' }}>
+              <Typography sx={{ fontFamily: '"Jost", sans-serif', fontSize: '13px', fontWeight: 600, color: '#8b6914' }}>
                 {item.category || `Item ${i + 1}`}
               </Typography>
               {Object.entries(item)
                 .filter(([key]) => key !== 'category')
                 .map(([key, value]) => (
-                  value ? <Typography key={key} variant="body2"><strong>{key}:</strong> {value}</Typography> : null
+                  value ? <Typography key={key} sx={body}><strong>{key}:</strong> {value}</Typography> : null
                 ))}
             </Box>
           ))}
         </Box>
       )}
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <ReportLayout title="End of Life Wishes" ownerName={ownerName}>
+      {content}
     </ReportLayout>
   );
 };
