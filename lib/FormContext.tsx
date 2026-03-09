@@ -818,7 +818,8 @@ export interface FormData {
       | 'clientUrgentCare' | 'spouseUrgentCare'
       | 'clientHomeHealth' | 'spouseHomeHealth'
       | 'clientRehab' | 'spouseRehab'
-      | 'clientPhysicalTherapy' | 'spousePhysicalTherapy';
+      | 'clientPhysicalTherapy' | 'spousePhysicalTherapy'
+      | 'clientHospice' | 'spouseHospice';
     specialistType: string;
     name: string;
     firmName: string;

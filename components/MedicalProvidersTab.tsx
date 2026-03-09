@@ -104,6 +104,7 @@ const MedicalProvidersTab = () => {
   const homeHealthCategory: ProviderCategory = isSpouseView ? 'spouseHomeHealth' : 'clientHomeHealth';
   const rehabCategory: ProviderCategory = isSpouseView ? 'spouseRehab' : 'clientRehab';
   const ptCategory: ProviderCategory = isSpouseView ? 'spousePhysicalTherapy' : 'clientPhysicalTherapy';
+  const hospiceCategory: ProviderCategory = isSpouseView ? 'spouseHospice' : 'clientHospice';
 
   const pcps = getByCategory(pcpCategory);
   const specialists = getByCategory(specialistCategory);
@@ -112,6 +113,7 @@ const MedicalProvidersTab = () => {
   const homeHealth = getByCategory(homeHealthCategory);
   const rehab = getByCategory(rehabCategory);
   const physicalTherapy = getByCategory(ptCategory);
+  const hospice = getByCategory(hospiceCategory);
 
   const facilitySections = [
     { label: 'Preferred Hospital', items: hospitals, category: hospitalCategory },
@@ -119,6 +121,7 @@ const MedicalProvidersTab = () => {
     { label: 'Preferred Home Health Agency', items: homeHealth, category: homeHealthCategory },
     { label: 'Preferred Rehabilitation Facility', items: rehab, category: rehabCategory },
     { label: 'Preferred Physical Therapy', items: physicalTherapy, category: ptCategory },
+    { label: 'Preferred Hospice Provider', items: hospice, category: hospiceCategory },
   ];
 
   const hasEntries = pcps.length > 0 || specialists.length > 0 || facilitySections.some((s) => s.items.length > 0);
@@ -177,6 +180,9 @@ const MedicalProvidersTab = () => {
         </Button>
         <Button variant="outlined" startIcon={<AddIcon />} onClick={() => openAdd(ptCategory)} size="small">
           Physical Therapy
+        </Button>
+        <Button variant="outlined" startIcon={<AddIcon />} onClick={() => openAdd(hospiceCategory)} size="small">
+          Hospice
         </Button>
       </Box>
 

@@ -52,7 +52,8 @@ export interface MedicalProviderData {
     | 'clientUrgentCare' | 'spouseUrgentCare'
     | 'clientHomeHealth' | 'spouseHomeHealth'
     | 'clientRehab' | 'spouseRehab'
-    | 'clientPhysicalTherapy' | 'spousePhysicalTherapy';
+    | 'clientPhysicalTherapy' | 'spousePhysicalTherapy'
+    | 'clientHospice' | 'spouseHospice';
   specialistType: string;
   name: string;
   firmName: string;
@@ -67,7 +68,8 @@ export type FacilityCategory =
   | 'clientUrgentCare' | 'spouseUrgentCare'
   | 'clientHomeHealth' | 'spouseHomeHealth'
   | 'clientRehab' | 'spouseRehab'
-  | 'clientPhysicalTherapy' | 'spousePhysicalTherapy';
+  | 'clientPhysicalTherapy' | 'spousePhysicalTherapy'
+  | 'clientHospice' | 'spouseHospice';
 
 const FACILITY_CATEGORIES: FacilityCategory[] = [
   'clientHospital', 'spouseHospital',
@@ -75,6 +77,7 @@ const FACILITY_CATEGORIES: FacilityCategory[] = [
   'clientHomeHealth', 'spouseHomeHealth',
   'clientRehab', 'spouseRehab',
   'clientPhysicalTherapy', 'spousePhysicalTherapy',
+  'clientHospice', 'spouseHospice',
 ];
 
 const FACILITY_LABELS: Record<string, string> = {
@@ -88,6 +91,8 @@ const FACILITY_LABELS: Record<string, string> = {
   spouseRehab: 'Preferred Rehabilitation Facility',
   clientPhysicalTherapy: 'Preferred Physical Therapy',
   spousePhysicalTherapy: 'Preferred Physical Therapy',
+  clientHospice: 'Preferred Hospice Provider',
+  spouseHospice: 'Preferred Hospice Provider',
 };
 
 export const isFacilityCategory = (cat: MedicalProviderData['providerCategory']): boolean =>
