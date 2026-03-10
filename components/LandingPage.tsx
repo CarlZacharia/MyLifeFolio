@@ -321,10 +321,17 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                 {/* Headline */}
                 <Box sx={{ opacity: 0, animation: 'fadeUp 0.8s 0.25s ease forwards', '@keyframes fadeUp': { from: { opacity: 0, transform: 'translateY(20px)' }, to: { opacity: 1, transform: 'translateY(0)' } } }}>
                   <Typography variant="h1" sx={{ fontSize: { xs: '2.6rem', md: '3.6rem', lg: '4.2rem' }, lineHeight: 1.1, mb: 3 }}>
-                    Your life,
+                    Your Life, Organized.
                     <Box component="span" sx={{ display: 'block', fontStyle: 'italic', color: 'secondary.main' }}>
-                      documented with love.
+                      Your Legacy, Protected.
                     </Box>
+                  </Typography>
+                </Box>
+
+                {/* Tagline */}
+                <Box sx={{ opacity: 0, animation: 'fadeUp 0.8s 0.33s ease forwards', '@keyframes fadeUp': { from: { opacity: 0, transform: 'translateY(20px)' }, to: { opacity: 1, transform: 'translateY(0)' } } }}>
+                  <Typography sx={{ fontFamily: '"Jost", sans-serif', fontSize: { xs: '1.25rem', md: '1.5rem' }, fontWeight: 600, fontStyle: 'italic', letterSpacing: '0.02em', color: 'secondary.main', mb: 3, textShadow: '0 1px 8px rgba(0,0,0,0.25)' }}>
+                    &ldquo;The Guide Your Family Wishes You Had Left Behind&rdquo;
                   </Typography>
                 </Box>
 

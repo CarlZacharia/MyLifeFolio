@@ -993,8 +993,8 @@ ${profileData.name}`;
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box
               component="img"
-              src="/zbb-logo.png"
-              alt="ZBB"
+              src="/SCRlogo.jpg"
+              alt="SCR"
               sx={{ height: 24, width: 'auto' }}
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';

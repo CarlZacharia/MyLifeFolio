@@ -979,9 +979,9 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
           <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
             <Box
               component="img"
-              src="/logo.jpg"
+              src="/SCRlogo.jpg"
               alt="MyLifeFolio Logo"
-              sx={{ height: 40, width: 'auto', borderRadius: 1 }}
+              sx={{ height: 40, width: 'auto' }}
             />
             <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
               MyLifeFolio

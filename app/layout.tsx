@@ -152,7 +152,7 @@ export default function RootLayout({
                 {/* Logo */}
                 <Box
                   component="img"
-                  src="/logo.jpg"
+                  src="/SCRlogo.jpg"
                   alt="MyLifeFolio"
                   sx={{
                     height: 40,
