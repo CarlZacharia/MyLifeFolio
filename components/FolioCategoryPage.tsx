@@ -66,7 +66,7 @@ interface FolioCategoryPageProps {
   accentColor: string;
   children: React.ReactNode;
   onNavigateBack: () => void;
-  onNavigate?: (page: string) => void;
+  onNavigate?: (page: string, subTab?: number) => void;
   onLogin?: () => void;
   onRegister?: () => void;
   onAdmin?: () => void;

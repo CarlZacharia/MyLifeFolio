@@ -59,8 +59,10 @@ import EndOfLifeSection from '../components/EndOfLifeSection';
 import ReportsSection from '../components/ReportsSection';
 import LegacySection from '../components/LegacySection';
 import DocumentsVaultSection from '../components/DocumentsVaultSection';
+import DigitalLifeSection from '../components/DigitalLifeSection';
 import FamilyAccessManager from '../src/features/owner-settings/FamilyAccessManager';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import PeopleIcon from '@mui/icons-material/People';
 import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
@@ -398,6 +400,7 @@ type PageType = 'landing' | 'mylifefolio-home' | 'folio-questionnaire' | 'long-t
   | 'category-personal-information' | 'category-health-medical' | 'category-emergency-care' | 'category-financial-life'
   | 'category-people-advisors' | 'category-legal-documents' | 'category-legacy-life-story' | 'category-home-property' | 'category-document-uploads' | 'category-family-dependents'
   | 'category-insurance-coverage' | 'category-end-of-life' | 'category-care-decisions' | 'category-reports'
+  | 'category-digital-life'
   | 'family-access-settings';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
@@ -1247,6 +1250,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
 export default function MainPage() {
   const [currentPage, setCurrentPage] = useState<PageType>('landing');
   const [previousPage, setPreviousPage] = useState<PageType>('landing');
+  const [initialSubTab, setInitialSubTab] = useState<number | undefined>(undefined);
   const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
   const { user, signOut } = useAuth();
   const { formData, loadFormData, updateFormData } = useFormContext();
@@ -1296,8 +1300,9 @@ export default function MainPage() {
     loadSavedData();
   }, [user, loadFormData]);
 
-  const handleNavigate = (page: string) => {
+  const handleNavigate = (page: string, subTab?: number) => {
     setPreviousPage(currentPage);
+    setInitialSubTab(subTab);
     setCurrentPage(page as PageType);
     window.scrollTo(0, 0);
   };
@@ -1478,7 +1483,7 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <MedicalDataSection />
+            <MedicalDataSection initialTab={initialSubTab} />
           </FolioCategoryPage>
         );
 
@@ -1496,7 +1501,7 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <FinancialLifeSection />
+            <FinancialLifeSection initialTab={initialSubTab} />
           </FolioCategoryPage>
         );
 
@@ -1550,7 +1555,7 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <LegacySection />
+            <LegacySection initialTab={initialSubTab} />
           </FolioCategoryPage>
         );
 
@@ -1642,6 +1647,24 @@ export default function MainPage() {
             onNavigate={handleNavigate}
           >
             <EndOfLifeSection />
+          </FolioCategoryPage>
+        );
+
+      case 'category-digital-life':
+        return (
+          <FolioCategoryPage
+            title="Digital Life"
+            icon={<FingerprintIcon sx={{ fontSize: 28 }} />}
+            accentColor="#00695c"
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onAdmin={handleAdminClick}
+            onProfile={handleProfileClick}
+            onResources={() => handleNavigate('resources')}
+            onNavigate={handleNavigate}
+          >
+            <DigitalLifeSection initialTab={initialSubTab} />
           </FolioCategoryPage>
         );
 

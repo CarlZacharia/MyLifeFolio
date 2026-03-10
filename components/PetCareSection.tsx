@@ -27,6 +27,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PetsIcon from '@mui/icons-material/Pets';
 import { PetData } from '../lib/FormContext';
 import { folioColors } from './FolioModal';
+import PhoneInput from './PhoneInput';
 
 const PET_TYPES = ['Dog', 'Cat', 'Bird', 'Fish', 'Reptile', 'Horse', 'Rabbit', 'Other'];
 const PET_SEX_OPTIONS = ['Male', 'Female', 'Unknown'];
@@ -340,13 +341,14 @@ export default function PetCareSection({ pets, onUpdatePets }: PetCareSectionPro
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <TextField
+                <PhoneInput
                   fullWidth
                   size="small"
                   label="Vet Phone"
                   InputLabelProps={{ shrink: true }}
                   value={pet.vetPhone}
                   onChange={(e) => updatePet(index, 'vetPhone', e.target.value)}
+                  name={`vetPhone-${index}`}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
@@ -779,13 +781,14 @@ export default function PetCareSection({ pets, onUpdatePets }: PetCareSectionPro
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <TextField
+                <PhoneInput
                   fullWidth
                   size="small"
                   label="Emergency Contact Phone"
                   InputLabelProps={{ shrink: true }}
                   value={pet.emergencyContactPhone}
                   onChange={(e) => updatePet(index, 'emergencyContactPhone', e.target.value)}
+                  name={`emergencyContactPhone-${index}`}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
@@ -799,13 +802,14 @@ export default function PetCareSection({ pets, onUpdatePets }: PetCareSectionPro
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <TextField
+                <PhoneInput
                   fullWidth
                   size="small"
                   label="Emergency Vet Phone"
                   InputLabelProps={{ shrink: true }}
                   value={pet.emergencyVetPhone}
                   onChange={(e) => updatePet(index, 'emergencyVetPhone', e.target.value)}
+                  name={`emergencyVetPhone-${index}`}
                 />
               </Grid>
               <Grid item xs={12}>

@@ -69,6 +69,7 @@ export interface ReportDataBundle {
   estateChildren: any[];
   estateSpecificGifts: any[];
   estateCashGifts: any[];
+  estateLifetimeGifts: any[];
   estateCharities: any[];
   // Funeral Instructions
   funeralIntake: any;
@@ -83,6 +84,9 @@ export interface ReportDataBundle {
   // What To Do If I Die
   whatToDoIntake: any;
   whatToDoSubscriptions: any[];
+  // Digital Life Summary
+  digitalLifeIntake: any;
+  digitalLifeSubscriptions: any[];
   // Family Briefing
   briefingIntake: any;
   briefingClientIncome: any[];
@@ -618,6 +622,19 @@ export function buildReportData(fd: Record<string, any>): ReportDataBundle {
     amount: g.amount || undefined,
   }));
 
+  const estateLifetimeGifts = arr(fd.giftsAndAdvancements).map((g: any, i: number) => ({
+    id: String(i),
+    recipient_name: g.recipientName || undefined,
+    relationship: g.relationship || undefined,
+    gift_type: g.giftType || undefined,
+    description: g.description || undefined,
+    amount: g.amount || undefined,
+    date_given: g.dateGiven || undefined,
+    reduce_inheritance: g.reduceInheritance || false,
+    documentation: g.documentation || undefined,
+    notes: g.notes || undefined,
+  }));
+
   const estateCharities = arr(fd.charities).map((c: any, i: number) => ({
     id: String(i),
     name: c.name || undefined,
@@ -852,6 +869,28 @@ export function buildReportData(fd: Record<string, any>): ReportDataBundle {
     is_active: s.isActive,
   }));
 
+  // ── Digital Life Summary ──
+  const digitalLifeIntake = {
+    client_name: fd.name || 'Client',
+    spouse_name: fd.spouseName || undefined,
+    marital_status: fd.maritalStatus || undefined,
+  };
+
+  const digitalLifeSubscriptions = arr(fd.subscriptions).map((s: any, i: number) => ({
+    id: String(i),
+    service_name: s.serviceName || undefined,
+    category: s.category || undefined,
+    frequency: s.frequency || undefined,
+    amount: parseNum(s.amount),
+    payment_method: s.paymentMethod || undefined,
+    account_holder: s.accountHolder || undefined,
+    login_email: s.loginEmail || undefined,
+    auto_renew: s.autoRenew,
+    renewal_date: s.renewalDate || undefined,
+    is_active: s.isActive,
+    notes: s.notes || undefined,
+  }));
+
   // ── Family Briefing Report ──
   const briefingIntake = {
     client_name: fd.name || 'Client',
@@ -990,6 +1029,7 @@ export function buildReportData(fd: Record<string, any>): ReportDataBundle {
     estateChildren,
     estateSpecificGifts,
     estateCashGifts,
+    estateLifetimeGifts,
     estateCharities,
     funeralIntake,
     funeralEndOfLife,
@@ -1001,6 +1041,8 @@ export function buildReportData(fd: Record<string, any>): ReportDataBundle {
     carePreferences,
     whatToDoIntake,
     whatToDoSubscriptions,
+    digitalLifeIntake,
+    digitalLifeSubscriptions,
     briefingIntake,
     briefingClientIncome,
     briefingSpouseIncome,

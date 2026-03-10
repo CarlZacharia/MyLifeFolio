@@ -139,23 +139,32 @@ const MedicalInsuranceModal: React.FC<MedicalInsuranceModalProps> = ({
     >
       <FolioFieldFade visible={fieldsVisible} index={0}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          <TextField
-            select
-            label="Type"
-            value={data.insuranceType}
-            onChange={(e) => handleChange({ insuranceType: e.target.value })}
-            onBlur={() => handleBlur('insuranceType')}
-            error={!!typeError}
-            helperText={typeError ? 'Type is required' : ''}
-            required
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-            sx={{ ...folioTextFieldSx }}
-          >
-            {INSURANCE_TYPES.map((type) => (
-              <MenuItem key={type} value={type}>{type}</MenuItem>
-            ))}
-          </TextField>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end' }}>
+            <TextField
+              select
+              label="Type"
+              value={data.insuranceType}
+              onChange={(e) => handleChange({ insuranceType: e.target.value })}
+              onBlur={() => handleBlur('insuranceType')}
+              error={!!typeError}
+              helperText={typeError ? 'Type is required' : ''}
+              required
+              InputLabelProps={{ shrink: true }}
+              sx={{ ...folioTextFieldSx, flex: 1 }}
+            >
+              {INSURANCE_TYPES.map((type) => (
+                <MenuItem key={type} value={type}>{type}</MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Monthly Cost"
+              value={data.monthlyCost}
+              onChange={(e) => handleChange({ monthlyCost: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              placeholder="$0.00"
+              sx={{ ...folioTextFieldSx, flex: 1 }}
+            />
+          </Box>
 
           <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
@@ -174,28 +183,19 @@ const MedicalInsuranceModal: React.FC<MedicalInsuranceModalProps> = ({
             />
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <TextField
-              select
-              label="Paid By"
-              value={data.paidBy}
-              onChange={(e) => handleChange({ paidBy: e.target.value })}
-              InputLabelProps={{ shrink: true }}
-              sx={{ ...folioTextFieldSx, flex: 1 }}
-            >
-              {PAID_BY_OPTIONS.map((opt) => (
-                <MenuItem key={opt} value={opt}>{opt}</MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              label="Monthly Cost"
-              value={data.monthlyCost}
-              onChange={(e) => handleChange({ monthlyCost: e.target.value })}
-              InputLabelProps={{ shrink: true }}
-              placeholder="$0.00"
-              sx={{ ...folioTextFieldSx, flex: 1 }}
-            />
-          </Box>
+          <TextField
+            select
+            label="Paid By"
+            value={data.paidBy}
+            onChange={(e) => handleChange({ paidBy: e.target.value })}
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+            sx={{ ...folioTextFieldSx }}
+          >
+            {PAID_BY_OPTIONS.map((opt) => (
+              <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+            ))}
+          </TextField>
 
           <TextField
             label="Provider to Contact"

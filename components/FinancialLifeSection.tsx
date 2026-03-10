@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Tabs,
@@ -14,6 +14,7 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import IncomeSection from './IncomeSection';
 import AssetsSection from './AssetsSection';
 import FinancialAssetsTab from './FinancialAssetsTab';
@@ -23,6 +24,8 @@ import OtherAssetsTab from './OtherAssetsTab';
 import { AssetCategoryType } from './AssetsSummaryTable';
 import ExpensesSection from './ExpensesSection';
 import SubscriptionsTab from './SubscriptionsTab';
+import DebtsTab from './DebtsTab';
+import GiftsTab from './GiftsTab';
 import { folioColors } from './FolioModal';
 
 const PRIMARY_TABS = [
@@ -31,6 +34,7 @@ const PRIMARY_TABS = [
   { label: 'Expenses', icon: <ReceiptLongIcon /> },
   { label: 'Subscriptions', icon: <SubscriptionsIcon /> },
   { label: 'Debts', icon: <CreditCardIcon /> },
+  { label: 'Gifts & Advancements', icon: <CardGiftcardIcon /> },
 ] as const;
 
 const ASSET_SUB_TABS: { label: string; categories: AssetCategoryType[] }[] = [
@@ -55,9 +59,17 @@ const PlaceholderTab = ({ title }: { title: string }) => (
   </Box>
 );
 
-const FinancialLifeSection = () => {
-  const [primaryTab, setPrimaryTab] = useState(0);
+interface FinancialLifeSectionProps {
+  initialTab?: number;
+}
+
+const FinancialLifeSection: React.FC<FinancialLifeSectionProps> = ({ initialTab }) => {
+  const [primaryTab, setPrimaryTab] = useState(initialTab ?? 0);
   const [assetSubTab, setAssetSubTab] = useState(0);
+
+  useEffect(() => {
+    if (initialTab !== undefined) setPrimaryTab(initialTab);
+  }, [initialTab]);
 
   return (
     <Box>
@@ -150,7 +162,10 @@ const FinancialLifeSection = () => {
       {primaryTab === 3 && <SubscriptionsTab />}
 
       {/* Debts tab */}
-      {primaryTab === 4 && <PlaceholderTab title="Debts" />}
+      {primaryTab === 4 && <DebtsTab />}
+
+      {/* Gifts & Advancements tab */}
+      {primaryTab === 5 && <GiftsTab />}
     </Box>
   );
 };

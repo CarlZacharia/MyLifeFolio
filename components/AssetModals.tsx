@@ -2492,6 +2492,7 @@ export interface VehicleData {
   owner: string;
   yearMakeModel: string;
   value: string;
+  amountFinancedOwed: string;
   // Disposition fields
   hasBeneficiaryDesignation?: boolean;
   wantsSpecificBequest?: boolean;
@@ -2513,6 +2514,7 @@ const emptyVehicle: VehicleData = {
   owner: "",
   yearMakeModel: "",
   value: "",
+  amountFinancedOwed: "",
   hasBeneficiaryDesignation: undefined,
   wantsSpecificBequest: undefined,
   jointDisposition: undefined,
@@ -2670,7 +2672,7 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
               sx={{ ...folioTextFieldSx }}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={6}>
             <CurrencyInput
               fullWidth
               label="Value *"
@@ -2682,6 +2684,18 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
               name="vehicleValue"
               error={touched.value && errors.value}
               helperText={touched.value && errors.value ? "Required" : ""}
+              sx={{ ...folioTextFieldSx }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <CurrencyInput
+              fullWidth
+              label="Amount Financed/Owed"
+              value={data.amountFinancedOwed}
+              onChange={(e) => handleChange({ amountFinancedOwed: e.target.value })}
+              variant="outlined"
+              size="small"
+              name="vehicleAmountOwed"
               sx={{ ...folioTextFieldSx }}
             />
           </Grid>

@@ -204,6 +204,20 @@ interface CashGift {
   sort_order?: number;
 }
 
+/** Lifetime gifts & advancements */
+interface LifetimeGift {
+  id: string;
+  recipient_name?: string;
+  relationship?: string;
+  gift_type?: string;
+  description?: string;
+  amount?: string;
+  date_given?: string;
+  reduce_inheritance?: boolean;
+  documentation?: string;
+  notes?: string;
+}
+
 /** folio_charities */
 interface Charity {
   id: string;
@@ -222,6 +236,7 @@ interface EstatePlanningOverviewProps {
   children?: Child[];
   specificGifts?: SpecificGift[];
   cashGifts?: CashGift[];
+  lifetimeGifts?: LifetimeGift[];
   charities?: Charity[];
   dateCreated?: string;
   dateUpdated?: string;
@@ -429,6 +444,7 @@ const EstatePlanningOverview: React.FC<EstatePlanningOverviewProps> = ({
   children = [],
   specificGifts = [],
   cashGifts = [],
+  lifetimeGifts = [],
   charities = [],
   dateCreated,
   dateUpdated,
@@ -882,7 +898,33 @@ const EstatePlanningOverview: React.FC<EstatePlanningOverviewProps> = ({
         </>
       )}
 
-      {/* ── 9. Charitable Organizations ── */}
+      {/* ── 9. Lifetime Gifts & Advancements ── */}
+      {lifetimeGifts.length > 0 && (
+        <>
+          <ReportSectionTitle>Lifetime Gifts &amp; Advancements</ReportSectionTitle>
+          <TableHeader
+            cols={['Recipient', 'Relationship', 'Type', 'Description', 'Amount', 'Date', 'Reduces Share']}
+            widths={['1.5fr', '1fr', '1fr', '2fr', '1fr', '1fr', '0.8fr']}
+          />
+          {lifetimeGifts.map((g, i) => (
+            <TableRow
+              key={g.id} zebra={i % 2 === 1}
+              widths={['1.5fr', '1fr', '1fr', '2fr', '1fr', '1fr', '0.8fr']}
+              cols={[
+                g.recipient_name || '—',
+                g.relationship || '—',
+                g.gift_type || '—',
+                g.description || '—',
+                g.amount || '—',
+                g.date_given ? formatDate(g.date_given) : '—',
+                g.reduce_inheritance ? 'Yes' : 'No',
+              ]}
+            />
+          ))}
+        </>
+      )}
+
+      {/* ── 10. Charitable Organizations ── */}
       {charities.length > 0 && (
         <>
           <ReportSectionTitle>Charitable Gifts</ReportSectionTitle>

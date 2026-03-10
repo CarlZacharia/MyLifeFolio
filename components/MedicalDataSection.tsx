@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Tabs,
@@ -28,9 +28,17 @@ const TABS = [
   { label: 'Medical Conditions', icon: <MonitorHeartIcon /> },
 ] as const;
 
-const MedicalDataSection = () => {
-  const [activeTab, setActiveTab] = useState(0);
+interface MedicalDataSectionProps {
+  initialTab?: number;
+}
+
+const MedicalDataSection: React.FC<MedicalDataSectionProps> = ({ initialTab }) => {
+  const [activeTab, setActiveTab] = useState(initialTab ?? 0);
   const { formData } = useFormContext();
+
+  useEffect(() => {
+    if (initialTab !== undefined) setActiveTab(initialTab);
+  }, [initialTab]);
   const showSpouse = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
   return (

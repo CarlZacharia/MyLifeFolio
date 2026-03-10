@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, ButtonBase, Typography } from '@mui/material';
 import DescriptionIcon from '@mui/icons-material/Description';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
@@ -37,8 +37,16 @@ const TABS = [
   { label: 'Memory Vault', icon: <PhotoLibraryIcon sx={{ fontSize: 20 }} /> },
 ] as const;
 
-const LegacySection = () => {
-  const [activeTab, setActiveTab] = useState(0);
+interface LegacySectionProps {
+  initialTab?: number;
+}
+
+const LegacySection: React.FC<LegacySectionProps> = ({ initialTab }) => {
+  const [activeTab, setActiveTab] = useState(initialTab ?? 0);
+
+  useEffect(() => {
+    if (initialTab !== undefined) setActiveTab(initialTab);
+  }, [initialTab]);
 
   return (
     <Box>

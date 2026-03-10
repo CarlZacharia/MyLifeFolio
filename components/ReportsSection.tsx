@@ -20,6 +20,7 @@ import HealingIcon from '@mui/icons-material/Healing';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import { useFormContext } from '../lib/FormContext';
 import { buildReportData } from '../lib/buildReportData';
 import { folioColors } from './FolioModal';
@@ -33,6 +34,7 @@ import WhatToDoIfINeedCare from '../src/features/family-access/reports/Whattodoi
 import FuneralInstructions from '../src/features/family-access/reports/FuneralInstructions';
 import WhatToDoIfIDie from '../src/features/family-access/reports/WhatToDoIfIDie';
 import FamilyBriefingReport from '../src/features/family-access/reports/Familybriefingreport';
+import DigitalLifeSummary from '../src/features/family-access/reports/DigitalLifeSummary';
 
 // ─── Report definitions ──────────────────────────────────────────────────────
 
@@ -52,6 +54,7 @@ export const REPORTS: ReportDef[] = [
   { id: 'need-care', label: 'What To Do If I Need Care', icon: <HealingIcon /> },
   { id: 'funeral-instructions', label: 'Funeral Instructions', icon: <VolunteerActivismIcon /> },
   { id: 'what-to-do', label: 'What To Do If I Die', icon: <AssignmentIcon /> },
+  { id: 'digital-life', label: 'Digital Life Summary', icon: <FingerprintIcon /> },
   { id: 'family-briefing', label: 'Family Briefing Report', icon: <MenuBookIcon /> },
 ];
 
@@ -138,6 +141,7 @@ export const renderReportById = (reportId: string, data: ReturnType<typeof build
           children={data.estateChildren}
           specificGifts={data.estateSpecificGifts}
           cashGifts={data.estateCashGifts}
+          lifetimeGifts={data.estateLifetimeGifts}
           charities={data.estateCharities}
         />
       );
@@ -181,6 +185,14 @@ export const renderReportById = (reportId: string, data: ReturnType<typeof build
           retirementAccounts={data.retirementAccounts}
           digitalAssets={data.digitalAssets}
           subscriptions={data.whatToDoSubscriptions}
+        />
+      );
+    case 'digital-life':
+      return (
+        <DigitalLifeSummary
+          intake={data.digitalLifeIntake}
+          digitalAssets={data.digitalAssets}
+          subscriptions={data.digitalLifeSubscriptions}
         />
       );
     case 'family-briefing':

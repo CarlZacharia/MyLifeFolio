@@ -771,6 +771,7 @@ export interface FormData {
     owner: string;
     yearMakeModel: string;
     value: string;
+    amountFinancedOwed: string;
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
     primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
@@ -809,6 +810,26 @@ export interface FormData {
     platform: string;
     description: string;
     value: string;
+    notes: string;
+  }>;
+
+  debts: Array<{
+    type: string;
+    dateIncurred: string;
+    description: string;
+    amount: string;
+    notes: string;
+  }>;
+
+  giftsAndAdvancements: Array<{
+    recipientName: string;
+    relationship: string;
+    giftType: string;
+    description: string;
+    amount: string;
+    dateGiven: string;
+    reduceInheritance: boolean;
+    documentation: string;
     notes: string;
   }>;
 
@@ -1580,6 +1601,8 @@ const initialFormData: FormData = {
   otherAssets: [],
   businessInterests: [],
   digitalAssets: [],
+  debts: [],
+  giftsAndAdvancements: [],
   medicalProviders: [],
   pharmacies: [],
   medications: [],

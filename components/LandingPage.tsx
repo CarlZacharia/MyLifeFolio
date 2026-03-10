@@ -28,6 +28,7 @@ import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import HomeIcon from '@mui/icons-material/Home';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import { useAuth } from '../lib/AuthContext';
 
 const isAdminUser = (email: string | undefined) => {
@@ -212,10 +213,10 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
       items: ['Estate Planning & Legal', 'Real Estate & Property', 'Financial & Accounts', 'Insurance', 'Personal Identity', 'Military & Government', 'Medical & Health', 'Family & Genealogy', 'Personal Legacy & Memorabilia', 'Digital Assets', 'Other'],
     },
     {
-      icon: <LibraryBooksIcon sx={{ fontSize: 26 }} />,
-      title: 'Reports',
-      accentColor: '#455a64',
-      items: ['Emergency Medical Summary', 'Family Contact Sheet', 'Asset Inventory', 'Insurance Summary', 'Advisor Directory', 'Estate Planning Overview', 'What to do if I need Care', 'Funeral Instructions', '"What To Do If I Die" Checklist', 'Family Briefing Report'],
+      icon: <FingerprintIcon sx={{ fontSize: 26 }} />,
+      title: 'Digital Life',
+      accentColor: '#00695c',
+      items: ['Online account credentials', 'Digital assets & cryptocurrency', 'Subscriptions & recurring services', 'Social media & email accounts', 'Domain names & digital businesses'],
     },
   ];
 

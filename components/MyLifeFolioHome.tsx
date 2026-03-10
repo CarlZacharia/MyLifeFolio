@@ -33,6 +33,7 @@ import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import { useAuth } from '../lib/AuthContext';
 import FolioSearchBar from './FolioSearchBar';
 
@@ -177,16 +178,12 @@ const folioCategories = [
     items: ['Attorney, accountant, financial advisor', 'Insurance & real estate agents', 'Business advisor & other', 'Friends & neighbors'],
   },
   {
-    id: 'legal-documents', title: 'Legal Documents', icon: <HistoryEduIcon sx={{ fontSize: 26 }} />, accentColor: '#7b2cbf',
-    items: ['Will (Last Will & Testament)', 'Revocable living trust', 'Irrevocable trust', 'Financial power of attorney', 'Health care power of attorney'],
+    id: 'insurance-coverage', title: 'Insurance Coverage', icon: <HealthAndSafetyIcon sx={{ fontSize: 26 }} />, accentColor: '#2e7d32',
+    items: ['Medical & vehicle insurance', 'Homeowners & umbrella', 'Long-term care & disability', 'Life insurance & other policies'],
   },
   {
     id: 'emergency-care', title: 'Medical Data', icon: <LocalHospitalIcon sx={{ fontSize: 26 }} />, accentColor: '#0077b6',
     items: ['Medical providers', 'Medications',  'Equipment and Devices', 'Pharmacies', 'Medical conditions'],
-  },
-  {
-    id: 'insurance-coverage', title: 'Insurance Coverage', icon: <HealthAndSafetyIcon sx={{ fontSize: 26 }} />, accentColor: '#2e7d32',
-    items: ['Medical & vehicle insurance', 'Homeowners & umbrella', 'Long-term care & disability', 'Life insurance & other policies'],
   },
   {
     id: 'care-decisions', title: 'Care Decisions', icon: <FavoriteBorderIcon sx={{ fontSize: 26 }} />, accentColor: '#00838f',
@@ -201,12 +198,28 @@ const folioCategories = [
     items: ['Obituary Info', 'Charitable Wishes', 'Letters to Family', 'Personal History', 'Life Stories', 'Reflections', 'Surprises', 'Favorites', 'Video Legacy', 'Memory Vault'],
   },
   {
+    id: 'legal-documents', title: 'Legal Documents', icon: <HistoryEduIcon sx={{ fontSize: 26 }} />, accentColor: '#7b2cbf',
+    items: ['Will (Last Will & Testament)', 'Revocable living trust', 'Irrevocable trust', 'Financial power of attorney', 'Health care power of attorney'],
+  },
+  {
     id: 'document-uploads', title: 'Documents Vault', icon: <HomeIcon sx={{ fontSize: 26 }} />, accentColor: '#e07a2f',
     items: ['Estate Planning & Legal', 'Real Estate & Property', 'Financial & Accounts', 'Insurance', 'Personal Identity', 'Military & Government', 'Medical & Health', 'Family & Genealogy', 'Personal Legacy & Memorabilia', 'Digital Assets', 'Other'],
   },
   {
+    id: 'digital-life', title: 'Digital Life', icon: <FingerprintIcon sx={{ fontSize: 26 }} />, accentColor: '#00695c',
+    items: ['Online account credentials', 'Digital assets & cryptocurrency', 'Subscriptions & recurring services', 'Social media & email accounts', 'Domain names & digital businesses'],
+  },
+];
+
+// Row 4 cards — rendered separately below the main 12-card grid
+const row4Cards = [
+  {
     id: 'reports', title: 'Reports', icon: <LibraryBooksIcon sx={{ fontSize: 26 }} />, accentColor: '#455a64',
-    items: ['Emergency Medical Summary', 'Family Contact Sheet', 'Asset Inventory', 'Insurance Summary', 'Advisor Directory', 'Estate Planning Overview', 'Funeral Instructions', '"What To Do If I Die" Checklist', 'Family Briefing Report'],
+    items: ['Emergency Medical Summary', 'Family Contact Sheet', 'Asset Inventory', 'Insurance Summary', 'Advisor Directory', 'Estate Planning Overview', 'Digital Life Summary', 'Funeral Instructions', '"What To Do If I Die" Checklist', 'Family Briefing Report'],
+  },
+  {
+    id: 'family-access', title: 'Family Access Portal', icon: <FamilyRestroomIcon sx={{ fontSize: 26 }} />, accentColor: '#1a237e',
+    items: ['Grant family members view access', 'Share reports & key documents', 'Control what family can see', 'Secure login for each member', 'Revoke access at any time'],
   },
 ];
 
@@ -311,7 +324,7 @@ interface MyLifeFolioHomeProps {
   onRegister?: () => void;
   onAdmin?: () => void;
   onProfile?: () => void;
-  onNavigate?: (page: string) => void;
+  onNavigate?: (page: string, subTab?: number) => void;
 }
 
 const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
@@ -652,36 +665,32 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
                 />
               </Grid>
             ))}
-          </Grid>
 
-          {/* Family Access Settings */}
-          {user && (
-            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-              <Card
-                onClick={() => onNavigate?.('family-access-settings')}
-                sx={{
-                  cursor: 'pointer',
-                  maxWidth: 400,
-                  width: '100%',
-                  borderLeft: '4px solid #1a237e',
-                  transition: 'all 0.2s',
-                  '&:hover': { boxShadow: 4, transform: 'translateY(-2px)' },
-                }}
-              >
-                <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <FamilyRestroomIcon sx={{ fontSize: 36, color: '#1a237e' }} />
-                  <Box>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1a237e' }}>
-                      Family Access Portal
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Grant family members access to view your folio
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Box>
-          )}
+            {/* Row 4: Reports, Family Access, and two placeholders */}
+            {row4Cards.map((cat, i) => (
+              <Grid item xs={12} sm={6} md={3} key={cat.id}>
+                <FolioCard
+                  icon={cat.icon}
+                  title={cat.title}
+                  accentColor={cat.accentColor}
+                  items={cat.items}
+                  delay={400 + (folioCategories.length + i) * 80}
+                  onClick={() =>
+                    cat.id === 'family-access'
+                      ? onNavigate?.('family-access-settings')
+                      : onNavigate?.(`category-${cat.id}`)
+                  }
+                />
+              </Grid>
+            ))}
+            {/* Two placeholder slots for future use */}
+            <Grid item xs={12} sm={6} md={3}>
+              <Box sx={{ height: '100%' }} />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Box sx={{ height: '100%' }} />
+            </Grid>
+          </Grid>
         </Container>
 
         {/* Footer */}
