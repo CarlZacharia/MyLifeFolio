@@ -24,8 +24,17 @@ const US_STATES = [
   'Wisconsin', 'Wyoming',
 ];
 
+interface WelcomeInitialData {
+  name?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+}
+
 interface WelcomeModalProps {
   open: boolean;
+  initialData?: WelcomeInitialData;
   onSave: (data: {
     name: string;
     mailingAddress: string;
@@ -40,7 +49,8 @@ interface WelcomeModalProps {
   }) => void;
 }
 
-const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onSave }) => {
+const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, initialData, onSave }) => {
+  const [seeded, setSeeded] = useState(false);
   const [name, setName] = useState('');
   const [mailingAddress, setMailingAddress] = useState('');
   const [mailingCity, setMailingCity] = useState('');
@@ -51,6 +61,21 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onSave }) => {
   const [birthDate, setBirthDate] = useState<Date | null>(null);
   const [maritalStatus, setMaritalStatus] = useState<MaritalStatus>('');
   const [numberOfChildren, setNumberOfChildren] = useState(0);
+
+  // Pre-populate from registration data when modal opens
+  React.useEffect(() => {
+    if (open && initialData && !seeded) {
+      if (initialData.name) setName(initialData.name);
+      if (initialData.address) setMailingAddress(initialData.address);
+      if (initialData.city) setMailingCity(initialData.city);
+      if (initialData.state) {
+        setMailingState(initialData.state);
+        setStateOfDomicile(initialData.state);
+      }
+      if (initialData.zip) setMailingZip(initialData.zip);
+      setSeeded(true);
+    }
+  }, [open, initialData, seeded]);
 
   const fieldsVisible = useFolioFieldAnimation(open);
   const canSave = name.trim().length > 0;

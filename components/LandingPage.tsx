@@ -29,6 +29,8 @@ import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import HomeIcon from '@mui/icons-material/Home';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useAuth } from '../lib/AuthContext';
 
 const isAdminUser = (email: string | undefined) => {
@@ -134,6 +136,8 @@ const ChapterCard = ({ icon, title, items, accentColor, delay = 0 }: { icon: Rea
 
 const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { onNavigate: (page: string) => void; onLogin: () => void; onRegister: () => void; onAdmin?: () => void; onProfile?: () => void }) => {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
   const { user, signOut, hasRegistered } = useAuth();
 
   const handleLogout = async () => { await signOut(); onNavigate('landing'); };
@@ -267,6 +271,14 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                     sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
                     Resources
                   </Button>
+                  <Button variant="outlined" onClick={() => onNavigate('about')} startIcon={<InfoOutlinedIcon />}
+                    sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+                    About
+                  </Button>
+                  <Button variant="outlined" onClick={() => onNavigate('account-settings')} startIcon={<SettingsIcon />}
+                    sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+                    Account
+                  </Button>
                   {isAdminUser(user.email) && onAdmin && (
                     <Button variant="outlined" onClick={onAdmin} startIcon={<AdminPanelSettingsIcon />}
                       sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
@@ -283,6 +295,10 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                   <Button variant="outlined" onClick={() => onNavigate('resources')} startIcon={<LibraryBooksIcon />}
                     sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
                     Resources
+                  </Button>
+                  <Button variant="outlined" onClick={() => onNavigate('about')} startIcon={<InfoOutlinedIcon />}
+                    sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+                    About
                   </Button>
                   <Button color="inherit" onClick={onLogin} sx={{ opacity: 0.9, '&:hover': { opacity: 1, bgcolor: 'rgba(255,255,255,0.08)' } }}>
                     Sign In
@@ -545,12 +561,11 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                 <Typography sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 500, fontSize: '1rem' }}>MyLifeFolio</Typography>
               </Box>
               <Typography variant="body2" sx={{ opacity: 0.5, textAlign: 'center', fontFamily: '"Source Sans 3", sans-serif', fontSize: '0.8rem' }}>
-                © {new Date().getFullYear()} MyLifeFolio. All rights reserved.
+                © {new Date().getFullYear()} Senior Care Resources LLC.  All rights reserved.
               </Typography>
               <Box sx={{ display: 'flex', gap: 3 }}>
-                {['Privacy Policy', 'Terms of Service'].map((t) => (
-                  <Link key={t} href="#" underline="hover" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', fontFamily: '"Source Sans 3", sans-serif' }}>{t}</Link>
-                ))}
+                <Link component="button" onClick={() => setPrivacyOpen(true)} underline="hover" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', fontFamily: '"Source Sans 3", sans-serif', background: 'none', border: 'none', cursor: 'pointer' }}>Privacy Policy</Link>
+                <Link component="button" onClick={() => setTermsOpen(true)} underline="hover" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', fontFamily: '"Source Sans 3", sans-serif', background: 'none', border: 'none', cursor: 'pointer' }}>Terms of Service</Link>
               </Box>
             </Box>
           </Container>
@@ -576,6 +591,172 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
           <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
             <Typography variant="body2" color="text.secondary">A short walkthrough of creating your folio</Typography>
             <Button onClick={() => setVideoModalOpen(false)} variant="outlined">Close</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* ── PRIVACY POLICY MODAL ── */}
+        <Dialog open={privacyOpen} onClose={() => setPrivacyOpen(false)} maxWidth="md" fullWidth scroll="paper"
+          PaperProps={{ sx: { borderRadius: 2 } }}>
+          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'primary.main', color: 'white', py: 2 }}>
+            <Typography variant="h6" component="span" sx={{ fontWeight: 600 }}>Privacy Policy</Typography>
+            <IconButton onClick={() => setPrivacyOpen(false)} sx={{ color: 'white' }} size="small"><CloseIcon /></IconButton>
+          </DialogTitle>
+          <DialogContent dividers sx={{ py: 3, px: 4 }}>
+            <Typography variant="body2" sx={{ mb: 2, fontStyle: 'italic', color: 'text.secondary' }}>
+              Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>1. Introduction</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              Senior Care Resources LLC (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) operates the MyLifeFolio platform. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our website and services. By accessing or using MyLifeFolio, you agree to the terms of this Privacy Policy.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>2. Information We Collect</Typography>
+            <Typography variant="body2" sx={{ mb: 1, lineHeight: 1.8 }}>We may collect the following types of information:</Typography>
+            <Box component="ul" sx={{ pl: 2.5, mb: 2 }}>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}><strong>Account Information:</strong> Name, email address, and password when you create an account.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}><strong>Personal &amp; Family Data:</strong> Health records, financial information, legal documents, family contacts, and other data you voluntarily enter into your folio.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}><strong>Usage Data:</strong> Browser type, IP address, pages visited, and time spent on the platform.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}><strong>Uploaded Documents:</strong> Any files you upload to the Documents Vault.</Typography>
+            </Box>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>3. How We Use Your Information</Typography>
+            <Box component="ul" sx={{ pl: 2.5, mb: 2 }}>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>To provide and maintain the MyLifeFolio platform and its features.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>To generate reports and summaries based on data you have entered.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>To facilitate authorized family member access to your information.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>To communicate with you about your account, updates, or support inquiries.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>To improve our services and develop new features.</Typography>
+            </Box>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>4. Data Security</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              We implement industry-standard security measures to protect your personal information, including encryption in transit and at rest, secure authentication, and role-based access controls. However, no method of electronic storage or transmission is 100% secure, and we cannot guarantee absolute security.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>5. Data Sharing &amp; Disclosure</Typography>
+            <Typography variant="body2" sx={{ mb: 1, lineHeight: 1.8 }}>We do not sell your personal information. We may share your data only in the following circumstances:</Typography>
+            <Box component="ul" sx={{ pl: 2.5, mb: 2 }}>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>With family members or trusted contacts you have explicitly authorized through the Family Access feature.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>With service providers who assist in operating our platform (e.g., hosting, database services), under strict confidentiality agreements.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>When required by law, regulation, or legal process.</Typography>
+            </Box>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>6. Data Retention</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              We retain your personal information for as long as your account is active or as needed to provide you services. You may request deletion of your account and associated data at any time by contacting us at carl@SeniorCareRes.com.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>7. Your Rights</Typography>
+            <Typography variant="body2" sx={{ mb: 1, lineHeight: 1.8 }}>Depending on your jurisdiction, you may have the right to:</Typography>
+            <Box component="ul" sx={{ pl: 2.5, mb: 2 }}>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>Access, correct, or delete your personal data.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>Withdraw consent for data processing.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>Request a portable copy of your data.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>Lodge a complaint with a supervisory authority.</Typography>
+            </Box>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>8. Cookies &amp; Tracking</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              We use essential cookies to maintain your session and authentication state. We do not use third-party advertising or tracking cookies.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>9. Contact Us</Typography>
+            <Typography variant="body2" sx={{ lineHeight: 1.8 }}>
+              If you have questions about this Privacy Policy, please contact us at carl@SeniorCareRes.com or write to Senior Care Resources LLC, 4500 Walnut Street, McKeesport, PA 15132.
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 1.5 }}>
+            <Button onClick={() => setPrivacyOpen(false)} variant="contained" sx={{ bgcolor: 'primary.main' }}>Close</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* ── TERMS OF SERVICE MODAL ── */}
+        <Dialog open={termsOpen} onClose={() => setTermsOpen(false)} maxWidth="md" fullWidth scroll="paper"
+          PaperProps={{ sx: { borderRadius: 2 } }}>
+          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'primary.main', color: 'white', py: 2 }}>
+            <Typography variant="h6" component="span" sx={{ fontWeight: 600 }}>Terms of Service</Typography>
+            <IconButton onClick={() => setTermsOpen(false)} sx={{ color: 'white' }} size="small"><CloseIcon /></IconButton>
+          </DialogTitle>
+          <DialogContent dividers sx={{ py: 3, px: 4 }}>
+            <Typography variant="body2" sx={{ mb: 2, fontStyle: 'italic', color: 'text.secondary' }}>
+              Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>1. Acceptance of Terms</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              By accessing or using the MyLifeFolio platform operated by Senior Care Resources LLC (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;), you agree to be bound by these Terms of Service. If you do not agree, you may not use the platform.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>2. Description of Service</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              MyLifeFolio is a personal life-organization platform that allows users to securely document their health, financial, legal, and personal information for the benefit of themselves and their authorized family members. The platform is provided as-is for informational and organizational purposes only.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>3. Not Legal or Financial Advice</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              MyLifeFolio is a documentation and organizational tool. Nothing on this platform constitutes legal, financial, medical, or tax advice. You should consult qualified professionals for advice specific to your situation. Senior Care Resources LLC is not responsible for decisions made based on information stored in or generated by the platform.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>4. User Accounts</Typography>
+            <Box component="ul" sx={{ pl: 2.5, mb: 2 }}>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>You must provide accurate and complete information when creating your account.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>You are responsible for maintaining the confidentiality of your login credentials.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>You are responsible for all activity that occurs under your account.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>You must be at least 18 years of age to use this service.</Typography>
+            </Box>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>5. User Content &amp; Data</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              You retain ownership of all data and content you enter into MyLifeFolio. By using the platform, you grant us a limited license to store, process, and display your data solely for the purpose of providing the service to you and your authorized contacts. We will not use your data for any other purpose without your explicit consent.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>6. Family Access</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              You may grant access to portions of your folio to designated family members or trusted contacts. You are solely responsible for managing who has access to your information. We are not liable for any consequences arising from access you have authorized.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>7. Prohibited Uses</Typography>
+            <Typography variant="body2" sx={{ mb: 1, lineHeight: 1.8 }}>You agree not to:</Typography>
+            <Box component="ul" sx={{ pl: 2.5, mb: 2 }}>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>Use the platform for any unlawful purpose.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>Attempt to gain unauthorized access to other users&apos; accounts or data.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>Interfere with or disrupt the platform&apos;s operation.</Typography>
+              <Typography component="li" variant="body2" sx={{ mb: 0.5, lineHeight: 1.8 }}>Upload malicious code, viruses, or harmful content.</Typography>
+            </Box>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>8. Limitation of Liability</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              To the fullest extent permitted by law, Senior Care Resources LLC shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the platform. Our total liability shall not exceed the amount you have paid us in the twelve (12) months preceding the claim.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>9. Disclaimer of Warranties</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              The platform is provided &quot;as is&quot; and &quot;as available&quot; without warranties of any kind, whether express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>10. Termination</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              We may suspend or terminate your access to the platform at any time for violation of these terms or for any other reason at our discretion. You may terminate your account at any time by contacting us. Upon termination, your right to use the platform ceases immediately.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>11. Governing Law</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              These Terms shall be governed by and construed in accordance with the laws of the Commonwealth of Pennsylvania, without regard to its conflict of law provisions.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>12. Changes to Terms</Typography>
+            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
+              We reserve the right to modify these Terms at any time. We will notify registered users of material changes via email or through the platform. Continued use of the platform after changes constitutes acceptance of the revised terms.
+            </Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>13. Contact Us</Typography>
+            <Typography variant="body2" sx={{ lineHeight: 1.8 }}>
+              If you have questions about these Terms of Service, please contact us at carl@SeniorCareRes.com or write to Senior Care Resources LLC, 4500 Walnut Street, McKeesport, PA 15132.
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 1.5 }}>
+            <Button onClick={() => setTermsOpen(false)} variant="contained" sx={{ bgcolor: 'primary.main' }}>Close</Button>
           </DialogActions>
         </Dialog>
 

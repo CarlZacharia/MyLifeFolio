@@ -52,6 +52,8 @@ import MyLifeFolioHome from '../components/MyLifeFolioHome';
 import AdminDashboard from '../components/AdminDashboard';
 import PlanningPathfinder from '../components/PlanningPathfinder';
 import ResourcesPage from '../components/ResourcesPage';
+import AboutPage from '../components/AboutPage';
+import AccountSettings from '../components/AccountSettings';
 import FolioCategoryPage from '../components/FolioCategoryPage';
 import InsuranceCoveragePage from '../components/InsuranceCoveragePage';
 import CarePreferencesSection from '../components/CarePreferencesSection';
@@ -401,7 +403,9 @@ type PageType = 'landing' | 'mylifefolio-home' | 'folio-questionnaire' | 'long-t
   | 'category-people-advisors' | 'category-legal-documents' | 'category-legacy-life-story' | 'category-home-property' | 'category-document-uploads' | 'category-family-dependents'
   | 'category-insurance-coverage' | 'category-end-of-life' | 'category-care-decisions' | 'category-reports'
   | 'category-digital-life'
-  | 'family-access-settings';
+  | 'family-access-settings'
+  | 'about'
+  | 'account-settings';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
@@ -1419,6 +1423,22 @@ export default function MainPage() {
           />
         );
 
+      // Account Settings
+      case 'account-settings':
+        return (
+          <AccountSettings
+            onNavigateBack={() => handleNavigate(previousPage || 'landing')}
+          />
+        );
+
+      // About Senior Care Resources
+      case 'about':
+        return (
+          <AboutPage
+            onNavigateBack={() => handleNavigate(previousPage || 'landing')}
+          />
+        );
+
       // Planning Pathfinder (interactive tools)
       case 'planning-pathfinder':
         return (
@@ -1754,6 +1774,13 @@ export default function MainPage() {
       {/* Welcome Modal — shown once when client name is empty */}
       <WelcomeModal
         open={!!user && dataLoaded && !formData.name && currentPage !== 'landing'}
+        initialData={user?.user_metadata ? {
+          name: user.user_metadata.name,
+          address: user.user_metadata.address,
+          city: user.user_metadata.city,
+          state: user.user_metadata.state_of_domicile,
+          zip: user.user_metadata.zip,
+        } : undefined}
         onSave={(data) => {
           updateFormData(data);
         }}

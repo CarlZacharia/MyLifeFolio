@@ -7,7 +7,6 @@ import {
   Typography,
   TextField,
   Button,
-  Divider,
   Alert,
   FormControl,
   InputLabel,
@@ -19,7 +18,6 @@ import {
   InputAdornment,
   IconButton,
 } from '@mui/material';
-import GoogleIcon from '@mui/icons-material/Google';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { supabase } from '../lib/supabase';
@@ -45,7 +43,10 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
     name: '',
     email: '',
     address: '',
+    city: '',
+    state: '',
     stateOfDomicile: '',
+    zip: '',
     telephone: '',
     password: '',
     confirmPassword: '',
@@ -54,6 +55,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordMismatch, setPasswordMismatch] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -63,6 +65,9 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
   ) => {
     setFormData((prev) => ({ ...prev, [field]: event.target.value }));
     setError(null);
+    if (field === 'password' || field === 'confirmPassword') {
+      setPasswordMismatch(false);
+    }
   };
 
   const formatPhoneNumber = (value: string) => {
@@ -130,7 +135,10 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
           data: {
             name: formData.name,
             address: formData.address,
+            city: formData.city,
+            state: formData.state,
             state_of_domicile: formData.stateOfDomicile,
+            zip: formData.zip,
             telephone: formData.telephone,
             agreed_to_terms: true,
             agreed_to_terms_at: new Date().toISOString(),
@@ -155,28 +163,6 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { error: googleError } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin,
-        },
-      });
-
-      if (googleError) {
-        setError(googleError.message);
-      }
-    } catch (err) {
-      setError('Failed to sign in with Google. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (success) {
     return (
       <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>
@@ -195,20 +181,57 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
   return (
     <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>
       <Paper sx={{ p: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
           <Box
-            component="img"
-            src="/logo.jpg"
-            alt="MyLifeFolio"
             sx={{
-              height: 80,
-              width: 'auto',
-              borderRadius: 1,
+              width: 106,
+              height: 106,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'linear-gradient(135deg, #000000, #c9a227)',
+              padding: '3px',
             }}
-          />
+          >
+            <Box
+              sx={{
+                width: 100,
+                height: 100,
+                borderRadius: '50%',
+                background: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+              }}
+            >
+              <Box
+                component="img"
+                src="/mylifefolio.png"
+                alt="MyLifeFolio"
+                sx={{
+                  width: 80,
+                  height: 80,
+                  objectFit: 'contain',
+                }}
+              />
+            </Box>
+          </Box>
+          <Typography
+            sx={{
+              mt: 1,
+              fontSize: '12px',
+              fontStyle: 'italic',
+              color: 'text.secondary',
+              textAlign: 'center',
+            }}
+          >
+            A service of Senior Care Resources LLC — All Rights Reserved
+          </Typography>
         </Box>
         <Typography variant="h5" sx={{ mb: 3, textAlign: 'center', fontWeight: 600 }}>
-          Create Account on ZacBrownPortal
+          Create Account on MyLifeFolio
         </Typography>
 
         {error && (
@@ -216,23 +239,6 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
             {error}
           </Alert>
         )}
-
-        <Button
-          fullWidth
-          variant="outlined"
-          startIcon={<GoogleIcon />}
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-          sx={{ mb: 2 }}
-        >
-          Sign up with Google
-        </Button>
-
-        <Divider sx={{ my: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            or register with email
-          </Typography>
-        </Divider>
 
         <Box component="form" onSubmit={handleRegister}>
           <TextField
@@ -258,14 +264,43 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
 
           <TextField
             fullWidth
-            label="Address"
+            label="Street Address"
             value={formData.address}
             onChange={handleChange('address')}
             margin="normal"
             size="small"
-            multiline
-            rows={2}
           />
+
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <TextField
+              label="City"
+              value={formData.city}
+              onChange={handleChange('city')}
+              margin="normal"
+              size="small"
+              sx={{ flex: 2 }}
+            />
+            <FormControl margin="normal" size="small" sx={{ flex: 1.5 }}>
+              <InputLabel>State</InputLabel>
+              <Select
+                value={formData.state}
+                label="State"
+                onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))}
+              >
+                {US_STATES.map((s) => (
+                  <MenuItem key={s} value={s}>{s}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              label="Zip Code"
+              value={formData.zip}
+              onChange={handleChange('zip')}
+              margin="normal"
+              size="small"
+              sx={{ flex: 1 }}
+            />
+          </Box>
 
           <FormControl fullWidth margin="normal" size="small">
             <InputLabel>State of Domicile</InputLabel>
@@ -323,9 +358,16 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
             type={showConfirmPassword ? 'text' : 'password'}
             value={formData.confirmPassword}
             onChange={handleChange('confirmPassword')}
+            onBlur={() => {
+              if (formData.confirmPassword && formData.password !== formData.confirmPassword) {
+                setPasswordMismatch(true);
+              }
+            }}
             margin="normal"
             size="small"
             required
+            error={passwordMismatch}
+            helperText={passwordMismatch ? 'Passwords do not match' : ''}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -404,7 +446,7 @@ consultation.
             type="submit"
             fullWidth
             variant="contained"
-            disabled={loading || !formData.agreedToTerms || !formData.signatureName.trim()}
+            disabled={loading || !formData.agreedToTerms || !formData.signatureName.trim() || passwordMismatch || !formData.password || formData.password !== formData.confirmPassword}
             sx={{ mt: 3, mb: 2 }}
           >
             {loading ? <CircularProgress size={24} /> : 'Create Account'}
@@ -429,7 +471,7 @@ consultation.
             lineHeight: 1.4,
           }}
         >
-          © 2026 MyLifeFolio. All rights reserved. Access to this website is strictly limited to individuals for personal use in connection with Estate Planning and Elder Law matters. Any other use is expressly prohibited.  This application may utilize artificial intelligence to assist in the preparation of materials; all AI-generated content is subject to attorney review before it may be relied upon.
+          © 2026 Senior Care Resources LLC. All rights reserved. Access to this website is strictly limited to individuals for personal use in connection with Estate Planning and Elder Law matters. Any other use is expressly prohibited.  This application may utilize artificial intelligence to assist in the preparation of materials; all AI-generated content is subject to attorney review before it may be relied upon.
         </Typography>
       </Paper>
     </Box>

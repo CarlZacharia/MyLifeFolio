@@ -155,7 +155,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
           />
         </Box>
         <Typography variant="h5" sx={{ mb: 3, textAlign: 'center', fontWeight: 600 }}>
-          Sign In to ZacBrownPortal
+          Sign In to MyLifeFolio
         </Typography>
 
         {error && (
@@ -271,7 +271,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
             lineHeight: 1.4,
           }}
         >
-          © 2026 MyLifeFolio. All rights reserved. Access to this website is strictly limited to individuals for personal use in connection with Estate Planning and Elder Law matters. Any other use is expressly prohibited. This application may utilize artificial intelligence to assist in the preparation of materials; all AI-generated content is subject to attorney review before it may be relied upon.
+          © 2026 Senior Care Resources LLC. All rights reserved. Access to this website is strictly limited to individuals for personal use in connection with Estate Planning and Elder Law matters. Any other use is expressly prohibited. This application may utilize artificial intelligence to assist in the preparation of materials; all AI-generated content is subject to attorney review before it may be relied upon.
         </Typography>
       </Paper>
     </Box>
