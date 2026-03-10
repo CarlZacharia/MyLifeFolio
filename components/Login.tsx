@@ -66,6 +66,11 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
       }
 
       if (data.user) {
+        if (!data.user.email_confirmed_at) {
+          await supabase.auth.signOut();
+          setError('Please confirm your email address before signing in. Check your inbox for a confirmation link.');
+          return;
+        }
         onSuccess?.();
       }
     } catch (err) {

@@ -154,7 +154,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
 
       if (data.user) {
         setSuccess(true);
-        onSuccess?.();
+        // Don't call onSuccess — user must confirm their email first
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
@@ -168,8 +168,11 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
       <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>
         <Paper sx={{ p: 4 }}>
           <Alert severity="success" sx={{ mb: 2 }}>
-            Registration successful! 
+            Registration successful! Please check your email to confirm your account before signing in.
           </Alert>
+          <Typography variant="body2" sx={{ mb: 3, color: 'text.secondary', textAlign: 'center' }}>
+            We sent a confirmation link to <strong>{formData.email}</strong>. Click the link in the email to activate your account.
+          </Typography>
           <Button fullWidth variant="outlined" onClick={onSwitchToLogin}>
             Go to Login
           </Button>

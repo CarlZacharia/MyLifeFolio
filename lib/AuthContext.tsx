@@ -40,11 +40,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   useEffect(() => {
+    // Only treat a user as authenticated if their email is confirmed
+    const confirmedUser = (session: Session | null) => {
+      const u = session?.user ?? null;
+      if (u && !u.email_confirmed_at) return null;
+      return u;
+    };
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
+      const u = confirmedUser(session);
+      setUser(u);
+      if (u) {
         localStorage.setItem(HAS_REGISTERED_KEY, 'true');
         setHasRegistered(true);
       }
@@ -56,8 +64,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
+      const u = confirmedUser(session);
+      setUser(u);
+      if (u) {
         localStorage.setItem(HAS_REGISTERED_KEY, 'true');
         setHasRegistered(true);
       }
