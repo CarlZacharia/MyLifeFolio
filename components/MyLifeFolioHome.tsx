@@ -40,13 +40,7 @@ import { useAuth } from '../lib/AuthContext';
 import { useSubscription } from '../lib/SubscriptionContext';
 import { FeatureKey, getRequiredTier, TIER_INFO } from '../lib/subscriptionConfig';
 import FolioSearchBar from './FolioSearchBar';
-
-// Helper to check if user is an admin (email domain is mylifefolio.com)
-const isAdminUser = (email: string | undefined): boolean => {
-  if (!email) return false;
-  const domain = email.split('@')[1];
-  return domain === 'mylifefolio.com';
-};
+import { isAdminUser } from '../lib/adminUtils';
 
 // Custom theme matching LandingPage
 const theme = createTheme({
@@ -697,7 +691,7 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
         </Box>
 
         {/* Trial / Subscription Banner */}
-        {user && tier === 'trial' && (
+        {user && tier === 'trial' && (trialDaysRemaining !== null || isTrialExpired) && (
           <Container maxWidth="lg" sx={{ mt: -2 }}>
             <Box
               sx={{
@@ -723,7 +717,7 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
               >
                 {isTrialExpired
                   ? 'Your free trial has expired. Subscribe to continue using MyLifeFolio.'
-                  : `You have ${trialDaysRemaining} day${trialDaysRemaining !== 1 ? 's' : ''} left in your free trial.`}
+                  : `You have ${trialDaysRemaining ?? 0} day${trialDaysRemaining !== 1 ? 's' : ''} left in your free trial.`}
               </Typography>
               <Button
                 variant="contained"

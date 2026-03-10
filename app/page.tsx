@@ -410,12 +410,7 @@ type PageType = 'landing' | 'mylifefolio-home' | 'folio-questionnaire' | 'long-t
   | 'account-settings'
   | 'pricing';
 
-// Helper to check if user is an admin (email domain is mylifefolio.com)
-const isAdminUser = (email: string | undefined): boolean => {
-  if (!email) return false;
-  const domain = email.split('@')[1];
-  return domain === 'mylifefolio.com';
-};
+import { isAdminUser } from '../lib/adminUtils';
 
 interface QuestionnaireContentProps {
   onNavigateBack: () => void;

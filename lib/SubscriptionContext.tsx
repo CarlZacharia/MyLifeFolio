@@ -30,6 +30,8 @@ interface SubscriptionContextType {
   trialDaysRemaining: number | null;
   /** Whether the trial has expired */
   isTrialExpired: boolean;
+  /** Whether the account has been disabled by an admin */
+  isDisabled: boolean;
   /** Check if the user can access a specific feature */
   canAccess: (feature: FeatureKey) => boolean;
   /** Get the minimum tier required for a feature */
@@ -57,6 +59,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
   const [tier, setTier] = useState<SubscriptionTier>('trial');
   const [status, setStatus] = useState<string>('active');
   const [trialEndsAt, setTrialEndsAt] = useState<Date | null>(null);
+  const [isDisabled, setIsDisabled] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchSubscription = useCallback(async () => {
@@ -64,19 +67,31 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       setTier('trial');
       setStatus('active');
       setTrialEndsAt(null);
+      setIsDisabled(false);
       setLoading(false);
       return;
     }
 
     try {
-      const { data, error } = await supabase
-        .from('user_subscriptions')
-        .select('tier, status, trial_started_at, trial_ends_at, current_period_start, current_period_end')
-        .eq('user_id', user.id)
-        .single();
+      // Fetch subscription and disabled status in parallel
+      const [subResult, profileResult] = await Promise.all([
+        supabase
+          .from('user_subscriptions')
+          .select('tier, status, trial_started_at, trial_ends_at, current_period_start, current_period_end')
+          .eq('user_id', user.id)
+          .single(),
+        supabase
+          .from('profiles')
+          .select('is_disabled')
+          .eq('id', user.id)
+          .single(),
+      ]);
 
-      if (error || !data) {
-        // No subscription row yet — treat as trial (row may not exist for existing users)
+      // Check disabled status
+      setIsDisabled(profileResult.data?.is_disabled === true);
+
+      if (subResult.error || !subResult.data) {
+        // No subscription row yet — treat as trial
         setTier('trial');
         setStatus('active');
         setTrialEndsAt(null);
@@ -84,7 +99,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
         return;
       }
 
-      const row = data as SubscriptionRow;
+      const row = subResult.data as SubscriptionRow;
       setTier(row.tier as SubscriptionTier);
       setStatus(row.status);
       setTrialEndsAt(row.trial_ends_at ? new Date(row.trial_ends_at) : null);
@@ -113,6 +128,9 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
 
   const canAccess = useCallback(
     (feature: FeatureKey): boolean => {
+      // If account is disabled by admin, block everything
+      if (isDisabled) return false;
+
       // If subscription is not active (expired, cancelled, past_due), block everything
       if (status !== 'active') return false;
 
@@ -121,7 +139,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
 
       return TIER_ACCESS[tier].has(feature);
     },
-    [tier, status, isTrialExpired]
+    [tier, status, isTrialExpired, isDisabled]
   );
 
   const value: SubscriptionContextType = {
@@ -130,6 +148,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     loading,
     trialDaysRemaining,
     isTrialExpired,
+    isDisabled,
     canAccess,
     requiredTier: getRequiredTier,
     refresh: fetchSubscription,
