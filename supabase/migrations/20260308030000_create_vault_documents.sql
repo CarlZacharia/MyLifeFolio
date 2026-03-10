@@ -28,24 +28,28 @@ CREATE TABLE IF NOT EXISTS vault_documents (
 );
 
 -- Index for fast lookups by user + category
-CREATE INDEX idx_vault_documents_user_category
+CREATE INDEX IF NOT EXISTS idx_vault_documents_user_category
   ON vault_documents (user_id, category);
 
 ALTER TABLE vault_documents ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own vault documents" ON vault_documents;
 CREATE POLICY "Users can view own vault documents"
   ON vault_documents FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own vault documents" ON vault_documents;
 CREATE POLICY "Users can insert own vault documents"
   ON vault_documents FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own vault documents" ON vault_documents;
 CREATE POLICY "Users can update own vault documents"
   ON vault_documents FOR UPDATE
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own vault documents" ON vault_documents;
 CREATE POLICY "Users can delete own vault documents"
   ON vault_documents FOR DELETE
   USING (auth.uid() = user_id);

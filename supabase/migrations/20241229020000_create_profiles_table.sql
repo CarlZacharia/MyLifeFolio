@@ -37,18 +37,21 @@ CREATE INDEX IF NOT EXISTS idx_profiles_is_admin ON public.profiles(is_admin);
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Users can read their own profile
+DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
 CREATE POLICY "Users can read own profile"
   ON public.profiles
   FOR SELECT
   USING (auth.uid() = id);
 
 -- Policy: Users can update their own profile
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile"
   ON public.profiles
   FOR UPDATE
   USING (auth.uid() = id);
 
 -- Policy: Admin users can read all profiles
+DROP POLICY IF EXISTS "Admins can read all profiles" ON public.profiles;
 CREATE POLICY "Admins can read all profiles"
   ON public.profiles
   FOR SELECT

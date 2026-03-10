@@ -44,7 +44,11 @@ CREATE TABLE IF NOT EXISTS legacy_obituary_spouse (
 );
 
 ALTER TABLE legacy_obituary_spouse ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own spouse obituary" ON legacy_obituary_spouse;
 CREATE POLICY "Users can view own spouse obituary" ON legacy_obituary_spouse FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own spouse obituary" ON legacy_obituary_spouse;
 CREATE POLICY "Users can insert own spouse obituary" ON legacy_obituary_spouse FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own spouse obituary" ON legacy_obituary_spouse;
 CREATE POLICY "Users can update own spouse obituary" ON legacy_obituary_spouse FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own spouse obituary" ON legacy_obituary_spouse;
 CREATE POLICY "Users can delete own spouse obituary" ON legacy_obituary_spouse FOR DELETE USING (auth.uid() = user_id);

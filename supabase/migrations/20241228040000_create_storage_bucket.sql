@@ -28,6 +28,7 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- Policy: Users can upload files to their own folder
 -- Folder structure: {user_id}/{client_folder}/...
+DROP POLICY IF EXISTS "Users can upload own files" ON storage.objects;
 CREATE POLICY "Users can upload own files"
 ON storage.objects
 FOR INSERT
@@ -38,6 +39,7 @@ WITH CHECK (
 );
 
 -- Policy: Users can view their own files
+DROP POLICY IF EXISTS "Users can view own files" ON storage.objects;
 CREATE POLICY "Users can view own files"
 ON storage.objects
 FOR SELECT
@@ -48,6 +50,7 @@ USING (
 );
 
 -- Policy: Users can update their own files
+DROP POLICY IF EXISTS "Users can update own files" ON storage.objects;
 CREATE POLICY "Users can update own files"
 ON storage.objects
 FOR UPDATE
@@ -62,6 +65,7 @@ WITH CHECK (
 );
 
 -- Policy: Users can delete their own files
+DROP POLICY IF EXISTS "Users can delete own files" ON storage.objects;
 CREATE POLICY "Users can delete own files"
 ON storage.objects
 FOR DELETE
@@ -71,5 +75,5 @@ USING (
   AND (storage.foldername(name))[1] = auth.uid()::text
 );
 
--- Add comments
-COMMENT ON COLUMN storage.buckets.id IS 'estate-planning-intakes: Stores client documents and generated reports';
+-- Note: COMMENT ON storage.buckets requires supabase_storage_admin role
+-- and cannot be run from standard migrations. Skipped intentionally.

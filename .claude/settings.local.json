@@ -15,7 +15,8 @@
       "Read(//c/Users/czach/apps/react/mylifefolio/**)",
       "Bash(ls -la /c/Users/czach/apps/react/mylifefolio/components/Login* /c/Users/czach/apps/react/mylifefolio/components/Register*)",
       "Bash(npx vite build)",
-      "Bash(ls /c/Users/czach/apps/react/mylifefolio/components/*.tsx)"
+      "Bash(ls /c/Users/czach/apps/react/mylifefolio/components/*.tsx)",
+      "Bash(grep -E \"\\\\.ts$|\\\\.tsx$\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\czach\\apps\\react\\mylifefolio\\components"

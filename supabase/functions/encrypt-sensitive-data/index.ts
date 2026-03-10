@@ -16,6 +16,11 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+// @ts-ignore - Deno global available in Edge Functions runtime
+declare const Deno: { env: { get(key: string): string | undefined } };
+
+const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'http://localhost:5173';
+
 // List of fields that should be encrypted
 const SENSITIVE_FIELDS = [
   'socialSecurityNumber',
@@ -160,7 +165,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
         'Access-Control-Allow-Methods': 'POST',
         'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
       },
@@ -173,7 +178,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, status: 401 }
+        { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': ALLOWED_ORIGIN }, status: 401 }
       );
     }
 
@@ -187,7 +192,7 @@ serve(async (req) => {
     if (authError || !user) {
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, status: 401 }
+        { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': ALLOWED_ORIGIN }, status: 401 }
       );
     }
 
@@ -228,7 +233,7 @@ serve(async (req) => {
       {
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
         },
       }
     );

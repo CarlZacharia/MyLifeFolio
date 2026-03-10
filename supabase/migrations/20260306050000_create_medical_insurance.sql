@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS folio_medical_insurance (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_folio_medical_insurance_intake_id ON folio_medical_insurance(intake_id);
-CREATE INDEX idx_folio_medical_insurance_user_id ON folio_medical_insurance(user_id);
+CREATE INDEX IF NOT EXISTS idx_folio_medical_insurance_intake_id ON folio_medical_insurance(intake_id);
+CREATE INDEX IF NOT EXISTS idx_folio_medical_insurance_user_id ON folio_medical_insurance(user_id);
 
 ALTER TABLE folio_medical_insurance ENABLE ROW LEVEL SECURITY;
 

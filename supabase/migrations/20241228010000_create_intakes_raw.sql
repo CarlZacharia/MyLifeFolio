@@ -2,16 +2,19 @@
 -- This table stores the full form data as JSONB for flexibility and backup purposes
 
 -- Create intake_type enum for different practice areas
-CREATE TYPE intake_type AS ENUM (
-  'EstatePlanning',
-  'Probate',
-  'Trust',
-  'ElderLaw',
-  'Medicaid',
-  'RealEstate',
-  'BusinessFormation',
-  'Other'
-);
+DO $$ BEGIN
+  CREATE TYPE intake_type AS ENUM (
+    'EstatePlanning',
+    'Probate',
+    'Trust',
+    'ElderLaw',
+    'Medicaid',
+    'RealEstate',
+    'BusinessFormation',
+    'Other'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Create the intakes_raw table
 CREATE TABLE IF NOT EXISTS intakes_raw (
@@ -26,13 +29,13 @@ CREATE TABLE IF NOT EXISTS intakes_raw (
 );
 
 -- Create indexes for common queries
-CREATE INDEX idx_intakes_raw_user_id ON intakes_raw(user_id);
-CREATE INDEX idx_intakes_raw_intake_type ON intakes_raw(intake_type);
-CREATE INDEX idx_intakes_raw_created_at ON intakes_raw(created_at DESC);
-CREATE INDEX idx_intakes_raw_client_name ON intakes_raw(client_name);
+CREATE INDEX IF NOT EXISTS idx_intakes_raw_user_id ON intakes_raw(user_id);
+CREATE INDEX IF NOT EXISTS idx_intakes_raw_intake_type ON intakes_raw(intake_type);
+CREATE INDEX IF NOT EXISTS idx_intakes_raw_created_at ON intakes_raw(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_intakes_raw_client_name ON intakes_raw(client_name);
 
 -- Create GIN index for JSONB queries
-CREATE INDEX idx_intakes_raw_form_data ON intakes_raw USING GIN (form_data);
+CREATE INDEX IF NOT EXISTS idx_intakes_raw_form_data ON intakes_raw USING GIN (form_data);
 
 -- Create function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -44,6 +47,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create trigger for updated_at
+DROP TRIGGER IF EXISTS update_intakes_raw_updated_at ON intakes_raw;
 CREATE TRIGGER update_intakes_raw_updated_at
   BEFORE UPDATE ON intakes_raw
   FOR EACH ROW
@@ -54,18 +58,21 @@ ALTER TABLE intakes_raw ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies
 -- Users can only see their own intakes
+DROP POLICY IF EXISTS "Users can view own intakes_raw" ON intakes_raw;
 CREATE POLICY "Users can view own intakes_raw"
   ON intakes_raw
   FOR SELECT
   USING (auth.uid() = user_id);
 
 -- Users can insert their own intakes
+DROP POLICY IF EXISTS "Users can insert own intakes_raw" ON intakes_raw;
 CREATE POLICY "Users can insert own intakes_raw"
   ON intakes_raw
   FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
 -- Users can update their own intakes
+DROP POLICY IF EXISTS "Users can update own intakes_raw" ON intakes_raw;
 CREATE POLICY "Users can update own intakes_raw"
   ON intakes_raw
   FOR UPDATE
@@ -73,6 +80,7 @@ CREATE POLICY "Users can update own intakes_raw"
   WITH CHECK (auth.uid() = user_id);
 
 -- Users can delete their own intakes
+DROP POLICY IF EXISTS "Users can delete own intakes_raw" ON intakes_raw;
 CREATE POLICY "Users can delete own intakes_raw"
   ON intakes_raw
   FOR DELETE

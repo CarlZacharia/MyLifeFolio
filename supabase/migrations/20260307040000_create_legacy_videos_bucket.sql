@@ -9,6 +9,7 @@ VALUES ('legacy-videos', 'legacy-videos', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Allow authenticated users to upload to their own folder
+DROP POLICY IF EXISTS "Users can upload own videos" ON storage.objects;
 CREATE POLICY "Users can upload own videos"
   ON storage.objects FOR INSERT
   TO authenticated
@@ -18,6 +19,7 @@ CREATE POLICY "Users can upload own videos"
   );
 
 -- Allow authenticated users to read their own videos
+DROP POLICY IF EXISTS "Users can read own videos" ON storage.objects;
 CREATE POLICY "Users can read own videos"
   ON storage.objects FOR SELECT
   TO authenticated
@@ -27,6 +29,7 @@ CREATE POLICY "Users can read own videos"
   );
 
 -- Allow authenticated users to delete their own videos
+DROP POLICY IF EXISTS "Users can delete own videos" ON storage.objects;
 CREATE POLICY "Users can delete own videos"
   ON storage.objects FOR DELETE
   TO authenticated

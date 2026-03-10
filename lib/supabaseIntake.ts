@@ -84,8 +84,8 @@ export async function saveIntakeRaw(
         jsonFormData = await encryptSensitiveData(jsonFormData);
       }
     } catch (encryptError: any) {
-      // Continue with unencrypted data if encryption fails
-      console.warn('Encryption failed, saving unencrypted:', encryptError);
+      console.error('Encryption failed — aborting save to prevent plaintext storage:', encryptError);
+      return { success: false, error: 'Unable to encrypt sensitive data. Please try again.' };
     }
 
     if (existingId) {

@@ -93,23 +93,28 @@ CREATE TABLE IF NOT EXISTS folio_long_term_care (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_ltc_intake_id ON folio_long_term_care(intake_id);
-CREATE INDEX idx_ep_ltc_user_id ON folio_long_term_care(user_id);
-CREATE INDEX idx_ep_ltc_person_type ON folio_long_term_care(person_type);
-CREATE UNIQUE INDEX idx_ep_ltc_intake_person ON folio_long_term_care(intake_id, person_type);
+CREATE INDEX IF NOT EXISTS idx_ep_ltc_intake_id ON folio_long_term_care(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_ltc_user_id ON folio_long_term_care(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_ltc_person_type ON folio_long_term_care(person_type);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ep_ltc_intake_person ON folio_long_term_care(intake_id, person_type);
 
+DROP TRIGGER IF EXISTS update_folio_ltc_updated_at ON folio_long_term_care;
 CREATE TRIGGER update_folio_ltc_updated_at
   BEFORE UPDATE ON folio_long_term_care
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
 ALTER TABLE folio_long_term_care ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_long_term_care" ON folio_long_term_care;
 CREATE POLICY "Users can view own folio_long_term_care"
   ON folio_long_term_care FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_long_term_care" ON folio_long_term_care;
 CREATE POLICY "Users can insert own folio_long_term_care"
   ON folio_long_term_care FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_long_term_care" ON folio_long_term_care;
 CREATE POLICY "Users can update own folio_long_term_care"
   ON folio_long_term_care FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_long_term_care" ON folio_long_term_care;
 CREATE POLICY "Users can delete own folio_long_term_care"
   ON folio_long_term_care FOR DELETE USING (auth.uid() = user_id);
 
@@ -201,23 +206,28 @@ CREATE TABLE IF NOT EXISTS folio_current_estate_plan (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_cep_intake_id ON folio_current_estate_plan(intake_id);
-CREATE INDEX idx_ep_cep_user_id ON folio_current_estate_plan(user_id);
-CREATE INDEX idx_ep_cep_person_type ON folio_current_estate_plan(person_type);
-CREATE UNIQUE INDEX idx_ep_cep_intake_person ON folio_current_estate_plan(intake_id, person_type);
+CREATE INDEX IF NOT EXISTS idx_ep_cep_intake_id ON folio_current_estate_plan(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_cep_user_id ON folio_current_estate_plan(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_cep_person_type ON folio_current_estate_plan(person_type);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ep_cep_intake_person ON folio_current_estate_plan(intake_id, person_type);
 
+DROP TRIGGER IF EXISTS update_folio_cep_updated_at ON folio_current_estate_plan;
 CREATE TRIGGER update_folio_cep_updated_at
   BEFORE UPDATE ON folio_current_estate_plan
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
 ALTER TABLE folio_current_estate_plan ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_current_estate_plan" ON folio_current_estate_plan;
 CREATE POLICY "Users can view own folio_current_estate_plan"
   ON folio_current_estate_plan FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_current_estate_plan" ON folio_current_estate_plan;
 CREATE POLICY "Users can insert own folio_current_estate_plan"
   ON folio_current_estate_plan FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_current_estate_plan" ON folio_current_estate_plan;
 CREATE POLICY "Users can update own folio_current_estate_plan"
   ON folio_current_estate_plan FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_current_estate_plan" ON folio_current_estate_plan;
 CREATE POLICY "Users can delete own folio_current_estate_plan"
   ON folio_current_estate_plan FOR DELETE USING (auth.uid() = user_id);
 
@@ -243,23 +253,28 @@ CREATE TABLE IF NOT EXISTS folio_distribution_plans (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_dist_plans_intake_id ON folio_distribution_plans(intake_id);
-CREATE INDEX idx_ep_dist_plans_user_id ON folio_distribution_plans(user_id);
-CREATE INDEX idx_ep_dist_plans_person_type ON folio_distribution_plans(person_type);
-CREATE UNIQUE INDEX idx_ep_dist_plans_intake_person ON folio_distribution_plans(intake_id, person_type);
+CREATE INDEX IF NOT EXISTS idx_ep_dist_plans_intake_id ON folio_distribution_plans(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_dist_plans_user_id ON folio_distribution_plans(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_dist_plans_person_type ON folio_distribution_plans(person_type);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ep_dist_plans_intake_person ON folio_distribution_plans(intake_id, person_type);
 
+DROP TRIGGER IF EXISTS update_folio_dist_plans_updated_at ON folio_distribution_plans;
 CREATE TRIGGER update_folio_dist_plans_updated_at
   BEFORE UPDATE ON folio_distribution_plans
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
 ALTER TABLE folio_distribution_plans ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_distribution_plans" ON folio_distribution_plans;
 CREATE POLICY "Users can view own folio_distribution_plans"
   ON folio_distribution_plans FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_distribution_plans" ON folio_distribution_plans;
 CREATE POLICY "Users can insert own folio_distribution_plans"
   ON folio_distribution_plans FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_distribution_plans" ON folio_distribution_plans;
 CREATE POLICY "Users can update own folio_distribution_plans"
   ON folio_distribution_plans FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_distribution_plans" ON folio_distribution_plans;
 CREATE POLICY "Users can delete own folio_distribution_plans"
   ON folio_distribution_plans FOR DELETE USING (auth.uid() = user_id);
 

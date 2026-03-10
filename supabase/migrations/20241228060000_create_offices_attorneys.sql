@@ -18,9 +18,10 @@ CREATE TABLE IF NOT EXISTS offices (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_offices_name ON offices(name);
-CREATE INDEX idx_offices_is_active ON offices(is_active);
+CREATE INDEX IF NOT EXISTS idx_offices_name ON offices(name);
+CREATE INDEX IF NOT EXISTS idx_offices_is_active ON offices(is_active);
 
+DROP TRIGGER IF EXISTS update_offices_updated_at ON offices;
 CREATE TRIGGER update_offices_updated_at
   BEFORE UPDATE ON offices
   FOR EACH ROW
@@ -40,11 +41,12 @@ CREATE TABLE IF NOT EXISTS attorneys (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_attorneys_name ON attorneys(name);
-CREATE INDEX idx_attorneys_email ON attorneys(email);
-CREATE INDEX idx_attorneys_primary_office ON attorneys(primary_office_id);
-CREATE INDEX idx_attorneys_is_active ON attorneys(is_active);
+CREATE INDEX IF NOT EXISTS idx_attorneys_name ON attorneys(name);
+CREATE INDEX IF NOT EXISTS idx_attorneys_email ON attorneys(email);
+CREATE INDEX IF NOT EXISTS idx_attorneys_primary_office ON attorneys(primary_office_id);
+CREATE INDEX IF NOT EXISTS idx_attorneys_is_active ON attorneys(is_active);
 
+DROP TRIGGER IF EXISTS update_attorneys_updated_at ON attorneys;
 CREATE TRIGGER update_attorneys_updated_at
   BEFORE UPDATE ON attorneys
   FOR EACH ROW
@@ -66,6 +68,7 @@ CREATE INDEX IF NOT EXISTS idx_intakes_raw_attorney ON intakes_raw(attorney_id);
 ALTER TABLE offices ENABLE ROW LEVEL SECURITY;
 
 -- All authenticated users can view active offices
+DROP POLICY IF EXISTS "Authenticated users can view active offices" ON offices;
 CREATE POLICY "Authenticated users can view active offices"
   ON offices FOR SELECT
   TO authenticated
@@ -77,6 +80,7 @@ CREATE POLICY "Authenticated users can view active offices"
 ALTER TABLE attorneys ENABLE ROW LEVEL SECURITY;
 
 -- All authenticated users can view active attorneys
+DROP POLICY IF EXISTS "Authenticated users can view active attorneys" ON attorneys;
 CREATE POLICY "Authenticated users can view active attorneys"
   ON attorneys FOR SELECT
   TO authenticated

@@ -27,17 +27,21 @@ CREATE TABLE IF NOT EXISTS folio_client_medical_insurance (
   CONSTRAINT unique_client_medical_insurance_per_intake UNIQUE (intake_id)
 );
 
-CREATE INDEX idx_ep_client_medical_insurance_intake_id ON folio_client_medical_insurance(intake_id);
-CREATE INDEX idx_ep_client_medical_insurance_user_id ON folio_client_medical_insurance(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_client_medical_insurance_intake_id ON folio_client_medical_insurance(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_client_medical_insurance_user_id ON folio_client_medical_insurance(user_id);
 
 ALTER TABLE folio_client_medical_insurance ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own folio_client_medical_insurance" ON folio_client_medical_insurance;
 CREATE POLICY "Users can view own folio_client_medical_insurance"
   ON folio_client_medical_insurance FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_client_medical_insurance" ON folio_client_medical_insurance;
 CREATE POLICY "Users can insert own folio_client_medical_insurance"
   ON folio_client_medical_insurance FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_client_medical_insurance" ON folio_client_medical_insurance;
 CREATE POLICY "Users can update own folio_client_medical_insurance"
   ON folio_client_medical_insurance FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_client_medical_insurance" ON folio_client_medical_insurance;
 CREATE POLICY "Users can delete own folio_client_medical_insurance"
   ON folio_client_medical_insurance FOR DELETE USING (auth.uid() = user_id);
 
@@ -76,17 +80,21 @@ CREATE TABLE IF NOT EXISTS folio_spouse_medical_insurance (
   CONSTRAINT unique_spouse_medical_insurance_per_intake UNIQUE (intake_id)
 );
 
-CREATE INDEX idx_ep_spouse_medical_insurance_intake_id ON folio_spouse_medical_insurance(intake_id);
-CREATE INDEX idx_ep_spouse_medical_insurance_user_id ON folio_spouse_medical_insurance(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_spouse_medical_insurance_intake_id ON folio_spouse_medical_insurance(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_spouse_medical_insurance_user_id ON folio_spouse_medical_insurance(user_id);
 
 ALTER TABLE folio_spouse_medical_insurance ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own folio_spouse_medical_insurance" ON folio_spouse_medical_insurance;
 CREATE POLICY "Users can view own folio_spouse_medical_insurance"
   ON folio_spouse_medical_insurance FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_spouse_medical_insurance" ON folio_spouse_medical_insurance;
 CREATE POLICY "Users can insert own folio_spouse_medical_insurance"
   ON folio_spouse_medical_insurance FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_spouse_medical_insurance" ON folio_spouse_medical_insurance;
 CREATE POLICY "Users can update own folio_spouse_medical_insurance"
   ON folio_spouse_medical_insurance FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_spouse_medical_insurance" ON folio_spouse_medical_insurance;
 CREATE POLICY "Users can delete own folio_spouse_medical_insurance"
   ON folio_spouse_medical_insurance FOR DELETE USING (auth.uid() = user_id);
 

@@ -18,17 +18,21 @@ CREATE TABLE IF NOT EXISTS folio_client_income (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_client_income_intake_id ON folio_client_income(intake_id);
-CREATE INDEX idx_ep_client_income_user_id ON folio_client_income(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_client_income_intake_id ON folio_client_income(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_client_income_user_id ON folio_client_income(user_id);
 
 ALTER TABLE folio_client_income ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own folio_client_income" ON folio_client_income;
 CREATE POLICY "Users can view own folio_client_income"
   ON folio_client_income FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_client_income" ON folio_client_income;
 CREATE POLICY "Users can insert own folio_client_income"
   ON folio_client_income FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_client_income" ON folio_client_income;
 CREATE POLICY "Users can update own folio_client_income"
   ON folio_client_income FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_client_income" ON folio_client_income;
 CREATE POLICY "Users can delete own folio_client_income"
   ON folio_client_income FOR DELETE USING (auth.uid() = user_id);
 
@@ -53,17 +57,21 @@ CREATE TABLE IF NOT EXISTS folio_spouse_income (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_spouse_income_intake_id ON folio_spouse_income(intake_id);
-CREATE INDEX idx_ep_spouse_income_user_id ON folio_spouse_income(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_spouse_income_intake_id ON folio_spouse_income(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_spouse_income_user_id ON folio_spouse_income(user_id);
 
 ALTER TABLE folio_spouse_income ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own folio_spouse_income" ON folio_spouse_income;
 CREATE POLICY "Users can view own folio_spouse_income"
   ON folio_spouse_income FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_spouse_income" ON folio_spouse_income;
 CREATE POLICY "Users can insert own folio_spouse_income"
   ON folio_spouse_income FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_spouse_income" ON folio_spouse_income;
 CREATE POLICY "Users can update own folio_spouse_income"
   ON folio_spouse_income FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_spouse_income" ON folio_spouse_income;
 CREATE POLICY "Users can delete own folio_spouse_income"
   ON folio_spouse_income FOR DELETE USING (auth.uid() = user_id);
 

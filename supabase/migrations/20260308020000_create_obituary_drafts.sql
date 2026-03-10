@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS legacy_obituary_drafts (
 );
 
 ALTER TABLE legacy_obituary_drafts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own drafts" ON legacy_obituary_drafts;
 CREATE POLICY "Users can view own drafts" ON legacy_obituary_drafts FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own drafts" ON legacy_obituary_drafts;
 CREATE POLICY "Users can insert own drafts" ON legacy_obituary_drafts FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own drafts" ON legacy_obituary_drafts;
 CREATE POLICY "Users can delete own drafts" ON legacy_obituary_drafts FOR DELETE USING (auth.uid() = user_id);

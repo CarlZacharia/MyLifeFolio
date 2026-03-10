@@ -21,12 +21,16 @@ CREATE TABLE IF NOT EXISTS folio_medical_conditions (
 
 ALTER TABLE folio_medical_conditions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own medical conditions" ON folio_medical_conditions;
 CREATE POLICY "Users can view own medical conditions"
   ON folio_medical_conditions FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own medical conditions" ON folio_medical_conditions;
 CREATE POLICY "Users can insert own medical conditions"
   ON folio_medical_conditions FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own medical conditions" ON folio_medical_conditions;
 CREATE POLICY "Users can update own medical conditions"
   ON folio_medical_conditions FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own medical conditions" ON folio_medical_conditions;
 CREATE POLICY "Users can delete own medical conditions"
   ON folio_medical_conditions FOR DELETE USING (auth.uid() = user_id);
 
@@ -48,12 +52,16 @@ CREATE TABLE IF NOT EXISTS folio_allergies (
 
 ALTER TABLE folio_allergies ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own allergies" ON folio_allergies;
 CREATE POLICY "Users can view own allergies"
   ON folio_allergies FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own allergies" ON folio_allergies;
 CREATE POLICY "Users can insert own allergies"
   ON folio_allergies FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own allergies" ON folio_allergies;
 CREATE POLICY "Users can update own allergies"
   ON folio_allergies FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own allergies" ON folio_allergies;
 CREATE POLICY "Users can delete own allergies"
   ON folio_allergies FOR DELETE USING (auth.uid() = user_id);
 
@@ -77,12 +85,16 @@ CREATE TABLE IF NOT EXISTS folio_surgeries (
 
 ALTER TABLE folio_surgeries ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own surgeries" ON folio_surgeries;
 CREATE POLICY "Users can view own surgeries"
   ON folio_surgeries FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own surgeries" ON folio_surgeries;
 CREATE POLICY "Users can insert own surgeries"
   ON folio_surgeries FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own surgeries" ON folio_surgeries;
 CREATE POLICY "Users can update own surgeries"
   ON folio_surgeries FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own surgeries" ON folio_surgeries;
 CREATE POLICY "Users can delete own surgeries"
   ON folio_surgeries FOR DELETE USING (auth.uid() = user_id);
 
@@ -104,11 +116,15 @@ CREATE TABLE IF NOT EXISTS folio_basic_vitals (
 
 ALTER TABLE folio_basic_vitals ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own basic vitals" ON folio_basic_vitals;
 CREATE POLICY "Users can view own basic vitals"
   ON folio_basic_vitals FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own basic vitals" ON folio_basic_vitals;
 CREATE POLICY "Users can insert own basic vitals"
   ON folio_basic_vitals FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own basic vitals" ON folio_basic_vitals;
 CREATE POLICY "Users can update own basic vitals"
   ON folio_basic_vitals FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own basic vitals" ON folio_basic_vitals;
 CREATE POLICY "Users can delete own basic vitals"
   ON folio_basic_vitals FOR DELETE USING (auth.uid() = user_id);

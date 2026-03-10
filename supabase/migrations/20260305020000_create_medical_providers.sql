@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS folio_medical_providers (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_folio_medical_providers_intake_id ON folio_medical_providers(intake_id);
-CREATE INDEX idx_folio_medical_providers_user_id ON folio_medical_providers(user_id);
+CREATE INDEX IF NOT EXISTS idx_folio_medical_providers_intake_id ON folio_medical_providers(intake_id);
+CREATE INDEX IF NOT EXISTS idx_folio_medical_providers_user_id ON folio_medical_providers(user_id);
 
 ALTER TABLE folio_medical_providers ENABLE ROW LEVEL SECURITY;
 

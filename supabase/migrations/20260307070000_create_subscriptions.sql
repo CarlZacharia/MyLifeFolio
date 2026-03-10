@@ -23,11 +23,15 @@ CREATE TABLE IF NOT EXISTS folio_subscriptions (
 
 ALTER TABLE folio_subscriptions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own subscriptions" ON folio_subscriptions;
 CREATE POLICY "Users can view own subscriptions"
   ON folio_subscriptions FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own subscriptions" ON folio_subscriptions;
 CREATE POLICY "Users can insert own subscriptions"
   ON folio_subscriptions FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own subscriptions" ON folio_subscriptions;
 CREATE POLICY "Users can update own subscriptions"
   ON folio_subscriptions FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own subscriptions" ON folio_subscriptions;
 CREATE POLICY "Users can delete own subscriptions"
   ON folio_subscriptions FOR DELETE USING (auth.uid() = user_id);

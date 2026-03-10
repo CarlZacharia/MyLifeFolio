@@ -17,6 +17,7 @@ COMMENT ON COLUMN ira_rmds.distribution_period IS 'Distribution period in years 
 ALTER TABLE ira_rmds ENABLE ROW LEVEL SECURITY;
 
 -- Create policy to allow anyone to read (public data)
+DROP POLICY IF EXISTS "Allow public read access to ira_rmds" ON ira_rmds;
 CREATE POLICY "Allow public read access to ira_rmds"
   ON ira_rmds
   FOR SELECT

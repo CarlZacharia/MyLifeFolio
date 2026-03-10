@@ -9,8 +9,10 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // @ts-ignore - Deno global available in Edge Functions runtime
 declare const Deno: { env: { get(key: string): string | undefined } };
 
+const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'http://localhost:5173';
+
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
@@ -184,12 +186,36 @@ serve(async (req: Request) => {
       throw new Error('Obituary data with at least a name is required');
     }
 
-    // ── Rate limit check ──────────────────────────────────────────────
+    // ── Ownership verification ────────────────────────────────────────
     // Use service role client to bypass RLS for rate-limit bookkeeping
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
+    // Verify the caller owns this intake before processing
+    if (intake_id) {
+      const { data: intake, error: intakeError } = await adminClient
+        .from('folio_intakes')
+        .select('user_id')
+        .eq('id', intake_id)
+        .maybeSingle();
+
+      if (intakeError || !intake) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Intake not found.' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+        );
+      }
+
+      if (intake.user_id !== user.id) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'You do not have access to this intake.' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+        );
+      }
+    }
+
+    // ── Rate limit check ──────────────────────────────────────────────
     const tableName = person_type === 'spouse' ? 'legacy_obituary_spouse' : 'legacy_obituary';
     let currentCount = 0;
 

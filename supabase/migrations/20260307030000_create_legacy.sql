@@ -47,9 +47,13 @@ CREATE TABLE IF NOT EXISTS legacy_obituary (
 );
 
 ALTER TABLE legacy_obituary ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own obituary" ON legacy_obituary;
 CREATE POLICY "Users can view own obituary" ON legacy_obituary FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own obituary" ON legacy_obituary;
 CREATE POLICY "Users can insert own obituary" ON legacy_obituary FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own obituary" ON legacy_obituary;
 CREATE POLICY "Users can update own obituary" ON legacy_obituary FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own obituary" ON legacy_obituary;
 CREATE POLICY "Users can delete own obituary" ON legacy_obituary FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
@@ -98,9 +102,13 @@ CREATE TABLE IF NOT EXISTS legacy_obituary_spouse (
 );
 
 ALTER TABLE legacy_obituary_spouse ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own spouse obituary" ON legacy_obituary_spouse;
 CREATE POLICY "Users can view own spouse obituary" ON legacy_obituary_spouse FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own spouse obituary" ON legacy_obituary_spouse;
 CREATE POLICY "Users can insert own spouse obituary" ON legacy_obituary_spouse FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own spouse obituary" ON legacy_obituary_spouse;
 CREATE POLICY "Users can update own spouse obituary" ON legacy_obituary_spouse FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own spouse obituary" ON legacy_obituary_spouse;
 CREATE POLICY "Users can delete own spouse obituary" ON legacy_obituary_spouse FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
@@ -120,9 +128,13 @@ CREATE TABLE IF NOT EXISTS legacy_charity_organizations (
 );
 
 ALTER TABLE legacy_charity_organizations ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own charity orgs" ON legacy_charity_organizations;
 CREATE POLICY "Users can view own charity orgs" ON legacy_charity_organizations FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own charity orgs" ON legacy_charity_organizations;
 CREATE POLICY "Users can insert own charity orgs" ON legacy_charity_organizations FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own charity orgs" ON legacy_charity_organizations;
 CREATE POLICY "Users can update own charity orgs" ON legacy_charity_organizations FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own charity orgs" ON legacy_charity_organizations;
 CREATE POLICY "Users can delete own charity orgs" ON legacy_charity_organizations FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
@@ -143,9 +155,13 @@ CREATE TABLE IF NOT EXISTS legacy_charity_preferences (
 );
 
 ALTER TABLE legacy_charity_preferences ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own charity prefs" ON legacy_charity_preferences;
 CREATE POLICY "Users can view own charity prefs" ON legacy_charity_preferences FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own charity prefs" ON legacy_charity_preferences;
 CREATE POLICY "Users can insert own charity prefs" ON legacy_charity_preferences FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own charity prefs" ON legacy_charity_preferences;
 CREATE POLICY "Users can update own charity prefs" ON legacy_charity_preferences FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own charity prefs" ON legacy_charity_preferences;
 CREATE POLICY "Users can delete own charity prefs" ON legacy_charity_preferences FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
@@ -167,9 +183,13 @@ CREATE TABLE IF NOT EXISTS legacy_letters (
 );
 
 ALTER TABLE legacy_letters ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own letters" ON legacy_letters;
 CREATE POLICY "Users can view own letters" ON legacy_letters FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own letters" ON legacy_letters;
 CREATE POLICY "Users can insert own letters" ON legacy_letters FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own letters" ON legacy_letters;
 CREATE POLICY "Users can update own letters" ON legacy_letters FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own letters" ON legacy_letters;
 CREATE POLICY "Users can delete own letters" ON legacy_letters FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
@@ -199,9 +219,13 @@ CREATE TABLE IF NOT EXISTS legacy_personal_history (
 );
 
 ALTER TABLE legacy_personal_history ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own personal history" ON legacy_personal_history;
 CREATE POLICY "Users can view own personal history" ON legacy_personal_history FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own personal history" ON legacy_personal_history;
 CREATE POLICY "Users can insert own personal history" ON legacy_personal_history FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own personal history" ON legacy_personal_history;
 CREATE POLICY "Users can update own personal history" ON legacy_personal_history FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own personal history" ON legacy_personal_history;
 CREATE POLICY "Users can delete own personal history" ON legacy_personal_history FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
@@ -223,9 +247,13 @@ CREATE TABLE IF NOT EXISTS legacy_stories (
 );
 
 ALTER TABLE legacy_stories ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own stories" ON legacy_stories;
 CREATE POLICY "Users can view own stories" ON legacy_stories FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own stories" ON legacy_stories;
 CREATE POLICY "Users can insert own stories" ON legacy_stories FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own stories" ON legacy_stories;
 CREATE POLICY "Users can update own stories" ON legacy_stories FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own stories" ON legacy_stories;
 CREATE POLICY "Users can delete own stories" ON legacy_stories FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
@@ -248,9 +276,13 @@ CREATE TABLE IF NOT EXISTS legacy_reflections (
 );
 
 ALTER TABLE legacy_reflections ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own reflections" ON legacy_reflections;
 CREATE POLICY "Users can view own reflections" ON legacy_reflections FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own reflections" ON legacy_reflections;
 CREATE POLICY "Users can insert own reflections" ON legacy_reflections FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own reflections" ON legacy_reflections;
 CREATE POLICY "Users can update own reflections" ON legacy_reflections FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own reflections" ON legacy_reflections;
 CREATE POLICY "Users can delete own reflections" ON legacy_reflections FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
@@ -271,9 +303,13 @@ CREATE TABLE IF NOT EXISTS legacy_surprises (
 );
 
 ALTER TABLE legacy_surprises ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own surprises" ON legacy_surprises;
 CREATE POLICY "Users can view own surprises" ON legacy_surprises FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own surprises" ON legacy_surprises;
 CREATE POLICY "Users can insert own surprises" ON legacy_surprises FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own surprises" ON legacy_surprises;
 CREATE POLICY "Users can update own surprises" ON legacy_surprises FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own surprises" ON legacy_surprises;
 CREATE POLICY "Users can delete own surprises" ON legacy_surprises FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
@@ -297,9 +333,13 @@ CREATE TABLE IF NOT EXISTS legacy_favorites (
 );
 
 ALTER TABLE legacy_favorites ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own favorites" ON legacy_favorites;
 CREATE POLICY "Users can view own favorites" ON legacy_favorites FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own favorites" ON legacy_favorites;
 CREATE POLICY "Users can insert own favorites" ON legacy_favorites FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own favorites" ON legacy_favorites;
 CREATE POLICY "Users can update own favorites" ON legacy_favorites FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own favorites" ON legacy_favorites;
 CREATE POLICY "Users can delete own favorites" ON legacy_favorites FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
@@ -321,9 +361,13 @@ CREATE TABLE IF NOT EXISTS legacy_videos (
 );
 
 ALTER TABLE legacy_videos ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own videos" ON legacy_videos;
 CREATE POLICY "Users can view own videos" ON legacy_videos FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own videos" ON legacy_videos;
 CREATE POLICY "Users can insert own videos" ON legacy_videos FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own videos" ON legacy_videos;
 CREATE POLICY "Users can update own videos" ON legacy_videos FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own videos" ON legacy_videos;
 CREATE POLICY "Users can delete own videos" ON legacy_videos FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
@@ -346,7 +390,11 @@ CREATE TABLE IF NOT EXISTS legacy_memories (
 );
 
 ALTER TABLE legacy_memories ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own memories" ON legacy_memories;
 CREATE POLICY "Users can view own memories" ON legacy_memories FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own memories" ON legacy_memories;
 CREATE POLICY "Users can insert own memories" ON legacy_memories FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own memories" ON legacy_memories;
 CREATE POLICY "Users can update own memories" ON legacy_memories FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own memories" ON legacy_memories;
 CREATE POLICY "Users can delete own memories" ON legacy_memories FOR DELETE USING (auth.uid() = user_id);

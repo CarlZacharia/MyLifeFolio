@@ -35,12 +35,16 @@ CREATE TABLE IF NOT EXISTS folio_pharmacies (
 
 ALTER TABLE folio_pharmacies ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own pharmacies" ON folio_pharmacies;
 CREATE POLICY "Users can view own pharmacies"
   ON folio_pharmacies FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own pharmacies" ON folio_pharmacies;
 CREATE POLICY "Users can insert own pharmacies"
   ON folio_pharmacies FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own pharmacies" ON folio_pharmacies;
 CREATE POLICY "Users can update own pharmacies"
   ON folio_pharmacies FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own pharmacies" ON folio_pharmacies;
 CREATE POLICY "Users can delete own pharmacies"
   ON folio_pharmacies FOR DELETE USING (auth.uid() = user_id);
 
@@ -76,12 +80,16 @@ CREATE TABLE IF NOT EXISTS folio_medications (
 
 ALTER TABLE folio_medications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own medications" ON folio_medications;
 CREATE POLICY "Users can view own medications"
   ON folio_medications FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own medications" ON folio_medications;
 CREATE POLICY "Users can insert own medications"
   ON folio_medications FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own medications" ON folio_medications;
 CREATE POLICY "Users can update own medications"
   ON folio_medications FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own medications" ON folio_medications;
 CREATE POLICY "Users can delete own medications"
   ON folio_medications FOR DELETE USING (auth.uid() = user_id);
 
@@ -118,11 +126,15 @@ CREATE TABLE IF NOT EXISTS folio_medical_equipment (
 
 ALTER TABLE folio_medical_equipment ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own medical equipment" ON folio_medical_equipment;
 CREATE POLICY "Users can view own medical equipment"
   ON folio_medical_equipment FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own medical equipment" ON folio_medical_equipment;
 CREATE POLICY "Users can insert own medical equipment"
   ON folio_medical_equipment FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own medical equipment" ON folio_medical_equipment;
 CREATE POLICY "Users can update own medical equipment"
   ON folio_medical_equipment FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own medical equipment" ON folio_medical_equipment;
 CREATE POLICY "Users can delete own medical equipment"
   ON folio_medical_equipment FOR DELETE USING (auth.uid() = user_id);

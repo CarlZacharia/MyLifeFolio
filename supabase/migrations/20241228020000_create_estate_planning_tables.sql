@@ -225,12 +225,13 @@ CREATE TABLE IF NOT EXISTS folio_intakes (
 );
 
 -- Create indexes
-CREATE INDEX idx_ep_intakes_user_id ON folio_intakes(user_id);
-CREATE INDEX idx_ep_intakes_client_name ON folio_intakes(client_name);
-CREATE INDEX idx_ep_intakes_created_at ON folio_intakes(created_at DESC);
-CREATE INDEX idx_ep_intakes_intake_raw_id ON folio_intakes(intake_raw_id);
+CREATE INDEX IF NOT EXISTS idx_ep_intakes_user_id ON folio_intakes(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_intakes_client_name ON folio_intakes(client_name);
+CREATE INDEX IF NOT EXISTS idx_ep_intakes_created_at ON folio_intakes(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ep_intakes_intake_raw_id ON folio_intakes(intake_raw_id);
 
 -- Create trigger for updated_at
+DROP TRIGGER IF EXISTS update_folio_intakes_updated_at ON folio_intakes;
 CREATE TRIGGER update_folio_intakes_updated_at
   BEFORE UPDATE ON folio_intakes
   FOR EACH ROW
@@ -240,12 +241,16 @@ CREATE TRIGGER update_folio_intakes_updated_at
 ALTER TABLE folio_intakes ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
+DROP POLICY IF EXISTS "Users can view own folio_intakes" ON folio_intakes;
 CREATE POLICY "Users can view own folio_intakes"
   ON folio_intakes FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_intakes" ON folio_intakes;
 CREATE POLICY "Users can insert own folio_intakes"
   ON folio_intakes FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_intakes" ON folio_intakes;
 CREATE POLICY "Users can update own folio_intakes"
   ON folio_intakes FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_intakes" ON folio_intakes;
 CREATE POLICY "Users can delete own folio_intakes"
   ON folio_intakes FOR DELETE USING (auth.uid() = user_id);
 
@@ -274,16 +279,20 @@ CREATE TABLE IF NOT EXISTS folio_children (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_children_intake_id ON folio_children(intake_id);
-CREATE INDEX idx_ep_children_user_id ON folio_children(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_children_intake_id ON folio_children(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_children_user_id ON folio_children(user_id);
 
 ALTER TABLE folio_children ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_children" ON folio_children;
 CREATE POLICY "Users can view own folio_children"
   ON folio_children FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_children" ON folio_children;
 CREATE POLICY "Users can insert own folio_children"
   ON folio_children FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_children" ON folio_children;
 CREATE POLICY "Users can update own folio_children"
   ON folio_children FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_children" ON folio_children;
 CREATE POLICY "Users can delete own folio_children"
   ON folio_children FOR DELETE USING (auth.uid() = user_id);
 
@@ -307,16 +316,20 @@ CREATE TABLE IF NOT EXISTS folio_beneficiaries (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_beneficiaries_intake_id ON folio_beneficiaries(intake_id);
-CREATE INDEX idx_ep_beneficiaries_user_id ON folio_beneficiaries(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_beneficiaries_intake_id ON folio_beneficiaries(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_beneficiaries_user_id ON folio_beneficiaries(user_id);
 
 ALTER TABLE folio_beneficiaries ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_beneficiaries" ON folio_beneficiaries;
 CREATE POLICY "Users can view own folio_beneficiaries"
   ON folio_beneficiaries FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_beneficiaries" ON folio_beneficiaries;
 CREATE POLICY "Users can insert own folio_beneficiaries"
   ON folio_beneficiaries FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_beneficiaries" ON folio_beneficiaries;
 CREATE POLICY "Users can update own folio_beneficiaries"
   ON folio_beneficiaries FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_beneficiaries" ON folio_beneficiaries;
 CREATE POLICY "Users can delete own folio_beneficiaries"
   ON folio_beneficiaries FOR DELETE USING (auth.uid() = user_id);
 
@@ -336,16 +349,20 @@ CREATE TABLE IF NOT EXISTS folio_charities (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_charities_intake_id ON folio_charities(intake_id);
-CREATE INDEX idx_ep_charities_user_id ON folio_charities(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_charities_intake_id ON folio_charities(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_charities_user_id ON folio_charities(user_id);
 
 ALTER TABLE folio_charities ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_charities" ON folio_charities;
 CREATE POLICY "Users can view own folio_charities"
   ON folio_charities FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_charities" ON folio_charities;
 CREATE POLICY "Users can insert own folio_charities"
   ON folio_charities FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_charities" ON folio_charities;
 CREATE POLICY "Users can update own folio_charities"
   ON folio_charities FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_charities" ON folio_charities;
 CREATE POLICY "Users can delete own folio_charities"
   ON folio_charities FOR DELETE USING (auth.uid() = user_id);
 
@@ -364,16 +381,20 @@ CREATE TABLE IF NOT EXISTS folio_dependents (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_dependents_intake_id ON folio_dependents(intake_id);
-CREATE INDEX idx_ep_dependents_user_id ON folio_dependents(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_dependents_intake_id ON folio_dependents(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_dependents_user_id ON folio_dependents(user_id);
 
 ALTER TABLE folio_dependents ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_dependents" ON folio_dependents;
 CREATE POLICY "Users can view own folio_dependents"
   ON folio_dependents FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_dependents" ON folio_dependents;
 CREATE POLICY "Users can insert own folio_dependents"
   ON folio_dependents FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_dependents" ON folio_dependents;
 CREATE POLICY "Users can update own folio_dependents"
   ON folio_dependents FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_dependents" ON folio_dependents;
 CREATE POLICY "Users can delete own folio_dependents"
   ON folio_dependents FOR DELETE USING (auth.uid() = user_id);
 
@@ -411,16 +432,20 @@ CREATE TABLE IF NOT EXISTS folio_real_estate (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_real_estate_intake_id ON folio_real_estate(intake_id);
-CREATE INDEX idx_ep_real_estate_user_id ON folio_real_estate(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_real_estate_intake_id ON folio_real_estate(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_real_estate_user_id ON folio_real_estate(user_id);
 
 ALTER TABLE folio_real_estate ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_real_estate" ON folio_real_estate;
 CREATE POLICY "Users can view own folio_real_estate"
   ON folio_real_estate FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_real_estate" ON folio_real_estate;
 CREATE POLICY "Users can insert own folio_real_estate"
   ON folio_real_estate FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_real_estate" ON folio_real_estate;
 CREATE POLICY "Users can update own folio_real_estate"
   ON folio_real_estate FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_real_estate" ON folio_real_estate;
 CREATE POLICY "Users can delete own folio_real_estate"
   ON folio_real_estate FOR DELETE USING (auth.uid() = user_id);
 
@@ -447,16 +472,20 @@ CREATE TABLE IF NOT EXISTS folio_bank_accounts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_bank_accounts_intake_id ON folio_bank_accounts(intake_id);
-CREATE INDEX idx_ep_bank_accounts_user_id ON folio_bank_accounts(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_bank_accounts_intake_id ON folio_bank_accounts(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_bank_accounts_user_id ON folio_bank_accounts(user_id);
 
 ALTER TABLE folio_bank_accounts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_bank_accounts" ON folio_bank_accounts;
 CREATE POLICY "Users can view own folio_bank_accounts"
   ON folio_bank_accounts FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_bank_accounts" ON folio_bank_accounts;
 CREATE POLICY "Users can insert own folio_bank_accounts"
   ON folio_bank_accounts FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_bank_accounts" ON folio_bank_accounts;
 CREATE POLICY "Users can update own folio_bank_accounts"
   ON folio_bank_accounts FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_bank_accounts" ON folio_bank_accounts;
 CREATE POLICY "Users can delete own folio_bank_accounts"
   ON folio_bank_accounts FOR DELETE USING (auth.uid() = user_id);
 
@@ -483,16 +512,20 @@ CREATE TABLE IF NOT EXISTS folio_investments (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_investments_intake_id ON folio_investments(intake_id);
-CREATE INDEX idx_ep_investments_user_id ON folio_investments(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_investments_intake_id ON folio_investments(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_investments_user_id ON folio_investments(user_id);
 
 ALTER TABLE folio_investments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_investments" ON folio_investments;
 CREATE POLICY "Users can view own folio_investments"
   ON folio_investments FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_investments" ON folio_investments;
 CREATE POLICY "Users can insert own folio_investments"
   ON folio_investments FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_investments" ON folio_investments;
 CREATE POLICY "Users can update own folio_investments"
   ON folio_investments FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_investments" ON folio_investments;
 CREATE POLICY "Users can delete own folio_investments"
   ON folio_investments FOR DELETE USING (auth.uid() = user_id);
 
@@ -519,16 +552,20 @@ CREATE TABLE IF NOT EXISTS folio_retirement_accounts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_retirement_intake_id ON folio_retirement_accounts(intake_id);
-CREATE INDEX idx_ep_retirement_user_id ON folio_retirement_accounts(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_retirement_intake_id ON folio_retirement_accounts(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_retirement_user_id ON folio_retirement_accounts(user_id);
 
 ALTER TABLE folio_retirement_accounts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_retirement_accounts" ON folio_retirement_accounts;
 CREATE POLICY "Users can view own folio_retirement_accounts"
   ON folio_retirement_accounts FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_retirement_accounts" ON folio_retirement_accounts;
 CREATE POLICY "Users can insert own folio_retirement_accounts"
   ON folio_retirement_accounts FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_retirement_accounts" ON folio_retirement_accounts;
 CREATE POLICY "Users can update own folio_retirement_accounts"
   ON folio_retirement_accounts FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_retirement_accounts" ON folio_retirement_accounts;
 CREATE POLICY "Users can delete own folio_retirement_accounts"
   ON folio_retirement_accounts FOR DELETE USING (auth.uid() = user_id);
 
@@ -558,16 +595,20 @@ CREATE TABLE IF NOT EXISTS folio_life_insurance (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_life_insurance_intake_id ON folio_life_insurance(intake_id);
-CREATE INDEX idx_ep_life_insurance_user_id ON folio_life_insurance(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_life_insurance_intake_id ON folio_life_insurance(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_life_insurance_user_id ON folio_life_insurance(user_id);
 
 ALTER TABLE folio_life_insurance ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_life_insurance" ON folio_life_insurance;
 CREATE POLICY "Users can view own folio_life_insurance"
   ON folio_life_insurance FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_life_insurance" ON folio_life_insurance;
 CREATE POLICY "Users can insert own folio_life_insurance"
   ON folio_life_insurance FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_life_insurance" ON folio_life_insurance;
 CREATE POLICY "Users can update own folio_life_insurance"
   ON folio_life_insurance FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_life_insurance" ON folio_life_insurance;
 CREATE POLICY "Users can delete own folio_life_insurance"
   ON folio_life_insurance FOR DELETE USING (auth.uid() = user_id);
 
@@ -593,16 +634,20 @@ CREATE TABLE IF NOT EXISTS folio_vehicles (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_vehicles_intake_id ON folio_vehicles(intake_id);
-CREATE INDEX idx_ep_vehicles_user_id ON folio_vehicles(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_vehicles_intake_id ON folio_vehicles(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_vehicles_user_id ON folio_vehicles(user_id);
 
 ALTER TABLE folio_vehicles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_vehicles" ON folio_vehicles;
 CREATE POLICY "Users can view own folio_vehicles"
   ON folio_vehicles FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_vehicles" ON folio_vehicles;
 CREATE POLICY "Users can insert own folio_vehicles"
   ON folio_vehicles FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_vehicles" ON folio_vehicles;
 CREATE POLICY "Users can update own folio_vehicles"
   ON folio_vehicles FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_vehicles" ON folio_vehicles;
 CREATE POLICY "Users can delete own folio_vehicles"
   ON folio_vehicles FOR DELETE USING (auth.uid() = user_id);
 
@@ -629,16 +674,20 @@ CREATE TABLE IF NOT EXISTS folio_other_assets (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_other_assets_intake_id ON folio_other_assets(intake_id);
-CREATE INDEX idx_ep_other_assets_user_id ON folio_other_assets(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_other_assets_intake_id ON folio_other_assets(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_other_assets_user_id ON folio_other_assets(user_id);
 
 ALTER TABLE folio_other_assets ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_other_assets" ON folio_other_assets;
 CREATE POLICY "Users can view own folio_other_assets"
   ON folio_other_assets FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_other_assets" ON folio_other_assets;
 CREATE POLICY "Users can insert own folio_other_assets"
   ON folio_other_assets FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_other_assets" ON folio_other_assets;
 CREATE POLICY "Users can update own folio_other_assets"
   ON folio_other_assets FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_other_assets" ON folio_other_assets;
 CREATE POLICY "Users can delete own folio_other_assets"
   ON folio_other_assets FOR DELETE USING (auth.uid() = user_id);
 
@@ -663,16 +712,20 @@ CREATE TABLE IF NOT EXISTS folio_business_interests (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_business_intake_id ON folio_business_interests(intake_id);
-CREATE INDEX idx_ep_business_user_id ON folio_business_interests(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_business_intake_id ON folio_business_interests(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_business_user_id ON folio_business_interests(user_id);
 
 ALTER TABLE folio_business_interests ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_business_interests" ON folio_business_interests;
 CREATE POLICY "Users can view own folio_business_interests"
   ON folio_business_interests FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_business_interests" ON folio_business_interests;
 CREATE POLICY "Users can insert own folio_business_interests"
   ON folio_business_interests FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_business_interests" ON folio_business_interests;
 CREATE POLICY "Users can update own folio_business_interests"
   ON folio_business_interests FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_business_interests" ON folio_business_interests;
 CREATE POLICY "Users can delete own folio_business_interests"
   ON folio_business_interests FOR DELETE USING (auth.uid() = user_id);
 
@@ -695,16 +748,20 @@ CREATE TABLE IF NOT EXISTS folio_digital_assets (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_digital_assets_intake_id ON folio_digital_assets(intake_id);
-CREATE INDEX idx_ep_digital_assets_user_id ON folio_digital_assets(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_digital_assets_intake_id ON folio_digital_assets(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_digital_assets_user_id ON folio_digital_assets(user_id);
 
 ALTER TABLE folio_digital_assets ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_digital_assets" ON folio_digital_assets;
 CREATE POLICY "Users can view own folio_digital_assets"
   ON folio_digital_assets FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_digital_assets" ON folio_digital_assets;
 CREATE POLICY "Users can insert own folio_digital_assets"
   ON folio_digital_assets FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_digital_assets" ON folio_digital_assets;
 CREATE POLICY "Users can update own folio_digital_assets"
   ON folio_digital_assets FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_digital_assets" ON folio_digital_assets;
 CREATE POLICY "Users can delete own folio_digital_assets"
   ON folio_digital_assets FOR DELETE USING (auth.uid() = user_id);
 
@@ -725,16 +782,20 @@ CREATE TABLE IF NOT EXISTS folio_specific_gifts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_specific_gifts_intake_id ON folio_specific_gifts(intake_id);
-CREATE INDEX idx_ep_specific_gifts_user_id ON folio_specific_gifts(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_specific_gifts_intake_id ON folio_specific_gifts(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_specific_gifts_user_id ON folio_specific_gifts(user_id);
 
 ALTER TABLE folio_specific_gifts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_specific_gifts" ON folio_specific_gifts;
 CREATE POLICY "Users can view own folio_specific_gifts"
   ON folio_specific_gifts FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_specific_gifts" ON folio_specific_gifts;
 CREATE POLICY "Users can insert own folio_specific_gifts"
   ON folio_specific_gifts FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_specific_gifts" ON folio_specific_gifts;
 CREATE POLICY "Users can update own folio_specific_gifts"
   ON folio_specific_gifts FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_specific_gifts" ON folio_specific_gifts;
 CREATE POLICY "Users can delete own folio_specific_gifts"
   ON folio_specific_gifts FOR DELETE USING (auth.uid() = user_id);
 
@@ -755,16 +816,20 @@ CREATE TABLE IF NOT EXISTS folio_cash_gifts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ep_cash_gifts_intake_id ON folio_cash_gifts(intake_id);
-CREATE INDEX idx_ep_cash_gifts_user_id ON folio_cash_gifts(user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_cash_gifts_intake_id ON folio_cash_gifts(intake_id);
+CREATE INDEX IF NOT EXISTS idx_ep_cash_gifts_user_id ON folio_cash_gifts(user_id);
 
 ALTER TABLE folio_cash_gifts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view own folio_cash_gifts" ON folio_cash_gifts;
 CREATE POLICY "Users can view own folio_cash_gifts"
   ON folio_cash_gifts FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own folio_cash_gifts" ON folio_cash_gifts;
 CREATE POLICY "Users can insert own folio_cash_gifts"
   ON folio_cash_gifts FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own folio_cash_gifts" ON folio_cash_gifts;
 CREATE POLICY "Users can update own folio_cash_gifts"
   ON folio_cash_gifts FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own folio_cash_gifts" ON folio_cash_gifts;
 CREATE POLICY "Users can delete own folio_cash_gifts"
   ON folio_cash_gifts FOR DELETE USING (auth.uid() = user_id);
 

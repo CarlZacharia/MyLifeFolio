@@ -26,30 +26,35 @@ CREATE INDEX IF NOT EXISTS idx_user_questions_category ON public.user_questions(
 ALTER TABLE public.user_questions ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Users can read their own questions
+DROP POLICY IF EXISTS "Users can read own questions" ON public.user_questions;
 CREATE POLICY "Users can read own questions"
   ON public.user_questions
   FOR SELECT
   USING (auth.uid() = user_id);
 
 -- Policy: Users can insert their own questions
+DROP POLICY IF EXISTS "Users can insert own questions" ON public.user_questions;
 CREATE POLICY "Users can insert own questions"
   ON public.user_questions
   FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
 -- Policy: Users can update their own questions
+DROP POLICY IF EXISTS "Users can update own questions" ON public.user_questions;
 CREATE POLICY "Users can update own questions"
   ON public.user_questions
   FOR UPDATE
   USING (auth.uid() = user_id);
 
 -- Policy: Users can delete their own questions
+DROP POLICY IF EXISTS "Users can delete own questions" ON public.user_questions;
 CREATE POLICY "Users can delete own questions"
   ON public.user_questions
   FOR DELETE
   USING (auth.uid() = user_id);
 
 -- Policy: Admin users can read all questions (for support purposes)
+DROP POLICY IF EXISTS "Admins can read all questions" ON public.user_questions;
 CREATE POLICY "Admins can read all questions"
   ON public.user_questions
   FOR SELECT
