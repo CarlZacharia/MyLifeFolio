@@ -52,6 +52,8 @@ import {
   DocumentType,
 } from '../lib/supabaseStorage';
 import { folioColors } from './FolioModal';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { legalDocumentsHelp } from './folioHelpContent';
 
 const OTHER_VALUE = '__OTHER__';
 
@@ -1127,6 +1129,7 @@ const getDefaultEstatePlanData = (): CurrentEstatePlanData => ({
 const CurrentEstatePlanSection: React.FC = () => {
   const { formData, updateFormData } = useFormContext();
   const [activeTab, setActiveTab] = useState(0);
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
 
   const showSpouse = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
@@ -1215,10 +1218,12 @@ const CurrentEstatePlanSection: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={legalDocumentsHelp} />
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           Estate Plan
         </Typography>
+        <FolioHelpButton onClick={openHelp} accentColor="#7b2cbf" />
       </Box>
 
       <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>

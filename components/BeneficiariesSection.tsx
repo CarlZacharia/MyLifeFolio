@@ -20,6 +20,8 @@ import { BeneficiaryModal, CharityModal, BeneficiaryData, CharityData } from './
 import { BeneficiariesSummaryTable, CharitiesSummaryTable } from './BeneficiariesSummaryTable';
 import PetCareSection from './PetCareSection';
 import { folioColors } from './FolioModal';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { familyDependentsHelp } from './folioHelpContent';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -55,6 +57,7 @@ interface ModalState {
 
 const BeneficiariesSection = () => {
   const { formData, updateFormData } = useFormContext();
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
 
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
@@ -211,11 +214,13 @@ const BeneficiariesSection = () => {
 
   return (
     <Box>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={familyDependentsHelp} />
       {/* Main Section Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           CHILDREN
         </Typography>
+        <FolioHelpButton onClick={openHelp} accentColor="#00695c" />
       </Box>
 
       {/* Category 1: Children */}

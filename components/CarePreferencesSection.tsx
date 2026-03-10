@@ -18,9 +18,12 @@ import { useFormContext } from '../lib/FormContext';
 import { CARE_PREFERENCE_CATEGORIES } from '../lib/carePreferenceCategories';
 import CarePreferenceModal, { CarePreferenceData } from './CarePreferenceModal';
 import { folioColors } from './FolioModal';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { careDecisionsHelp } from './folioHelpContent';
 
 const CarePreferencesSection = () => {
   const { formData, updateFormData } = useFormContext();
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalCategory, setModalCategory] = useState<string>('');
@@ -49,6 +52,10 @@ const CarePreferencesSection = () => {
 
   return (
     <Box>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={careDecisionsHelp} />
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+        <FolioHelpButton onClick={openHelp} accentColor="#bf360c" />
+      </Box>
       {/* Add buttons row — one per category */}
       <Box
         sx={{

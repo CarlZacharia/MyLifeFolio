@@ -17,6 +17,8 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import FolderIcon from '@mui/icons-material/Folder';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { folioColors } from './FolioModal';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { documentsVaultHelp } from './folioHelpContent';
 import { useFormContext } from '../lib/FormContext';
 import { useAuth } from '../lib/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -513,6 +515,7 @@ const AllDocumentsTable: React.FC<AllDocumentsTableProps> = ({ documents, onDown
 const DocumentsVaultSection: React.FC = () => {
   const { intakeId: contextIntakeId, setIntakeId: setContextIntakeId } = useFormContext();
   const { user } = useAuth();
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
 
   // Resolve intakeId: prefer context, fall back to DB lookup
   const [resolvedIntakeId, setResolvedIntakeId] = useState<string | null>(contextIntakeId);
@@ -659,10 +662,12 @@ const DocumentsVaultSection: React.FC = () => {
 
   return (
     <Box>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={documentsVaultHelp} />
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
         <FolderIcon sx={{ color: '#e07a2f', fontSize: 28 }} />
         <Typography variant="h6" sx={{ fontWeight: 600 }}>Documents Vault</Typography>
+        <FolioHelpButton onClick={openHelp} accentColor="#e07a2f" />
         {totalDocuments > 0 && (
           <Chip
             label={`${totalDocuments} document${totalDocuments !== 1 ? 's' : ''}`}

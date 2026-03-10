@@ -25,6 +25,8 @@ import {
   BeneficiaryOption,
   TrustFlags,
 } from './AssetModals';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { insuranceCoverageHelp } from './folioHelpContent';
 
 const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
 
@@ -55,6 +57,7 @@ const isSpouseOwner = (owner: string) =>
 
 const InsuranceCoveragePage = () => {
   const { formData, updateFormData } = useFormContext();
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
   const showSpouse = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
   const [personTab, setPersonTab] = useState(0);
@@ -310,6 +313,10 @@ const InsuranceCoveragePage = () => {
 
   return (
     <Box>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={insuranceCoverageHelp} />
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+        <FolioHelpButton onClick={openHelp} accentColor="#0d47a1" />
+      </Box>
       {showSpouse && (
         <Tabs
           value={personTab}

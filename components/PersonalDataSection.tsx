@@ -27,6 +27,8 @@ import { useFormContext, MaritalStatus, Sex, IncomeSource, IncomeFrequency, Medi
 import PhoneInput from './PhoneInput';
 import { SSNInput } from './SSNInput';
 import { folioColors } from './FolioModal';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { personalInfoHelp } from './folioHelpContent';
 
 const calculateAge = (birthDate: Date | null): string => {
   if (!birthDate) return '';
@@ -128,6 +130,7 @@ interface PersonalDataSectionProps {
 
 const PersonalDataSection: React.FC<PersonalDataSectionProps> = ({ onSaveAndContinue }) => {
   const { formData, updateFormData } = useFormContext();
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
   const [clientAge, setClientAge] = useState<string>('');
   const [spouseAge, setSpouseAge] = useState<string>('');
   const [activeTab, setActiveTab] = useState(0);
@@ -169,10 +172,12 @@ const PersonalDataSection: React.FC<PersonalDataSectionProps> = ({ onSaveAndCont
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={personalInfoHelp} />
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, color: folioColors.ink }}>
           PERSONAL DATA
         </Typography>
+        <FolioHelpButton onClick={openHelp} accentColor="#1565c0" />
       </Box>
 
       {/* Tabs - only shown when married/partnered */}

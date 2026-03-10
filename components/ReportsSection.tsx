@@ -35,6 +35,8 @@ import FuneralInstructions from '../src/features/family-access/reports/FuneralIn
 import WhatToDoIfIDie from '../src/features/family-access/reports/WhatToDoIfIDie';
 import FamilyBriefingReport from '../src/features/family-access/reports/Familybriefingreport';
 import DigitalLifeSummary from '../src/features/family-access/reports/DigitalLifeSummary';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { reportsHelp } from './folioHelpContent';
 
 // ─── Report definitions ──────────────────────────────────────────────────────
 
@@ -225,11 +227,13 @@ export const renderReportById = (reportId: string, data: ReturnType<typeof build
 const ReportsSection = () => {
   const [activeReport, setActiveReport] = useState<string | null>(null);
   const data = useReportData();
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
 
   const rendered = activeReport ? renderReportById(activeReport, data) : null;
 
   return (
     <Box sx={{ display: 'flex', gap: 2, minHeight: 600 }}>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={reportsHelp} />
       {/* ── Left sidebar: report list (20%) ── */}
       <Paper
         variant="outlined"
@@ -247,6 +251,9 @@ const ReportsSection = () => {
             color: '#fff',
             px: 2,
             py: 1.5,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
           <Typography
@@ -259,6 +266,7 @@ const ReportsSection = () => {
           >
             Reports
           </Typography>
+          <FolioHelpButton onClick={openHelp} accentColor="#fff" tooltip="Reports help" />
         </Box>
 
         <List disablePadding>

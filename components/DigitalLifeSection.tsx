@@ -31,6 +31,8 @@ import VaultWarningModal from './VaultWarningModal';
 import VaultSetup from './VaultSetup';
 import VaultUnlock from './VaultUnlock';
 import CredentialsList from './CredentialsList';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { digitalLifeHelp } from './folioHelpContent';
 
 interface VaultSettings {
   salt: string;
@@ -64,7 +66,7 @@ const DigitalLifeSection: React.FC<DigitalLifeSectionProps> = ({ initialTab }) =
   const [showSetup, setShowSetup] = useState(false);
 
   // Help modal
-  const [showHelp, setShowHelp] = useState(false);
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
 
   // Load vault settings
   const loadVaultSettings = useCallback(async () => {
@@ -217,157 +219,14 @@ const DigitalLifeSection: React.FC<DigitalLifeSectionProps> = ({ initialTab }) =
         onCancel={() => setShowWarning(false)}
       />
 
-      {/* Help Modal */}
-      <Dialog
-        open={showHelp}
-        onClose={() => setShowHelp(false)}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: 2 } }}
-      >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <FingerprintIcon sx={{ color: '#00695c', fontSize: 26 }} />
-            <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
-              How the Digital Life Section Works
-            </Typography>
-          </Box>
-          <IconButton onClick={() => setShowHelp(false)} size="small">
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers>
-          {/* Overview */}
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#00695c' }}>
-            Overview
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.7 }}>
-            The Digital Life section is your secure space for organizing everything related to your
-            online presence. The centerpiece is the <strong>Credentials Vault</strong>, which lets you
-            store online account logins and access information so that your trusted representatives
-            (a Power of Attorney agent or an Executor / Trustee) can manage your digital affairs if
-            you become incapacitated or after your passing.
-          </Typography>
-
-          {/* Credentials Vault */}
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#00695c' }}>
-            The Credentials Vault
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1, lineHeight: 1.7 }}>
-            When you first open the Credentials tab, you will be asked to create a <strong>Vault
-            Master Passphrase</strong>. This passphrase is used to encrypt your sensitive data
-            (passwords, PINs, security answers, backup codes) directly in your browser before anything
-            is sent to the server. MyLifeFolio never sees or stores your actual passwords in readable form.
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.7 }}>
-            Each time you return to the Credentials tab in a new session, you will need to re-enter
-            your passphrase to unlock the vault. You can lock the vault at any time using the
-            "Lock Vault" button, which discards the encryption key from memory.
-          </Typography>
-
-          {/* Recovery Key */}
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#00695c' }}>
-            Recovery Key
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.7 }}>
-            During setup, you will be given a one-time <strong>Recovery Key</strong> — a long,
-            random code that can restore access to your vault if you forget your passphrase.
-            This key is shown only once. Print it or write it down and store it in a safe place
-            (e.g., a home safe or safe deposit box). If you lose both your passphrase and your
-            recovery key, your encrypted data <strong>cannot be recovered by anyone</strong>,
-            including MyLifeFolio support.
-          </Typography>
-
-          {/* How Encryption Works */}
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#00695c' }}>
-            How Encryption Works
-          </Typography>
-          <Box component="ul" sx={{ pl: 2.5, m: 0, mb: 2 }}>
-            {[
-              'Your passphrase is used to derive a 256-bit encryption key using PBKDF2 (100,000 iterations) — an industry-standard key stretching algorithm.',
-              'Sensitive fields (password, PIN, security Q&A, backup codes, authenticator notes, recovery email) are encrypted with AES-GCM 256-bit encryption in your browser before being stored.',
-              'Non-sensitive fields (account name, platform, URL, access control settings, notes) are stored as readable text so the system can display them without unlocking.',
-              'The encryption key exists only in your browser\'s memory while the vault is unlocked and is never transmitted or stored on the server.',
-            ].map((text, idx) => (
-              <Typography key={idx} component="li" variant="body2" sx={{ mb: 0.75, lineHeight: 1.6 }}>
-                {text}
-              </Typography>
-            ))}
-          </Box>
-
-          {/* Access Controls */}
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#00695c' }}>
-            Access Controls: POA Agent & Executor
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1, lineHeight: 1.7 }}>
-            For each account you store, you can independently designate whether your <strong>Power of
-            Attorney Agent</strong> or your <strong>Executor / Trustee</strong> should have access:
-          </Typography>
-          <Box component="ul" sx={{ pl: 2.5, m: 0, mb: 2 }}>
-            <Typography component="li" variant="body2" sx={{ mb: 0.75, lineHeight: 1.6 }}>
-              <strong>POA Agent</strong> — Someone who may need to manage your accounts while you are
-              alive but incapacitated. You can provide specific instructions for what they should do.
-            </Typography>
-            <Typography component="li" variant="body2" sx={{ mb: 0.75, lineHeight: 1.6 }}>
-              <strong>Executor / Trustee</strong> — Someone who handles your affairs after your death.
-              You can specify an action for each account: memorialize, delete, transfer, or download
-              data first.
-            </Typography>
-          </Box>
-
-          {/* What to Store */}
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#00695c' }}>
-            What to Store Here
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1, lineHeight: 1.7 }}>
-            This vault is designed as a <strong>legacy reference</strong> — a place where your
-            executor, trustee, or POA agent can find the accounts and credentials they need to
-            act on your behalf. It is not intended to replace a day-to-day password manager.
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.7 }}>
-            We recommend storing credentials for accounts that matter most in an emergency or
-            estate scenario: banking and financial accounts, email, utilities, insurance portals,
-            government accounts (Social Security, VA), and any account with automatic billing or
-            subscriptions that would need to be cancelled.
-          </Typography>
-
-          {/* Additional Tabs */}
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#00695c' }}>
-            Additional Sections (Coming Soon)
-          </Typography>
-          <Typography variant="body2" sx={{ lineHeight: 1.7 }}>
-            Future releases will add tabs for Digital Assets & Cryptocurrency, Subscriptions &
-            Recurring Services, Social Media & Email Accounts, and Domain Names & Digital Businesses.
-            These sections will help you create a comprehensive inventory of your entire digital life.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, py: 1.5 }}>
-          <Button onClick={() => setShowHelp(false)} variant="contained" sx={{ bgcolor: '#00695c', '&:hover': { bgcolor: '#004d40' } }}>
-            Got It
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={digitalLifeHelp} />
 
       {/* Section Title with Help Icon */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
           Digital Life
         </Typography>
-        <Tooltip title="How does this work?">
-          <IconButton
-            size="small"
-            onClick={() => setShowHelp(true)}
-            sx={{
-              color: '#00695c',
-              bgcolor: 'rgba(0, 105, 92, 0.08)',
-              width: 28,
-              height: 28,
-              '&:hover': { bgcolor: 'rgba(0, 105, 92, 0.15)' },
-            }}
-          >
-            <HelpOutlineIcon sx={{ fontSize: 18 }} />
-          </IconButton>
-        </Tooltip>
+        <FolioHelpButton onClick={openHelp} accentColor="#00695c" />
       </Box>
 
       {/* Tabs */}

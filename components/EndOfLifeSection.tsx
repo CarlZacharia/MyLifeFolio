@@ -18,9 +18,12 @@ import { useFormContext } from '../lib/FormContext';
 import { END_OF_LIFE_CATEGORIES } from '../lib/endOfLifeCategories';
 import EndOfLifeModal, { EndOfLifeData } from './EndOfLifeModal';
 import { folioColors } from './FolioModal';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { endOfLifeHelp } from './folioHelpContent';
 
 const EndOfLifeSection = () => {
   const { formData, updateFormData } = useFormContext();
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalCategory, setModalCategory] = useState<string>('');
@@ -87,6 +90,10 @@ const EndOfLifeSection = () => {
 
   return (
     <Box>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={endOfLifeHelp} />
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+        <FolioHelpButton onClick={openHelp} accentColor="#6a1b9a" />
+      </Box>
       {/* Category buttons */}
       <Box
         sx={{

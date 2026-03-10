@@ -13,6 +13,8 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import { folioColors } from './FolioModal';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { legacyHelp } from './folioHelpContent';
 import LegacyObituaryTab from './LegacyObituaryTab';
 import LegacyCharitableWishesTab from './LegacyCharitableWishesTab';
 import LegacyLettersTab from './LegacyLettersTab';
@@ -43,6 +45,7 @@ interface LegacySectionProps {
 
 const LegacySection: React.FC<LegacySectionProps> = ({ initialTab }) => {
   const [activeTab, setActiveTab] = useState(initialTab ?? 0);
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
 
   useEffect(() => {
     if (initialTab !== undefined) setActiveTab(initialTab);
@@ -50,6 +53,10 @@ const LegacySection: React.FC<LegacySectionProps> = ({ initialTab }) => {
 
   return (
     <Box>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={legacyHelp} />
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+        <FolioHelpButton onClick={openHelp} accentColor="#c9a227" />
+      </Box>
       <Box sx={{
         display: 'grid',
         gridTemplateColumns: 'repeat(5, 1fr)',

@@ -12,6 +12,8 @@ import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import DevicesOtherIcon from '@mui/icons-material/DevicesOther';
 import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
 import { useFormContext, MaritalStatus } from '../lib/FormContext';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { medicalDataHelp } from './folioHelpContent';
 import MedicalProvidersTab from './MedicalProvidersTab';
 import MedicationsTab from './MedicationsTab';
 import MedicalEquipmentTab from './MedicalEquipmentTab';
@@ -35,6 +37,7 @@ interface MedicalDataSectionProps {
 const MedicalDataSection: React.FC<MedicalDataSectionProps> = ({ initialTab }) => {
   const [activeTab, setActiveTab] = useState(initialTab ?? 0);
   const { formData } = useFormContext();
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
 
   useEffect(() => {
     if (initialTab !== undefined) setActiveTab(initialTab);
@@ -43,6 +46,10 @@ const MedicalDataSection: React.FC<MedicalDataSectionProps> = ({ initialTab }) =
 
   return (
     <Box>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={medicalDataHelp} />
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+        <FolioHelpButton onClick={openHelp} accentColor="#c62828" />
+      </Box>
       <Tabs
         value={activeTab}
         onChange={(_, v) => setActiveTab(v)}

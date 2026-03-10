@@ -19,6 +19,8 @@ import { useFormContext } from '../lib/FormContext';
 import AdvisorModal, { AdvisorData, ADVISOR_TYPES } from './AdvisorModal';
 import FriendNeighborModal, { FriendNeighborData } from './FriendNeighborModal';
 import { folioColors } from './FolioModal';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { peopleAdvisorsHelp } from './folioHelpContent';
 
 const formatPhone = (phone: string): string => {
   const digits = phone.replace(/\D/g, '');
@@ -33,6 +35,7 @@ const formatPhone = (phone: string): string => {
 
 const PeopleAdvisorsSection = () => {
   const { formData, updateFormData } = useFormContext();
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
 
   // Advisor modal state
   const [advisorModalOpen, setAdvisorModalOpen] = useState(false);
@@ -143,6 +146,10 @@ const PeopleAdvisorsSection = () => {
 
   return (
     <Box>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={peopleAdvisorsHelp} />
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+        <FolioHelpButton onClick={openHelp} accentColor="#4527a0" />
+      </Box>
       {/* ── Advisor Add Buttons ── */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
         {ADVISOR_TYPES.map((type) => (

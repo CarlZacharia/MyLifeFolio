@@ -27,6 +27,8 @@ import SubscriptionsTab from './SubscriptionsTab';
 import DebtsTab from './DebtsTab';
 import GiftsTab from './GiftsTab';
 import { folioColors } from './FolioModal';
+import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
+import { financialLifeHelp } from './folioHelpContent';
 
 const PRIMARY_TABS = [
   { label: 'Assets', icon: <AccountBalanceWalletIcon /> },
@@ -66,6 +68,7 @@ interface FinancialLifeSectionProps {
 const FinancialLifeSection: React.FC<FinancialLifeSectionProps> = ({ initialTab }) => {
   const [primaryTab, setPrimaryTab] = useState(initialTab ?? 0);
   const [assetSubTab, setAssetSubTab] = useState(0);
+  const { showHelp, openHelp, closeHelp } = useFolioHelp();
 
   useEffect(() => {
     if (initialTab !== undefined) setPrimaryTab(initialTab);
@@ -73,6 +76,10 @@ const FinancialLifeSection: React.FC<FinancialLifeSectionProps> = ({ initialTab 
 
   return (
     <Box>
+      <FolioHelpModal open={showHelp} onClose={closeHelp} content={financialLifeHelp} />
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+        <FolioHelpButton onClick={openHelp} accentColor="#2e7d32" />
+      </Box>
       {/* Primary tabs */}
       <Tabs
         value={primaryTab}
