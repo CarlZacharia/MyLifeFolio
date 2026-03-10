@@ -34,7 +34,11 @@ import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import StarIcon from '@mui/icons-material/Star';
 import { useAuth } from '../lib/AuthContext';
+import { useSubscription } from '../lib/SubscriptionContext';
+import { FeatureKey, getRequiredTier, TIER_INFO } from '../lib/subscriptionConfig';
 import FolioSearchBar from './FolioSearchBar';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
@@ -231,7 +235,9 @@ const FolioCard: React.FC<{
   items?: string[];
   delay?: number;
   onClick?: () => void;
-}> = ({ icon, title, accentColor, items, delay = 0, onClick }) => {
+  locked?: boolean;
+  requiredTierName?: string;
+}> = ({ icon, title, accentColor, items, delay = 0, onClick, locked = false, requiredTierName }) => {
   const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -313,6 +319,45 @@ const FolioCard: React.FC<{
             </Box>
           )}
         </CardContent>
+
+        {/* Lock overlay for gated features */}
+        {locked && (
+          <Box
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              bgcolor: 'rgba(255,255,255,0.75)',
+              backdropFilter: 'blur(2px)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 1,
+              zIndex: 2,
+            }}
+          >
+            <LockOutlinedIcon sx={{ fontSize: 32, color: '#1e3a5f', opacity: 0.7 }} />
+            {requiredTierName && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  bgcolor: '#1e3a5f',
+                  color: 'white',
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 1,
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                }}
+              >
+                <StarIcon sx={{ fontSize: 14 }} />
+                {requiredTierName}
+              </Box>
+            )}
+          </Box>
+        )}
       </Card>
     </Fade>
   );
@@ -337,6 +382,7 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
 }) => {
   const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
+  const { canAccess, tier, trialDaysRemaining, isTrialExpired } = useSubscription();
 
   const handleLogout = async () => {
     await signOut();
@@ -650,39 +696,104 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
           </Container>
         </Box>
 
+        {/* Trial / Subscription Banner */}
+        {user && tier === 'trial' && (
+          <Container maxWidth="lg" sx={{ mt: -2 }}>
+            <Box
+              sx={{
+                bgcolor: isTrialExpired ? '#fff3e0' : '#e3f2fd',
+                border: '1px solid',
+                borderColor: isTrialExpired ? '#ff9800' : '#90caf9',
+                borderRadius: 2,
+                px: 3,
+                py: 2,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 2,
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: 500,
+                  color: isTrialExpired ? '#e65100' : '#1565c0',
+                }}
+              >
+                {isTrialExpired
+                  ? 'Your free trial has expired. Subscribe to continue using MyLifeFolio.'
+                  : `You have ${trialDaysRemaining} day${trialDaysRemaining !== 1 ? 's' : ''} left in your free trial.`}
+              </Typography>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => onNavigate?.('pricing')}
+                sx={{
+                  bgcolor: '#1e3a5f',
+                  fontWeight: 600,
+                  '&:hover': { bgcolor: '#0f2744' },
+                }}
+              >
+                View Plans
+              </Button>
+            </Box>
+          </Container>
+        )}
+
         {/* Main Content - Category Blocks */}
         <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, mt: -4 }}>
           <Grid container spacing={3}>
-            {folioCategories.map((cat, i) => (
-              <Grid item xs={12} sm={6} md={3} key={cat.id}>
-                <FolioCard
-                  icon={cat.icon}
-                  title={cat.title}
-                  accentColor={cat.accentColor}
-                  items={cat.items}
-                  delay={400 + i * 80}
-                  onClick={() => onNavigate?.(`category-${cat.id}`)}
-                />
-              </Grid>
-            ))}
+            {folioCategories.map((cat, i) => {
+              const featureKey = cat.id as FeatureKey;
+              const locked = user ? !canAccess(featureKey) : false;
+              const reqTier = getRequiredTier(featureKey);
+              return (
+                <Grid item xs={12} sm={6} md={3} key={cat.id}>
+                  <FolioCard
+                    icon={cat.icon}
+                    title={cat.title}
+                    accentColor={cat.accentColor}
+                    items={cat.items}
+                    delay={400 + i * 80}
+                    locked={locked}
+                    requiredTierName={locked ? TIER_INFO[reqTier].name : undefined}
+                    onClick={() =>
+                      locked
+                        ? onNavigate?.('pricing')
+                        : onNavigate?.(`category-${cat.id}`)
+                    }
+                  />
+                </Grid>
+              );
+            })}
 
             {/* Row 4: Reports, Family Access, and two placeholders */}
-            {row4Cards.map((cat, i) => (
-              <Grid item xs={12} sm={6} md={3} key={cat.id}>
-                <FolioCard
-                  icon={cat.icon}
-                  title={cat.title}
-                  accentColor={cat.accentColor}
-                  items={cat.items}
-                  delay={400 + (folioCategories.length + i) * 80}
-                  onClick={() =>
-                    cat.id === 'family-access'
-                      ? onNavigate?.('family-access-settings')
-                      : onNavigate?.(`category-${cat.id}`)
-                  }
-                />
-              </Grid>
-            ))}
+            {row4Cards.map((cat, i) => {
+              const featureKey = cat.id as FeatureKey;
+              const locked = user ? !canAccess(featureKey) : false;
+              const reqTier = getRequiredTier(featureKey);
+              return (
+                <Grid item xs={12} sm={6} md={3} key={cat.id}>
+                  <FolioCard
+                    icon={cat.icon}
+                    title={cat.title}
+                    accentColor={cat.accentColor}
+                    items={cat.items}
+                    delay={400 + (folioCategories.length + i) * 80}
+                    locked={locked}
+                    requiredTierName={locked ? TIER_INFO[reqTier].name : undefined}
+                    onClick={() =>
+                      locked
+                        ? onNavigate?.('pricing')
+                        : cat.id === 'family-access'
+                          ? onNavigate?.('family-access-settings')
+                          : onNavigate?.(`category-${cat.id}`)
+                    }
+                  />
+                </Grid>
+              );
+            })}
             {/* Two placeholder slots for future use */}
             <Grid item xs={12} sm={6} md={3}>
               <Box sx={{ height: '100%' }} />

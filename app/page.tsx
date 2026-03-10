@@ -35,6 +35,7 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Tabl
 import { saveAs } from 'file-saver';
 import { useFormContext, OfficeInfo, AttorneyInfo } from '../lib/FormContext';
 import { useAuth } from '../lib/AuthContext';
+import { useSubscription } from '../lib/SubscriptionContext';
 import PersonalDataSection from '../components/PersonalDataSection';
 import IncomeSection from '../components/IncomeSection';
 import BeneficiariesSection from '../components/BeneficiariesSection';
@@ -63,6 +64,7 @@ import LegacySection from '../components/LegacySection';
 import DocumentsVaultSection from '../components/DocumentsVaultSection';
 import DigitalLifeSection from '../components/DigitalLifeSection';
 import FamilyAccessManager from '../src/features/owner-settings/FamilyAccessManager';
+import PricingPage from '../components/PricingPage';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
@@ -405,7 +407,8 @@ type PageType = 'landing' | 'mylifefolio-home' | 'folio-questionnaire' | 'long-t
   | 'category-digital-life'
   | 'family-access-settings'
   | 'about'
-  | 'account-settings';
+  | 'account-settings'
+  | 'pricing';
 
 // Helper to check if user is an admin (email domain is mylifefolio.com)
 const isAdminUser = (email: string | undefined): boolean => {
@@ -1258,9 +1261,26 @@ export default function MainPage() {
   const [showAuthModal, setShowAuthModal] = useState<'login' | 'register' | null>(null);
   const { user, signOut } = useAuth();
   const { formData, loadFormData, updateFormData } = useFormContext();
+  const { refresh: refreshSubscription } = useSubscription();
   const prevUserRef = React.useRef(user);
   const dataLoadedRef = React.useRef(false);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [checkoutSnackbar, setCheckoutSnackbar] = useState<'success' | 'cancelled' | null>(null);
+
+  // Handle Stripe checkout return
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const checkoutStatus = params.get('checkout');
+    if (checkoutStatus === 'success' || checkoutStatus === 'cancelled') {
+      setCheckoutSnackbar(checkoutStatus);
+      if (checkoutStatus === 'success') {
+        refreshSubscription();
+      }
+      // Clean the URL
+      window.history.replaceState({}, '', window.location.pathname);
+      setCurrentPage('mylifefolio-home');
+    }
+  }, [refreshSubscription]);
 
   // Redirect to landing whenever user logs out
   React.useEffect(() => {
@@ -1735,6 +1755,14 @@ export default function MainPage() {
           />
         );
 
+      case 'pricing':
+        return (
+          <PricingPage
+            onNavigateBack={() => handleNavigate('mylifefolio-home')}
+            onNavigate={handleNavigate}
+          />
+        );
+
       // Placeholder pages for future services
       case 'long-term-care':
       case 'medicaid':
@@ -1825,6 +1853,24 @@ export default function MainPage() {
           ) : null}
         </DialogContent>
       </Dialog>
+
+      {/* Checkout result snackbar */}
+      <Snackbar
+        open={checkoutSnackbar !== null}
+        autoHideDuration={6000}
+        onClose={() => setCheckoutSnackbar(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setCheckoutSnackbar(null)}
+          severity={checkoutSnackbar === 'success' ? 'success' : 'info'}
+          sx={{ width: '100%' }}
+        >
+          {checkoutSnackbar === 'success'
+            ? 'Subscription activated! Welcome to MyLifeFolio.'
+            : 'Checkout was cancelled. You can subscribe anytime from the pricing page.'}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

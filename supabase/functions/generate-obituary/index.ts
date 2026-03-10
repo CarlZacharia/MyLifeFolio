@@ -151,6 +151,24 @@ serve(async (req: Request) => {
       );
     }
 
+    // --- Verify subscription tier (Enhanced required) ---
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+    const { data: subscription } = await supabaseAdmin
+      .from('user_subscriptions')
+      .select('tier, status')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!subscription || subscription.tier !== 'enhanced' || subscription.status !== 'active') {
+      return new Response(
+        JSON.stringify({ success: false, error: 'AI obituary generation requires the Enhanced plan.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      );
+    }
+
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
     if (!ANTHROPIC_API_KEY) {
       throw new Error('ANTHROPIC_API_KEY is not configured');

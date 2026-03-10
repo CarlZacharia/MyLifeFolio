@@ -8,9 +8,12 @@ import {
 import ArticleIcon from '@mui/icons-material/Article';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import HistoryIcon from '@mui/icons-material/History';
 import { useFormContext } from '../lib/FormContext';
+import { useSubscription } from '../lib/SubscriptionContext';
+import { TIER_INFO } from '../lib/subscriptionConfig';
 import { folioColors } from './FolioModal';
 import { generateObituary } from '../lib/obituaryGenerator';
 import { buildObituaryFromTemplate } from '../lib/obituaryTemplate';
@@ -95,6 +98,8 @@ interface ObituaryFormProps {
 
 const ObituaryForm: React.FC<ObituaryFormProps> = ({ obit, formDataKey, intakeId, clientFolderName }) => {
   const { updateFormData } = useFormContext();
+  const { canAccess } = useSubscription();
+  const hasAiAccess = canAccess('ai-obituary');
 
   const [generating, setGenerating] = useState(false);
   const [progressMsg, setProgressMsg] = useState('');
@@ -446,7 +451,33 @@ const ObituaryForm: React.FC<ObituaryFormProps> = ({ obit, formDataKey, intakeId
       {/* ── GENERATE SECTION ── */}
       <Divider sx={{ my: 2 }} />
 
-      {error && (
+      {!hasAiAccess && (
+        <Box
+          sx={{
+            bgcolor: 'rgba(30, 58, 95, 0.04)',
+            border: '1px solid rgba(30, 58, 95, 0.15)',
+            borderRadius: 2,
+            px: 3,
+            py: 2.5,
+            mb: 2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+          }}
+        >
+          <LockOutlinedIcon sx={{ fontSize: 28, color: '#1e3a5f', opacity: 0.6 }} />
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography variant="body1" sx={{ fontWeight: 600, color: '#1e3a5f' }}>
+              AI Obituary Generation — {TIER_INFO.enhanced.name} Feature
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Upgrade to the {TIER_INFO.enhanced.name} plan ({TIER_INFO.enhanced.price}/{TIER_INFO.enhanced.priceDetail}) to generate professional obituaries with AI. You can still fill in the form and export it as entered.
+            </Typography>
+          </Box>
+        </Box>
+      )}
+
+      {hasAiAccess && error && (
         <Alert severity="error" sx={{ mb: 1 }}>
           {error}
           {error.includes('timed out') && (
@@ -457,13 +488,13 @@ const ObituaryForm: React.FC<ObituaryFormProps> = ({ obit, formDataKey, intakeId
         </Alert>
       )}
 
-      {showValidation && missingFields.length > 0 && (
+      {hasAiAccess && showValidation && missingFields.length > 0 && (
         <Alert severity="warning" sx={{ mb: 1 }}>
           Please complete the required fields: {missingFields.map((f) => f.label).join(', ')}
         </Alert>
       )}
 
-      {generating && (
+      {hasAiAccess && generating && (
         <Box sx={{ mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
             <CircularProgress size={18} sx={{ color: folioColors.accent }} />
@@ -478,21 +509,23 @@ const ObituaryForm: React.FC<ObituaryFormProps> = ({ obit, formDataKey, intakeId
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
         <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={generating ? <CircularProgress size={20} color="inherit" /> : <AutoFixHighIcon />}
-            onClick={handleGenerate}
-            disabled={generating || remaining <= 0}
-            sx={{
-              bgcolor: folioColors.accent,
-              '&:hover': { bgcolor: '#b8922a' },
-              '&.Mui-disabled': { bgcolor: '#e0e0e0' },
-              px: 4, py: 1.2, fontWeight: 700, fontSize: '1rem',
-            }}
-          >
-            {generating ? 'Generating...' : 'Generate with AI'}
-          </Button>
+          {hasAiAccess && (
+            <Button
+              variant="contained"
+              size="large"
+              startIcon={generating ? <CircularProgress size={20} color="inherit" /> : <AutoFixHighIcon />}
+              onClick={handleGenerate}
+              disabled={generating || remaining <= 0}
+              sx={{
+                bgcolor: folioColors.accent,
+                '&:hover': { bgcolor: '#b8922a' },
+                '&.Mui-disabled': { bgcolor: '#e0e0e0' },
+                px: 4, py: 1.2, fontWeight: 700, fontSize: '1rem',
+              }}
+            >
+              {generating ? 'Generating...' : 'Generate with AI'}
+            </Button>
+          )}
           <Button
             variant="outlined"
             size="large"
@@ -509,13 +542,15 @@ const ObituaryForm: React.FC<ObituaryFormProps> = ({ obit, formDataKey, intakeId
             Export As Entered
           </Button>
         </Box>
-        <Typography variant="body2" color="text.secondary" sx={{
-          ...(remaining <= 0 ? { color: '#d32f2f', fontWeight: 600 } : {}),
-        }}>
-          {remaining > 0
-            ? `${obit.obituaryGenerationCount} of ${MAX_GENERATIONS} drafts used`
-            : 'All 5 drafts used — generation limit reached'}
-        </Typography>
+        {hasAiAccess && (
+          <Typography variant="body2" color="text.secondary" sx={{
+            ...(remaining <= 0 ? { color: '#d32f2f', fontWeight: 600 } : {}),
+          }}>
+            {remaining > 0
+              ? `${obit.obituaryGenerationCount} of ${MAX_GENERATIONS} drafts used`
+              : 'All 5 drafts used — generation limit reached'}
+          </Typography>
+        )}
       </Box>
 
       {/* ── PRIOR DRAFTS ── */}

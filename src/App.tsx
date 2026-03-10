@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import QuestionnairePage from '../app/page';
 import EducationCenter from '../components/EducationCenter';
 import { FormProvider, useFormContext } from '../lib/FormContext';
+import { SubscriptionProvider } from '../lib/SubscriptionContext';
 import ClientNotesModal from '../components/ClientNotesModal';
 import FamilyAccessLogin from './features/family-access/FamilyAccessLogin';
 import FamilyPortal from './features/family-access/FamilyPortal';
@@ -169,9 +170,11 @@ function App() {
             <Route path="/family-access" element={<FamilyAccessLogin />} />
             <Route path="/family-portal" element={<FamilyPortal />} />
             <Route path="*" element={
-              <FormProvider>
-                <AppContent />
-              </FormProvider>
+              <SubscriptionProvider>
+                <FormProvider>
+                  <AppContent />
+                </FormProvider>
+              </SubscriptionProvider>
             } />
           </Routes>
         </LocalizationProvider>
