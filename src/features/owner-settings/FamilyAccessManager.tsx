@@ -19,6 +19,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import ImageIcon from '@mui/icons-material/Image';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import DescriptionIcon from '@mui/icons-material/Description';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import FolioModal, {
   folioTextFieldSx,
   FolioCancelButton,
@@ -64,6 +65,7 @@ interface AuthorizedUser {
   display_name: string;
   access_sections: string[];
   allowed_reports: string[];
+  vault_instructions: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -125,6 +127,7 @@ const FamilyAccessManager: React.FC = () => {
   const [formEmail, setFormEmail] = useState('');
   const [formSections, setFormSections] = useState<string[]>([]);
   const [formReports, setFormReports] = useState<string[]>([]);
+  const [formVaultInstructions, setFormVaultInstructions] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const fieldsVisible = useFolioFieldAnimation(dialogOpen);
@@ -207,6 +210,7 @@ const FamilyAccessManager: React.FC = () => {
     setFormEmail(suggestion.email);
     setFormSections([]);
     setFormReports([]);
+    setFormVaultInstructions('');
     setError('');
     setDialogOpen(true);
   };
@@ -218,6 +222,7 @@ const FamilyAccessManager: React.FC = () => {
     setFormEmail('');
     setFormSections([]);
     setFormReports([]);
+    setFormVaultInstructions('');
     setError('');
     setDialogOpen(true);
   };
@@ -228,6 +233,7 @@ const FamilyAccessManager: React.FC = () => {
     setFormEmail(u.authorized_email);
     setFormSections(u.access_sections);
     setFormReports(u.allowed_reports || []);
+    setFormVaultInstructions(u.vault_instructions || '');
     setError('');
     setDialogOpen(true);
   };
@@ -253,6 +259,7 @@ const FamilyAccessManager: React.FC = () => {
             authorized_email: formEmail.trim().toLowerCase(),
             access_sections: formSections,
             allowed_reports: formReports,
+            vault_instructions: formVaultInstructions.trim(),
           })
           .eq('id', editUser.id);
         if (updateError) throw updateError;
@@ -265,6 +272,7 @@ const FamilyAccessManager: React.FC = () => {
             authorized_email: formEmail.trim().toLowerCase(),
             access_sections: formSections,
             allowed_reports: formReports,
+            vault_instructions: formVaultInstructions.trim(),
           });
         if (insertError) {
           if (insertError.message.includes('duplicate') || insertError.message.includes('unique')) {
@@ -573,7 +581,14 @@ const FamilyAccessManager: React.FC = () => {
             )}
             {users.map((u) => (
               <TableRow key={u.id} sx={{ opacity: u.is_active ? 1 : 0.5 }}>
-                <TableCell>{u.display_name}</TableCell>
+                <TableCell>
+                  {u.display_name}
+                  {u.vault_instructions && (
+                    <Tooltip title={`Vault note: ${u.vault_instructions}`}>
+                      <VpnKeyIcon sx={{ fontSize: 14, ml: 0.5, color: '#c9a227', verticalAlign: 'middle' }} />
+                    </Tooltip>
+                  )}
+                </TableCell>
                 <TableCell>{u.authorized_email}</TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
@@ -868,6 +883,27 @@ const FamilyAccessManager: React.FC = () => {
             >
               Clear All
             </Button>
+          </FolioFieldFade>
+
+          <FolioFieldFade visible={fieldsVisible} index={4}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+              Vault Access Instructions
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 1 }}>
+              Leave a note for this family member about how to access your credential vault (e.g., where the recovery key is stored). This note will be visible to them in the Family Portal.
+            </Typography>
+            <TextField
+              fullWidth
+              multiline
+              minRows={2}
+              maxRows={4}
+              label="Vault Instructions"
+              placeholder='e.g., "The vault recovery key is in the safe deposit box at First National Bank, Box #247"'
+              value={formVaultInstructions}
+              onChange={(e) => setFormVaultInstructions(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ ...folioTextFieldSx }}
+            />
           </FolioFieldFade>
         </Box>
       </FolioModal>

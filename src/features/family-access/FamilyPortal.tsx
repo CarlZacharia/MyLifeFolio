@@ -6,6 +6,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import ChatIcon from '@mui/icons-material/Chat';
 import DescriptionIcon from '@mui/icons-material/Description';
 import FolderIcon from '@mui/icons-material/Folder';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import { filterFolioByAccess, FilteredFolio } from './utils/filterFolioByAccess';
@@ -20,6 +21,7 @@ interface AuthorizedAccess {
   display_name: string;
   access_sections: string[];
   allowed_reports: string[];
+  vault_instructions: string;
   is_active: boolean;
 }
 
@@ -165,6 +167,23 @@ const FamilyPortal: React.FC = () => {
             </Typography>
           )}
         </Paper>
+
+        {/* Vault Instructions */}
+        {access.vault_instructions && (
+          <Paper sx={{ p: 2.5, mb: 3, borderRadius: 2, bgcolor: '#fffde7', border: '1px solid #f9e076' }} className="no-print">
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+              <VpnKeyIcon sx={{ color: '#c9a227', mt: 0.25 }} />
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#5d4037' }}>
+                  Credential Vault Instructions
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#5d4037', mt: 0.5, whiteSpace: 'pre-wrap' }}>
+                  {access.vault_instructions}
+                </Typography>
+              </Box>
+            </Box>
+          </Paper>
+        )}
 
         {/* Tabs */}
         <Paper sx={{ borderRadius: 2 }} className="no-print">
