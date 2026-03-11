@@ -7,7 +7,7 @@
 
 import { supabase } from './supabase';
 import { FormData } from './FormContext';
-import { encryptSensitiveData, decryptSensitiveData } from './encryption';
+import { encryptSensitiveData, decryptSensitiveData, hasSensitiveData } from './encryption';
 
 // Types for intake operations
 export type IntakeType =
@@ -72,20 +72,22 @@ export async function saveIntakeRaw(
     // Prepare the data - convert Date objects to ISO strings for JSON storage
     let jsonFormData = serializeFormDataForJson(formData);
 
-    // Encrypt sensitive fields (SSNs, etc.) before saving
-    try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      const isSessionValid = session &&
-                            session.access_token &&
-                            session.expires_at &&
-                            session.expires_at > Math.floor(Date.now() / 1000);
+    // Encrypt sensitive fields (SSNs, etc.) before saving — only if sensitive data is present
+    if (hasSensitiveData(jsonFormData)) {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const isSessionValid = session &&
+                              session.access_token &&
+                              session.expires_at &&
+                              session.expires_at > Math.floor(Date.now() / 1000);
 
-      if (!sessionError && isSessionValid) {
-        jsonFormData = await encryptSensitiveData(jsonFormData);
+        if (!sessionError && isSessionValid) {
+          jsonFormData = await encryptSensitiveData(jsonFormData);
+        }
+      } catch (encryptError: any) {
+        console.error('Encryption failed — aborting save to prevent plaintext storage:', encryptError);
+        return { success: false, error: 'Unable to encrypt sensitive data. Please try again.' };
       }
-    } catch (encryptError: any) {
-      console.error('Encryption failed — aborting save to prevent plaintext storage:', encryptError);
-      return { success: false, error: 'Unable to encrypt sensitive data. Please try again.' };
     }
 
     if (existingId) {
@@ -160,7 +162,7 @@ export async function getIntakeRaw(id: string, skipDecryption = false): Promise<
 
     // Decrypt sensitive fields (SSNs, etc.) unless skipDecryption is true
     let formData = data.form_data;
-    if (!skipDecryption) {
+    if (!skipDecryption && hasSensitiveData(formData as any)) {
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         const isSessionValid = session &&

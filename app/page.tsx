@@ -1317,8 +1317,15 @@ export default function MainPage() {
         if (rawData?.id) {
           const savedData = await loadIntakeFromRaw(rawData.id);
           if (savedData) {
+            // Pre-populate email from auth user if not already set
+            if (!savedData.email && user.email) {
+              savedData.email = user.email;
+            }
             loadFormData(savedData);
           }
+        } else if (user.email) {
+          // No saved data yet — seed email from auth profile
+          updateFormData({ email: user.email });
         }
       } catch (err) {
         console.log('No existing intake found for user');

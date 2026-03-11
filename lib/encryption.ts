@@ -99,3 +99,11 @@ export const SENSITIVE_FIELDS = [
 export function isSensitiveField(fieldName: string): boolean {
   return SENSITIVE_FIELDS.includes(fieldName as any);
 }
+
+/**
+ * Check if data contains any sensitive field with a non-empty value.
+ * When no sensitive data is present, encryption/decryption can be skipped.
+ */
+export function hasSensitiveData(data: Record<string, any>): boolean {
+  return SENSITIVE_FIELDS.some(field => field in data && data[field]);
+}
