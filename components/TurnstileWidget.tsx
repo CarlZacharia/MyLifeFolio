@@ -10,7 +10,7 @@ declare global {
           callback: (token: string) => void;
           'expired-callback'?: () => void;
           'error-callback'?: () => void;
-          size?: 'normal' | 'compact' | 'invisible';
+          size?: 'normal' | 'compact' | 'flexible';
           theme?: 'light' | 'dark' | 'auto';
         }
       ) => string;
@@ -46,7 +46,7 @@ export const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({ onToken, onExp
       }
       widgetIdRef.current = window.turnstile.render(containerRef.current, {
         sitekey: SITE_KEY,
-        size: 'invisible',
+        size: 'flexible',
         callback: onToken,
         'expired-callback': handleExpire,
         'error-callback': handleExpire,
