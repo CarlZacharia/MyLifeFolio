@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 declare global {
   interface Window {
@@ -30,10 +30,11 @@ const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
 export const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({ onToken, onExpire }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
-
-  const handleExpire = useCallback(() => {
-    onExpire?.();
-  }, [onExpire]);
+  // Use refs for callbacks so the effect doesn't re-run when they change
+  const onTokenRef = useRef(onToken);
+  const onExpireRef = useRef(onExpire);
+  onTokenRef.current = onToken;
+  onExpireRef.current = onExpire;
 
   useEffect(() => {
     if (!SITE_KEY || !containerRef.current) return;
@@ -46,10 +47,18 @@ export const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({ onToken, onExp
       }
       widgetIdRef.current = window.turnstile.render(containerRef.current, {
         sitekey: SITE_KEY,
-        size: 'flexible',
-        callback: onToken,
-        'expired-callback': handleExpire,
-        'error-callback': handleExpire,
+        size: 'normal',
+        callback: (token: string) => {
+          console.log('[Turnstile] Token received');
+          onTokenRef.current(token);
+        },
+        'expired-callback': () => {
+          console.log('[Turnstile] Token expired');
+          onExpireRef.current?.();
+        },
+        'error-callback': () => {
+          console.warn('[Turnstile] Error — widget will auto-retry');
+        },
       });
     };
 
@@ -77,24 +86,11 @@ export const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({ onToken, onExp
         widgetIdRef.current = null;
       }
     };
-  }, [onToken, handleExpire]);
+  }, []); // Empty deps — only run once on mount
 
   if (!SITE_KEY) return null;
 
   return <div ref={containerRef} />;
-};
-
-/** Hook to reset the Turnstile widget (call after failed submission) */
-export const useTurnstileReset = () => {
-  const widgetIdRef = useRef<string | null>(null);
-
-  const reset = useCallback(() => {
-    if (widgetIdRef.current && window.turnstile) {
-      window.turnstile.reset(widgetIdRef.current);
-    }
-  }, []);
-
-  return { widgetIdRef, reset };
 };
 
 export default TurnstileWidget;
