@@ -140,29 +140,29 @@ const ReauthGuard: React.FC<ReauthGuardProps> = ({ children }) => {
           {step === 'verify' && (
             <Box component="form" onSubmit={handleVerifyCode}>
               <Alert severity="info" sx={{ mb: 2 }}>
-                A 6-digit code was sent to <strong>{user?.email}</strong>.
+                An 8-digit code was sent to <strong>{user?.email}</strong>.
               </Alert>
               <TextField
                 fullWidth
                 label="Verification Code"
                 value={otpCode}
                 onChange={(e) => {
-                  // Only allow digits, max 6
-                  const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                  // Only allow digits, max 8
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 8);
                   setOtpCode(val);
                   setError(null);
                 }}
-                placeholder="000000"
+                placeholder="00000000"
                 size="small"
                 autoFocus
-                inputProps={{ maxLength: 6, inputMode: 'numeric', style: { letterSpacing: '0.3em', textAlign: 'center', fontSize: '1.2rem' } }}
+                inputProps={{ maxLength: 8, inputMode: 'numeric', style: { letterSpacing: '0.3em', textAlign: 'center', fontSize: '1.2rem' } }}
                 sx={{ mb: 2 }}
               />
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
-                disabled={loading || otpCode.length < 6}
+                disabled={loading || otpCode.length < 8}
               >
                 {loading ? <CircularProgress size={24} /> : 'Verify'}
               </Button>
