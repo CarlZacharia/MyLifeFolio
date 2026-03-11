@@ -166,16 +166,19 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
   if (success) {
     return (
       <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>
-        <Paper sx={{ p: 4 }}>
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
           <Alert severity="success" sx={{ mb: 2 }}>
-            Registration successful! Please check your email to confirm your account before signing in.
+            Registration successful!
           </Alert>
-          <Typography variant="body2" sx={{ mb: 3, color: 'text.secondary', textAlign: 'center' }}>
-            We sent a confirmation link to <strong>{formData.email}</strong>. Click the link in the email to activate your account.
+          <Typography variant="body1" sx={{ mb: 2, fontWeight: 500 }}>
+            Please check your email to confirm your account.
           </Typography>
-          <Button fullWidth variant="outlined" onClick={onSwitchToLogin}>
-            Go to Login
-          </Button>
+          <Typography variant="body2" sx={{ mb: 1, color: 'text.secondary' }}>
+            We sent a confirmation link to <strong>{formData.email}</strong>.
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Click the link in the email to activate your account, then return here to sign in.
+          </Typography>
         </Paper>
       </Box>
     );

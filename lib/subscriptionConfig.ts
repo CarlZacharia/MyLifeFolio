@@ -55,6 +55,7 @@ const STANDARD_FEATURES: FeatureKey[] = ALL_FEATURES.filter(
 const TRIAL_FEATURES: FeatureKey[] = [
   'personal-information',
   'family-dependents',
+  'financial-life',
   'people-advisors',
 ];
 
