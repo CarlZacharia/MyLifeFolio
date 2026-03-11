@@ -2882,7 +2882,7 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
     } catch (err: unknown) {
       const name = err instanceof Error ? err.name : "";
       if (name === "NotAllowedError" || name === "PermissionDeniedError") {
-        setCameraError("Camera permission was denied. To enable it, click the camera icon in your browser's address bar and allow access, then try again.");
+        setCameraError("Camera access was blocked. To fix it: click the lock icon (🔒) to the left of the web address at the top of your browser, then click 'Site settings' or 'Permissions', find Camera, and set it to Allow. Then refresh the page and try again. Or use Upload Photo instead.");
       } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
         setCameraError("No camera was found on this device. Please use Upload Photo instead.");
       } else {
@@ -3209,6 +3209,16 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
                 {cameraError && (
                   <Alert severity="warning" sx={{ mt: 1.5 }} onClose={() => setCameraError(null)}>
                     {cameraError}
+                    <Box sx={{ mt: 1 }}>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="warning"
+                        onClick={() => window.location.reload()}
+                      >
+                        Refresh Page
+                      </Button>
+                    </Box>
                   </Alert>
                 )}
               </Box>
