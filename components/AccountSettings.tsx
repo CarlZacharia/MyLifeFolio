@@ -14,6 +14,11 @@ import {
   Divider,
   Chip,
   Button,
+  List,
+  ListItem,
+  ListItemText,
+  Switch,
+  FormControlLabel,
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -28,8 +33,10 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import SecurityIcon from '@mui/icons-material/Security';
 import LinkIcon from '@mui/icons-material/Link';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import LockPersonIcon from '@mui/icons-material/LockPerson';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthContext';
+import { useReauthPrefs, REAUTH_FEATURES } from '../lib/ReauthPrefsContext';
 
 const theme = createTheme({
   palette: {
@@ -65,6 +72,7 @@ interface AccountSettingsProps {
 
 const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack }) => {
   const { user } = useAuth();
+  const { prefs, setReauthRequired } = useReauthPrefs();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState('');
@@ -439,6 +447,64 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack }) => 
                 >
                   {savingPassword ? <CircularProgress size={20} sx={{ color: 'white' }} /> : hasPassword ? 'Update Password' : 'Set Password'}
                 </Button>
+              </Paper>
+
+              {/* ── Re-authentication Requirements ── */}
+              <Paper elevation={0} sx={{ p: { xs: 3, md: 4 }, mb: 4, borderRadius: 3, border: '1px solid #e0d9cf' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                  <LockPersonIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+                  <Typography variant="h5" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, color: 'primary.main' }}>
+                    Re-authentication Requirements
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3, fontSize: '0.9rem' }}>
+                  Choose which sections require identity verification before viewing. When enabled, you will be prompted to verify via a one-time email code before accessing that section.
+                </Typography>
+
+                <List disablePadding>
+                  {REAUTH_FEATURES.map((feature, index) => (
+                    <React.Fragment key={feature.key}>
+                      {index > 0 && <Divider sx={{ borderColor: '#f0ebe3' }} />}
+                      <ListItem
+                        disableGutters
+                        sx={{ py: 1.5, display: 'flex', alignItems: 'flex-start', gap: 1 }}
+                      >
+                        <ListItemText
+                          primary={
+                            <Typography sx={{ fontWeight: 600, fontSize: '0.95rem', color: 'text.primary' }}>
+                              {feature.label}
+                            </Typography>
+                          }
+                          secondary={
+                            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.82rem', mt: 0.25 }}>
+                              {feature.description}
+                            </Typography>
+                          }
+                        />
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={prefs[feature.key] ?? feature.defaultOn}
+                              onChange={(e) => setReauthRequired(feature.key, e.target.checked)}
+                              size="small"
+                              sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': { color: 'primary.main' },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: 'primary.main' },
+                              }}
+                            />
+                          }
+                          label={
+                            <Typography variant="body2" sx={{ fontSize: '0.8rem', color: 'text.secondary', whiteSpace: 'nowrap' }}>
+                              {(prefs[feature.key] ?? feature.defaultOn) ? 'Required' : 'Off'}
+                            </Typography>
+                          }
+                          labelPlacement="start"
+                          sx={{ mr: 0, ml: 'auto', flexShrink: 0 }}
+                        />
+                      </ListItem>
+                    </React.Fragment>
+                  ))}
+                </List>
               </Paper>
             </>
           )}

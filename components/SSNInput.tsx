@@ -13,6 +13,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useAuth } from '../lib/AuthContext';
+import { useReauthPrefs } from '../lib/ReauthPrefsContext';
 
 interface SSNInputProps {
   label: string;
@@ -36,10 +37,12 @@ export function SSNInput({
   fullWidth = true,
 }: SSNInputProps) {
   const { isReauthenticated } = useAuth();
+  const { isReauthRequired } = useReauthPrefs();
+  const ssnReauthRequired = isReauthRequired('ssn');
   const [revealed, setRevealed] = useState(false);
 
-  // SSN is visible when user has clicked reveal AND is reauthenticated
-  const isVisible = revealed && isReauthenticated;
+  // SSN is visible when reauth is not required, OR when user has clicked reveal AND is reauthenticated
+  const isVisible = !ssnReauthRequired || (revealed && isReauthenticated);
   const hasValue = value.length > 0;
 
   /**
@@ -76,7 +79,7 @@ export function SSNInput({
   };
 
   const handleToggleVisibility = () => {
-    if (!isReauthenticated) return;
+    if (ssnReauthRequired && !isReauthenticated) return;
     setRevealed(!revealed);
   };
 
@@ -120,17 +123,17 @@ export function SSNInput({
           ),
           endAdornment: hasValue ? (
             <Tooltip title={
-              !isReauthenticated
+              ssnReauthRequired && !isReauthenticated
                 ? 'Verify your identity to reveal SSN'
                 : isVisible ? 'Hide SSN' : 'Show SSN'
             }>
               <span>
                 <IconButton
                   onClick={handleToggleVisibility}
-                  disabled={!isReauthenticated}
+                  disabled={ssnReauthRequired && !isReauthenticated}
                   size="small"
                   edge="end"
-                  sx={{ color: isReauthenticated ? 'primary.main' : 'text.disabled' }}
+                  sx={{ color: (ssnReauthRequired && !isReauthenticated) ? 'text.disabled' : 'primary.main' }}
                 >
                   {isVisible ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
                 </IconButton>

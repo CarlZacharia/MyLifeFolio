@@ -124,16 +124,9 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
           <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary', mb: 3 }}>
             Click the link in the email to sign in. It expires in 1 hour and can only be used once.
           </Typography>
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={() => {
-              setMagicLinkSent(false);
-              setError(null);
-            }}
-          >
-            Back to Sign In
-          </Button>
+          <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary' }}>
+            When you check your email, it will give you a link that will log you into MyLifeFolio.
+          </Typography>
         </Paper>
       </Box>
     );

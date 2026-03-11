@@ -16,18 +16,27 @@ import LockIcon from '@mui/icons-material/Lock';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import CloseIcon from '@mui/icons-material/Close';
 import { useAuth } from '../lib/AuthContext';
+import { useReauthPrefs } from '../lib/ReauthPrefsContext';
 
 interface ReauthGuardProps {
   children: React.ReactNode;
+  /** When provided, the guard is skipped if the user has disabled reauth for this feature. */
+  featureKey?: string;
 }
 
-const ReauthGuard: React.FC<ReauthGuardProps> = ({ children }) => {
+const ReauthGuard: React.FC<ReauthGuardProps> = ({ children, featureKey }) => {
   const { isReauthenticated, reauthenticate, verifyReauthOtp, user } = useAuth();
+  const { isReauthRequired } = useReauthPrefs();
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState<'prompt' | 'verify'>('prompt');
   const [otpCode, setOtpCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // If a featureKey is provided and the user has disabled reauth for it, skip the guard
+  if (featureKey && !isReauthRequired(featureKey)) {
+    return <>{children}</>;
+  }
 
   if (isReauthenticated) {
     return <>{children}</>;

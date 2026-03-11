@@ -1536,7 +1536,9 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <MedicalDataSection initialTab={initialSubTab} />
+            <ReauthGuard featureKey="medical-data">
+              <MedicalDataSection initialTab={initialSubTab} />
+            </ReauthGuard>
           </FolioCategoryPage>
         );
 
@@ -1554,7 +1556,7 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <ReauthGuard>
+            <ReauthGuard featureKey="financial-life">
               <FinancialLifeSection initialTab={initialSubTab} />
             </ReauthGuard>
           </FolioCategoryPage>
@@ -1574,7 +1576,9 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <PeopleAdvisorsSection />
+            <ReauthGuard featureKey="people-advisors">
+              <PeopleAdvisorsSection />
+            </ReauthGuard>
           </FolioCategoryPage>
         );
 
@@ -1592,7 +1596,9 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <CurrentEstatePlanSection />
+            <ReauthGuard featureKey="legal-documents">
+              <CurrentEstatePlanSection />
+            </ReauthGuard>
           </FolioCategoryPage>
         );
 
@@ -1629,7 +1635,7 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <ReauthGuard>
+            <ReauthGuard featureKey="documents-vault">
               <DocumentsVaultSection />
             </ReauthGuard>
           </FolioCategoryPage>
@@ -1667,7 +1673,9 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <InsuranceCoveragePage />
+            <ReauthGuard featureKey="insurance-coverage">
+              <InsuranceCoveragePage />
+            </ReauthGuard>
           </FolioCategoryPage>
         );
 
@@ -1685,7 +1693,9 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <CarePreferencesSection />
+            <ReauthGuard featureKey="care-decisions">
+              <CarePreferencesSection />
+            </ReauthGuard>
           </FolioCategoryPage>
         );
 
@@ -1703,7 +1713,9 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <EndOfLifeSection />
+            <ReauthGuard featureKey="end-of-life">
+              <EndOfLifeSection />
+            </ReauthGuard>
           </FolioCategoryPage>
         );
 
@@ -1721,7 +1733,9 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <DigitalLifeSection initialTab={initialSubTab} />
+            <ReauthGuard featureKey="digital-life">
+              <DigitalLifeSection initialTab={initialSubTab} />
+            </ReauthGuard>
           </FolioCategoryPage>
         );
 
