@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 
-const REAUTH_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const REAUTH_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
 
 interface AuthContextType {
   user: User | null;
@@ -130,7 +130,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const verifyReauthOtp = useCallback(async (token: string): Promise<{ error: string | null }> => {
     const { error } = await supabase.auth.verifyOtp({
-      type: 'email',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      type: 'reauthentication' as any,
       token,
       email: user?.email || '',
     });
