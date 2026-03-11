@@ -337,7 +337,7 @@ export const ChildModal: React.FC<ChildModalProps> = ({
               </Typography>
             )}
           </Grid>
-          {/* Row 3: Has Children, Disinherit, Is Deceased */}
+          {/* Row 3: Has Children, Is Deceased */}
           <Grid item xs={12} md={4}>
             <Box sx={{ display: 'flex', alignItems: 'center', height: '40px' }}>
               <Typography
@@ -363,19 +363,6 @@ export const ChildModal: React.FC<ChildModalProps> = ({
                 <FormControlLabel value="no" control={<Radio size="small" sx={{ color: folioColors.inkFaint, '&.Mui-checked': { color: folioColors.accent } }} />} label="No" sx={{ '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px', color: folioColors.ink } }} />
               </RadioGroup>
             </Box>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={formData.disinherit || false}
-                  onChange={handleCheckboxChange('disinherit')}
-                  sx={{ color: '#c62828', '&.Mui-checked': { color: '#c62828' } }}
-                />
-              }
-              label="Disinherit this child"
-              sx={{ color: '#c62828', '& .MuiFormControlLabel-label': { fontFamily: '"Jost", sans-serif', fontSize: '14px' } }}
-            />
           </Grid>
           <Grid item xs={12} md={4}>
             <FormControlLabel

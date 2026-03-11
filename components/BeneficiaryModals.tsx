@@ -125,7 +125,7 @@ export const BeneficiaryModal: React.FC<BeneficiaryModalProps> = ({
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             <FolioCancelButton onClick={onClose} />
             <FolioSaveButton onClick={handleSave} disabled={!formData.name}>
-              {isEdit ? 'Save Changes' : 'Add Other Family Member'}
+              {isEdit ? 'Save Changes' : 'Save'}
             </FolioSaveButton>
           </Box>
         </>

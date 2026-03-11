@@ -14,7 +14,6 @@ import {
   InputAdornment,
   IconButton,
 } from '@mui/material';
-import GoogleIcon from '@mui/icons-material/Google';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { supabase } from '../lib/supabase';
@@ -75,28 +74,6 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { error: googleError } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin,
-        },
-      });
-
-      if (googleError) {
-        setError(googleError.message);
-      }
-    } catch (err) {
-      setError('Failed to sign in with Google. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -168,23 +145,6 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
             {error}
           </Alert>
         )}
-
-        <Button
-          fullWidth
-          variant="outlined"
-          startIcon={<GoogleIcon />}
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-          sx={{ mb: 2 }}
-        >
-          Sign in with Google
-        </Button>
-
-        <Divider sx={{ my: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            or sign in with email
-          </Typography>
-        </Divider>
 
         <Box component="form" onSubmit={handleLogin}>
           <TextField
