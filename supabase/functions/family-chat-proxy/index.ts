@@ -4,7 +4,19 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 // @ts-ignore - Deno global available in Edge Functions runtime
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'http://localhost:5173';
+// Allowed origins for CORS — production and local development
+const ALLOWED_ORIGINS = new Set([
+  'https://mylifefolio.com',
+  'https://www.mylifefolio.com',
+  'http://localhost:5173',
+  ...(Deno.env.get('ALLOWED_ORIGIN') ? [Deno.env.get('ALLOWED_ORIGIN')!] : []),
+]);
+
+/** Return the request Origin if it's in the whitelist, otherwise the first allowed origin */
+function getCorsOrigin(req: Request): string {
+  const origin = req.headers.get('Origin') || '';
+  return ALLOWED_ORIGINS.has(origin) ? origin : 'https://mylifefolio.com';
+}
 
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-20250514";
@@ -220,7 +232,7 @@ serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: {
-        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+        "Access-Control-Allow-Origin": getCorsOrigin(req),
         "Access-Control-Allow-Headers":
           "authorization, x-client-info, apikey, content-type",
       },
@@ -366,7 +378,7 @@ serve(async (req: Request) => {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+        "Access-Control-Allow-Origin": getCorsOrigin(req),
       },
     });
   } catch (err) {

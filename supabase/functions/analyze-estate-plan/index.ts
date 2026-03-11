@@ -9,12 +9,26 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // @ts-ignore - Deno global available in Edge Functions runtime
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'http://localhost:5173';
+// Allowed origins for CORS — production and local development
+const ALLOWED_ORIGINS = new Set([
+  'https://mylifefolio.com',
+  'https://www.mylifefolio.com',
+  'http://localhost:5173',
+  ...(Deno.env.get('ALLOWED_ORIGIN') ? [Deno.env.get('ALLOWED_ORIGIN')!] : []),
+]);
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+/** Return the request Origin if it's in the whitelist, otherwise the first allowed origin */
+function getCorsOrigin(req: Request): string {
+  const origin = req.headers.get('Origin') || '';
+  return ALLOWED_ORIGINS.has(origin) ? origin : 'https://mylifefolio.com';
+}
+
+function corsHeaders(req: Request) {
+  return {
+    'Access-Control-Allow-Origin': getCorsOrigin(req),
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  };
+}
 
 interface RequestBody {
   formData: Record<string, unknown>;
@@ -24,7 +38,7 @@ interface RequestBody {
 serve(async (req: Request) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders(req) });
   }
 
   try {
@@ -33,7 +47,7 @@ serve(async (req: Request) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+        { headers: { ...corsHeaders(req), 'Content-Type': 'application/json' }, status: 401 }
       );
     }
 
@@ -47,7 +61,7 @@ serve(async (req: Request) => {
     if (authError || !user) {
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+        { headers: { ...corsHeaders(req), 'Content-Type': 'application/json' }, status: 401 }
       );
     }
 
@@ -117,7 +131,7 @@ ${JSON.stringify(formData, null, 2)}`;
         usage: claudeResponse.usage,
       }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
         status: 200,
       }
     );
@@ -130,7 +144,7 @@ ${JSON.stringify(formData, null, 2)}`;
         error: error instanceof Error ? error.message : 'Unknown error occurred',
       }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
         status: 500,
       }
     );

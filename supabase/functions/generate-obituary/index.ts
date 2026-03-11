@@ -9,12 +9,26 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // @ts-ignore - Deno global available in Edge Functions runtime
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'http://localhost:5173';
+// Allowed origins for CORS — production and local development
+const ALLOWED_ORIGINS = new Set([
+  'https://mylifefolio.com',
+  'https://www.mylifefolio.com',
+  'http://localhost:5173',
+  ...(Deno.env.get('ALLOWED_ORIGIN') ? [Deno.env.get('ALLOWED_ORIGIN')!] : []),
+]);
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+/** Return the request Origin if it's in the whitelist, otherwise the first allowed origin */
+function getCorsOrigin(req: Request): string {
+  const origin = req.headers.get('Origin') || '';
+  return ALLOWED_ORIGINS.has(origin) ? origin : 'https://mylifefolio.com';
+}
+
+function corsHeaders(req: Request) {
+  return {
+    'Access-Control-Allow-Origin': getCorsOrigin(req),
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  };
+}
 
 const MAX_GENERATIONS = 5;
 
@@ -126,7 +140,7 @@ ${sections.join('\n')}`;
 
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders(req) });
   }
 
   try {
@@ -135,7 +149,7 @@ serve(async (req: Request) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+        { headers: { ...corsHeaders(req), 'Content-Type': 'application/json' }, status: 401 }
       );
     }
 
@@ -149,7 +163,7 @@ serve(async (req: Request) => {
     if (authError || !user) {
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+        { headers: { ...corsHeaders(req), 'Content-Type': 'application/json' }, status: 401 }
       );
     }
 
@@ -167,7 +181,7 @@ serve(async (req: Request) => {
     if (!subscription || subscription.tier !== 'enhanced' || subscription.status !== 'active') {
       return new Response(
         JSON.stringify({ success: false, error: 'AI obituary generation requires the Enhanced plan.' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+        { headers: { ...corsHeaders(req), 'Content-Type': 'application/json' }, status: 403 }
       );
     }
 
@@ -203,14 +217,14 @@ serve(async (req: Request) => {
       if (intakeError || !intake) {
         return new Response(
           JSON.stringify({ success: false, error: 'Intake not found.' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+          { headers: { ...corsHeaders(req), 'Content-Type': 'application/json' }, status: 404 }
         );
       }
 
       if (intake.user_id !== user.id) {
         return new Response(
           JSON.stringify({ success: false, error: 'You do not have access to this intake.' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+          { headers: { ...corsHeaders(req), 'Content-Type': 'application/json' }, status: 403 }
         );
       }
     }
@@ -241,7 +255,7 @@ serve(async (req: Request) => {
             limitReached: true,
           }),
           {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
             status: 429,
           }
         );
@@ -296,7 +310,7 @@ serve(async (req: Request) => {
         usage: claudeResponse.usage,
       }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
         status: 200,
       }
     );
@@ -308,7 +322,7 @@ serve(async (req: Request) => {
         error: error instanceof Error ? error.message : 'An unknown error occurred',
       }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
         status: 500,
       }
     );

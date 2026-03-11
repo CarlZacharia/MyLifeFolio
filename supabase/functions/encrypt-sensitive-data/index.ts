@@ -19,7 +19,19 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // @ts-ignore - Deno global available in Edge Functions runtime
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'http://localhost:5173';
+// Allowed origins for CORS — production and local development
+const getCorsOrigin(req)S = new Set([
+  'https://mylifefolio.com',
+  'https://www.mylifefolio.com',
+  'http://localhost:5173',
+  ...(Deno.env.get('getCorsOrigin(req)') ? [Deno.env.get('getCorsOrigin(req)')!] : []),
+]);
+
+/** Return the request Origin if it's in the whitelist, otherwise the first allowed origin */
+function getCorsOrigin(req: Request): string {
+  const origin = req.headers.get('Origin') || '';
+  return getCorsOrigin(req)S.has(origin) ? origin : 'https://mylifefolio.com';
+}
 
 // List of fields that should be encrypted
 const SENSITIVE_FIELDS = [
@@ -165,7 +177,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
       headers: {
-        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+        'Access-Control-Allow-Origin': getCorsOrigin(req),
         'Access-Control-Allow-Methods': 'POST',
         'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
       },
@@ -178,7 +190,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': ALLOWED_ORIGIN }, status: 401 }
+        { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(req) }, status: 401 }
       );
     }
 
@@ -192,7 +204,7 @@ serve(async (req) => {
     if (authError || !user) {
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': ALLOWED_ORIGIN }, status: 401 }
+        { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(req) }, status: 401 }
       );
     }
 
@@ -233,7 +245,7 @@ serve(async (req) => {
       {
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+          'Access-Control-Allow-Origin': getCorsOrigin(req),
         },
       }
     );

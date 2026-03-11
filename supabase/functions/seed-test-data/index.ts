@@ -11,19 +11,33 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // @ts-ignore - Deno global available in Edge Functions runtime
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'http://localhost:5173';
+// Allowed origins for CORS — production and local development
+const ALLOWED_ORIGINS = new Set([
+  'https://mylifefolio.com',
+  'https://www.mylifefolio.com',
+  'http://localhost:5173',
+  ...(Deno.env.get('ALLOWED_ORIGIN') ? [Deno.env.get('ALLOWED_ORIGIN')!] : []),
+]);
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+/** Return the request Origin if it's in the whitelist, otherwise the first allowed origin */
+function getCorsOrigin(req: Request): string {
+  const origin = req.headers.get('Origin') || '';
+  return ALLOWED_ORIGINS.has(origin) ? origin : 'https://mylifefolio.com';
+}
+
+function corsHeaders(req: Request) {
+  return {
+    'Access-Control-Allow-Origin': getCorsOrigin(req),
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  };
+}
 
 const TEST_DOMAIN = '@mylifefolio.test';
 const TEST_PASSWORD = 'TestPass123!';
 
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders(req) });
   }
 
   try {
@@ -31,7 +45,7 @@ serve(async (req: Request) => {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ success: false, error: 'No auth header' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 401, headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       });
     }
 
@@ -46,7 +60,7 @@ serve(async (req: Request) => {
     const { data: { user }, error: authErr } = await userClient.auth.getUser();
     if (authErr || !user) {
       return new Response(JSON.stringify({ success: false, error: 'Not authenticated' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 401, headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       });
     }
 
@@ -54,7 +68,7 @@ serve(async (req: Request) => {
     const { data: profile } = await adminClient.from('profiles').select('is_admin').eq('id', user.id).single();
     if (!profile?.is_admin) {
       return new Response(JSON.stringify({ success: false, error: 'Admin access required' }), {
-        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 403, headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       });
     }
 
@@ -753,11 +767,11 @@ serve(async (req: Request) => {
       message: `Seeded ${results.length} personas`,
       personas: results,
     }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
     });
   } catch (err: any) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500, headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
     });
   }
 });

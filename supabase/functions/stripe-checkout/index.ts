@@ -11,17 +11,31 @@ import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno';
 // @ts-ignore - Deno global available in Edge Functions runtime
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'http://localhost:5173';
+// Allowed origins for CORS — production and local development
+const ALLOWED_ORIGINS = new Set([
+  'https://mylifefolio.com',
+  'https://www.mylifefolio.com',
+  'http://localhost:5173',
+  ...(Deno.env.get('ALLOWED_ORIGIN') ? [Deno.env.get('ALLOWED_ORIGIN')!] : []),
+]);
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+/** Return the request Origin if it's in the whitelist, otherwise the first allowed origin */
+function getCorsOrigin(req: Request): string {
+  const origin = req.headers.get('Origin') || '';
+  return ALLOWED_ORIGINS.has(origin) ? origin : 'https://mylifefolio.com';
+}
+
+function corsHeaders(req: Request) {
+  return {
+    'Access-Control-Allow-Origin': getCorsOrigin(req),
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  };
+}
 
 serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders(req) });
   }
 
   try {
@@ -30,7 +44,7 @@ serve(async (req: Request) => {
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'No authorization header' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       });
     }
 
@@ -47,7 +61,7 @@ serve(async (req: Request) => {
     if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       });
     }
 
@@ -56,7 +70,7 @@ serve(async (req: Request) => {
     if (!priceId) {
       return new Response(JSON.stringify({ error: 'Missing priceId' }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       });
     }
 
@@ -114,7 +128,7 @@ serve(async (req: Request) => {
       JSON.stringify({ sessionUrl: session.url }),
       {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       }
     );
   } catch (error: unknown) {
@@ -124,7 +138,7 @@ serve(async (req: Request) => {
       JSON.stringify({ error: message }),
       {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       }
     );
   }
