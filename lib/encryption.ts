@@ -9,15 +9,28 @@
 import { supabase } from './supabase';
 
 /**
+ * Get the current session's access token for edge function calls
+ */
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.access_token) {
+    return { Authorization: `Bearer ${session.access_token}` };
+  }
+  return {};
+}
+
+/**
  * Encrypt sensitive fields in form data using server-side Edge Function
  */
 export async function encryptSensitiveData(
   data: Record<string, any>
 ): Promise<Record<string, any>> {
   try {
+    const headers = await getAuthHeaders();
     const { data: result, error } = await supabase.functions.invoke(
       'encrypt-sensitive-data',
       {
+        headers,
         body: {
           action: 'encrypt',
           data: data,
@@ -26,8 +39,6 @@ export async function encryptSensitiveData(
     );
 
     if (error) {
-      // Don't log auth errors - they're expected when session expires
-      // Just throw silently so they can be caught by caller
       throw error;
     }
 
@@ -37,7 +48,6 @@ export async function encryptSensitiveData(
 
     return result.data;
   } catch (error) {
-    // Don't log the error here - let the caller decide if it should be logged
     throw error;
   }
 }
@@ -49,9 +59,11 @@ export async function decryptSensitiveData(
   data: Record<string, any>
 ): Promise<Record<string, any>> {
   try {
+    const headers = await getAuthHeaders();
     const { data: result, error } = await supabase.functions.invoke(
       'encrypt-sensitive-data',
       {
+        headers,
         body: {
           action: 'decrypt',
           data: data,
@@ -60,8 +72,6 @@ export async function decryptSensitiveData(
     );
 
     if (error) {
-      // Don't log auth errors - they're expected when session expires
-      // Just throw silently so they can be caught by caller
       throw error;
     }
 
@@ -71,7 +81,6 @@ export async function decryptSensitiveData(
 
     return result.data;
   } catch (error) {
-    // Don't log the error here - let the caller decide if it should be logged
     throw error;
   }
 }
