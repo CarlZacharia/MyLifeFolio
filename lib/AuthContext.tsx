@@ -47,30 +47,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return u;
     };
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    // Handle a session: if confirmed, set user; if unconfirmed, sign out to clear the JWT
+    const handleSession = async (session: Session | null) => {
       const u = confirmedUser(session);
-      setUser(u);
-      if (u) {
-        localStorage.setItem(HAS_REGISTERED_KEY, 'true');
-        setHasRegistered(true);
+      if (session && !u) {
+        // Unconfirmed user — sign out to clear the JWT from the Supabase client
+        await supabase.auth.signOut();
+        setSession(null);
+        setUser(null);
+      } else {
+        setSession(session);
+        setUser(u);
+        if (u) {
+          localStorage.setItem(HAS_REGISTERED_KEY, 'true');
+          setHasRegistered(true);
+        }
       }
       setLoading(false);
+    };
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      handleSession(session);
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      const u = confirmedUser(session);
-      setUser(u);
-      if (u) {
-        localStorage.setItem(HAS_REGISTERED_KEY, 'true');
-        setHasRegistered(true);
-      }
-      setLoading(false);
+      handleSession(session);
     });
 
     return () => subscription.unsubscribe();

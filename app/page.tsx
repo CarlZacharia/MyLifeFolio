@@ -478,9 +478,16 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
         return;
       }
 
+      // Verify session is valid before querying
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        console.error('No valid session for intake query:', sessionError?.message);
+        return;
+      }
+
       try {
         // Check for existing raw intake for this user
-        const { data: rawData } = await supabase
+        const { data: rawData, error: rawError } = await supabase
           .from('intakes_raw')
           .select('id')
           .eq('user_id', user.id)
@@ -489,12 +496,14 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
           .limit(1)
           .maybeSingle();
 
-        if (rawData?.id) {
+        if (rawError) {
+          console.error('intakes_raw query failed:', rawError.message, rawError.code);
+        } else if (rawData?.id) {
           setExistingRawId(rawData.id);
         }
 
         // Check for existing normalized intake for this user
-        const { data: intakeData } = await supabase
+        const { data: intakeData, error: intakeError } = await supabase
           .from('folio_intakes')
           .select('id')
           .eq('user_id', user.id)
@@ -502,12 +511,13 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
           .limit(1)
           .maybeSingle();
 
-        if (intakeData?.id) {
+        if (intakeError) {
+          console.error('folio_intakes query failed:', intakeError.message, intakeError.code);
+        } else if (intakeData?.id) {
           setExistingIntakeId(intakeData.id);
         }
       } catch (err) {
-        // No existing intake found, that's fine - will create new on first save
-        console.log('No existing intake found for user');
+        console.error('Failed to load existing intakes:', err);
       }
     };
 
