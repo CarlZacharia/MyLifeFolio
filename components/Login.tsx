@@ -18,6 +18,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import EmailIcon from '@mui/icons-material/Email';
 import { useAuth } from '../lib/AuthContext';
+import { TurnstileWidget } from './TurnstileWidget';
 
 interface LoginProps {
   onSwitchToRegister?: () => void;
@@ -36,6 +37,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
   const [error, setError] = useState<string | null>(null);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +49,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
     setLoading(true);
     setError(null);
 
-    const { error: magicError } = await signInWithMagicLink(email.trim());
+    const { error: magicError } = await signInWithMagicLink(email.trim(), captchaToken || undefined);
     setLoading(false);
 
     if (magicError) {
@@ -71,7 +73,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
     setLoading(true);
     setError(null);
 
-    const { error: signInError } = await signInWithPassword(email.trim(), password);
+    const { error: signInError } = await signInWithPassword(email.trim(), password, captchaToken || undefined);
     setLoading(false);
 
     if (signInError) {
@@ -316,6 +318,11 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
             Access the Family Portal
           </Link>
         </Typography>
+
+        <TurnstileWidget
+          onToken={setCaptchaToken}
+          onExpire={() => setCaptchaToken(null)}
+        />
 
         <Typography
           variant="caption"

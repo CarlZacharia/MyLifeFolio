@@ -12,8 +12,8 @@ interface AuthContextType {
   loading: boolean;
   hasRegistered: boolean;
   signOut: () => Promise<void>;
-  signInWithMagicLink: (email: string) => Promise<{ error: string | null }>;
-  signInWithPassword: (email: string, password: string) => Promise<{ error: string | null }>;
+  signInWithMagicLink: (email: string, captchaToken?: string) => Promise<{ error: string | null }>;
+  signInWithPassword: (email: string, password: string, captchaToken?: string) => Promise<{ error: string | null }>;
   reauthenticate: () => Promise<{ error: string | null }>;
   verifyReauthOtp: (token: string) => Promise<{ error: string | null }>;
   isReauthenticated: boolean;
@@ -100,19 +100,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setReauthTime(null);
   };
 
-  const signInWithMagicLink = useCallback(async (email: string): Promise<{ error: string | null }> => {
+  const signInWithMagicLink = useCallback(async (email: string, captchaToken?: string): Promise<{ error: string | null }> => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        captchaToken,
       },
     });
     if (error) return { error: error.message };
     return { error: null };
   }, []);
 
-  const signInWithPassword = useCallback(async (email: string, password: string): Promise<{ error: string | null }> => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const signInWithPassword = useCallback(async (email: string, password: string, captchaToken?: string): Promise<{ error: string | null }> => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken } });
     if (error) return { error: error.message };
     if (data.user && !data.user.email_confirmed_at) {
       await supabase.auth.signOut();

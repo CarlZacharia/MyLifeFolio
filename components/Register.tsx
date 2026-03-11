@@ -21,6 +21,7 @@ import {
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { supabase } from '../lib/supabase';
+import { TurnstileWidget } from './TurnstileWidget';
 
 const US_STATES = [
   'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
@@ -59,6 +60,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const handleChange = (field: string) => (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: string } }
@@ -132,6 +134,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
         email: formData.email,
         password: formData.password,
         options: {
+          captchaToken: captchaToken || undefined,
           data: {
             name: formData.name,
             address: formData.address,
@@ -448,6 +451,11 @@ consultation.
               }}
             />
           )}
+
+          <TurnstileWidget
+            onToken={setCaptchaToken}
+            onExpire={() => setCaptchaToken(null)}
+          />
 
           <Button
             type="submit"
