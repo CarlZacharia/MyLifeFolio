@@ -183,7 +183,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onNavigateBack, onNavigate })
             <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
               <Box
                 component="img"
-                src="/logo.jpg"
+                src="/logo.svg"
                 alt="MyLifeFolio"
                 sx={{ height: 36, width: 36, borderRadius: '50%', border: '2px solid', borderColor: 'secondary.main', objectFit: 'cover' }}
               />

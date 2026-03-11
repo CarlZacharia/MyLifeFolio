@@ -64,7 +64,7 @@ const ReportLayout: React.FC<ReportLayoutProps> = ({
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
         <Box
           component="img"
-          src="/logo.jpg"
+          src="/logo.svg"
           alt="MyLifeFolio"
           sx={{
             height: 40,

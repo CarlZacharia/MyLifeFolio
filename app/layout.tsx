@@ -142,6 +142,7 @@ export default function RootLayout({
       <head>
         <title>MyLifeFolio</title>
         <meta name="description" content="MyLifeFolio" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
       </head>
       <body>
         <ThemeProvider theme={theme}>

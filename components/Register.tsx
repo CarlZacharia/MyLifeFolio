@@ -204,33 +204,22 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
               padding: '3px',
             }}
           >
-            <Box
-              sx={{
-                width: 100,
-                height: 100,
-                borderRadius: '50%',
-                background: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-              }}
-            >
+
               <Box
                 component="img"
-                src="/mylifefolio.png"
+                src="/logodark.svg"
                 alt="MyLifeFolio"
                 sx={{
-                  width: 80,
-                  height: 80,
+                  width: 120,
+                  height: 120,
                   objectFit: 'contain',
                 }}
               />
             </Box>
-          </Box>
+
           <Typography
             sx={{
-              mt: 1,
+              mt: 2,
               fontSize: '12px',
               fontStyle: 'italic',
               color: 'text.secondary',

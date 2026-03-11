@@ -154,10 +154,10 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
           <Box
             component="img"
-            src="/logo.jpg"
+            src="/logodark.svg"
             alt="MyLifeFolio"
             sx={{
-              height: 80,
+              height: 120,
               width: 'auto',
               borderRadius: 1,
             }}

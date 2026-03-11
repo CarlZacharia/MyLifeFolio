@@ -252,7 +252,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
         <AppBar position="fixed" elevation={1} sx={{ bgcolor: 'rgba(30, 58, 95, 0.97)', backdropFilter: 'blur(12px)' }}>
           <Toolbar sx={{ py: { xs: 1, md: 1.5 }, px: { xs: 2, md: 3 }, minHeight: { xs: 64, md: 72 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer' }} onClick={() => onNavigate('home')}>
-              <Box component="img" src="/logo.jpg" alt="MyLifeFolio" sx={{ height: { xs: 36, md: 40 }, width: { xs: 36, md: 40 }, borderRadius: '50%', border: '2px solid', borderColor: 'secondary.main', objectFit: 'cover' }} />
+              <Box component="img" src="/logo.svg" alt="MyLifeFolio" sx={{ height: { xs: 36, md: 40 }, width: { xs: 36, md: 40 }, borderRadius: '50%', border: '2px solid', borderColor: 'secondary.main', objectFit: 'cover' }} />
               <Typography sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, fontSize: { xs: '1.1rem', md: '1.25rem' }, display: { xs: 'none', sm: 'block' } }}>
                 MyLifeFolio
               </Typography>
@@ -389,12 +389,8 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
               {/* Hero right image */}
               <Grid item xs={12} md={5} sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center' }}>
                 <Box sx={{ position: 'relative', opacity: 0, animation: 'fadeIn 1s 0.6s ease forwards', '@keyframes fadeIn': { from: { opacity: 0 }, to: { opacity: 1 } } }}>
-                  <Box component="img" src="/mylifefolio.png" alt="MyLifeFolio" sx={{ width: 300, height: 300, borderRadius: '50%', objectFit: 'cover', border: '3px solid', borderColor: alpha('#c9a227', 0.4), boxShadow: `0 0 60px ${alpha('#c9a227', 0.15)}` }} />
-                  <Box sx={{ position: 'absolute', bottom: 10, right: -30, bgcolor: 'white', color: 'primary.dark', px: 2.5, py: 1.5, borderRadius: 2, boxShadow: '0 12px 32px rgba(0,0,0,0.18)', minWidth: 160 }}>
-                    <Typography sx={{ fontFamily: '"Source Sans 3", sans-serif', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'text.secondary', mb: 0.4 }}>Everything captured</Typography>
-                    <Typography sx={{ fontFamily: '"Playfair Display", serif', fontSize: '1.9rem', fontWeight: 700, color: 'primary.main', lineHeight: 1 }}>100%</Typography>
-                    <Typography sx={{ fontFamily: '"Source Sans 3", sans-serif', fontSize: '0.7rem', color: 'secondary.dark' }}>of what matters</Typography>
-                  </Box>
+                  <Box component="img" src="/logo.svg" alt="MyLifeFolio" sx={{ width: 300, height: 300, borderRadius: '5%', objectFit: 'cover', border: '3px solid', borderColor: alpha('#c9a227', 0.4), boxShadow: `0 0 60px ${alpha('#c9a227', 0.15)}` }} />
+  
                 </Box>
               </Grid>
             </Grid>

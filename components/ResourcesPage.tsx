@@ -181,7 +181,7 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({
 
             <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
               <Box
-                component="img" src="/logo.jpg" alt="MyLifeFolio"
+                component="img" src="/logo.svg" alt="MyLifeFolio"
                 sx={{ height: { xs: 36, md: 40 }, width: { xs: 36, md: 40 }, borderRadius: '50%', border: '2px solid', borderColor: 'secondary.main', objectFit: 'cover' }}
               />
               <Typography sx={{ fontFamily: 'Georgia, "Times New Roman", serif', fontWeight: 600, fontSize: { xs: '1.1rem', md: '1.25rem' }, letterSpacing: '0.01em', display: { xs: 'none', sm: 'block' } }}>

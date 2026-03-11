@@ -452,7 +452,7 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
               >
                 <Box
                   component="img"
-                  src="/logo.jpg"
+                  src="/logo.svg"
                   alt="MyLifeFolio"
                   sx={{
                     height: { xs: 36, md: 40 },
