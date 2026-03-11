@@ -52,10 +52,9 @@ serve(async (req: Request) => {
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
     // Verify the caller is an admin
-    const userClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: { user }, error: authErr } = await userClient.auth.getUser();
+    const jwt = authHeader.replace('Bearer ', '');
+    const userClient = createClient(supabaseUrl, anonKey);
+    const { data: { user }, error: authErr } = await userClient.auth.getUser(jwt);
     if (authErr || !user) {
       return new Response(JSON.stringify({ success: false, error: 'Not authenticated' }), {
         status: 401, headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },

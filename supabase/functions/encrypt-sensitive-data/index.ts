@@ -194,14 +194,16 @@ serve(async (req) => {
       );
     }
 
+    // Extract the JWT and validate the user directly
+    const jwt = authHeader.replace('Bearer ', '');
     const supabaseAuth = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_ANON_KEY')!,
-      { global: { headers: { Authorization: authHeader } } }
     );
 
-    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(jwt);
     if (authError || !user) {
+      console.error('Auth validation failed:', authError?.message);
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
         { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(req) }, status: 401 }

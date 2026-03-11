@@ -54,10 +54,9 @@ serve(async (req: Request) => {
     const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')!;
 
     // Create Supabase client with user's token to get their identity
-    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
+    const jwt = authHeader.replace('Bearer ', '');
+    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey);
+    const { data: { user }, error: authError } = await supabaseUser.auth.getUser(jwt);
     if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,

@@ -249,16 +249,16 @@ serve(async (req: Request) => {
       );
     }
 
+    const jwt = authHeader.replace("Bearer ", "");
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
     );
 
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser(jwt);
     if (authError || !user) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),

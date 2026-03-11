@@ -153,14 +153,15 @@ serve(async (req: Request) => {
       );
     }
 
+    const jwt = authHeader.replace('Bearer ', '');
     const supabaseAuth = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_ANON_KEY')!,
-      { global: { headers: { Authorization: authHeader } } }
     );
 
-    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(jwt);
     if (authError || !user) {
+      console.error('Auth validation failed:', authError?.message);
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
         { headers: { ...corsHeaders(req), 'Content-Type': 'application/json' }, status: 401 }
