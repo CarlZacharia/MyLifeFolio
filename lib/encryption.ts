@@ -8,15 +8,44 @@
 
 import { supabase } from './supabase';
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
 /**
- * Get the current session's access token for edge function calls
+ * Call the encrypt-sensitive-data edge function directly via fetch.
+ * Bypasses supabase.functions.invoke() to ensure correct auth headers.
  */
-async function getAuthHeaders(): Promise<Record<string, string>> {
+async function callEncryptFunction(
+  action: 'encrypt' | 'decrypt',
+  data: Record<string, any>
+): Promise<Record<string, any>> {
   const { data: { session } } = await supabase.auth.getSession();
-  if (session?.access_token) {
-    return { Authorization: `Bearer ${session.access_token}` };
+  if (!session?.access_token) {
+    throw new Error('No active session — cannot call encryption service');
   }
-  return {};
+
+  const url = `${SUPABASE_URL}/functions/v1/encrypt-sensitive-data`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+      'apikey': SUPABASE_ANON_KEY,
+    },
+    body: JSON.stringify({ action, data }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Encryption service returned ${response.status}: ${errorText}`);
+  }
+
+  const result = await response.json();
+  if (!result.success) {
+    throw new Error(result.error || `${action} failed`);
+  }
+
+  return result.data;
 }
 
 /**
@@ -25,31 +54,7 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
 export async function encryptSensitiveData(
   data: Record<string, any>
 ): Promise<Record<string, any>> {
-  try {
-    const headers = await getAuthHeaders();
-    const { data: result, error } = await supabase.functions.invoke(
-      'encrypt-sensitive-data',
-      {
-        headers,
-        body: {
-          action: 'encrypt',
-          data: data,
-        },
-      }
-    );
-
-    if (error) {
-      throw error;
-    }
-
-    if (!result.success) {
-      throw new Error(result.error || 'Encryption failed');
-    }
-
-    return result.data;
-  } catch (error) {
-    throw error;
-  }
+  return callEncryptFunction('encrypt', data);
 }
 
 /**
@@ -58,31 +63,7 @@ export async function encryptSensitiveData(
 export async function decryptSensitiveData(
   data: Record<string, any>
 ): Promise<Record<string, any>> {
-  try {
-    const headers = await getAuthHeaders();
-    const { data: result, error } = await supabase.functions.invoke(
-      'encrypt-sensitive-data',
-      {
-        headers,
-        body: {
-          action: 'decrypt',
-          data: data,
-        },
-      }
-    );
-
-    if (error) {
-      throw error;
-    }
-
-    if (!result.success) {
-      throw new Error(result.error || 'Decryption failed');
-    }
-
-    return result.data;
-  } catch (error) {
-    throw error;
-  }
+  return callEncryptFunction('decrypt', data);
 }
 
 /**
