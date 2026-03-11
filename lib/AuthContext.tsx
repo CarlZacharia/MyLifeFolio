@@ -1,8 +1,10 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from './supabase';
+
+const REAUTH_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 
 interface AuthContextType {
   user: User | null;
@@ -10,6 +12,11 @@ interface AuthContextType {
   loading: boolean;
   hasRegistered: boolean;
   signOut: () => Promise<void>;
+  signInWithMagicLink: (email: string) => Promise<{ error: string | null }>;
+  signInWithPassword: (email: string, password: string) => Promise<{ error: string | null }>;
+  reauthenticate: () => Promise<{ error: string | null }>;
+  verifyReauthOtp: (token: string) => Promise<{ error: string | null }>;
+  isReauthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,6 +45,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     return false;
   });
+  const [reauthTime, setReauthTime] = useState<number | null>(null);
+
+  const isReauthenticated = reauthTime
+    ? Date.now() - reauthTime < REAUTH_WINDOW_MS
+    : false;
 
   useEffect(() => {
     // Only treat a user as authenticated if their email is confirmed
@@ -85,14 +97,58 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
+    setReauthTime(null);
   };
 
-  const value = {
+  const signInWithMagicLink = useCallback(async (email: string): Promise<{ error: string | null }> => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) return { error: error.message };
+    return { error: null };
+  }, []);
+
+  const signInWithPassword = useCallback(async (email: string, password: string): Promise<{ error: string | null }> => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { error: error.message };
+    if (data.user && !data.user.email_confirmed_at) {
+      await supabase.auth.signOut();
+      return { error: 'Please confirm your email address before signing in. Check your inbox for a confirmation link.' };
+    }
+    return { error: null };
+  }, []);
+
+  const reauthenticate = useCallback(async (): Promise<{ error: string | null }> => {
+    const { error } = await supabase.auth.reauthenticate();
+    if (error) return { error: error.message };
+    return { error: null };
+  }, []);
+
+  const verifyReauthOtp = useCallback(async (token: string): Promise<{ error: string | null }> => {
+    const { error } = await supabase.auth.verifyOtp({
+      type: 'email',
+      token,
+      email: user?.email || '',
+    });
+    if (error) return { error: error.message };
+    setReauthTime(Date.now());
+    return { error: null };
+  }, [user?.email]);
+
+  const value: AuthContextType = {
     user,
     session,
     loading,
     hasRegistered,
     signOut,
+    signInWithMagicLink,
+    signInWithPassword,
+    reauthenticate,
+    verifyReauthOtp,
+    isReauthenticated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -3,12 +3,16 @@
  *
  * A secure input field for Social Security Numbers with:
  * - Automatic formatting (###-##-####)
- * - Input masking
+ * - Input masking (shows •••-••-•••• when not revealed)
+ * - Reauth-gated visibility toggle to reveal/edit
  */
 
-import React, { ChangeEvent } from 'react';
-import { TextField, Box } from '@mui/material';
+import React, { useState, ChangeEvent } from 'react';
+import { TextField, Box, IconButton, Tooltip } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { useAuth } from '../lib/AuthContext';
 
 interface SSNInputProps {
   label: string;
@@ -31,17 +35,20 @@ export function SSNInput({
   disabled = false,
   fullWidth = true,
 }: SSNInputProps) {
+  const { isReauthenticated } = useAuth();
+  const [revealed, setRevealed] = useState(false);
+
+  // SSN is visible when user has clicked reveal AND is reauthenticated
+  const isVisible = revealed && isReauthenticated;
+  const hasValue = value.length > 0;
+
   /**
    * Format SSN with dashes: ###-##-####
    */
   const formatSSN = (input: string): string => {
-    // Remove all non-digits
     const digits = input.replace(/\D/g, '');
-
-    // Limit to 9 digits
     const limited = digits.slice(0, 9);
 
-    // Apply formatting
     if (limited.length <= 3) {
       return limited;
     } else if (limited.length <= 5) {
@@ -52,19 +59,25 @@ export function SSNInput({
   };
 
   /**
-   * Handle input change with formatting
+   * Mask SSN: replace digits with bullets, keep dashes
    */
+  const maskSSN = (ssn: string): string => {
+    return ssn.replace(/\d/g, '•');
+  };
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const formatted = formatSSN(e.target.value);
     onChange(formatted);
   };
 
-  /**
-   * Validate SSN format
-   */
   const isValidSSN = (ssn: string): boolean => {
     const digits = ssn.replace(/\D/g, '');
     return digits.length === 0 || digits.length === 9;
+  };
+
+  const handleToggleVisibility = () => {
+    if (!isReauthenticated) return;
+    setRevealed(!revealed);
   };
 
   const hasError = error || (!isValidSSN(value) && value.length > 0);
@@ -72,11 +85,14 @@ export function SSNInput({
     ? 'SSN must be 9 digits (###-##-####)'
     : '');
 
+  // Field is read-only when there's a stored value and it's not revealed
+  const isLocked = hasValue && !isVisible;
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
       <TextField
         label={label}
-        value={value}
+        value={isLocked ? maskSSN(value) : value}
         onChange={handleChange}
         error={hasError}
         helperText={displayHelperText}
@@ -87,9 +103,10 @@ export function SSNInput({
         size="small"
         InputLabelProps={{ shrink: true }}
         inputProps={{
-          maxLength: 11, // 9 digits + 2 dashes
+          maxLength: 11,
           inputMode: 'numeric',
           autoComplete: 'off',
+          readOnly: isLocked,
         }}
         InputProps={{
           startAdornment: (
@@ -101,6 +118,25 @@ export function SSNInput({
               }}
             />
           ),
+          endAdornment: hasValue ? (
+            <Tooltip title={
+              !isReauthenticated
+                ? 'Verify your identity to reveal SSN'
+                : isVisible ? 'Hide SSN' : 'Show SSN'
+            }>
+              <span>
+                <IconButton
+                  onClick={handleToggleVisibility}
+                  disabled={!isReauthenticated}
+                  size="small"
+                  edge="end"
+                  sx={{ color: isReauthenticated ? 'primary.main' : 'text.disabled' }}
+                >
+                  {isVisible ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                </IconButton>
+              </span>
+            </Tooltip>
+          ) : undefined,
         }}
       />
     </Box>

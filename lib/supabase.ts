@@ -16,6 +16,11 @@ export const supabase = createClient(
   supabaseUrl || '',
   supabaseAnonKey || '',
   {
+    auth: {
+      detectSessionInUrl: true,
+      persistSession: true,
+      autoRefreshToken: true,
+    },
     global: {
       fetch: async (url: RequestInfo | URL, init?: RequestInit) => {
         const headers = new Headers(init?.headers);

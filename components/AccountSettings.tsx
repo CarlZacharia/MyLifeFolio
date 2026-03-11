@@ -25,6 +25,9 @@ import GavelIcon from '@mui/icons-material/Gavel';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PaymentIcon from '@mui/icons-material/Payment';
+import SecurityIcon from '@mui/icons-material/Security';
+import LinkIcon from '@mui/icons-material/Link';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthContext';
 
@@ -64,6 +67,11 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack }) => 
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [savingPassword, setSavingPassword] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData>({
     name: '',
     email: '',
@@ -123,6 +131,38 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack }) => 
       setError(err instanceof Error ? err.message : 'Failed to load profile');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Determine login method from user's app_metadata
+  const providers = user?.app_metadata?.providers as string[] | undefined;
+  const hasPassword = providers?.includes('email') ?? false;
+  const loginMethod = hasPassword ? 'Email & Password' : 'Magic Link (passwordless)';
+
+  const handlePasswordChange = async () => {
+    setPasswordError(null);
+    setPasswordSuccess(null);
+
+    if (newPassword.length < 8) {
+      setPasswordError('Password must be at least 8 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match.');
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      setPasswordSuccess('Password updated successfully.');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Failed to update password.');
+    } finally {
+      setSavingPassword(false);
     }
   };
 
@@ -319,6 +359,86 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack }) => 
                     InputProps={{ readOnly: true }}
                   />
                 </Box>
+              </Paper>
+
+              {/* ── Security ── */}
+              <Paper elevation={0} sx={{ p: { xs: 3, md: 4 }, mb: 4, borderRadius: 3, border: '1px solid #e0d9cf' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
+                  <SecurityIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+                  <Typography variant="h5" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, color: 'primary.main' }}>
+                    Security
+                  </Typography>
+                </Box>
+
+                {/* Login Method */}
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.08em', mb: 0.5 }}>
+                    Login Method
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {hasPassword ? (
+                      <VpnKeyIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+                    ) : (
+                      <LinkIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+                    )}
+                    <Typography sx={{ fontSize: '0.95rem', fontWeight: 500 }}>
+                      {loginMethod}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Divider sx={{ my: 3, borderColor: '#e0d9cf' }} />
+
+                {/* Set / Change Password */}
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.08em', mb: 1 }}>
+                  {hasPassword ? 'Change Password' : 'Set a Password'}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2, fontSize: '0.85rem' }}>
+                  {hasPassword
+                    ? 'Update your password below. You can still use magic links to sign in.'
+                    : 'Add a password so you can sign in with either a magic link or email & password.'}
+                </Typography>
+
+                {passwordError && <Alert severity="error" sx={{ mb: 2 }}>{passwordError}</Alert>}
+                {passwordSuccess && <Alert severity="success" sx={{ mb: 2 }}>{passwordSuccess}</Alert>}
+
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
+                  <TextField
+                    label="New Password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                    size="small"
+                    placeholder="Min. 8 characters"
+                  />
+                  <TextField
+                    label="Confirm Password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                    size="small"
+                    placeholder="Re-enter password"
+                  />
+                </Box>
+
+                <Button
+                  variant="contained"
+                  onClick={handlePasswordChange}
+                  disabled={savingPassword || !newPassword || !confirmPassword}
+                  sx={{
+                    bgcolor: 'primary.main',
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    px: 3,
+                    '&:hover': { bgcolor: 'primary.dark' },
+                  }}
+                >
+                  {savingPassword ? <CircularProgress size={20} sx={{ color: 'white' }} /> : hasPassword ? 'Update Password' : 'Set Password'}
+                </Button>
               </Paper>
             </>
           )}

@@ -82,6 +82,7 @@ import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import Login from '../components/Login';
 import Register from '../components/Register';
 import WelcomeModal from '../components/WelcomeModal';
+import ReauthGuard from '../components/ReauthGuard';
 import { MaritalStatus } from '../lib/FormContext';
 import { analyzeEstatePlan, ANALYSIS_PROMPTS } from '../lib/claudeApi';
 import { categorizeAssets } from '../lib/assetCategorization';
@@ -1553,7 +1554,9 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <FinancialLifeSection initialTab={initialSubTab} />
+            <ReauthGuard>
+              <FinancialLifeSection initialTab={initialSubTab} />
+            </ReauthGuard>
           </FolioCategoryPage>
         );
 
@@ -1626,7 +1629,9 @@ export default function MainPage() {
             onResources={() => handleNavigate('resources')}
             onNavigate={handleNavigate}
           >
-            <DocumentsVaultSection />
+            <ReauthGuard>
+              <DocumentsVaultSection />
+            </ReauthGuard>
           </FolioCategoryPage>
         );
 

@@ -11,6 +11,7 @@ import { SubscriptionProvider } from '../lib/SubscriptionContext';
 import ClientNotesModal from '../components/ClientNotesModal';
 import FamilyAccessLogin from './features/family-access/FamilyAccessLogin';
 import FamilyPortal from './features/family-access/FamilyPortal';
+import AuthCallback from '../components/AuthCallback';
 
 type CurrentPage = 'questionnaire' | 'education';
 
@@ -167,6 +168,7 @@ function App() {
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <CssBaseline />
           <Routes>
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/family-access" element={<FamilyAccessLogin />} />
             <Route path="/family-portal" element={<FamilyPortal />} />
             <Route path="*" element={
