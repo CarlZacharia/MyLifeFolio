@@ -20,17 +20,17 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 declare const Deno: { env: { get(key: string): string | undefined } };
 
 // Allowed origins for CORS — production and local development
-const getCorsOrigin(req)S = new Set([
+const ALLOWED_ORIGINS = new Set([
   'https://mylifefolio.com',
   'https://www.mylifefolio.com',
   'http://localhost:5173',
-  ...(Deno.env.get('getCorsOrigin(req)') ? [Deno.env.get('getCorsOrigin(req)')!] : []),
+  ...(Deno.env.get('ALLOWED_ORIGIN') ? [Deno.env.get('ALLOWED_ORIGIN')!] : []),
 ]);
 
 /** Return the request Origin if it's in the whitelist, otherwise the first allowed origin */
 function getCorsOrigin(req: Request): string {
   const origin = req.headers.get('Origin') || '';
-  return getCorsOrigin(req)S.has(origin) ? origin : 'https://mylifefolio.com';
+  return ALLOWED_ORIGINS.has(origin) ? origin : 'https://mylifefolio.com';
 }
 
 // List of fields that should be encrypted
