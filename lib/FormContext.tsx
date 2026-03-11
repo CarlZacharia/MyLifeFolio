@@ -789,8 +789,14 @@ export interface FormData {
     primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     secondaryBeneficiaries: string[];
     secondaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
+    primaryLegatees: string[];
+    primaryLegateeDistributionType: 'Per Stirpes' | 'Per Capita' | '';
+    secondaryLegatees: string[];
+    secondaryLegateeDistributionType: 'Per Stirpes' | 'Per Capita' | '';
     addToPersonalPropertyMemo: boolean;
+    donee: string;
     notes: string;
+    photo: string;
   }>;
 
   businessInterests: Array<{

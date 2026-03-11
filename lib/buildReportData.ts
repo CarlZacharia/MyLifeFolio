@@ -387,7 +387,10 @@ export function buildReportData(fd: Record<string, any>): ReportDataBundle {
     value: parseNum(oa.value),
     has_beneficiaries: oa.hasBeneficiaries,
     primary_beneficiaries: oa.primaryBeneficiaries,
+    add_to_personal_property_memo: oa.addToPersonalPropertyMemo || false,
+    donee: oa.donee || undefined,
     notes: oa.notes || undefined,
+    photo: oa.photo || undefined,
   }));
 
   // ── Insurance Summary ──

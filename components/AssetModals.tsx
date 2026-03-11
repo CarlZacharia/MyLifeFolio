@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   TextField,
   Grid,
@@ -19,6 +19,7 @@ import {
   Radio,
   RadioGroup,
   Alert,
+  Button,
 } from "@mui/material";
 import { RealEstateOwner, OwnershipForm } from "../lib/FormContext";
 import CurrencyInput from "./CurrencyInput";
@@ -2795,7 +2796,9 @@ export interface OtherAssetData {
   secondaryLegatees: string[];
   secondaryLegateeDistributionType: DistributionType;
   addToPersonalPropertyMemo: boolean;
+  donee: string;
   notes: string;
+  photo: string;
 }
 
 const emptyOtherAsset: OtherAssetData = {
@@ -2816,7 +2819,9 @@ const emptyOtherAsset: OtherAssetData = {
   secondaryLegatees: [],
   secondaryLegateeDistributionType: "",
   addToPersonalPropertyMemo: false,
+  donee: "",
   notes: "",
+  photo: "",
 };
 
 interface OtherAssetModalProps {
@@ -2848,6 +2853,57 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
   );
   const [touched, setTouched] = useState<TouchedFields<OtherAssetData>>({});
 
+  // Camera / photo state
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
+
+  const stopCamera = () => {
+    if (cameraStreamRef.current) {
+      cameraStreamRef.current.getTracks().forEach((t) => t.stop());
+      cameraStreamRef.current = null;
+    }
+    setShowCamera(false);
+  };
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      cameraStreamRef.current = stream;
+      setShowCamera(true);
+    } catch {
+      alert("Unable to access camera. Please grant camera permission or use file upload.");
+    }
+  };
+
+  useEffect(() => {
+    if (showCamera && videoRef.current && cameraStreamRef.current) {
+      videoRef.current.srcObject = cameraStreamRef.current;
+    }
+  }, [showCamera]);
+
+  const capturePhoto = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    handleChange({ photo: canvas.toDataURL("image/jpeg", 0.85) });
+    stopCamera();
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => handleChange({ photo: evt.target?.result as string });
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
   // Build trust options based on flags
   const trustOwnerOptions: string[] = [];
   if (trustFlags) {
@@ -2874,6 +2930,8 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
       // Always reset to empty when adding new (isEdit false), otherwise use initialData
       setData(isEdit && initialData ? initialData : emptyOtherAsset);
       setTouched({});
+    } else {
+      stopCamera();
     }
   }, [open, initialData, isEdit]);
 
@@ -2956,7 +3014,7 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
               onBlur={() => handleBlur("description")}
               variant="outlined"
               size="small"
-              placeholder="e.g., Business interest, collectibles, jewelry"
+              placeholder="e.g., Jewelry, Collectibles, Special items"
               error={touched.description && errors.description}
               helperText={touched.description && errors.description ? "Required" : ""}
               sx={{ ...folioTextFieldSx }}
@@ -3054,15 +3112,86 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Notes"
+              label="Donee"
+              value={data.donee || ""}
+              onChange={(e) => handleChange({ donee: e.target.value })}
+              variant="outlined"
+              size="small"
+              placeholder="Person to receive this item at death"
+              sx={{ ...folioTextFieldSx }}
+              InputLabelProps={{ shrink: true }}
+            />
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+              The person to whom this item should be given at the death of the client or spouse.
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Special information about this item"
               value={data.notes || ""}
               onChange={(e) => handleChange({ notes: e.target.value })}
               variant="outlined"
               multiline
               rows={4}
               sx={{ ...folioTextFieldSx }}
-              placeholder="Enter any additional notes about this asset..."
+              placeholder="Enter any special information about this item..."
+              InputLabelProps={{ shrink: true }}
             />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, color: 'text.primary' }}>
+              Item Photo
+            </Typography>
+            {data.photo ? (
+              <Box>
+                <Box
+                  component="img"
+                  src={data.photo}
+                  alt="Item"
+                  sx={{ maxWidth: '100%', maxHeight: 220, borderRadius: 1, display: 'block', mb: 1, border: '1px solid', borderColor: 'divider' }}
+                />
+                <Button size="small" color="error" variant="outlined" onClick={() => handleChange({ photo: "" })}>
+                  Remove Photo
+                </Button>
+              </Box>
+            ) : showCamera ? (
+              <Box>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  style={{ width: '100%', maxHeight: 220, borderRadius: 4, background: '#000', display: 'block' }}
+                />
+                <canvas ref={canvasRef} style={{ display: 'none' }} />
+                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                  <Button variant="contained" size="small" onClick={capturePhoto}>
+                    Capture
+                  </Button>
+                  <Button size="small" variant="outlined" onClick={stopCamera}>
+                    Cancel
+                  </Button>
+                </Box>
+              </Box>
+            ) : (
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                <Button variant="outlined" size="small" onClick={startCamera}>
+                  Take Photo
+                </Button>
+                <Button variant="outlined" size="small" onClick={() => fileInputRef.current?.click()}>
+                  Upload Photo
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleFileUpload}
+                />
+              </Box>
+            )}
           </Grid>
         </Grid>
       </FolioFieldFade>

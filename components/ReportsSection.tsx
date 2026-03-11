@@ -21,6 +21,7 @@ import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import ArticleIcon from '@mui/icons-material/Article';
 import { useFormContext } from '../lib/FormContext';
 import { buildReportData } from '../lib/buildReportData';
 import { folioColors } from './FolioModal';
@@ -35,6 +36,7 @@ import FuneralInstructions from '../src/features/family-access/reports/FuneralIn
 import WhatToDoIfIDie from '../src/features/family-access/reports/WhatToDoIfIDie';
 import FamilyBriefingReport from '../src/features/family-access/reports/Familybriefingreport';
 import DigitalLifeSummary from '../src/features/family-access/reports/DigitalLifeSummary';
+import PersonalPropertyMemorandum from '../src/features/family-access/reports/PersonalPropertyMemorandum';
 import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
 import { reportsHelp } from './folioHelpContent';
 
@@ -58,6 +60,8 @@ export const REPORTS: ReportDef[] = [
   { id: 'what-to-do', label: 'What To Do If I Die', icon: <AssignmentIcon /> },
   { id: 'digital-life', label: 'Digital Life Summary', icon: <FingerprintIcon /> },
   { id: 'family-briefing', label: 'Family Briefing Report', icon: <MenuBookIcon /> },
+  { id: 'ppm-client', label: 'Personal Property Memo — Client', icon: <ArticleIcon /> },
+  { id: 'ppm-spouse', label: 'Personal Property Memo — Spouse', icon: <ArticleIcon /> },
 ];
 
 // ─── Shared intake builder (delegates to buildReportData) ────────────────────
@@ -215,6 +219,22 @@ export const renderReportById = (reportId: string, data: ReturnType<typeof build
           clientMedicalInsurance={data.briefingClientMedIns}
           spouseMedicalInsurance={data.briefingSpouseMedIns}
           longTermCare={data.briefingLongTermCare}
+        />
+      );
+    case 'ppm-client':
+      return (
+        <PersonalPropertyMemorandum
+          intake={data.assetIntake}
+          otherAssets={data.otherAssets}
+          ownerType="client"
+        />
+      );
+    case 'ppm-spouse':
+      return (
+        <PersonalPropertyMemorandum
+          intake={data.assetIntake}
+          otherAssets={data.otherAssets}
+          ownerType="spouse"
         />
       );
     default:

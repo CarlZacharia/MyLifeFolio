@@ -54,6 +54,10 @@ import {
 import { folioColors } from './FolioModal';
 import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
 import { legalDocumentsHelp } from './folioHelpContent';
+import { buildReportData } from '../lib/buildReportData';
+import PersonalPropertyMemorandum from '../src/features/family-access/reports/PersonalPropertyMemorandum';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 const OTHER_VALUE = '__OTHER__';
 
@@ -1216,6 +1220,12 @@ const CurrentEstatePlanSection: React.FC = () => {
   const spouseName = formData.spouseName || 'Spouse';
   const clientFolderName = generateClientFolderName(clientName);
 
+  const [ppmClientOpen, setPpmClientOpen] = useState(false);
+  const [ppmSpouseOpen, setPpmSpouseOpen] = useState(false);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const reportData = buildReportData(formData as unknown as Record<string, any>);
+
   return (
     <Box>
       <FolioHelpModal open={showHelp} onClose={closeHelp} content={legalDocumentsHelp} />
@@ -1302,6 +1312,71 @@ const CurrentEstatePlanSection: React.FC = () => {
           beneficiaryOptions={clientBeneficiaryOptions}
         />
       )}
+
+      {/* ── Generated Documents ── */}
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: folioColors.ink, mb: 2 }}>
+          Generated Documents
+        </Typography>
+
+        {/* Client PPM */}
+        <Paper variant="outlined" sx={{ mb: 2 }}>
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2.5, py: 1.5, cursor: 'pointer' }}
+            onClick={() => setPpmClientOpen((v) => !v)}
+          >
+            <Box>
+              <Typography sx={{ fontWeight: 600, color: folioColors.ink }}>
+                Personal Property Memorandum — {clientName}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Lists tangible personal property items designated for specific recipients at death
+              </Typography>
+            </Box>
+            {ppmClientOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          </Box>
+          <Collapse in={ppmClientOpen}>
+            <Box sx={{ px: 2.5, pb: 3, pt: 1 }}>
+              <PersonalPropertyMemorandum
+                intake={reportData.assetIntake}
+                otherAssets={reportData.otherAssets}
+                ownerType="client"
+                embedded
+              />
+            </Box>
+          </Collapse>
+        </Paper>
+
+        {/* Spouse PPM — only shown when married */}
+        {showSpouse && (
+          <Paper variant="outlined">
+            <Box
+              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2.5, py: 1.5, cursor: 'pointer' }}
+              onClick={() => setPpmSpouseOpen((v) => !v)}
+            >
+              <Box>
+                <Typography sx={{ fontWeight: 600, color: folioColors.ink }}>
+                  Personal Property Memorandum — {spouseName}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Lists tangible personal property items designated for specific recipients at death
+                </Typography>
+              </Box>
+              {ppmSpouseOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </Box>
+            <Collapse in={ppmSpouseOpen}>
+              <Box sx={{ px: 2.5, pb: 3, pt: 1 }}>
+                <PersonalPropertyMemorandum
+                  intake={reportData.assetIntake}
+                  otherAssets={reportData.otherAssets}
+                  ownerType="spouse"
+                  embedded
+                />
+              </Box>
+            </Collapse>
+          </Paper>
+        )}
+      </Box>
 
     </Box>
   );

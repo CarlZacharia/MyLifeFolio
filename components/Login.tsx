@@ -191,11 +191,18 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
                 autoFocus
               />
 
+              <Box sx={{ mt: 2 }}>
+                <TurnstileWidget
+                  onToken={setCaptchaToken}
+                  onExpire={() => setCaptchaToken(null)}
+                />
+              </Box>
+
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
-                disabled={loading}
+                disabled={loading || !email.trim() || !captchaToken}
                 startIcon={!loading && <EmailIcon />}
                 sx={{ mt: 2, mb: 2 }}
               >
@@ -265,12 +272,19 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
                 </Link>
               </Box>
 
+              <Box sx={{ mt: 2 }}>
+                <TurnstileWidget
+                  onToken={setCaptchaToken}
+                  onExpire={() => setCaptchaToken(null)}
+                />
+              </Box>
+
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
-                disabled={loading}
-                sx={{ mt: 3, mb: 2 }}
+                disabled={loading || !email.trim() || !password || !captchaToken}
+                sx={{ mt: 2, mb: 2 }}
               >
                 {loading ? <CircularProgress size={24} /> : 'Sign In'}
               </Button>
@@ -311,11 +325,6 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
             Access the Family Portal
           </Link>
         </Typography>
-
-        <TurnstileWidget
-          onToken={setCaptchaToken}
-          onExpire={() => setCaptchaToken(null)}
-        />
 
         <Typography
           variant="caption"
