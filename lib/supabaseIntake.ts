@@ -300,6 +300,7 @@ export async function saveIntakeNormalized(
       advisorsResult,
       expensesResult,
       subscriptionsResult,
+      digitalSubscriptionsResult,
       carePreferencesResult,
       endOfLifeResult,
       friendsNeighborsResult,
@@ -347,6 +348,7 @@ export async function saveIntakeNormalized(
       saveAdvisors(formData.advisors, intakeId, user.id),
       saveExpenses(formData.expenses, intakeId, user.id),
       saveSubscriptions(formData.subscriptions, intakeId, user.id),
+      saveDigitalSubscriptions(formData.digitalSubscriptions, intakeId, user.id),
       saveCarePreferences(formData.carePreferences, intakeId, user.id),
       saveEndOfLife(formData.endOfLife, intakeId, user.id),
       saveFriendsNeighbors(formData.friendsNeighbors, intakeId, user.id),
@@ -397,6 +399,7 @@ export async function saveIntakeNormalized(
       advisorsResult,
       expensesResult,
       subscriptionsResult,
+      digitalSubscriptionsResult,
       carePreferencesResult,
       endOfLifeResult,
       friendsNeighborsResult,
@@ -1311,6 +1314,28 @@ async function saveSubscriptions(
   }));
 
   return deleteAndInsertRecords('folio_subscriptions', intakeId, userId, records);
+}
+
+async function saveDigitalSubscriptions(
+  subscriptions: FormData['digitalSubscriptions'],
+  intakeId: string,
+  userId: string
+): Promise<SaveResult> {
+  const records = subscriptions.map((s) => ({
+    service_name: s.serviceName || null,
+    category: s.category || null,
+    frequency: s.frequency || null,
+    amount: s.amount || null,
+    payment_method: s.paymentMethod || null,
+    account_holder: s.accountHolder || null,
+    login_email: s.loginEmail || null,
+    auto_renew: s.autoRenew,
+    renewal_date: s.renewalDate || null,
+    is_active: s.isActive,
+    notes: s.notes || null,
+  }));
+
+  return deleteAndInsertRecords('folio_digital_subscriptions', intakeId, userId, records);
 }
 
 // ============================================================================

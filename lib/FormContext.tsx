@@ -1075,6 +1075,20 @@ export interface FormData {
     notes: string;
   }>;
 
+  digitalSubscriptions: Array<{
+    serviceName: string;
+    category: string;
+    frequency: string;
+    amount: string;
+    paymentMethod: string;
+    accountHolder: string;
+    loginEmail: string;
+    autoRenew: boolean;
+    renewalDate: string;
+    isActive: boolean;
+    notes: string;
+  }>;
+
   carePreferences: Array<{
     category: string;
     preferenceItem: string;
@@ -1622,6 +1636,7 @@ const initialFormData: FormData = {
   insurancePolicies: [],
   expenses: [],
   subscriptions: [],
+  digitalSubscriptions: [],
   carePreferences: [],
   endOfLife: [],
   additionalComments: '',

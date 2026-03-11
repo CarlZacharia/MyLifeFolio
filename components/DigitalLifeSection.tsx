@@ -33,6 +33,7 @@ import VaultUnlock from './VaultUnlock';
 import CredentialsList from './CredentialsList';
 import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
 import { digitalLifeHelp } from './folioHelpContent';
+import DigitalSubscriptionsTab from './DigitalSubscriptionsTab';
 
 interface VaultSettings {
   salt: string;
@@ -253,7 +254,7 @@ const DigitalLifeSection: React.FC<DigitalLifeSectionProps> = ({ initialTab }) =
       {/* Tab content */}
       {activeTab === 0 && renderCredentialsTab()}
       {activeTab === 1 && renderComingSoon('Digital Assets & Cryptocurrency')}
-      {activeTab === 2 && renderComingSoon('Subscriptions & Recurring Services')}
+      {activeTab === 2 && <DigitalSubscriptionsTab />}
       {activeTab === 3 && renderComingSoon('Social Media & Email Accounts')}
       {activeTab === 4 && renderComingSoon('Domain Names & Digital Businesses')}
     </Box>

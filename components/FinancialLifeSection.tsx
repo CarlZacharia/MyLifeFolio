@@ -34,7 +34,7 @@ const PRIMARY_TABS = [
   { label: 'Assets', icon: <AccountBalanceWalletIcon /> },
   { label: 'Income', icon: <AttachMoneyIcon /> },
   { label: 'Expenses', icon: <ReceiptLongIcon /> },
-  { label: 'Subscriptions', icon: <SubscriptionsIcon /> },
+  { label: 'Memberships', icon: <SubscriptionsIcon /> },
   { label: 'Debts', icon: <CreditCardIcon /> },
   { label: 'Gifts & Advancements', icon: <CardGiftcardIcon /> },
 ] as const;

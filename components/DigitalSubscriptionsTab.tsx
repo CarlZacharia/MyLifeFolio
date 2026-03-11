@@ -19,7 +19,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useFormContext } from '../lib/FormContext';
 import { folioColors } from './FolioModal';
-import SubscriptionModal, { SubscriptionData } from './SubscriptionModal';
+import DigitalSubscriptionModal, { DigitalSubscriptionData } from './DigitalSubscriptionModal';
 
 const formatAmount = (amount: string, frequency: string): string => {
   if (!amount) return '';
@@ -31,7 +31,7 @@ const formatAmount = (amount: string, frequency: string): string => {
   return formatted;
 };
 
-const SubscriptionsTab = () => {
+const DigitalSubscriptionsTab = () => {
   const { formData, updateFormData } = useFormContext();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -57,36 +57,36 @@ const SubscriptionsTab = () => {
     setEditIndex(null);
   };
 
-  const handleSave = (data: SubscriptionData) => {
+  const handleSave = (data: DigitalSubscriptionData) => {
     if (isEdit && editIndex !== null) {
-      const updated = [...formData.subscriptions];
+      const updated = [...formData.digitalSubscriptions];
       updated[editIndex] = data;
-      updateFormData({ subscriptions: updated });
+      updateFormData({ digitalSubscriptions: updated });
     } else {
-      updateFormData({ subscriptions: [...formData.subscriptions, data] });
+      updateFormData({ digitalSubscriptions: [...formData.digitalSubscriptions, data] });
     }
   };
 
   const handleDelete = () => {
     if (editIndex !== null) {
       updateFormData({
-        subscriptions: formData.subscriptions.filter((_, i) => i !== editIndex),
+        digitalSubscriptions: formData.digitalSubscriptions.filter((_, i) => i !== editIndex),
       });
       closeModal();
     }
   };
 
-  const getEditData = (): SubscriptionData | undefined => {
+  const getEditData = (): DigitalSubscriptionData | undefined => {
     if (!isEdit || editIndex === null) return undefined;
-    return formData.subscriptions[editIndex] as SubscriptionData;
+    return formData.digitalSubscriptions[editIndex] as DigitalSubscriptionData;
   };
 
-  const activeSubs = formData.subscriptions
+  const activeSubs = formData.digitalSubscriptions
     .map((s, i) => ({ ...s, originalIndex: i }))
     .filter((s) => s.isActive !== false)
     .sort((a, b) => a.serviceName.localeCompare(b.serviceName));
 
-  const inactiveSubs = formData.subscriptions
+  const inactiveSubs = formData.digitalSubscriptions
     .map((s, i) => ({ ...s, originalIndex: i }))
     .filter((s) => s.isActive === false)
     .sort((a, b) => a.serviceName.localeCompare(b.serviceName));
@@ -104,7 +104,7 @@ const SubscriptionsTab = () => {
     }
   }, 0);
 
-  const hasAny = formData.subscriptions.length > 0;
+  const hasAny = formData.digitalSubscriptions.length > 0;
 
   return (
     <Box>
@@ -115,19 +115,19 @@ const SubscriptionsTab = () => {
           </Typography>
         ) : <Box />}
         <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd} size="small"
-          sx={{ bgcolor: folioColors.ink, '&:hover': { bgcolor: '#3d3224' } }}>
-          Add Membership
+          sx={{ bgcolor: '#00695c', '&:hover': { bgcolor: '#004d40' } }}>
+          Add Digital Subscription
         </Button>
       </Box>
 
       {hasAny ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           {activeSubs.map((sub) => (
-            <Card key={sub.originalIndex} variant="outlined" sx={{ '&:hover': { borderColor: folioColors.accentWarm }, transition: 'border-color 0.2s' }}>
+            <Card key={sub.originalIndex} variant="outlined" sx={{ '&:hover': { borderColor: '#00695c' }, transition: 'border-color 0.2s' }}>
               <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0 }}>
-                    <SubscriptionsIcon sx={{ color: folioColors.accent, fontSize: 28 }} />
+                    <SubscriptionsIcon sx={{ color: '#00695c', fontSize: 28 }} />
                     <Box sx={{ minWidth: 0 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 600, lineHeight: 1.3 }}>
@@ -206,12 +206,12 @@ const SubscriptionsTab = () => {
         <Paper variant="outlined" sx={{ p: 4, textAlign: 'center' }}>
           <SubscriptionsIcon sx={{ fontSize: 48, color: folioColors.inkFaint, mb: 1 }} />
           <Typography color="text.secondary">
-            No memberships or subscriptions recorded yet. Add clubs, magazines, professional associations, and other non-digital recurring services.
+            No digital subscriptions recorded yet. Add your streaming services, cloud storage, apps, and other online subscriptions.
           </Typography>
         </Paper>
       )}
 
-      <SubscriptionModal
+      <DigitalSubscriptionModal
         open={modalOpen}
         onClose={closeModal}
         onSave={handleSave}
@@ -223,4 +223,4 @@ const SubscriptionsTab = () => {
   );
 };
 
-export default SubscriptionsTab;
+export default DigitalSubscriptionsTab;

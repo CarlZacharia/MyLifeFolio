@@ -19,20 +19,21 @@ import FolioModal, {
   useFolioFieldAnimation,
 } from './FolioModal';
 
-export const SUBSCRIPTION_CATEGORIES = [
-  'Club / Membership',
-  'Magazine / Newspaper',
-  'Professional Association',
-  'Religious / Charitable',
-  'Fitness / Gym',
-  'Home Services',
-  'Food / Meal Delivery',
-  'Shopping / Warehouse',
-  'Insurance',
+export const DIGITAL_SUBSCRIPTION_CATEGORIES = [
+  'Streaming / Entertainment',
+  'Music',
+  'Cloud Storage',
+  'Software / Apps',
+  'Social Media',
+  'Gaming',
+  'News / Media (Digital)',
+  'Education / Learning',
+  'AI / Productivity',
+  'VPN / Security',
   'Other',
 ] as const;
 
-export const SUBSCRIPTION_FREQUENCIES = [
+export const DIGITAL_SUBSCRIPTION_FREQUENCIES = [
   'Monthly',
   'Annual',
   'Quarterly',
@@ -40,7 +41,7 @@ export const SUBSCRIPTION_FREQUENCIES = [
   'Other',
 ] as const;
 
-export interface SubscriptionData {
+export interface DigitalSubscriptionData {
   serviceName: string;
   category: string;
   frequency: string;
@@ -54,7 +55,7 @@ export interface SubscriptionData {
   notes: string;
 }
 
-export const emptySubscription = (): SubscriptionData => ({
+export const emptyDigitalSubscription = (): DigitalSubscriptionData => ({
   serviceName: '',
   category: '',
   frequency: 'Monthly',
@@ -68,16 +69,16 @@ export const emptySubscription = (): SubscriptionData => ({
   notes: '',
 });
 
-interface SubscriptionModalProps {
+interface DigitalSubscriptionModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: SubscriptionData) => void;
+  onSave: (data: DigitalSubscriptionData) => void;
   onDelete?: () => void;
-  initialData?: SubscriptionData;
+  initialData?: DigitalSubscriptionData;
   isEdit?: boolean;
 }
 
-const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
+const DigitalSubscriptionModal: React.FC<DigitalSubscriptionModalProps> = ({
   open,
   onClose,
   onSave,
@@ -85,17 +86,17 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   initialData,
   isEdit = false,
 }) => {
-  const [data, setData] = useState<SubscriptionData>(initialData || emptySubscription());
+  const [data, setData] = useState<DigitalSubscriptionData>(initialData || emptyDigitalSubscription());
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (open) {
-      setData(isEdit && initialData ? initialData : emptySubscription());
+      setData(isEdit && initialData ? initialData : emptyDigitalSubscription());
       setTouched({});
     }
   }, [open, isEdit, initialData]);
 
-  const handleChange = (updates: Partial<SubscriptionData>) => {
+  const handleChange = (updates: Partial<DigitalSubscriptionData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
 
@@ -122,8 +123,8 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     <FolioModal
       open={open}
       onClose={onClose}
-      title={isEdit ? 'Edit Membership' : 'Add Membership'}
-      eyebrow="My Life Folio — Memberships & Subscriptions"
+      title={isEdit ? 'Edit Digital Subscription' : 'Add Digital Subscription'}
+      eyebrow="My Life Folio — Digital Subscriptions"
       maxWidth="sm"
       footer={
         <>
@@ -147,7 +148,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
             onChange={(e) => handleChange({ serviceName: e.target.value })}
             onBlur={() => handleBlur('serviceName')}
             error={!!nameError}
-            helperText={nameError ? 'Name is required' : 'e.g. "Country Club", "AAA", "Wall Street Journal"'}
+            helperText={nameError ? 'Service name is required' : 'e.g. "Netflix", "Spotify", "Adobe Creative Cloud"'}
             required
             InputLabelProps={{ shrink: true }}
             fullWidth
@@ -166,7 +167,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
             sx={{ ...folioTextFieldSx }}
           >
             <MenuItem value=""><em>Select category</em></MenuItem>
-            {SUBSCRIPTION_CATEGORIES.map((c) => (
+            {DIGITAL_SUBSCRIPTION_CATEGORIES.map((c) => (
               <MenuItem key={c} value={c}>{c}</MenuItem>
             ))}
           </TextField>
@@ -190,7 +191,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
               InputLabelProps={{ shrink: true }}
               sx={{ flex: 1, ...folioTextFieldSx }}
             >
-              {SUBSCRIPTION_FREQUENCIES.map((f) => (
+              {DIGITAL_SUBSCRIPTION_FREQUENCIES.map((f) => (
                 <MenuItem key={f} value={f}>{f}</MenuItem>
               ))}
             </TextField>
@@ -268,7 +269,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
             multiline
             minRows={2}
             fullWidth
-            placeholder="Plan tier, shared with family, cancellation policy, etc."
+            placeholder="Plan tier, shared with family, linked devices, etc."
             sx={{ ...folioTextFieldSx }}
           />
         </FolioFieldFade>
@@ -277,4 +278,4 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   );
 };
 
-export default SubscriptionModal;
+export default DigitalSubscriptionModal;

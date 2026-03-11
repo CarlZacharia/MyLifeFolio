@@ -56,6 +56,7 @@ BEGIN
       'folio_insurance_coverage',
       'folio_expenses',
       'folio_subscriptions',
+      'folio_digital_subscriptions',
       -- Folio care & end of life
       'folio_care_preferences',
       'folio_end_of_life',
