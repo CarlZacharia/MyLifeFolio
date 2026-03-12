@@ -160,11 +160,11 @@ const FamilyAccessLogin: React.FC = () => {
                 fullWidth
                 label="6-digit code"
                 value={code}
-                onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setError(''); }}
+                onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 12)); setError(''); }}
                 required
                 autoFocus
-                inputProps={{ inputMode: 'numeric', maxLength: 6 }}
-                placeholder="123456"
+                inputProps={{ inputMode: 'numeric', maxLength: 12 }}
+                placeholder="12345678"
                 sx={{ mb: 2 }}
               />
 
@@ -175,7 +175,7 @@ const FamilyAccessLogin: React.FC = () => {
                 variant="contained"
                 fullWidth
                 size="large"
-                disabled={loading || code.length < 6}
+                disabled={loading || code.length < 1}
                 sx={{ bgcolor: '#1a237e', '&:hover': { bgcolor: '#000051' }, py: 1.5, mb: 1.5 }}
               >
                 {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Verify Code & Access Folio'}

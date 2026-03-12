@@ -194,19 +194,19 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
                     fullWidth
                     label="6-digit code"
                     value={code}
-                    onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setError(null); }}
+                    onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 12)); setError(null); }}
                     margin="normal"
                     size="small"
                     required
                     autoFocus
-                    inputProps={{ inputMode: 'numeric', maxLength: 6 }}
-                    placeholder="123456"
+                    inputProps={{ inputMode: 'numeric', maxLength: 12 }}
+                    placeholder="12345678"
                   />
                   <Button
                     type="submit"
                     fullWidth
                     variant="contained"
-                    disabled={loading || code.length < 6}
+                    disabled={loading || code.length < 1}
                     sx={{ mt: 2, mb: 1 }}
                   >
                     {loading ? <CircularProgress size={24} /> : 'Verify Code & Sign In'}
