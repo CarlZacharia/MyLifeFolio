@@ -14,6 +14,8 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   signInWithMagicLink: (email: string, captchaToken?: string) => Promise<{ error: string | null }>;
   signInWithPassword: (email: string, password: string, captchaToken?: string) => Promise<{ error: string | null }>;
+  sendOtpCode: (email: string, captchaToken?: string) => Promise<{ error: string | null }>;
+  verifyEmailOtp: (email: string, token: string) => Promise<{ error: string | null }>;
   reauthenticate: () => Promise<{ error: string | null }>;
   verifyReauthOtp: (token: string) => Promise<{ error: string | null }>;
   isReauthenticated: boolean;
@@ -122,6 +124,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return { error: null };
   }, []);
 
+  const sendOtpCode = useCallback(async (email: string, captchaToken?: string): Promise<{ error: string | null }> => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false, captchaToken },
+    });
+    if (error) return { error: error.message };
+    return { error: null };
+  }, []);
+
+  const verifyEmailOtp = useCallback(async (email: string, token: string): Promise<{ error: string | null }> => {
+    const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
+    if (error) return { error: error.message };
+    return { error: null };
+  }, []);
+
   const reauthenticate = useCallback(async (): Promise<{ error: string | null }> => {
     const { error } = await supabase.auth.reauthenticate();
     if (error) return { error: error.message };
@@ -148,6 +165,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signOut,
     signInWithMagicLink,
     signInWithPassword,
+    sendOtpCode,
+    verifyEmailOtp,
     reauthenticate,
     verifyReauthOtp,
     isReauthenticated,
