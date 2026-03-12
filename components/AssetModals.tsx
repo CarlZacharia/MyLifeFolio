@@ -2872,7 +2872,7 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
   const startCamera = async () => {
     setCameraError(null);
     if (!navigator.mediaDevices?.getUserMedia) {
-      setCameraError("Camera access is not supported in this browser.");
+      setCameraError("Camera access is not supported in this browser. Please use Upload Photo instead.");
       return;
     }
     try {
@@ -2882,9 +2882,22 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
     } catch (err: unknown) {
       const name = err instanceof Error ? err.name : "";
       if (name === "NotAllowedError" || name === "PermissionDeniedError") {
-        setCameraError("Camera access was blocked. To fix it: click the lock icon (🔒) to the left of the web address at the top of your browser, then click 'Site settings' or 'Permissions', find Camera, and set it to Allow. Then refresh the page and try again. Or use Upload Photo instead.");
+        // Check whether the browser itself has granted permission —
+        // if it has, the block is coming from the OS, not the browser.
+        let permissionState: PermissionState | null = null;
+        try {
+          const result = await navigator.permissions.query({ name: "camera" as PermissionName });
+          permissionState = result.state;
+        } catch {
+          // permissions API not supported
+        }
+        if (permissionState === "granted") {
+          setCameraError("Your browser has camera access, but Windows is blocking it. Go to Windows Settings → Privacy & Security → Camera, make sure 'Camera access' is On, and that your browser (Chrome/Edge) is listed and allowed. Then try again.");
+        } else {
+          setCameraError("Camera access was blocked by your browser. Click the lock icon (🔒) to the left of the web address, choose 'Site settings', set Camera to 'Allow', then try again.");
+        }
       } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
-        setCameraError("No camera was found on this device. Please use Upload Photo instead.");
+        setCameraError("No camera was detected on this device. Please use Upload Photo instead.");
       } else {
         setCameraError("Unable to start the camera. Please use Upload Photo instead.");
       }
@@ -3209,16 +3222,6 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
                 {cameraError && (
                   <Alert severity="warning" sx={{ mt: 1.5 }} onClose={() => setCameraError(null)}>
                     {cameraError}
-                    <Box sx={{ mt: 1 }}>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="warning"
-                        onClick={() => window.location.reload()}
-                      >
-                        Refresh Page
-                      </Button>
-                    </Box>
                   </Alert>
                 )}
               </Box>
