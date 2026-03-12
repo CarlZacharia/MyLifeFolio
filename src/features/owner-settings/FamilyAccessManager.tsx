@@ -513,7 +513,7 @@ const FamilyAccessManager: React.FC = () => {
       </Box>
 
       <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
-        Grant family members limited access to view your folio data via a secure portal. They will receive a magic link via email to authenticate.
+        Grant family members limited access to view your folio data via a secure portal. They will receive a 6-digit sign-in code via email to authenticate.
       </Typography>
 
       <Tabs

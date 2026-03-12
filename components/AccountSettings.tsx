@@ -403,8 +403,8 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack }) => 
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2, fontSize: '0.85rem' }}>
                   {hasPassword
-                    ? 'Update your password below. You can still use magic links to sign in.'
-                    : 'Add a password so you can sign in with either a magic link or email & password.'}
+                    ? 'Update your password below. You can still use a sign-in code to sign in.'
+                    : 'Add a password so you can sign in with either a code or email & password.'}
                 </Typography>
 
                 {passwordError && <Alert severity="error" sx={{ mb: 2 }}>{passwordError}</Alert>}

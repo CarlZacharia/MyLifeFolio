@@ -6,10 +6,13 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { supabase } from '../../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
+type Step = 'email' | 'code';
+
 const FamilyAccessLogin: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [step, setStep] = useState<Step>('email');
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
   const [checkingSession, setCheckingSession] = useState(true);
   const navigate = useNavigate();
@@ -19,12 +22,10 @@ const FamilyAccessLogin: React.FC = () => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user?.email) {
-        // Check if they have family access authorization
         const { data: authRows } = await supabase
           .from('folio_authorized_users')
           .select('*')
           .eq('is_active', true);
-
         if (authRows && authRows.length > 0) {
           navigate('/family-portal');
           return;
@@ -35,7 +36,7 @@ const FamilyAccessLogin: React.FC = () => {
     checkSession();
   }, [navigate]);
 
-  // Handle the OTP callback (magic link redirect)
+  // Navigate to family portal on successful sign-in
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
@@ -45,20 +46,16 @@ const FamilyAccessLogin: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Step 1: send OTP code
+  const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email: email.trim().toLowerCase(),
-        options: {
-          shouldCreateUser: true,
-          emailRedirectTo: `${window.location.origin}/family-portal`,
-        },
+        options: { shouldCreateUser: true },
       });
-
       if (otpError) {
         if (otpError.message.includes('not allowed') || otpError.message.includes('Signups not allowed')) {
           setError('This email is not authorized to access any folio. Please contact your family member to add you.');
@@ -66,8 +63,30 @@ const FamilyAccessLogin: React.FC = () => {
           setError(otpError.message);
         }
       } else {
-        setSent(true);
+        setStep('code');
       }
+    } catch {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2: verify OTP code
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: email.trim().toLowerCase(),
+        token: code.trim(),
+        type: 'email',
+      });
+      if (verifyError) {
+        setError('Invalid or expired code. Please try again.');
+      }
+      // On success, onAuthStateChange above handles navigation
     } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -97,18 +116,8 @@ const FamilyAccessLogin: React.FC = () => {
             </Typography>
           </Box>
 
-          {sent ? (
-            <Alert severity="success" sx={{ mt: 2 }}>
-              <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                Check your email!
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                We've sent a secure login link to <strong>{email}</strong>.
-                Click the link in the email to access the folio. The link expires in 1 hour.
-              </Typography>
-            </Alert>
-          ) : (
-            <form onSubmit={handleSubmit}>
+          {step === 'email' ? (
+            <form onSubmit={handleSendCode}>
               <TextField
                 fullWidth
                 label="Email Address"
@@ -121,11 +130,7 @@ const FamilyAccessLogin: React.FC = () => {
                 sx={{ mb: 2 }}
               />
 
-              {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  {error}
-                </Alert>
-              )}
+              {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
               <Button
                 type="submit"
@@ -133,18 +138,59 @@ const FamilyAccessLogin: React.FC = () => {
                 fullWidth
                 size="large"
                 disabled={loading || !email}
-                sx={{
-                  bgcolor: '#1a237e',
-                  '&:hover': { bgcolor: '#000051' },
-                  py: 1.5,
-                }}
+                sx={{ bgcolor: '#1a237e', '&:hover': { bgcolor: '#000051' }, py: 1.5 }}
               >
-                {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Send Login Link'}
+                {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Send me a code'}
               </Button>
 
               <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: 'text.secondary' }}>
                 You must be pre-authorized by the account holder to access their folio.
               </Typography>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyCode}>
+              <Alert severity="success" sx={{ mb: 2 }}>
+                Code sent to <strong>{email}</strong>
+              </Alert>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2, textAlign: 'center' }}>
+                Enter the 6-digit code from your email. It expires in 10 minutes.
+              </Typography>
+
+              <TextField
+                fullWidth
+                label="6-digit code"
+                value={code}
+                onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setError(''); }}
+                required
+                autoFocus
+                inputProps={{ inputMode: 'numeric', maxLength: 6 }}
+                placeholder="123456"
+                sx={{ mb: 2 }}
+              />
+
+              {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                size="large"
+                disabled={loading || code.length < 6}
+                sx={{ bgcolor: '#1a237e', '&:hover': { bgcolor: '#000051' }, py: 1.5, mb: 1.5 }}
+              >
+                {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Verify Code & Access Folio'}
+              </Button>
+
+              <Box sx={{ textAlign: 'center' }}>
+                <Button
+                  variant="text"
+                  size="small"
+                  onClick={() => { setStep('email'); setCode(''); setError(''); }}
+                  sx={{ color: '#1a237e' }}
+                >
+                  Use a different email or resend code
+                </Button>
+              </Box>
             </form>
           )}
         </Paper>
