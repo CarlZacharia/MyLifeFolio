@@ -20,6 +20,8 @@ import EmailIcon from '@mui/icons-material/Email';
 import { useAuth } from '../lib/AuthContext';
 import { TurnstileWidget } from './TurnstileWidget';
 
+const TURNSTILE_ENABLED = !!import.meta.env.VITE_TURNSTILE_SITE_KEY;
+
 interface LoginProps {
   onSwitchToRegister?: () => void;
   onSuccess?: () => void;
@@ -202,7 +204,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
                 type="submit"
                 fullWidth
                 variant="contained"
-                disabled={loading || !email.trim() || !captchaToken}
+                disabled={loading || !email.trim() || (TURNSTILE_ENABLED && !captchaToken)}
                 startIcon={!loading && <EmailIcon />}
                 sx={{ mt: 2, mb: 2 }}
               >
@@ -283,7 +285,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
                 type="submit"
                 fullWidth
                 variant="contained"
-                disabled={loading || !email.trim() || !password || !captchaToken}
+                disabled={loading || !email.trim() || !password || (TURNSTILE_ENABLED && !captchaToken)}
                 sx={{ mt: 2, mb: 2 }}
               >
                 {loading ? <CircularProgress size={24} /> : 'Sign In'}
