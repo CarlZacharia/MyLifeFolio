@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -15,6 +15,76 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { folioColors } from './FolioModal';
+
+// ============================================================================
+// PROBATE IDENTIFIER
+// ============================================================================
+
+const PROBATE_RED = '#d32f2f';
+
+// Ownership values that are NOT trust-based
+const NON_TRUST_OWNERS = [
+  'Client', 'Spouse',
+  'Client and Spouse', 'Client and Other',
+  'Spouse and Other', 'Client, Spouse and Other',
+];
+
+// Ownership forms that indicate probate risk for real estate
+const PROBATE_OWNERSHIP_FORMS = ['Sole', 'Tenants in Common'];
+
+interface ProbateResult {
+  realEstateIndices: Set<number>;
+  bankAccountIndices: Set<number>;
+  nonQualifiedInvestmentIndices: Set<number>;
+  hasProbateItems: boolean;
+}
+
+function identifyProbateAssets(
+  realEstate: RealEstateItem[],
+  bankAccounts: BankAccountItem[],
+  nonQualifiedInvestments: NonQualifiedInvestmentItem[],
+): ProbateResult {
+  const realEstateIndices = new Set<number>();
+  const bankAccountIndices = new Set<number>();
+  const nonQualifiedInvestmentIndices = new Set<number>();
+
+  // Real estate: non-trust owner + sole or tenants in common
+  realEstate.forEach((item, index) => {
+    if (
+      NON_TRUST_OWNERS.includes(item.owner) &&
+      PROBATE_OWNERSHIP_FORMS.includes(item.ownershipForm)
+    ) {
+      realEstateIndices.add(index);
+    }
+  });
+
+  // Bank accounts: non-trust owner + no TOD
+  bankAccounts.forEach((item, index) => {
+    if (
+      NON_TRUST_OWNERS.includes(item.owner) &&
+      !item.hasTOD
+    ) {
+      bankAccountIndices.add(index);
+    }
+  });
+
+  // Non-qualified investments: non-trust owner + no TOD
+  nonQualifiedInvestments.forEach((item, index) => {
+    if (
+      NON_TRUST_OWNERS.includes(item.owner) &&
+      !item.hasTOD
+    ) {
+      nonQualifiedInvestmentIndices.add(index);
+    }
+  });
+
+  const hasProbateItems =
+    realEstateIndices.size > 0 ||
+    bankAccountIndices.size > 0 ||
+    nonQualifiedInvestmentIndices.size > 0;
+
+  return { realEstateIndices, bankAccountIndices, nonQualifiedInvestmentIndices, hasProbateItems };
+}
 
 // Helper to parse currency values
 const parseValue = (value: string): number => {
@@ -49,6 +119,7 @@ interface AssetCategoryProps {
   onRowClick: (index: number) => void;
   onAddClick: () => void;
   addButtonLabel: string;
+  probateIndices?: Set<number>;
 }
 
 const AssetCategory: React.FC<AssetCategoryProps> = ({
@@ -58,6 +129,7 @@ const AssetCategory: React.FC<AssetCategoryProps> = ({
   onRowClick,
   onAddClick,
   addButtonLabel,
+  probateIndices,
 }) => {
   const categoryTotal = rows.reduce((sum, row) => sum + row.value, 0);
 
@@ -90,18 +162,21 @@ const AssetCategory: React.FC<AssetCategoryProps> = ({
               </TableRow>
             ) : (
               <>
-                {rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    hover
-                    onClick={() => onRowClick(row.id)}
-                    sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
-                  >
-                    <TableCell>{row.description || '(No description)'}</TableCell>
-                    <TableCell>{row.owner || '(No owner)'}</TableCell>
-                    <TableCell align="right">{row.value > 0 ? formatCurrency(row.value) : '-'}</TableCell>
-                  </TableRow>
-                ))}
+                {rows.map((row) => {
+                  const isProbate = probateIndices?.has(row.id);
+                  return (
+                    <TableRow
+                      key={row.id}
+                      hover
+                      onClick={() => onRowClick(row.id)}
+                      sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+                    >
+                      <TableCell sx={isProbate ? { color: PROBATE_RED } : undefined}>{row.description || '(No description)'}</TableCell>
+                      <TableCell sx={isProbate ? { color: PROBATE_RED } : undefined}>{row.owner || '(No owner)'}</TableCell>
+                      <TableCell align="right" sx={isProbate ? { color: PROBATE_RED } : undefined}>{row.value > 0 ? formatCurrency(row.value) : '-'}</TableCell>
+                    </TableRow>
+                  );
+                })}
                 <TableRow sx={{ bgcolor: 'grey.50' }}>
                   <TableCell colSpan={2} sx={{ fontWeight: 600 }}>
                     Subtotal - {title}
@@ -135,6 +210,7 @@ interface InstitutionAssetCategoryProps {
   onRowClick: (index: number) => void;
   onAddClick: () => void;
   addButtonLabel: string;
+  probateIndices?: Set<number>;
 }
 
 const InstitutionAssetCategory: React.FC<InstitutionAssetCategoryProps> = ({
@@ -144,6 +220,7 @@ const InstitutionAssetCategory: React.FC<InstitutionAssetCategoryProps> = ({
   onRowClick,
   onAddClick,
   addButtonLabel,
+  probateIndices,
 }) => {
   const categoryTotal = rows.reduce((sum, row) => sum + row.value, 0);
 
@@ -177,19 +254,22 @@ const InstitutionAssetCategory: React.FC<InstitutionAssetCategoryProps> = ({
               </TableRow>
             ) : (
               <>
-                {rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    hover
-                    onClick={() => onRowClick(row.id)}
-                    sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
-                  >
-                    <TableCell>{row.institution || '-'}</TableCell>
-                    <TableCell>{row.description || '-'}</TableCell>
-                    <TableCell>{row.owner || '(No owner)'}</TableCell>
-                    <TableCell align="right">{row.value > 0 ? formatCurrency(row.value) : '-'}</TableCell>
-                  </TableRow>
-                ))}
+                {rows.map((row) => {
+                  const isProbate = probateIndices?.has(row.id);
+                  return (
+                    <TableRow
+                      key={row.id}
+                      hover
+                      onClick={() => onRowClick(row.id)}
+                      sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+                    >
+                      <TableCell sx={isProbate ? { color: PROBATE_RED } : undefined}>{row.institution || '-'}</TableCell>
+                      <TableCell sx={isProbate ? { color: PROBATE_RED } : undefined}>{row.description || '-'}</TableCell>
+                      <TableCell sx={isProbate ? { color: PROBATE_RED } : undefined}>{row.owner || '(No owner)'}</TableCell>
+                      <TableCell align="right" sx={isProbate ? { color: PROBATE_RED } : undefined}>{row.value > 0 ? formatCurrency(row.value) : '-'}</TableCell>
+                    </TableRow>
+                  );
+                })}
                 <TableRow sx={{ bgcolor: 'grey.50' }}>
                   <TableCell colSpan={3} sx={{ fontWeight: 600 }}>
                     Subtotal - {title}
@@ -307,12 +387,14 @@ interface RealEstateCategoryProps {
   rows: RealEstateRow[];
   onRowClick: (index: number) => void;
   onAddClick: () => void;
+  probateIndices?: Set<number>;
 }
 
 const RealEstateCategory: React.FC<RealEstateCategoryProps> = ({
   rows,
   onRowClick,
   onAddClick,
+  probateIndices,
 }) => {
   const categoryTotal = rows.reduce((sum, row) => sum + row.value, 0);
 
@@ -346,19 +428,22 @@ const RealEstateCategory: React.FC<RealEstateCategoryProps> = ({
               </TableRow>
             ) : (
               <>
-                {rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    hover
-                    onClick={() => onRowClick(row.id)}
-                    sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
-                  >
-                    <TableCell>{row.description || '(No description)'}</TableCell>
-                    <TableCell>{row.owner || '(No owner)'}</TableCell>
-                    <TableCell>{row.ownershipForm || '-'}</TableCell>
-                    <TableCell align="right">{row.value > 0 ? formatCurrency(row.value) : '-'}</TableCell>
-                  </TableRow>
-                ))}
+                {rows.map((row) => {
+                  const isProbate = probateIndices?.has(row.id);
+                  return (
+                    <TableRow
+                      key={row.id}
+                      hover
+                      onClick={() => onRowClick(row.id)}
+                      sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+                    >
+                      <TableCell sx={isProbate ? { color: PROBATE_RED } : undefined}>{row.description || '(No description)'}</TableCell>
+                      <TableCell sx={isProbate ? { color: PROBATE_RED } : undefined}>{row.owner || '(No owner)'}</TableCell>
+                      <TableCell sx={isProbate ? { color: PROBATE_RED } : undefined}>{row.ownershipForm || '-'}</TableCell>
+                      <TableCell align="right" sx={isProbate ? { color: PROBATE_RED } : undefined}>{row.value > 0 ? formatCurrency(row.value) : '-'}</TableCell>
+                    </TableRow>
+                  );
+                })}
                 <TableRow sx={{ bgcolor: 'grey.50' }}>
                   <TableCell colSpan={3} sx={{ fontWeight: 600 }}>
                     Subtotal - Real Estate
@@ -389,6 +474,7 @@ interface BankAccountItem {
   owner: string;
   institution: string;
   amount: string;
+  hasTOD?: boolean;
 }
 
 interface NonQualifiedInvestmentItem {
@@ -396,6 +482,7 @@ interface NonQualifiedInvestmentItem {
   institution: string;
   description: string;
   value: string;
+  hasTOD?: boolean;
 }
 
 interface RetirementAccountItem {
@@ -517,6 +604,13 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
   hideHeader,
 }) => {
   const show = (cat: AssetCategoryType) => !visibleCategories || visibleCategories.includes(cat);
+
+  // Probate identification — runs on every render (recalculates when assets change)
+  const probate = useMemo(
+    () => identifyProbateAssets(realEstate, bankAccounts, nonQualifiedInvestments),
+    [realEstate, bankAccounts, nonQualifiedInvestments]
+  );
+
   // Transform data for each category
   const realEstateRows: RealEstateRow[] = realEstate.map((item, index) => ({
     id: index,
@@ -640,6 +734,7 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
           rows={realEstateRows}
           onRowClick={onEditRealEstate}
           onAddClick={onAddRealEstate}
+          probateIndices={probate.realEstateIndices}
         />
       )}
 
@@ -651,6 +746,7 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
           onRowClick={onEditBankAccount}
           onAddClick={onAddBankAccount}
           addButtonLabel="Add Account"
+          probateIndices={probate.bankAccountIndices}
         />
       )}
 
@@ -662,6 +758,7 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
           onRowClick={onEditNonQualifiedInvestment}
           onAddClick={onAddNonQualifiedInvestment}
           addButtonLabel="Add Account"
+          probateIndices={probate.nonQualifiedInvestmentIndices}
         />
       )}
 
@@ -742,6 +839,15 @@ const AssetsSummaryTable: React.FC<AssetsSummaryTableProps> = ({
           </Typography>
         </Box>
       </Paper>
+
+      {probate.hasProbateItems && (
+        <Typography
+          variant="body2"
+          sx={{ color: PROBATE_RED, mt: 1.5, fontStyle: 'italic' }}
+        >
+          Items in red have probate possibilities.
+        </Typography>
+      )}
 
     </Box>
   );
