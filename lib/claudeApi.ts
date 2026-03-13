@@ -1,3 +1,4 @@
+// TODO: REMOVE — this entire file is unreachable dead code (only called from QuestionnaireContent which has no navigation path)
 import { supabase } from './supabase';
 import { AssetCategorySummary } from './assetCategorization';
 

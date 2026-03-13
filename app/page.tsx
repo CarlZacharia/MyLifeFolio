@@ -46,7 +46,7 @@ import FinancialLifeSection from '../components/FinancialLifeSection';
 import PeopleAdvisorsSection from '../components/PeopleAdvisorsSection';
 import MedicalDataSection from '../components/MedicalDataSection';
 import SummarySection from '../components/SummarySection';
-import EstatePlanAnalysis from '../components/EstatePlanAnalysis';
+import EstatePlanAnalysis from '../components/EstatePlanAnalysis'; // TODO: REMOVE — unreachable dead code (no navigation path to folio-questionnaire or Analysis step)
 import { TrustPlanSection } from '../components/TrustPlan';
 import LandingPage from '../components/LandingPage';
 import MyLifeFolioHome from '../components/MyLifeFolioHome';
@@ -84,7 +84,7 @@ import Register from '../components/Register';
 import WelcomeModal from '../components/WelcomeModal';
 import ReauthGuard from '../components/ReauthGuard';
 import { MaritalStatus } from '../lib/FormContext';
-import { analyzeEstatePlan, ANALYSIS_PROMPTS } from '../lib/claudeApi';
+import { analyzeEstatePlan, ANALYSIS_PROMPTS } from '../lib/claudeApi'; // TODO: REMOVE — unreachable dead code
 import { categorizeAssets } from '../lib/assetCategorization';
 import { saveIntakeFull, loadIntakeFromRaw } from '../lib/supabaseIntake';
 import {
@@ -396,7 +396,7 @@ const ALL_STEPS = [
   'Long-Term Care',
   'Summary',
   'Trust Planning',
-  'Analysis',
+  'Analysis', // TODO: REMOVE — unreachable dead code
   'Review & Submit'
 ];
 
@@ -422,6 +422,7 @@ interface QuestionnaireContentProps {
   onHome?: () => void;
 }
 
+// TODO: REMOVE — entire QuestionnaireContent component (lines 425–1261) is unreachable dead code (folio-questionnaire page has no navigation path)
 const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateBack, onLogout, onAdmin, onProfile, onResources, onHome }) => {
   const { formData, updateFormData, currentStep, setCurrentStep, clearFormData, setIntakeId: setContextIntakeId } = useFormContext();
   const { user } = useAuth();
@@ -795,7 +796,7 @@ const QuestionnaireContent: React.FC<QuestionnaireContentProps> = ({ onNavigateB
         return <SummarySection />;
       case 'Trust Planning':
         return <TrustPlanSection />;
-      case 'Analysis':
+      case 'Analysis': // TODO: REMOVE — unreachable dead code
         return <EstatePlanAnalysis />;
       case 'Review & Submit':
         return (
@@ -1414,7 +1415,7 @@ export default function MainPage() {
           />
         );
 
-      case 'folio-questionnaire':
+      case 'folio-questionnaire': // TODO: REMOVE — unreachable dead code (no navigation triggers this)
         return (
           <QuestionnaireContent
             onNavigateBack={() => handleNavigate('mylifefolio-home')}

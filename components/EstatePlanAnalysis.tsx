@@ -1,3 +1,4 @@
+// TODO: REMOVE — this entire file is unreachable dead code (no navigation path leads here)
 'use client';
 
 import React, { useState, useMemo } from 'react';

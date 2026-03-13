@@ -1,3 +1,4 @@
+// TODO: REMOVE — this entire edge function is unreachable dead code (only invoked by claudeApi.ts which is also dead code)
 // Supabase Edge Function to proxy requests to Claude API
 // This keeps the API key secure on the server side
 
