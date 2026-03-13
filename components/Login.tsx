@@ -187,12 +187,12 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
                   Code sent to <strong>{email}</strong>
                 </Alert>
                 <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary', mb: 2 }}>
-                  Check your email and enter the 6-digit code below. It expires in 10 minutes.
+                  Check your email and enter the sign-in code below. It expires in 10 minutes.
                 </Typography>
                 <Box component="form" onSubmit={handleVerifyCode}>
                   <TextField
                     fullWidth
-                    label="6-digit code"
+                    label="Sign-in code"
                     value={code}
                     onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 12)); setError(null); }}
                     margin="normal"

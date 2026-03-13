@@ -3119,22 +3119,6 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
             </Grid>
           )}
 
-          <Grid item xs={12} sx={{ ml:2 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={data.addToPersonalPropertyMemo || false}
-                  onChange={(e) =>
-                    handleChange({ addToPersonalPropertyMemo: e.target.checked })
-                  }
-                />
-              }
-              label="Add to Personal Property Memorandum"
-            />
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 4 }}>
-              Check this for items like family heirlooms, jewelry, guns, artwork, or other tangible personal property you want to specifically designate.
-            </Typography>
-          </Grid>
 
           <Grid item xs={12}>
             <TextField

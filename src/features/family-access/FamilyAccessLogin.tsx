@@ -153,12 +153,12 @@ const FamilyAccessLogin: React.FC = () => {
                 Code sent to <strong>{email}</strong>
               </Alert>
               <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2, textAlign: 'center' }}>
-                Enter the 6-digit code from your email. It expires in 10 minutes.
+                Enter the sign-in code from your email. It expires in 10 minutes.
               </Typography>
 
               <TextField
                 fullWidth
-                label="6-digit code"
+                label="Sign-in code"
                 value={code}
                 onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 12)); setError(''); }}
                 required
