@@ -6,6 +6,7 @@ import {
   Box,
   MenuItem,
 } from '@mui/material';
+import PhoneInput from './PhoneInput';
 import FolioModal, {
   folioTextFieldSx,
   FolioCancelButton,
@@ -19,6 +20,7 @@ export const ADVISOR_TYPES = [
   'CPA',
   'Insurance Agent',
   'Financial Advisor',
+  'Banker',
   'Lawyer',
   'Plumber',
   'Electrician',
@@ -166,7 +168,7 @@ const AdvisorModal: React.FC<AdvisorModalProps> = ({
 
         <FolioFieldFade visible={fieldsVisible} index={3}>
           <Box sx={{ display: 'flex', gap: 2 }}>
-            <TextField
+            <PhoneInput
               label="Phone"
               value={data.phone}
               onChange={(e) => handleChange({ phone: e.target.value })}

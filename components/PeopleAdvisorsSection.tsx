@@ -151,7 +151,14 @@ const PeopleAdvisorsSection = () => {
         <FolioHelpButton onClick={openHelp} accentColor="#4527a0" />
       </Box>
       {/* ── Advisor Add Buttons ── */}
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(6, 1fr)',
+          gap: 1,
+          mb: 3,
+        }}
+      >
         {ADVISOR_TYPES.map((type) => (
           <Button
             key={type}
@@ -159,6 +166,7 @@ const PeopleAdvisorsSection = () => {
             startIcon={<AddIcon />}
             onClick={() => openAddAdvisor(type)}
             size="small"
+            sx={{ whiteSpace: 'nowrap', minWidth: 0 }}
           >
             {type}
           </Button>

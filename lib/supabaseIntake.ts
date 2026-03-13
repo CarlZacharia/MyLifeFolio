@@ -896,6 +896,8 @@ async function saveLifeInsurance(
     death_benefit: parseDecimal(pol.deathBenefit),
     cash_value: parseDecimal(pol.cashValue),
     insured: pol.insured || null,
+    primary_beneficiary: pol.primaryBeneficiary || null,
+    secondary_beneficiary: pol.secondaryBeneficiary || null,
     has_beneficiaries: pol.hasBeneficiaries,
     primary_beneficiaries: pol.primaryBeneficiaries || [],
     primary_distribution_type: pol.primaryDistributionType || null,

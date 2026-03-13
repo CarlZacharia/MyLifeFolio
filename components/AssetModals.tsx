@@ -1470,7 +1470,7 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
           </Grid>
           {data.hasTOD && (
             <>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
                 <TextField
                   fullWidth
                   label="TOD Primary Beneficiary"
@@ -1481,7 +1481,7 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
                   sx={{ ...folioTextFieldSx }}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
                 <TextField
                   fullWidth
                   label="TOD Secondary Beneficiary"
@@ -1810,7 +1810,7 @@ export const NonQualifiedInvestmentModal: React.FC<
           </Grid>
           {data.hasTOD && (
             <>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
                 <TextField
                   fullWidth
                   label="TOD Primary Beneficiary"
@@ -1821,7 +1821,7 @@ export const NonQualifiedInvestmentModal: React.FC<
                   sx={{ ...folioTextFieldSx }}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
                 <TextField
                   fullWidth
                   label="TOD Secondary Beneficiary"
@@ -2132,7 +2132,7 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
           </Grid>
           {data.hasTOD && (
             <>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
                 <TextField
                   fullWidth
                   label="TOD Primary Beneficiary"
@@ -2143,7 +2143,7 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
                   sx={{ ...folioTextFieldSx }}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
                 <TextField
                   fullWidth
                   label="TOD Secondary Beneficiary"
@@ -2257,6 +2257,9 @@ export interface LifeInsuranceData {
   deathBenefit: string;
   cashValue: string;
   insured: string;
+  // Beneficiary designation fields
+  primaryBeneficiary: string;
+  secondaryBeneficiary: string;
   // Disposition fields
   hasBeneficiaryDesignation?: boolean;
   wantsSpecificBequest?: boolean;
@@ -2282,6 +2285,8 @@ const emptyLifeInsurance: LifeInsuranceData = {
   deathBenefit: "",
   cashValue: "",
   insured: "",
+  primaryBeneficiary: "",
+  secondaryBeneficiary: "",
   hasBeneficiaryDesignation: undefined,
   wantsSpecificBequest: undefined,
   jointDisposition: undefined,
@@ -2619,6 +2624,28 @@ export const LifeInsuranceModal: React.FC<LifeInsuranceModalProps> = ({
             </Grid>
           )}
 
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Primary Beneficiary"
+              value={data.primaryBeneficiary || ''}
+              onChange={(e) => handleChange({ primaryBeneficiary: e.target.value })}
+              variant="outlined"
+              size="small"
+              sx={{ ...folioTextFieldSx }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Secondary Beneficiary"
+              value={data.secondaryBeneficiary || ''}
+              onChange={(e) => handleChange({ secondaryBeneficiary: e.target.value })}
+              variant="outlined"
+              size="small"
+              sx={{ ...folioTextFieldSx }}
+            />
+          </Grid>
           <Grid item xs={12}>
             <TextField
               fullWidth

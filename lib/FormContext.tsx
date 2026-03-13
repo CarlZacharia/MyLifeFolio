@@ -768,6 +768,8 @@ export interface FormData {
     deathBenefit: string;
     cashValue: string;
     insured: string;
+    primaryBeneficiary: string;
+    secondaryBeneficiary: string;
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
     primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
