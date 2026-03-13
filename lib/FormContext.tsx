@@ -6,8 +6,8 @@ const CURRENT_SCHEMA_VERSION = 2; // Increment when schema changes require migra
 
 export type MaritalStatus = 'Single' | 'Married' | 'Second Marriage' | 'Divorced' | 'Separated' | 'Domestic Partnership' | '';
 export type Sex = 'Male' | 'Female' | 'Other' | '';
-export type RealEstateOwner = 'Client' | 'Spouse' | 'Client and Spouse' | 'Client and Other' | 'Spouse and Other' | 'Client, Spouse and Other' | '';
-export type OwnershipForm = 'Sole' | 'Tenants by Entirety' | 'JTWROS' | 'Tenants in Common' | 'Life Estate' | 'Lady Bird Deed' | 'Living Trust' | 'Irrevocable Trust' | 'Other' | '';
+export type RealEstateOwner = 'Client' | 'Spouse' | 'Client and Spouse' | 'Client and Other' | 'Spouse and Other' | 'Client, Spouse and Other' | 'Living Trust' | '';
+export type OwnershipForm = 'Sole' | 'Tenants by Entirety' | 'JTWROS' | 'Tenants in Common' | 'Life Estate' | 'Lady Bird Deed' | 'Living Trust' | 'Irrevocable Trust' | 'Trust' | 'Other' | '';
 export type PropertyCategory = 'Primary residence' | 'Vacation home' | 'Rental property' | 'Vacant land' | 'Commercial property' | 'Timeshare' | '';
 
 // Long-Term Care Types
@@ -717,6 +717,9 @@ export interface FormData {
     accountType: string;
     institution: string;
     amount: string;
+    hasTOD?: boolean;
+    todPrimaryBeneficiary?: string;
+    todSecondaryBeneficiary?: string;
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
     primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
@@ -730,6 +733,9 @@ export interface FormData {
     institution: string;
     description: string;
     value: string;
+    hasTOD?: boolean;
+    todPrimaryBeneficiary?: string;
+    todSecondaryBeneficiary?: string;
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
     primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';
@@ -743,6 +749,9 @@ export interface FormData {
     institution: string;
     accountType: string;
     value: string;
+    hasTOD?: boolean;
+    todPrimaryBeneficiary?: string;
+    todSecondaryBeneficiary?: string;
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
     primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';

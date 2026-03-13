@@ -51,13 +51,8 @@ const STANDARD_FEATURES: FeatureKey[] = ALL_FEATURES.filter(
   (f) => f !== 'ai-obituary' && f !== 'legacy-video'
 );
 
-// Trial gets a limited set — enough to explore but not full access
-const TRIAL_FEATURES: FeatureKey[] = [
-  'personal-information',
-  'family-dependents',
-  'financial-life',
-  'people-advisors',
-];
+// Trial gets the same access as Standard (7-day free trial)
+const TRIAL_FEATURES: FeatureKey[] = [...STANDARD_FEATURES];
 
 export const TIER_ACCESS: Record<SubscriptionTier, Set<FeatureKey>> = {
   trial: new Set(TRIAL_FEATURES),
@@ -76,7 +71,7 @@ export const TIER_INFO: Record<SubscriptionTier, {
     name: 'Free Trial',
     price: '$0',
     priceDetail: '7 days',
-    description: 'Explore MyLifeFolio with limited access to core sections.',
+    description: 'Full access to all Standard features free for 7 days.',
   },
   standard: {
     name: 'Standard',

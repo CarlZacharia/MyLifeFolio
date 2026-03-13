@@ -57,11 +57,13 @@ const ALL_OWNER_OPTIONS: RealEstateOwner[] = [
   "Client and Other",
   "Spouse and Other",
   "Client, Spouse and Other",
+  "Living Trust",
 ];
 
 const CLIENT_ONLY_OWNER_OPTIONS: RealEstateOwner[] = [
   "Client",
   "Client and Other",
+  "Living Trust",
 ];
 
 const OWNERS_WITH_OTHER: RealEstateOwner[] = [
@@ -191,6 +193,7 @@ const getOwnershipFormOptions = (
     "Life Estate",
     "Lady Bird Deed",
     ...trustOptions,
+    "Trust",
     "Other",
   ];
 
@@ -1221,6 +1224,10 @@ export interface BankAccountData {
   accountType: BankAccountType;
   institution: string;
   amount: string;
+  // TOD (Transfer On Death) fields
+  hasTOD?: boolean;
+  todPrimaryBeneficiary?: string;
+  todSecondaryBeneficiary?: string;
   // Disposition fields
   hasBeneficiaryDesignation?: boolean; // For sole owners: Is there a POD/TOD?
   wantsSpecificBequest?: boolean; // For sole owners without POD/TOD: Do they want specific bequest?
@@ -1245,6 +1252,9 @@ const emptyBankAccount: BankAccountData = {
   accountType: "",
   institution: "",
   amount: "",
+  hasTOD: undefined,
+  todPrimaryBeneficiary: "",
+  todSecondaryBeneficiary: "",
   hasBeneficiaryDesignation: undefined,
   wantsSpecificBequest: undefined,
   jointDisposition: undefined,
@@ -1442,6 +1452,48 @@ export const BankAccountModal: React.FC<BankAccountModalProps> = ({
               sx={{ ...folioTextFieldSx }}
             />
           </Grid>
+          <Grid item xs={12}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Transfer On Death (TOD)?</FormLabel>
+              <RadioGroup
+                row
+                value={data.hasTOD === true ? 'yes' : data.hasTOD === false ? 'no' : ''}
+                onChange={(e) => handleChange({
+                  hasTOD: e.target.value === 'yes',
+                  ...(e.target.value === 'no' ? { todPrimaryBeneficiary: '', todSecondaryBeneficiary: '' } : {}),
+                })}
+              >
+                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          {data.hasTOD && (
+            <>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="TOD Primary Beneficiary"
+                  value={data.todPrimaryBeneficiary || ''}
+                  onChange={(e) => handleChange({ todPrimaryBeneficiary: e.target.value })}
+                  variant="outlined"
+                  size="small"
+                  sx={{ ...folioTextFieldSx }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="TOD Secondary Beneficiary"
+                  value={data.todSecondaryBeneficiary || ''}
+                  onChange={(e) => handleChange({ todSecondaryBeneficiary: e.target.value })}
+                  variant="outlined"
+                  size="small"
+                  sx={{ ...folioTextFieldSx }}
+                />
+              </Grid>
+            </>
+          )}
           {data.owner && (
             <Grid item xs={12}>
               <DispositionSection
@@ -1524,6 +1576,10 @@ export interface NonQualifiedInvestmentData {
   institution: string;
   description: string;
   value: string;
+  // TOD (Transfer On Death) fields
+  hasTOD?: boolean;
+  todPrimaryBeneficiary?: string;
+  todSecondaryBeneficiary?: string;
   // Disposition fields
   hasBeneficiaryDesignation?: boolean;
   wantsSpecificBequest?: boolean;
@@ -1546,6 +1602,9 @@ const emptyNonQualifiedInvestment: NonQualifiedInvestmentData = {
   institution: "",
   description: "",
   value: "",
+  hasTOD: undefined,
+  todPrimaryBeneficiary: "",
+  todSecondaryBeneficiary: "",
   hasBeneficiaryDesignation: undefined,
   wantsSpecificBequest: undefined,
   jointDisposition: undefined,
@@ -1733,6 +1792,48 @@ export const NonQualifiedInvestmentModal: React.FC<
               sx={{ ...folioTextFieldSx }}
             />
           </Grid>
+          <Grid item xs={12}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Transfer On Death (TOD)?</FormLabel>
+              <RadioGroup
+                row
+                value={data.hasTOD === true ? 'yes' : data.hasTOD === false ? 'no' : ''}
+                onChange={(e) => handleChange({
+                  hasTOD: e.target.value === 'yes',
+                  ...(e.target.value === 'no' ? { todPrimaryBeneficiary: '', todSecondaryBeneficiary: '' } : {}),
+                })}
+              >
+                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          {data.hasTOD && (
+            <>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="TOD Primary Beneficiary"
+                  value={data.todPrimaryBeneficiary || ''}
+                  onChange={(e) => handleChange({ todPrimaryBeneficiary: e.target.value })}
+                  variant="outlined"
+                  size="small"
+                  sx={{ ...folioTextFieldSx }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="TOD Secondary Beneficiary"
+                  value={data.todSecondaryBeneficiary || ''}
+                  onChange={(e) => handleChange({ todSecondaryBeneficiary: e.target.value })}
+                  variant="outlined"
+                  size="small"
+                  sx={{ ...folioTextFieldSx }}
+                />
+              </Grid>
+            </>
+          )}
           {data.owner && (
             <Grid item xs={12}>
               <DispositionSection
@@ -1815,6 +1916,10 @@ export interface RetirementAccountData {
   institution: string;
   accountType: string;
   value: string;
+  // TOD (Transfer On Death) fields
+  hasTOD?: boolean;
+  todPrimaryBeneficiary?: string;
+  todSecondaryBeneficiary?: string;
   // Disposition fields
   hasBeneficiaryDesignation?: boolean;
   wantsSpecificBequest?: boolean;
@@ -1837,6 +1942,9 @@ const emptyRetirementAccount: RetirementAccountData = {
   institution: "",
   accountType: "",
   value: "",
+  hasTOD: undefined,
+  todPrimaryBeneficiary: "",
+  todSecondaryBeneficiary: "",
   hasBeneficiaryDesignation: undefined,
   wantsSpecificBequest: undefined,
   jointDisposition: undefined,
@@ -2006,6 +2114,48 @@ export const RetirementAccountModal: React.FC<RetirementAccountModalProps> = ({
               sx={{ ...folioTextFieldSx }}
             />
           </Grid>
+          <Grid item xs={12}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Transfer On Death (TOD)?</FormLabel>
+              <RadioGroup
+                row
+                value={data.hasTOD === true ? 'yes' : data.hasTOD === false ? 'no' : ''}
+                onChange={(e) => handleChange({
+                  hasTOD: e.target.value === 'yes',
+                  ...(e.target.value === 'no' ? { todPrimaryBeneficiary: '', todSecondaryBeneficiary: '' } : {}),
+                })}
+              >
+                <FormControlLabel value="yes" control={<Radio size="small" />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio size="small" />} label="No" />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          {data.hasTOD && (
+            <>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="TOD Primary Beneficiary"
+                  value={data.todPrimaryBeneficiary || ''}
+                  onChange={(e) => handleChange({ todPrimaryBeneficiary: e.target.value })}
+                  variant="outlined"
+                  size="small"
+                  sx={{ ...folioTextFieldSx }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="TOD Secondary Beneficiary"
+                  value={data.todSecondaryBeneficiary || ''}
+                  onChange={(e) => handleChange({ todSecondaryBeneficiary: e.target.value })}
+                  variant="outlined"
+                  size="small"
+                  sx={{ ...folioTextFieldSx }}
+                />
+              </Grid>
+            </>
+          )}
           {data.owner && (
             <Grid item xs={12}>
               <DispositionSection
