@@ -2842,7 +2842,6 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
   onSave,
   onDelete,
   initialData,
-  beneficiaryOptions,
   isEdit = false,
   showSpouse = true,
   trustFlags,
@@ -3062,63 +3061,6 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
               sx={{ ...folioTextFieldSx }}
             />
           </Grid>
-          {data.owner && (
-            <Grid item xs={12}>
-              <DispositionSection
-                owner={data.owner}
-                hasBeneficiaryDesignation={data.hasBeneficiaryDesignation}
-                onBeneficiaryDesignationChange={(value) =>
-                  handleChange({ hasBeneficiaryDesignation: value, hasBeneficiaries: value })
-                }
-                wantsSpecificBequest={data.wantsSpecificBequest}
-                onWantsSpecificBequestChange={(value) =>
-                  handleChange({ wantsSpecificBequest: value })
-                }
-                jointDisposition={data.jointDisposition}
-                onJointDispositionChange={(value) =>
-                  handleChange({ jointDisposition: value })
-                }
-                jointOwnerIntentConfirmed={data.jointOwnerIntentConfirmed}
-                onJointOwnerIntentChange={(value) =>
-                  handleChange({ jointOwnerIntentConfirmed: value })
-                }
-                primaryBeneficiaries={data.primaryBeneficiaries}
-                secondaryBeneficiaries={data.secondaryBeneficiaries}
-                primaryLegatees={data.primaryLegatees || []}
-                secondaryLegatees={data.secondaryLegatees || []}
-                onPrimaryBeneficiariesChange={(value) =>
-                  handleChange({ primaryBeneficiaries: value })
-                }
-                onSecondaryBeneficiariesChange={(value) =>
-                  handleChange({ secondaryBeneficiaries: value })
-                }
-                onPrimaryLegateesChange={(value) =>
-                  handleChange({ primaryLegatees: value })
-                }
-                onSecondaryLegateesChange={(value) =>
-                  handleChange({ secondaryLegatees: value })
-                }
-                primaryDistributionType={data.primaryDistributionType}
-                secondaryDistributionType={data.secondaryDistributionType}
-                primaryLegateeDistributionType={data.primaryLegateeDistributionType || ''}
-                secondaryLegateeDistributionType={data.secondaryLegateeDistributionType || ''}
-                onPrimaryDistributionTypeChange={(value) =>
-                  handleChange({ primaryDistributionType: value })
-                }
-                onSecondaryDistributionTypeChange={(value) =>
-                  handleChange({ secondaryDistributionType: value })
-                }
-                onPrimaryLegateeDistributionTypeChange={(value) =>
-                  handleChange({ primaryLegateeDistributionType: value })
-                }
-                onSecondaryLegateeDistributionTypeChange={(value) =>
-                  handleChange({ secondaryLegateeDistributionType: value })
-                }
-                beneficiaryOptions={beneficiaryOptions}
-              />
-            </Grid>
-          )}
-
 
           <Grid item xs={12}>
             <TextField

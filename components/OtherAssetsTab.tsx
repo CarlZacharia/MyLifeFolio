@@ -12,7 +12,6 @@ import {
   TableRow,
   Paper,
   Typography,
-  Chip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useFormContext, MaritalStatus } from '../lib/FormContext';
@@ -126,9 +125,9 @@ const OtherAssetsTab = () => {
           <Table size="small">
             <TableHead>
               <TableRow sx={{ bgcolor: 'grey.100' }}>
+                <TableCell sx={{ fontWeight: 600, width: 48 }}>Photo</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Owner</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Personal Property Memo</TableCell>
                 <TableCell align="right" sx={{ fontWeight: 600 }}>Value</TableCell>
               </TableRow>
             </TableHead>
@@ -140,16 +139,20 @@ const OtherAssetsTab = () => {
                   onClick={() => openEdit(i)}
                   sx={{ cursor: 'pointer' }}
                 >
+                  <TableCell sx={{ width: 48, p: '6px 8px' }}>
+                    {asset.photo ? (
+                      <Box
+                        component="img"
+                        src={asset.photo}
+                        alt={asset.description || 'Item'}
+                        sx={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 0.5, border: '1px solid', borderColor: 'divider', display: 'block' }}
+                      />
+                    ) : (
+                      <Box sx={{ width: 36, height: 36, bgcolor: 'grey.100', borderRadius: 0.5, border: '1px solid', borderColor: 'divider' }} />
+                    )}
+                  </TableCell>
                   <TableCell>{asset.description || '-'}</TableCell>
                   <TableCell>{asset.owner || '-'}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={asset.addToPersonalPropertyMemo ? 'Yes' : 'No'}
-                      size="small"
-                      color={asset.addToPersonalPropertyMemo ? 'success' : 'default'}
-                      variant="outlined"
-                    />
-                  </TableCell>
                   <TableCell align="right">{formatCurrency(asset.value)}</TableCell>
                 </TableRow>
               ))}

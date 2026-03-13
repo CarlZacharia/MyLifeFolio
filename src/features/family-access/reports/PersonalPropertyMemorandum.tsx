@@ -314,7 +314,6 @@ const PersonalPropertyMemorandum: React.FC<PersonalPropertyMemorandumProps> = ({
       : intake.spouse_name || 'Spouse';
 
   const items = otherAssets.filter((oa) => {
-    if (!oa.add_to_personal_property_memo) return false;
     if (ownerType === 'client') return belongsToClient(oa.owner);
     return belongsToSpouse(oa.owner);
   });

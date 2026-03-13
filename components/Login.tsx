@@ -304,9 +304,9 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
 
         <Typography variant="body2" sx={{ textAlign: 'center' }}>
           Don't have an account?{' '}
-          <Button variant="text" onClick={onSwitchToRegister} sx={{ textTransform: 'none', p: 0 }}>
+          <Link component="button" type="button" variant="body2" onClick={onSwitchToRegister} sx={{ cursor: 'pointer' }}>
             Register
-          </Button>
+          </Link>
         </Typography>
 
         <Divider sx={{ my: 2 }} />
