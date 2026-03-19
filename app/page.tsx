@@ -63,7 +63,7 @@ import Login from '../components/Login';
 import Register from '../components/Register';
 import WelcomeModal from '../components/WelcomeModal';
 import ReauthGuard from '../components/ReauthGuard';
-import { loadIntakeFromRaw } from '../lib/supabaseIntake';
+import { loadIntakeFromRaw, saveIntakeRaw } from '../lib/supabaseIntake';
 import { supabase } from '../lib/supabase';
 
 // Page type for routing
@@ -643,8 +643,23 @@ export default function MainPage() {
           state: user.user_metadata.state_of_domicile,
           zip: user.user_metadata.zip,
         } : undefined}
-        onSave={(data) => {
+        onSave={async (data) => {
           updateFormData(data);
+          // Persist to database immediately so the modal doesn't reappear
+          const merged = { ...formData, ...data };
+          try {
+            const { data: rawData } = await supabase
+              .from('intakes_raw')
+              .select('id')
+              .eq('user_id', user!.id)
+              .eq('intake_type', 'EstatePlanning')
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+            await saveIntakeRaw(merged, 'EstatePlanning', rawData?.id || undefined);
+          } catch (err) {
+            console.error('Failed to save welcome data:', err);
+          }
         }}
       />
 

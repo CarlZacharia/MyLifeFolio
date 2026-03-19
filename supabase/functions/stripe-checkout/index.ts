@@ -55,8 +55,10 @@ serve(async (req: Request) => {
 
     // Create Supabase client with user's token to get their identity
     const jwt = authHeader.replace('Bearer ', '');
-    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey);
-    const { data: { user }, error: authError } = await supabaseUser.auth.getUser(jwt);
+    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: `Bearer ${jwt}` } },
+    });
+    const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
     if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
