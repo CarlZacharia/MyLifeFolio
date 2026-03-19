@@ -4,8 +4,11 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 import {
   Box, Container, Typography, Button, Card, CardContent,
   Grid, AppBar, Toolbar, Fade, Link, Dialog, DialogTitle,
-  DialogContent, DialogActions, IconButton,
+  DialogContent, DialogActions, IconButton, Menu, MenuItem,
+  ListItemIcon, ListItemText, Divider,
 } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import PersonIcon from '@mui/icons-material/Person';
 import { ThemeProvider, createTheme, alpha } from '@mui/material/styles';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
@@ -143,6 +146,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
   const { user, signOut, hasRegistered } = useAuth();
 
   const handleLogout = async () => { await signOut(); onNavigate('landing'); };
+  const [accountMenuAnchor, setAccountMenuAnchor] = useState<null | HTMLElement>(null);
 
   const primaryBtn = useMemo(() => user
     ? { text: 'Open My Folio', icon: <ArrowForwardIcon />, onClick: () => onNavigate('mylifefolio-home') }
@@ -277,20 +281,34 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                     sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
                     About
                   </Button>
-                  <Button variant="outlined" onClick={() => onNavigate('account-settings')} startIcon={<SettingsIcon />}
-                    sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
-                    Account
-                  </Button>
                   {isAdminUser(user.email) && onAdmin && (
                     <Button variant="outlined" onClick={onAdmin} startIcon={<AdminPanelSettingsIcon />}
                       sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
                       Admin
                     </Button>
                   )}
-                  <Button variant="contained" onClick={handleLogout} startIcon={<LogoutIcon />}
-                    sx={{ bgcolor: '#d32f2f', color: 'white', '&:hover': { bgcolor: '#b71c1c' } }}>
-                    Sign Out
+                  <Button variant="outlined" onClick={(e) => setAccountMenuAnchor(e.currentTarget)} startIcon={<PersonIcon />} endIcon={<KeyboardArrowDownIcon />}
+                    sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+                    Account
                   </Button>
+                  <Menu
+                    anchorEl={accountMenuAnchor}
+                    open={Boolean(accountMenuAnchor)}
+                    onClose={() => setAccountMenuAnchor(null)}
+                    slotProps={{
+                      paper: { sx: { borderRadius: 2, minWidth: 180, mt: 1 } },
+                    }}
+                  >
+                    <MenuItem onClick={() => { setAccountMenuAnchor(null); onNavigate('account-settings'); }}>
+                      <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
+                      <ListItemText>Account Settings</ListItemText>
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={() => { setAccountMenuAnchor(null); handleLogout(); }}>
+                      <ListItemIcon><LogoutIcon fontSize="small" sx={{ color: '#d32f2f' }} /></ListItemIcon>
+                      <ListItemText sx={{ '& .MuiListItemText-primary': { color: '#d32f2f', fontWeight: 600 } }}>Logout</ListItemText>
+                    </MenuItem>
+                  </Menu>
                 </>
               ) : (
                 <>
