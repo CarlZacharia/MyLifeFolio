@@ -32,10 +32,11 @@ import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useAuth } from '../lib/AuthContext';
+import SecurityInfoModal from './SecurityInfoModal';
 
 const isAdminUser = (email: string | undefined) => {
   if (!email) return false;
-  return email.split('@')[1] === 'mylifefolio.com';
+  return email.split('@')[1] === 'zacfreylaw.com';
 };
 
 const theme = createTheme({
@@ -138,6 +139,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
+  const [securityOpen, setSecurityOpen] = useState(false);
   const { user, signOut, hasRegistered } = useAuth();
 
   const handleLogout = async () => { await signOut(); onNavigate('landing'); };
@@ -562,6 +564,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
               <Box sx={{ display: 'flex', gap: 3 }}>
                 <Link component="button" onClick={() => setPrivacyOpen(true)} underline="hover" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', fontFamily: '"Source Sans 3", sans-serif', background: 'none', border: 'none', cursor: 'pointer' }}>Privacy Policy</Link>
                 <Link component="button" onClick={() => setTermsOpen(true)} underline="hover" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', fontFamily: '"Source Sans 3", sans-serif', background: 'none', border: 'none', cursor: 'pointer' }}>Terms of Service</Link>
+                <Link component="button" onClick={() => setSecurityOpen(true)} underline="hover" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', fontFamily: '"Source Sans 3", sans-serif', background: 'none', border: 'none', cursor: 'pointer' }}>About Security</Link>
               </Box>
             </Box>
           </Container>
@@ -755,6 +758,9 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
             <Button onClick={() => setTermsOpen(false)} variant="contained" sx={{ bgcolor: 'primary.main' }}>Close</Button>
           </DialogActions>
         </Dialog>
+
+        {/* ── SECURITY MODAL ── */}
+        <SecurityInfoModal open={securityOpen} onClose={() => setSecurityOpen(false)} />
 
       </Box>
     </ThemeProvider>

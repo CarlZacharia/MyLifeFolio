@@ -9,7 +9,11 @@ import {
   ListItemText,
   Paper,
   Typography,
+  Tabs,
+  Tab,
 } from '@mui/material';
+import BuildIcon from '@mui/icons-material/Build';
+import SummarizeIcon from '@mui/icons-material/Summarize';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -39,6 +43,7 @@ import DigitalLifeSummary from '../src/features/family-access/reports/DigitalLif
 import PersonalPropertyMemorandum from '../src/features/family-access/reports/PersonalPropertyMemorandum';
 import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
 import { reportsHelp } from './folioHelpContent';
+import CustomReportBuilder from './CustomReportBuilder';
 
 // ─── Report definitions ──────────────────────────────────────────────────────
 
@@ -246,113 +251,157 @@ export const renderReportById = (reportId: string, data: ReturnType<typeof build
 
 const ReportsSection = () => {
   const [activeReport, setActiveReport] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<0 | 1>(0);
   const data = useReportData();
   const { showHelp, openHelp, closeHelp } = useFolioHelp();
 
   const rendered = activeReport ? renderReportById(activeReport, data) : null;
 
   return (
-    <Box sx={{ display: 'flex', gap: 2, minHeight: 600 }}>
+    <Box sx={{ minHeight: 600 }}>
       <FolioHelpModal open={showHelp} onClose={closeHelp} content={reportsHelp} />
-      {/* ── Left sidebar: report list (20%) ── */}
-      <Paper
-        variant="outlined"
+
+      {/* ── Tab toggle ── */}
+      <Box
         sx={{
-          width: '20%',
-          minWidth: 200,
-          flexShrink: 0,
-          borderRadius: 2,
-          overflow: 'hidden',
+          borderBottom: `1px solid ${folioColors.parchment}`,
+          mb: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
-        <Box
+        <Tabs
+          value={activeTab}
+          onChange={(_, v) => setActiveTab(v)}
           sx={{
-            bgcolor: folioColors.ink,
-            color: '#fff',
-            px: 2,
-            py: 1.5,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            minHeight: 40,
+            '& .MuiTab-root': {
+              fontFamily: '"Jost", sans-serif',
+              fontWeight: 500,
+              fontSize: '13px',
+              textTransform: 'none',
+              minHeight: 40,
+              letterSpacing: '0.02em',
+              color: folioColors.inkLight,
+              '&.Mui-selected': { color: folioColors.ink, fontWeight: 600 },
+            },
+            '& .MuiTabs-indicator': { bgcolor: folioColors.accent, height: 2.5 },
           }}
         >
-          <Typography
-            sx={{
-              fontFamily: '"Jost", sans-serif',
-              fontWeight: 600,
-              fontSize: '14px',
-              letterSpacing: '0.03em',
-            }}
-          >
-            Reports
-          </Typography>
-          <FolioHelpButton onClick={openHelp} accentColor="#fff" tooltip="Reports help" />
-        </Box>
-
-        <List disablePadding>
-          {REPORTS.map((report) => (
-            <ListItemButton
-              key={report.id}
-              selected={activeReport === report.id}
-              onClick={() => setActiveReport(report.id)}
-              sx={{
-                py: 1.5,
-                px: 2,
-                borderBottom: `1px solid ${folioColors.parchment}`,
-                '&.Mui-selected': {
-                  bgcolor: folioColors.cream,
-                  borderLeft: `3px solid ${folioColors.accent}`,
-                  '&:hover': { bgcolor: folioColors.creamDark },
-                },
-                '&:hover': { bgcolor: folioColors.cream },
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 36,
-                  color: activeReport === report.id ? folioColors.accent : folioColors.inkLight,
-                }}
-              >
-                {report.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={report.label}
-                primaryTypographyProps={{
-                  fontFamily: '"Jost", sans-serif',
-                  fontSize: '13px',
-                  fontWeight: activeReport === report.id ? 600 : 400,
-                  color: activeReport === report.id ? folioColors.ink : folioColors.inkLight,
-                }}
-              />
-            </ListItemButton>
-          ))}
-        </List>
-      </Paper>
-
-      {/* ── Right area: report display (80%) ── */}
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        {rendered || (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              minHeight: 400,
-            }}
-          >
-            <Typography
-              sx={{
-                fontFamily: '"Jost", sans-serif',
-                fontSize: '15px',
-                color: folioColors.inkFaint,
-              }}
-            >
-              Select a report from the list to view it here.
-            </Typography>
-          </Box>
+          <Tab icon={<SummarizeIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="Standard Reports" />
+          <Tab icon={<BuildIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="Custom Report Builder" />
+        </Tabs>
+        {activeTab === 0 && (
+          <FolioHelpButton onClick={openHelp} accentColor={folioColors.accent} tooltip="Reports help" />
         )}
       </Box>
+
+      {/* ── Tab content ── */}
+      {activeTab === 0 ? (
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          {/* ── Left sidebar: report list (20%) ── */}
+          <Paper
+            variant="outlined"
+            sx={{
+              width: '20%',
+              minWidth: 200,
+              flexShrink: 0,
+              borderRadius: 2,
+              overflow: 'hidden',
+            }}
+          >
+            <Box
+              sx={{
+                bgcolor: folioColors.ink,
+                color: '#fff',
+                px: 2,
+                py: 1.5,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Typography
+                sx={{
+                  fontFamily: '"Jost", sans-serif',
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  letterSpacing: '0.03em',
+                }}
+              >
+                Reports
+              </Typography>
+            </Box>
+
+            <List disablePadding>
+              {REPORTS.map((report) => (
+                <ListItemButton
+                  key={report.id}
+                  selected={activeReport === report.id}
+                  onClick={() => setActiveReport(report.id)}
+                  sx={{
+                    py: 1.5,
+                    px: 2,
+                    borderBottom: `1px solid ${folioColors.parchment}`,
+                    '&.Mui-selected': {
+                      bgcolor: folioColors.cream,
+                      borderLeft: `3px solid ${folioColors.accent}`,
+                      '&:hover': { bgcolor: folioColors.creamDark },
+                    },
+                    '&:hover': { bgcolor: folioColors.cream },
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 36,
+                      color: activeReport === report.id ? folioColors.accent : folioColors.inkLight,
+                    }}
+                  >
+                    {report.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={report.label}
+                    primaryTypographyProps={{
+                      fontFamily: '"Jost", sans-serif',
+                      fontSize: '13px',
+                      fontWeight: activeReport === report.id ? 600 : 400,
+                      color: activeReport === report.id ? folioColors.ink : folioColors.inkLight,
+                    }}
+                  />
+                </ListItemButton>
+              ))}
+            </List>
+          </Paper>
+
+          {/* ── Right area: report display (80%) ── */}
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            {rendered || (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                  minHeight: 400,
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: '"Jost", sans-serif',
+                    fontSize: '15px',
+                    color: folioColors.inkFaint,
+                  }}
+                >
+                  Select a report from the list to view it here.
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      ) : (
+        <CustomReportBuilder />
+      )}
     </Box>
   );
 };

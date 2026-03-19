@@ -11,11 +11,11 @@ import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno';
 // @ts-ignore - Deno global available in Edge Functions runtime
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-// Allowed origins for CORS — production and local development
+// Allowed origins for CORS — production only
 const ALLOWED_ORIGINS = new Set([
   'https://mylifefolio.com',
   'https://www.mylifefolio.com',
-  'http://localhost:5173',
+
   ...(Deno.env.get('ALLOWED_ORIGIN') ? [Deno.env.get('ALLOWED_ORIGIN')!] : []),
 ]);
 
@@ -105,7 +105,7 @@ serve(async (req: Request) => {
 
     // Determine success/cancel URLs
     // Use the Origin header from the request, or fall back to a default
-    const origin = req.headers.get('Origin') || req.headers.get('Referer')?.replace(/\/$/, '') || 'http://localhost:5173';
+    const origin = req.headers.get('Origin') || req.headers.get('Referer')?.replace(/\/$/, '') || 'https://mylifefolio.com';
     const successUrl = `${origin}/?checkout=success`;
     const cancelUrl = `${origin}/?checkout=cancelled`;
 

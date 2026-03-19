@@ -11,11 +11,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // @ts-ignore - Deno global available in Edge Functions runtime
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-// Allowed origins for CORS — production and local development
+// Allowed origins for CORS — production only
 const ALLOWED_ORIGINS = new Set([
   'https://mylifefolio.com',
   'https://www.mylifefolio.com',
-  'http://localhost:5173',
+
   ...(Deno.env.get('ALLOWED_ORIGIN') ? [Deno.env.get('ALLOWED_ORIGIN')!] : []),
 ]);
 
