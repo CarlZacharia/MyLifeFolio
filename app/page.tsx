@@ -263,6 +263,7 @@ export default function MainPage() {
         return (
           <AccountSettings
             onNavigateBack={() => handleNavigate(previousPage || 'landing')}
+            onNavigate={handleNavigate}
           />
         );
 

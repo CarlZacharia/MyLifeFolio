@@ -19,6 +19,11 @@ import {
   ListItemText,
   Switch,
   FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Checkbox,
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -34,8 +39,14 @@ import SecurityIcon from '@mui/icons-material/Security';
 import LinkIcon from '@mui/icons-material/Link';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
+import UpgradeIcon from '@mui/icons-material/Upgrade';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import CancelIcon from '@mui/icons-material/Cancel';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthContext';
+import { useSubscription } from '../lib/SubscriptionContext';
 import { useReauthPrefs, REAUTH_FEATURES } from '../lib/ReauthPrefsContext';
 
 const theme = createTheme({
@@ -68,11 +79,19 @@ interface ProfileData {
 
 interface AccountSettingsProps {
   onNavigateBack: () => void;
+  onNavigate?: (page: string) => void;
 }
 
-const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack }) => {
+const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNavigate }) => {
   const { user } = useAuth();
+  const { tier, status, trialDaysRemaining, isTrialExpired } = useSubscription();
   const { prefs, setReauthRequired } = useReauthPrefs();
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [deleteAllData, setDeleteAllData] = useState(false);
+  const [cancelConfirmText, setCancelConfirmText] = useState('');
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelSuccess, setCancelSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState('');
@@ -174,6 +193,120 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack }) => 
     }
   };
 
+  const handleManageBilling = async () => {
+    if (!user) return;
+    setPortalLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-portal`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ return_url: window.location.href }),
+        }
+      );
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data.error || 'Failed to open billing portal.');
+      }
+    } catch {
+      setError('Failed to open billing portal.');
+    } finally {
+      setPortalLoading(false);
+    }
+  };
+
+  const USER_DATA_TABLES = [
+    'profiles', 'intakes_raw', 'folio_intakes', 'folio_children', 'folio_beneficiaries',
+    'folio_charities', 'folio_dependents', 'folio_real_estate', 'folio_bank_accounts',
+    'folio_investments', 'folio_retirement_accounts', 'folio_life_insurance', 'folio_vehicles',
+    'folio_other_assets', 'folio_business_interests', 'folio_digital_assets', 'folio_specific_gifts',
+    'folio_cash_gifts', 'folio_long_term_care', 'folio_current_estate_plan', 'folio_distribution_plans',
+    'folio_client_income', 'folio_spouse_income', 'folio_client_medical_insurance',
+    'folio_spouse_medical_insurance', 'folio_advisors', 'folio_medical_providers', 'folio_allergies',
+    'folio_medications', 'folio_medical_conditions', 'folio_surgeries', 'folio_medical_equipment',
+    'folio_pharmacies', 'folio_end_of_life', 'folio_care_preferences', 'folio_insurance_coverage',
+    'folio_expenses', 'folio_subscriptions', 'legacy_obituary', 'legacy_obituary_spouse',
+    'legacy_obituary_drafts', 'legacy_charity_preferences', 'legacy_charity_organizations',
+    'legacy_personal_history', 'legacy_reflections', 'legacy_surprises', 'legacy_favorites',
+    'legacy_entries', 'folio_basic_vitals', 'vault_documents', 'credential_accounts',
+    'credential_vault_settings', 'user_questions', 'folio_access_log', 'folio_authorized_users',
+    'folio_documents', 'saved_report_configs',
+  ];
+
+  const handleCancelSubscription = async () => {
+    if (!user || cancelConfirmText !== 'CANCEL') return;
+    setCancelling(true);
+    setError(null);
+
+    try {
+      // If user chose to delete all data, delete from every user data table
+      if (deleteAllData) {
+        for (const table of USER_DATA_TABLES) {
+          await supabase.from(table).delete().eq('user_id', user.id);
+        }
+        // Also delete vault storage files
+        const { data: files } = await supabase.storage.from('vault-documents').list(user.id);
+        if (files && files.length > 0) {
+          const paths = files.map((f) => `${user.id}/${f.name}`);
+          await supabase.storage.from('vault-documents').remove(paths);
+        }
+      }
+
+      // Cancel the subscription via updating the user_subscriptions table
+      await supabase
+        .from('user_subscriptions')
+        .update({ status: 'cancelled', tier: 'trial' })
+        .eq('user_id', user.id);
+
+      // If they have a Stripe subscription, cancel it via the portal
+      // The webhook will handle the actual cancellation
+      if (tier !== 'trial') {
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-portal`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.access_token}`,
+            },
+            body: JSON.stringify({ return_url: window.location.href }),
+          }
+        );
+        const data = await res.json();
+        if (data.url) {
+          // Redirect to Stripe portal so they can confirm cancellation there
+          window.location.href = data.url;
+          return;
+        }
+      }
+
+      setCancelSuccess(true);
+      setCancelModalOpen(false);
+
+      // If they deleted all data, sign them out
+      if (deleteAllData) {
+        await supabase.auth.signOut();
+        window.location.href = '/';
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to cancel subscription.');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  const tierLabel = tier === 'trial' ? 'Trial' : tier === 'standard' ? 'Standard' : 'Enhanced';
+  const statusLabel = isTrialExpired ? 'Expired' : status === 'past_due' ? 'Past Due' : status === 'active' ? 'Active' : status === 'cancelled' ? 'Cancelled' : status;
+  const statusColor = (isTrialExpired || status === 'cancelled') ? 'error' : status === 'past_due' ? 'warning' : 'success';
+
   const memberSince = user?.created_at
     ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     : '—';
@@ -221,13 +354,18 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack }) => 
                     <Typography variant="body2" sx={{ color: 'text.secondary', mb: 0.5, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.08em' }}>
                       Status
                     </Typography>
-                    <Chip label="Active" color="success" size="small" sx={{ fontWeight: 600 }} />
+                    <Chip label={statusLabel} color={statusColor as any} size="small" sx={{ fontWeight: 600 }} />
                   </Box>
                   <Box>
                     <Typography variant="body2" sx={{ color: 'text.secondary', mb: 0.5, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.08em' }}>
                       Plan
                     </Typography>
-                    <Chip label="Standard" variant="outlined" size="small" sx={{ fontWeight: 600, borderColor: 'secondary.main', color: 'secondary.dark' }} />
+                    <Chip label={tierLabel} variant="outlined" size="small" sx={{ fontWeight: 600, borderColor: 'secondary.main', color: 'secondary.dark' }} />
+                    {tier === 'trial' && trialDaysRemaining !== null && (
+                      <Typography variant="body2" sx={{ mt: 0.5, fontSize: '0.8rem', color: isTrialExpired ? 'error.main' : 'text.secondary' }}>
+                        {isTrialExpired ? 'Trial expired' : `${trialDaysRemaining} day${trialDaysRemaining !== 1 ? 's' : ''} remaining`}
+                      </Typography>
+                    )}
                   </Box>
                   <Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
@@ -244,11 +382,56 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack }) => 
 
                 <Divider sx={{ my: 3, borderColor: '#e0d9cf' }} />
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <PaymentIcon sx={{ color: 'text.secondary', fontSize: 22 }} />
-                  <Typography sx={{ fontFamily: '"Source Sans 3", sans-serif', fontSize: '0.95rem', color: 'text.secondary' }}>
-                    Payment and billing management coming soon.
-                  </Typography>
+                  {tier === 'trial' || isTrialExpired ? (
+                    <Button
+                      variant="contained"
+                      startIcon={<UpgradeIcon />}
+                      onClick={() => onNavigate?.('pricing')}
+                      sx={{
+                        bgcolor: 'secondary.main',
+                        color: 'primary.dark',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        '&:hover': { bgcolor: 'secondary.light' },
+                      }}
+                    >
+                      Upgrade Plan
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="outlined"
+                        startIcon={<ManageAccountsIcon />}
+                        onClick={handleManageBilling}
+                        disabled={portalLoading}
+                        sx={{
+                          borderColor: 'primary.main',
+                          color: 'primary.main',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          '&:hover': { bgcolor: 'rgba(30, 58, 95, 0.05)' },
+                        }}
+                      >
+                        {portalLoading ? <CircularProgress size={20} /> : 'Manage Billing'}
+                      </Button>
+                      {tier === 'standard' && (
+                        <Button
+                          variant="text"
+                          startIcon={<UpgradeIcon />}
+                          onClick={() => onNavigate?.('pricing')}
+                          sx={{
+                            color: 'secondary.dark',
+                            fontWeight: 600,
+                            textTransform: 'none',
+                          }}
+                        >
+                          Upgrade to Enhanced
+                        </Button>
+                      )}
+                    </>
+                  )}
                 </Box>
               </Paper>
 
@@ -506,6 +689,137 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack }) => 
                   ))}
                 </List>
               </Paper>
+
+              {/* ── Cancel Subscription ── */}
+              {tier !== 'trial' && (
+                <Paper elevation={0} sx={{ p: { xs: 3, md: 4 }, mb: 4, borderRadius: 3, border: '1px solid #e0d9cf' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                    <CancelIcon sx={{ color: '#d32f2f', fontSize: 28 }} />
+                    <Typography variant="h5" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, color: '#d32f2f' }}>
+                      Cancel Subscription
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3, fontSize: '0.9rem' }}>
+                    If you cancel your subscription, you will lose access to premium features at the end of your current billing period. Your data will be preserved unless you choose to delete it.
+                  </Typography>
+                  {cancelSuccess && (
+                    <Alert severity="info" sx={{ mb: 2 }}>Your subscription has been cancelled.</Alert>
+                  )}
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={<CancelIcon />}
+                    onClick={() => {
+                      setCancelModalOpen(true);
+                      setCancelConfirmText('');
+                      setDeleteAllData(false);
+                      setCancelSuccess(false);
+                    }}
+                    sx={{ fontWeight: 600, textTransform: 'none' }}
+                  >
+                    Cancel My Subscription
+                  </Button>
+                </Paper>
+              )}
+
+              {/* ── Cancel Confirmation Modal ── */}
+              <Dialog
+                open={cancelModalOpen}
+                onClose={() => !cancelling && setCancelModalOpen(false)}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{ sx: { borderRadius: 3, p: 1 } }}
+              >
+                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5, fontFamily: '"Playfair Display", serif', fontWeight: 600, color: '#d32f2f' }}>
+                  <WarningAmberIcon sx={{ color: '#d32f2f', fontSize: 28 }} />
+                  Cancel Subscription
+                </DialogTitle>
+                <DialogContent>
+                  <Typography sx={{ mb: 2, fontSize: '0.95rem', color: 'text.secondary' }}>
+                    Are you sure you want to cancel your <strong>{tierLabel}</strong> subscription? You will retain access until the end of your current billing period.
+                  </Typography>
+
+                  <Paper elevation={0} sx={{ p: 2, mb: 3, bgcolor: '#fff3e0', borderRadius: 2, border: '1px solid #ffe0b2' }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={deleteAllData}
+                          onChange={(e) => setDeleteAllData(e.target.checked)}
+                          sx={{ color: '#d32f2f', '&.Mui-checked': { color: '#d32f2f' } }}
+                        />
+                      }
+                      label={
+                        <Box>
+                          <Typography sx={{ fontWeight: 600, fontSize: '0.95rem', color: '#d32f2f' }}>
+                            Delete all my data
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.82rem', mt: 0.25 }}>
+                            Permanently remove all information you have entered including personal details, financial records, medical information, legacy entries, uploaded documents, and saved credentials. This action cannot be undone.
+                          </Typography>
+                        </Box>
+                      }
+                      sx={{ alignItems: 'flex-start', mx: 0 }}
+                    />
+                  </Paper>
+
+                  {deleteAllData && (
+                    <Paper elevation={0} sx={{ p: 2, mb: 3, bgcolor: '#ffebee', borderRadius: 2, border: '1px solid #ffcdd2' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <DeleteForeverIcon sx={{ color: '#d32f2f' }} />
+                        <Typography sx={{ fontWeight: 600, color: '#d32f2f', fontSize: '0.95rem' }}>
+                          Warning: This will permanently delete
+                        </Typography>
+                      </Box>
+                      <Typography variant="body2" component="ul" sx={{ color: 'text.secondary', pl: 2, mb: 0, fontSize: '0.85rem', '& li': { mb: 0.5 } }}>
+                        <li>Personal & family information</li>
+                        <li>Financial accounts, assets, and insurance records</li>
+                        <li>Medical records, medications, and care preferences</li>
+                        <li>Estate planning documents and distribution plans</li>
+                        <li>Legacy entries, obituary drafts, and reflections</li>
+                        <li>Uploaded documents and stored credentials</li>
+                        <li>All saved reports and access logs</li>
+                      </Typography>
+                    </Paper>
+                  )}
+
+                  <Typography sx={{ mb: 1, fontSize: '0.9rem', fontWeight: 600 }}>
+                    Type <strong>CANCEL</strong> to confirm:
+                  </Typography>
+                  <TextField
+                    value={cancelConfirmText}
+                    onChange={(e) => setCancelConfirmText(e.target.value.toUpperCase())}
+                    placeholder="CANCEL"
+                    fullWidth
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    sx={{ mb: 1 }}
+                  />
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                  <Button
+                    onClick={() => setCancelModalOpen(false)}
+                    disabled={cancelling}
+                    sx={{ textTransform: 'none', fontWeight: 600, color: 'text.secondary' }}
+                  >
+                    Keep My Subscription
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={handleCancelSubscription}
+                    disabled={cancelling || cancelConfirmText !== 'CANCEL'}
+                    startIcon={cancelling ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <CancelIcon />}
+                    sx={{
+                      bgcolor: '#d32f2f',
+                      fontWeight: 600,
+                      textTransform: 'none',
+                      '&:hover': { bgcolor: '#b71c1c' },
+                      '&.Mui-disabled': { bgcolor: '#e0e0e0' },
+                    }}
+                  >
+                    {cancelling ? 'Cancelling...' : deleteAllData ? 'Cancel & Delete All Data' : 'Cancel Subscription'}
+                  </Button>
+                </DialogActions>
+              </Dialog>
             </>
           )}
         </Container>

@@ -543,6 +543,25 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
                       </Button>
                     )}
                     <Button
+                      variant="outlined"
+                      onClick={() => onNavigate?.('account-settings')}
+                      startIcon={<PersonIcon />}
+                      sx={{
+                        borderColor: 'rgba(255,255,255,0.5)',
+                        color: 'white',
+                        fontWeight: 600,
+                        fontSize: '0.9rem',
+                        px: { xs: 2, md: 3 },
+                        py: 1,
+                        '&:hover': {
+                          borderColor: 'white',
+                          bgcolor: 'rgba(255,255,255,0.1)',
+                        },
+                      }}
+                    >
+                      Account
+                    </Button>
+                    <Button
                       variant="contained"
                       onClick={handleLogout}
                       startIcon={<LogoutIcon />}
