@@ -2954,10 +2954,13 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
 };
 
 // Other Asset Types
+export type OtherAssetCategory = 'personalProperty' | 'other';
+
 export interface OtherAssetData {
   owner: string;
   description: string;
   value: string;
+  category: OtherAssetCategory;
   // Disposition fields
   hasBeneficiaryDesignation?: boolean;
   wantsSpecificBequest?: boolean;
@@ -2982,6 +2985,7 @@ const emptyOtherAsset: OtherAssetData = {
   owner: "",
   description: "",
   value: "",
+  category: "other",
   hasBeneficiaryDesignation: undefined,
   wantsSpecificBequest: undefined,
   jointDisposition: undefined,
@@ -3011,6 +3015,7 @@ interface OtherAssetModalProps {
   isEdit?: boolean;
   showSpouse?: boolean;
   trustFlags?: TrustFlags;
+  defaultCategory?: OtherAssetCategory;
 }
 
 export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
@@ -3022,10 +3027,11 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
   isEdit = false,
   showSpouse = true,
   trustFlags,
+  defaultCategory = 'other',
 }) => {
   const ownerOptions = getOwnerOptions(showSpouse);
   const [data, setData] = useState<OtherAssetData>(
-    initialData || emptyOtherAsset
+    initialData || { ...emptyOtherAsset, category: defaultCategory }
   );
   const [touched, setTouched] = useState<TouchedFields<OtherAssetData>>({});
 
@@ -3130,7 +3136,7 @@ export const OtherAssetModal: React.FC<OtherAssetModalProps> = ({
   useEffect(() => {
     if (open) {
       // Always reset to empty when adding new (isEdit false), otherwise use initialData
-      setData(isEdit && initialData ? initialData : emptyOtherAsset);
+      setData(isEdit && initialData ? initialData : { ...emptyOtherAsset, category: defaultCategory });
       setTouched({});
     } else {
       stopCamera();

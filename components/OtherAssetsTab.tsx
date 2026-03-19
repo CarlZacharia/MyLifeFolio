@@ -19,6 +19,7 @@ import { folioColors } from './FolioModal';
 import {
   OtherAssetModal,
   OtherAssetData,
+  OtherAssetCategory,
   BeneficiaryOption,
   TrustFlags,
 } from './AssetModals';
@@ -36,13 +37,31 @@ const formatCurrency = (value: string): string => {
   }).format(num);
 };
 
-const OtherAssetsTab = () => {
+interface OtherAssetsTabProps {
+  category?: OtherAssetCategory;
+}
+
+const OtherAssetsTab: React.FC<OtherAssetsTabProps> = ({ category = 'other' }) => {
   const { formData, updateFormData } = useFormContext();
   const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+
+  const isPersonalProperty = category === 'personalProperty';
+  const labelSingular = isPersonalProperty ? 'Personal Property Item' : 'Other Asset';
+  const labelPlural = isPersonalProperty ? 'Personal Property' : 'Other Assets';
+  const emptyMessage = isPersonalProperty
+    ? 'No personal property items added yet. Use the button above to add your first item.'
+    : 'No other assets added yet. Use the button above to add your first asset.';
+
+  // Build index map: filtered index → real index in formData.otherAssets
+  const filteredItems = useMemo(() => {
+    return formData.otherAssets
+      .map((asset, realIndex) => ({ asset, realIndex }))
+      .filter(({ asset }) => (asset.category || 'other') === category);
+  }, [formData.otherAssets, category]);
 
   const trustFlags: TrustFlags = useMemo(() => ({
     clientHasLivingTrust: formData.clientHasLivingTrust,
@@ -76,7 +95,7 @@ const OtherAssetsTab = () => {
   }, [showSpouseInfo, formData.spouseName, formData.name, formData.children, formData.otherBeneficiaries, formData.clientHasLivingTrust, formData.clientLivingTrustName, formData.clientHasIrrevocableTrust, formData.clientIrrevocableTrustName, formData.spouseHasLivingTrust, formData.spouseLivingTrustName, formData.spouseHasIrrevocableTrust, formData.spouseIrrevocableTrustName]);
 
   const openAdd = () => { setModalOpen(true); setIsEdit(false); setEditIndex(null); };
-  const openEdit = (index: number) => { setModalOpen(true); setIsEdit(true); setEditIndex(index); };
+  const openEdit = (realIndex: number) => { setModalOpen(true); setIsEdit(true); setEditIndex(realIndex); };
   const closeModal = () => { setModalOpen(false); setIsEdit(false); setEditIndex(null); };
 
   const handleSave = (data: OtherAssetData) => {
@@ -101,21 +120,21 @@ const OtherAssetsTab = () => {
     return formData.otherAssets[editIndex];
   };
 
-  const total = formData.otherAssets.reduce((sum, a) => {
-    const num = parseFloat((a.value || '0').replace(/[^0-9.-]/g, ''));
+  const total = filteredItems.reduce((sum, { asset }) => {
+    const num = parseFloat((asset.value || '0').replace(/[^0-9.-]/g, ''));
     return sum + (isNaN(num) ? 0 : num);
   }, 0);
 
   const fmtTotal = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
 
-  const hasAny = formData.otherAssets.length > 0;
+  const hasAny = filteredItems.length > 0;
 
   return (
     <Box>
       {/* Add button */}
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
         <Button variant="outlined" startIcon={<AddIcon />} onClick={openAdd} size="small">
-          Add Other Asset
+          Add {labelSingular}
         </Button>
       </Box>
 
@@ -132,11 +151,11 @@ const OtherAssetsTab = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {formData.otherAssets.map((asset, i) => (
+              {filteredItems.map(({ asset, realIndex }) => (
                 <TableRow
-                  key={`other-${i}`}
+                  key={`other-${realIndex}`}
                   hover
-                  onClick={() => openEdit(i)}
+                  onClick={() => openEdit(realIndex)}
                   sx={{ cursor: 'pointer' }}
                 >
                   <TableCell sx={{ width: 48, p: '6px 8px' }}>
@@ -160,7 +179,7 @@ const OtherAssetsTab = () => {
               {/* Total row */}
               <TableRow sx={{ bgcolor: folioColors.ink }}>
                 <TableCell colSpan={3} sx={{ fontWeight: 700, color: 'white', fontSize: '0.95rem' }}>
-                  Total Other Assets
+                  Total {labelPlural}
                 </TableCell>
                 <TableCell align="right" sx={{ fontWeight: 700, color: 'white', fontSize: '0.95rem' }}>
                   {fmtTotal(total)}
@@ -172,7 +191,7 @@ const OtherAssetsTab = () => {
       ) : (
         <Paper variant="outlined" sx={{ p: 4, textAlign: 'center' }}>
           <Typography color="text.secondary">
-            No other assets added yet. Use the button above to add your first asset.
+            {emptyMessage}
           </Typography>
         </Paper>
       )}
@@ -188,6 +207,7 @@ const OtherAssetsTab = () => {
         isEdit={isEdit}
         showSpouse={showSpouseInfo}
         trustFlags={trustFlags}
+        defaultCategory={category}
       />
     </Box>
   );

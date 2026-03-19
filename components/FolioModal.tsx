@@ -46,7 +46,7 @@ export const folioInputSx = {
   fontFamily: '"Jost", sans-serif',
   fontWeight: 700,
   fontSize: '15px',
-  color: '#007bff',
+  color: '#324B5C',
   bgcolor: '#ffffff',
   border: `1px solid ${folioColors.parchment}`,
   borderRadius: '6px',
@@ -83,7 +83,7 @@ export const folioTextFieldSx = {
     fontFamily: '"Jost", sans-serif',
     fontWeight: 700,
     fontSize: '15px',
-    color: '#007bff',
+    color: '#324B5C',
     bgcolor: '#ffffff',
     borderRadius: '6px',
     '& fieldset': {

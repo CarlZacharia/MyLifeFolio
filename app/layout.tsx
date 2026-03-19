@@ -52,7 +52,7 @@ const theme = createTheme({
             },
           },
           '& .MuiOutlinedInput-input': {
-            color: '#007bff',
+            color: '#324B5C',
             fontWeight: 700,
           },
           '& .MuiOutlinedInput-input::placeholder': {
@@ -61,7 +61,7 @@ const theme = createTheme({
             opacity: 1,
           },
           '& .MuiOutlinedInput-inputMultiline': {
-            color: '#007bff',
+            color: '#324B5C',
             fontWeight: 700,
           },
         },
@@ -73,7 +73,7 @@ const theme = createTheme({
     MuiSelect: {
       styleOverrides: {
         select: {
-          color: '#007bff',
+          color: '#324B5C',
           fontWeight: 700,
         },
       },
@@ -81,7 +81,7 @@ const theme = createTheme({
     MuiAutocomplete: {
       styleOverrides: {
         input: {
-          color: '#007bff !important',
+          color: '#324B5C !important',
           fontWeight: '700 !important' as any,
         },
       },
@@ -101,7 +101,7 @@ const theme = createTheme({
         root: {
           color: '#999',
           '&.Mui-checked': {
-            color: '#007bff',
+            color: '#324B5C',
           },
         },
       },
@@ -111,10 +111,10 @@ const theme = createTheme({
         root: {
           color: '#999',
           '&.Mui-checked': {
-            color: '#007bff',
+            color: '#324B5C',
           },
           '&.MuiCheckbox-indeterminate': {
-            color: '#007bff',
+            color: '#324B5C',
           },
         },
       },

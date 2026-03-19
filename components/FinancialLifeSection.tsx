@@ -46,7 +46,7 @@ const ASSET_SUB_TABS: { label: string; categories: AssetCategoryType[] }[] = [
   { label: 'Vehicles', categories: ['vehicle'] },
   { label: 'Business', categories: ['businessInterest'] },
   { label: 'Digital', categories: ['digitalAsset'] },
-  { label: 'Personal Property', categories: ['otherAsset'] },
+  { label: 'Personal Property', categories: [] },
   { label: 'Other', categories: [] },
 ];
 
@@ -146,6 +146,8 @@ const FinancialLifeSection: React.FC<FinancialLifeSectionProps> = ({ initialTab 
             <BusinessAssetsTab />
           ) : assetSubTab === 5 ? (
             <DigitalAssetsTab />
+          ) : assetSubTab === 6 ? (
+            <OtherAssetsTab category="personalProperty" />
           ) : assetSubTab === 7 ? (
             <OtherAssetsTab />
           ) : ASSET_SUB_TABS[assetSubTab].categories.length > 0 ? (

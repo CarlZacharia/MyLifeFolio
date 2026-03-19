@@ -795,6 +795,7 @@ export interface FormData {
     owner: string;
     description: string;
     value: string;
+    category: 'personalProperty' | 'other';
     hasBeneficiaries: boolean;
     primaryBeneficiaries: string[];
     primaryDistributionType: 'Per Stirpes' | 'Per Capita' | '';

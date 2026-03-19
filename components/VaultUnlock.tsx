@@ -123,18 +123,50 @@ const VaultUnlock: React.FC<VaultUnlockProps> = ({ salt, recoveryKeyCiphertext, 
           >
             {unlocking ? 'Unlocking...' : 'Unlock Vault'}
           </Button>
-          <Button
-            size="small"
-            color="inherit"
-            startIcon={<KeyIcon />}
-            onClick={() => setShowRecovery(true)}
-            sx={{ color: 'text.secondary', fontSize: '0.8rem' }}
-          >
-            Use Recovery Key Instead
-          </Button>
+
+          <Collapse in={!passphrase}>
+            <Paper
+              variant="outlined"
+              sx={{
+                mt: 2,
+                p: 2,
+                bgcolor: '#fff8e1',
+                borderColor: '#ffe082',
+                textAlign: 'left',
+              }}
+            >
+              <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: '#e65100' }}>
+                Forgot your passphrase?
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 1.5 }}>
+                Your passphrase is never stored and cannot be emailed or retrieved.
+                If you saved your Recovery Key during vault setup, you can use it to unlock
+                your vault and then change your passphrase from Vault Settings.
+              </Typography>
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<KeyIcon />}
+                onClick={() => setShowRecovery(true)}
+                sx={{
+                  borderColor: '#e65100',
+                  color: '#e65100',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  '&:hover': { bgcolor: '#fff3e0', borderColor: '#bf360c' },
+                }}
+              >
+                Unlock with Recovery Key
+              </Button>
+            </Paper>
+          </Collapse>
         </>
       ) : (
         <>
+          <Alert severity="info" sx={{ mb: 2, textAlign: 'left' }}>
+            Enter the recovery key you saved when you first set up the vault.
+            After unlocking, you can change your passphrase from <strong>Vault Settings</strong>.
+          </Alert>
           <TextField
             fullWidth
             type="text"

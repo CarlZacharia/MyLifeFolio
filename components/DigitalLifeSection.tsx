@@ -197,7 +197,7 @@ const DigitalLifeSection: React.FC<DigitalLifeSectionProps> = ({ initialTab }) =
 
     // Vault unlocked — show credentials list
     return (
-      <CredentialsList vaultKey={vaultKey} onLockVault={handleLockVault} />
+      <CredentialsList vaultKey={vaultKey} onLockVault={handleLockVault} onVaultKeyChanged={(newKey) => setVaultKey(newKey)} />
     );
   };
 

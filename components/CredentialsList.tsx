@@ -33,6 +33,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthContext';
 import { decryptField } from '../lib/vaultCrypto';
 import CredentialForm, { type CredentialAccount, EMPTY_CREDENTIAL, ACCOUNT_TYPES } from './CredentialForm';
+import VaultManagement from './VaultManagement';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -81,9 +82,10 @@ const typeLabels: Record<string, string> = Object.fromEntries(
 interface CredentialsListProps {
   vaultKey: CryptoKey;
   onLockVault: () => void;
+  onVaultKeyChanged: (newKey: CryptoKey) => void;
 }
 
-const CredentialsList: React.FC<CredentialsListProps> = ({ vaultKey, onLockVault }) => {
+const CredentialsList: React.FC<CredentialsListProps> = ({ vaultKey, onLockVault, onVaultKeyChanged }) => {
   const { user } = useAuth();
   const [credentials, setCredentials] = useState<CredentialRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -286,7 +288,7 @@ const CredentialsList: React.FC<CredentialsListProps> = ({ vaultKey, onLockVault
             Vault Unlocked
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button
             size="small"
             startIcon={<AddIcon />}
@@ -296,6 +298,10 @@ const CredentialsList: React.FC<CredentialsListProps> = ({ vaultKey, onLockVault
           >
             Add Credential
           </Button>
+          <VaultManagement
+            vaultKey={vaultKey}
+            onVaultKeyChanged={onVaultKeyChanged}
+          />
           <Button
             size="small"
             startIcon={<LockIcon />}

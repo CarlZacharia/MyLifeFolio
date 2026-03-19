@@ -244,12 +244,16 @@ export const categorizeAssets = (formData: FormData): AssetCategorySummary => {
     }
   });
 
-  // Categorize Other Assets
+  // Categorize Other Assets & Personal Property
   // Items marked for Personal Property Memorandum are non-probate (pass directly to named legatees)
   formData.otherAssets.forEach((otherAsset) => {
+    const isPersonalProperty = (otherAsset.category || 'other') === 'personalProperty';
+    const assetTypeLabel = isPersonalProperty
+      ? (otherAsset.addToPersonalPropertyMemo ? 'Personal Property (PPM)' : 'Personal Property')
+      : (otherAsset.addToPersonalPropertyMemo ? 'Other Asset (PPM)' : 'Other Asset');
     const asset: CategorizedAsset = {
       description: otherAsset.description,
-      assetType: otherAsset.addToPersonalPropertyMemo ? 'Other Asset (PPM)' : 'Other Asset',
+      assetType: assetTypeLabel,
       value: parseCurrencyValue(otherAsset.value),
     };
 
