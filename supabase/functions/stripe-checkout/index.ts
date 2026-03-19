@@ -119,6 +119,7 @@ serve(async (req: Request) => {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: successUrl,
       cancel_url: cancelUrl,
+      allow_promotion_codes: true,
       metadata: { supabase_user_id: user.id },
       subscription_data: {
         metadata: { supabase_user_id: user.id },
