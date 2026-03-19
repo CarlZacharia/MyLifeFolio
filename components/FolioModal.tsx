@@ -44,9 +44,9 @@ export const folioLabelSx = {
 
 export const folioInputSx = {
   fontFamily: '"Jost", sans-serif',
-  fontWeight: 300,
+  fontWeight: 700,
   fontSize: '15px',
-  color: folioColors.ink,
+  color: '#007bff',
   bgcolor: '#ffffff',
   border: `1px solid ${folioColors.parchment}`,
   borderRadius: '6px',
@@ -81,9 +81,9 @@ export const folioTextFieldSx = {
   },
   '& .MuiOutlinedInput-root': {
     fontFamily: '"Jost", sans-serif',
-    fontWeight: 300,
+    fontWeight: 700,
     fontSize: '15px',
-    color: folioColors.ink,
+    color: '#007bff',
     bgcolor: '#ffffff',
     borderRadius: '6px',
     '& fieldset': {

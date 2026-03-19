@@ -30,7 +30,7 @@ import FolioSearchBar from './FolioSearchBar';
 const isAdminUser = (email: string | undefined): boolean => {
   if (!email) return false;
   const domain = email.split('@')[1];
-  return domain === 'mylifefolio.com';
+  return domain === 'zacfreylaw.com';
 };
 
 const theme = createTheme({
@@ -57,6 +57,75 @@ const theme = createTheme({
     MuiButton: { styleOverrides: { root: { borderRadius: 2, padding: '10px 24px' } } },
     MuiCard: { styleOverrides: { root: { borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' } } },
     MuiPaper: { styleOverrides: { root: { borderRadius: 3 } } },
+    // ── User-typed input styling: blue bold text ──
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-input': {
+            color: '#007bff',
+            fontWeight: 700,
+          },
+          '& .MuiOutlinedInput-input::placeholder': {
+            color: '#999',
+            fontWeight: 400,
+            opacity: 1,
+          },
+          // Textarea (multiline)
+          '& .MuiOutlinedInput-inputMultiline': {
+            color: '#007bff',
+            fontWeight: 700,
+          },
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        select: {
+          color: '#007bff',
+          fontWeight: 700,
+        },
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        input: {
+          color: '#007bff !important',
+          fontWeight: '700 !important' as any,
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          '&.MuiInputLabel-shrink': {
+            fontWeight: 600,
+          },
+        },
+      },
+    },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          color: '#999',
+          '&.Mui-checked': {
+            color: '#007bff',
+          },
+          '&.MuiCheckbox-indeterminate': {
+            color: '#007bff',
+          },
+        },
+      },
+    },
+    MuiRadio: {
+      styleOverrides: {
+        root: {
+          color: '#999',
+          '&.Mui-checked': {
+            color: '#007bff',
+          },
+        },
+      },
+    },
   },
 });
 

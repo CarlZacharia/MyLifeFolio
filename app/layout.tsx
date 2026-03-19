@@ -41,11 +41,9 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           transition: 'all 0.2s ease-in-out',
-          // Hover state
           '&:hover .MuiOutlinedInput-notchedOutline': {
             borderColor: '#1a237e',
           },
-          // Focus state - light blue background
           '&.Mui-focused': {
             backgroundColor: '#e3f2fd',
             '& .MuiOutlinedInput-notchedOutline': {
@@ -53,15 +51,18 @@ const theme = createTheme({
               borderWidth: 2,
             },
           },
-        },
-        input: {
-          // When text input has value, show visual indicator
-          '&:not(:placeholder-shown)': {
-            backgroundColor: '#f8f9fa',
-            borderLeft: '3px solid #4caf50',
-            marginLeft: -1,
-            paddingLeft: 'calc(14px - 2px)',
-            fontWeight: 500,
+          '& .MuiOutlinedInput-input': {
+            color: '#007bff',
+            fontWeight: 700,
+          },
+          '& .MuiOutlinedInput-input::placeholder': {
+            color: '#999',
+            fontWeight: 400,
+            opacity: 1,
+          },
+          '& .MuiOutlinedInput-inputMultiline': {
+            color: '#007bff',
+            fontWeight: 700,
           },
         },
         notchedOutline: {
@@ -69,40 +70,25 @@ const theme = createTheme({
         },
       },
     },
-    // Select styling - style the entire OutlinedInput when Select has value
     MuiSelect: {
       styleOverrides: {
         select: {
-          transition: 'all 0.2s ease-in-out',
-          // When select is closed and has a non-empty value
-          '&.MuiSelect-outlined.MuiInputBase-input': {
-            '&:not(:empty)': {
-              backgroundColor: '#f8f9fa',
-              borderLeft: '3px solid #4caf50',
-              marginLeft: -1,
-              paddingLeft: 'calc(14px - 2px)',
-              fontWeight: 500,
-            },
-          },
+          color: '#007bff',
+          fontWeight: 700,
         },
       },
     },
-    // Autocomplete styling
     MuiAutocomplete: {
       styleOverrides: {
-        inputRoot: {
-          // When autocomplete has value(s)
-          '&.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon .MuiOutlinedInput-root, &:has(.MuiChip-root)': {
-            backgroundColor: '#f8f9fa',
-          },
+        input: {
+          color: '#007bff !important',
+          fontWeight: '700 !important' as any,
         },
       },
     },
-    // FormControl label styling when filled
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          // Shrunk label (when field has value or is focused)
           '&.MuiInputLabel-shrink': {
             fontWeight: 600,
             color: '#1a237e',
@@ -110,12 +96,12 @@ const theme = createTheme({
         },
       },
     },
-    // Radio and Checkbox - highlight when selected
     MuiRadio: {
       styleOverrides: {
         root: {
+          color: '#999',
           '&.Mui-checked': {
-            color: '#1a237e',
+            color: '#007bff',
           },
         },
       },
@@ -123,8 +109,12 @@ const theme = createTheme({
     MuiCheckbox: {
       styleOverrides: {
         root: {
+          color: '#999',
           '&.Mui-checked': {
-            color: '#1a237e',
+            color: '#007bff',
+          },
+          '&.MuiCheckbox-indeterminate': {
+            color: '#007bff',
           },
         },
       },
