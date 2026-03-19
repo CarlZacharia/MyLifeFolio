@@ -375,16 +375,21 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                 </Box>
 
                 {/* Trust bar */}
-                <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', opacity: 0, animation: 'fadeUp 0.8s 0.7s ease forwards', '@keyframes fadeUp': { from: { opacity: 0, transform: 'translateY(20px)' }, to: { opacity: 1, transform: 'translateY(0)' } } }}>
-                  {[
-                    <><LockPersonIcon sx={{ fontSize: 16 }} /> Bank-level encryption</>,
-                    <><PeopleIcon sx={{ fontSize: 16 }} /> Share with trusted people</>,
-                    <><AutoStoriesIcon sx={{ fontSize: 16 }} /> Your story, your way</>,
-                  ].map((item, i) => (
-                    <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 0.8, px: 2, py: 1, borderRadius: 1, bgcolor: alpha('#ffffff', 0.08), backdropFilter: 'blur(8px)' }}>
-                      <Typography variant="body2" sx={{ color: alpha('#fff', 0.82), fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: 0.7, fontFamily: '"Source Sans 3", sans-serif' }}>{item}</Typography>
-                    </Box>
-                  ))}
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, opacity: 0, animation: 'fadeUp 0.8s 0.7s ease forwards', '@keyframes fadeUp': { from: { opacity: 0, transform: 'translateY(20px)' }, to: { opacity: 1, transform: 'translateY(0)' } } }}>
+                  <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                    {[
+                      <><LockPersonIcon sx={{ fontSize: 16 }} /> AES-256 encryption</>,
+                      <><PeopleIcon sx={{ fontSize: 16 }} /> Share with trusted people</>,
+                      <><AutoStoriesIcon sx={{ fontSize: 16 }} /> Your story, your way</>,
+                    ].map((item, i) => (
+                      <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 0.8, px: 2, py: 1, borderRadius: 1, bgcolor: alpha('#ffffff', 0.08), backdropFilter: 'blur(8px)' }}>
+                        <Typography variant="body2" sx={{ color: alpha('#fff', 0.82), fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: 0.7, fontFamily: '"Source Sans 3", sans-serif' }}>{item}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                  <Link component="button" onClick={() => setSecurityOpen(true)} underline="hover" sx={{ color: alpha('#fff', 0.6), fontSize: '0.78rem', fontFamily: '"Source Sans 3", sans-serif', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', width: 'fit-content' }}>
+                    About Security →
+                  </Link>
                 </Box>
               </Grid>
 
