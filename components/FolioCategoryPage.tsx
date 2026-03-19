@@ -10,7 +10,14 @@ import {
   Button,
   Paper,
   Fade,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
 } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { ThemeProvider, createTheme, alpha } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import BalanceIcon from '@mui/icons-material/Balance';
@@ -173,6 +180,8 @@ const FolioCategoryPage: React.FC<FolioCategoryPageProps> = ({
     await signOut();
     onNavigateBack();
   };
+
+  const [accountMenuAnchor, setAccountMenuAnchor] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -340,14 +349,28 @@ const FolioCategoryPage: React.FC<FolioCategoryPageProps> = ({
                       Admin
                     </Button>
                   )}
-                  <Button variant="outlined" onClick={() => onNavigate?.('account-settings')} startIcon={<PersonIcon />}
+                  <Button variant="outlined" onClick={(e) => setAccountMenuAnchor(e.currentTarget)} startIcon={<PersonIcon />} endIcon={<KeyboardArrowDownIcon />}
                     sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', fontWeight: 600, fontSize: '0.9rem', px: { xs: 2, md: 3 }, py: 1, '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
                     Account
                   </Button>
-                  <Button variant="contained" onClick={handleLogout} startIcon={<LogoutIcon />}
-                    sx={{ bgcolor: '#d32f2f', color: 'white', fontWeight: 600, fontSize: '0.9rem', px: { xs: 2, md: 3 }, py: 1, boxShadow: 'none', '&:hover': { bgcolor: '#b71c1c', boxShadow: '0 4px 12px rgba(211, 47, 47, 0.3)' } }}>
-                    Logout
-                  </Button>
+                  <Menu
+                    anchorEl={accountMenuAnchor}
+                    open={Boolean(accountMenuAnchor)}
+                    onClose={() => setAccountMenuAnchor(null)}
+                    slotProps={{
+                      paper: { sx: { borderRadius: 2, minWidth: 180, mt: 1 } },
+                    }}
+                  >
+                    <MenuItem onClick={() => { setAccountMenuAnchor(null); onNavigate?.('account-settings'); }}>
+                      <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
+                      <ListItemText>Account Settings</ListItemText>
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={() => { setAccountMenuAnchor(null); handleLogout(); }}>
+                      <ListItemIcon><LogoutIcon fontSize="small" sx={{ color: '#d32f2f' }} /></ListItemIcon>
+                      <ListItemText sx={{ '& .MuiListItemText-primary': { color: '#d32f2f', fontWeight: 600 } }}>Logout</ListItemText>
+                    </MenuItem>
+                  </Menu>
                 </>
               ) : (
                 <>

@@ -197,20 +197,26 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
     if (!user) return;
     setPortalLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session?.access_token) {
+        setError('Your session has expired. Please log in again.');
+        return;
+      }
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-portal`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.access_token}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ return_url: window.location.href }),
         }
       );
       const data = await res.json();
-      if (data.url) {
+      if (data.portalUrl) {
+        window.location.href = data.portalUrl;
+      } else if (data.url) {
         window.location.href = data.url;
       } else {
         setError(data.error || 'Failed to open billing portal.');
