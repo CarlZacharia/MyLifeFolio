@@ -34,6 +34,9 @@ import CredentialsList from './CredentialsList';
 import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
 import { digitalLifeHelp } from './folioHelpContent';
 import DigitalSubscriptionsTab from './DigitalSubscriptionsTab';
+import DigitalAssetsTab from './DigitalAssetsTab';
+import SocialMediaTab from './SocialMediaTab';
+import DomainsDigitalBusinessTab from './DomainsDigitalBusinessTab';
 
 interface VaultSettings {
   salt: string;
@@ -201,15 +204,6 @@ const DigitalLifeSection: React.FC<DigitalLifeSectionProps> = ({ initialTab }) =
     );
   };
 
-  const renderComingSoon = (title: string) => (
-    <Paper variant="outlined" sx={{ p: 4, textAlign: 'center' }}>
-      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>{title}</Typography>
-      <Chip label="Coming Soon" size="small" sx={{ bgcolor: '#e0f2f1', color: '#00695c' }} />
-      <Typography variant="body2" sx={{ color: 'text.secondary', mt: 2 }}>
-        This section is planned for a future release.
-      </Typography>
-    </Paper>
-  );
 
   return (
     <Box>
@@ -253,10 +247,10 @@ const DigitalLifeSection: React.FC<DigitalLifeSectionProps> = ({ initialTab }) =
 
       {/* Tab content */}
       {activeTab === 0 && renderCredentialsTab()}
-      {activeTab === 1 && renderComingSoon('Digital Assets & Cryptocurrency')}
+      {activeTab === 1 && <DigitalAssetsTab />}
       {activeTab === 2 && <DigitalSubscriptionsTab />}
-      {activeTab === 3 && renderComingSoon('Social Media & Email Accounts')}
-      {activeTab === 4 && renderComingSoon('Domain Names & Digital Businesses')}
+      {activeTab === 3 && <SocialMediaTab />}
+      {activeTab === 4 && <DomainsDigitalBusinessTab />}
     </Box>
   );
 };

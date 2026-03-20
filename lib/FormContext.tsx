@@ -1107,6 +1107,36 @@ export interface FormData {
     notes: string;
   }>;
 
+  socialMediaAccounts: Array<{
+    platform: string;
+    accountType: string;
+    usernameHandle: string;
+    loginEmail: string;
+    accountHolder: string;
+    recoveryEmailPhone: string;
+    wishesAtDeath: string;
+    transferToName: string;
+    hasMonetization: boolean;
+    notes: string;
+  }>;
+
+  domainsDigitalBusiness: Array<{
+    name: string;
+    businessType: string;
+    registrarHost: string;
+    expirationDate: string;
+    loginEmail: string;
+    accountHolder: string;
+    estimatedValue: string;
+    monthlyRevenue: string;
+    hostingCost: string;
+    hostingFrequency: string;
+    paymentMethod: string;
+    autoRenew: boolean;
+    isActive: boolean;
+    notes: string;
+  }>;
+
   carePreferences: Array<{
     category: string;
     preferenceItem: string;
@@ -1655,6 +1685,8 @@ const initialFormData: FormData = {
   expenses: [],
   subscriptions: [],
   digitalSubscriptions: [],
+  socialMediaAccounts: [],
+  domainsDigitalBusiness: [],
   carePreferences: [],
   endOfLife: [],
   additionalComments: '',
