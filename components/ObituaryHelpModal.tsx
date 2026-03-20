@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import {
   Chip,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import { folioColors } from './FolioModal';
 
 interface ObituaryHelpModalProps {
@@ -45,10 +46,36 @@ const body = {
   lineHeight: 1.6,
 };
 
-const ObituaryHelpModal: React.FC<ObituaryHelpModalProps> = ({ open, onClose }) => (
+const ObituaryHelpModal: React.FC<ObituaryHelpModalProps> = ({ open, onClose }) => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      // Small delay so the dialog renders before playback starts
+      const timer = setTimeout(() => {
+        audioRef.current?.play().catch(() => {});
+      }, 300);
+      return () => clearTimeout(timer);
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    }
+  }, [open]);
+
+  const handleClose = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    onClose();
+  };
+
+  return (
   <Dialog
     open={open}
-    onClose={onClose}
+    onClose={handleClose}
     maxWidth="sm"
     fullWidth
     PaperProps={{
@@ -81,9 +108,38 @@ const ObituaryHelpModal: React.FC<ObituaryHelpModalProps> = ({ open, onClose }) 
       >
         How Obituary Information Works
       </Typography>
-      <IconButton onClick={onClose} size="small" sx={{ color: folioColors.inkLight }}>
+      <IconButton onClick={handleClose} size="small" sx={{ color: folioColors.inkLight }}>
         <CloseIcon fontSize="small" />
       </IconButton>
+    </Box>
+
+    {/* Audio Narration */}
+    <Box
+      sx={{
+        mx: 3,
+        mb: 1,
+        p: 1.5,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+        bgcolor: '#e8f5e9',
+        borderRadius: '8px',
+        border: '1px solid #c8e6c9',
+      }}
+    >
+      <VolumeUpIcon sx={{ color: '#2e7d32', fontSize: 20 }} />
+      <Box sx={{ flex: 1 }}>
+        <Typography sx={{ ...body, fontSize: '12px', color: '#2e7d32', fontWeight: 600, mb: 0.5 }}>
+          Audio Guide
+        </Typography>
+        <audio
+          ref={audioRef}
+          controls
+          controlsList="nodownload"
+          style={{ width: '100%', height: 32 }}
+          src="/audio/resources/Legacy-Obit.mp3"
+        />
+      </Box>
     </Box>
 
     <Divider sx={{ borderColor: folioColors.parchment }} />
@@ -199,6 +255,7 @@ const ObituaryHelpModal: React.FC<ObituaryHelpModalProps> = ({ open, onClose }) 
       </Box>
     </DialogContent>
   </Dialog>
-);
+  );
+};
 
 export default ObituaryHelpModal;
