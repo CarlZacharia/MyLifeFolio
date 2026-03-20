@@ -267,16 +267,6 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
               {user ? (
                 <>
-                  {onProfile && (
-                    <Button variant="outlined" onClick={onProfile} startIcon={<PeopleIcon />}
-                      sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
-                      Family Access
-                    </Button>
-                  )}
-                  <Button variant="outlined" onClick={() => onNavigate('resources')} startIcon={<LibraryBooksIcon />}
-                    sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
-                    Resources
-                  </Button>
                   <Button variant="outlined" onClick={() => onNavigate('about')} startIcon={<InfoOutlinedIcon />}
                     sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
                     About
@@ -299,6 +289,14 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                       paper: { sx: { borderRadius: 2, minWidth: 180, mt: 1 } },
                     }}
                   >
+                    <MenuItem onClick={() => { setAccountMenuAnchor(null); onProfile?.(); }}>
+                      <ListItemIcon><PeopleIcon fontSize="small" /></ListItemIcon>
+                      <ListItemText>Family Access</ListItemText>
+                    </MenuItem>
+                    <MenuItem onClick={() => { setAccountMenuAnchor(null); onNavigate('resources'); }}>
+                      <ListItemIcon><LibraryBooksIcon fontSize="small" /></ListItemIcon>
+                      <ListItemText>Resources</ListItemText>
+                    </MenuItem>
                     <MenuItem onClick={() => { setAccountMenuAnchor(null); onNavigate('account-settings'); }}>
                       <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
                       <ListItemText>Account Settings</ListItemText>

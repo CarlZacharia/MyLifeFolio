@@ -331,18 +331,6 @@ const FolioCategoryPage: React.FC<FolioCategoryPageProps> = ({
                       </Typography>
                     )}
                   </Box>
-                  {onProfile && (
-                    <Button variant="outlined" onClick={onProfile} startIcon={<PeopleIcon />}
-                      sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', fontWeight: 600, fontSize: '0.9rem', px: { xs: 2, md: 3 }, py: 1, '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
-                      Family Access
-                    </Button>
-                  )}
-                  {onResources && (
-                    <Button variant="outlined" onClick={onResources} startIcon={<LibraryBooksIcon />}
-                      sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', fontWeight: 600, fontSize: '0.9rem', px: { xs: 2, md: 3 }, py: 1, '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
-                      Resources
-                    </Button>
-                  )}
                   {isAdminUser(user.email) && onAdmin && (
                     <Button variant="outlined" onClick={onAdmin} startIcon={<AdminPanelSettingsIcon />}
                       sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', fontWeight: 600, fontSize: '0.9rem', px: { xs: 2, md: 3 }, py: 1, '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
@@ -361,6 +349,14 @@ const FolioCategoryPage: React.FC<FolioCategoryPageProps> = ({
                       paper: { sx: { borderRadius: 2, minWidth: 180, mt: 1 } },
                     }}
                   >
+                    <MenuItem onClick={() => { setAccountMenuAnchor(null); onProfile?.(); }}>
+                      <ListItemIcon><PeopleIcon fontSize="small" /></ListItemIcon>
+                      <ListItemText>Family Access</ListItemText>
+                    </MenuItem>
+                    <MenuItem onClick={() => { setAccountMenuAnchor(null); onResources?.(); }}>
+                      <ListItemIcon><LibraryBooksIcon fontSize="small" /></ListItemIcon>
+                      <ListItemText>Resources</ListItemText>
+                    </MenuItem>
                     <MenuItem onClick={() => { setAccountMenuAnchor(null); onNavigate?.('account-settings'); }}>
                       <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
                       <ListItemText>Account Settings</ListItemText>
