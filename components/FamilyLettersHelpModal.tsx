@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Typography, Box, Divider, Chip } from '@mui/material';
+import { Typography, Box, Divider } from '@mui/material';
 import { folioColors } from './FolioModal';
 import ResourceHelpModal, { HelpSection, helpBodySx } from './ResourceHelpModal';
 
@@ -20,10 +20,10 @@ const FamilyLettersHelpModal: React.FC<FamilyLettersHelpModalProps> = ({ open, o
     audioSrc="/audio/resources/legacy-family-letters.mp3"
   >
     <Typography sx={{ ...body, mb: 2.5 }}>
-      Letters to Family lets you write or record personal messages for the
-      people who matter most — your spouse, children, grandchildren, friends,
-      or even future descendants. These heartfelt messages will be treasured
-      for generations.
+      Letters to Family lets you write personal messages for the people who
+      matter most — your spouse, children, grandchildren, friends, or even
+      future descendants. These heartfelt messages will be treasured for
+      generations.
     </Typography>
 
     <HelpSection title="Recipient">
@@ -53,46 +53,25 @@ const FamilyLettersHelpModal: React.FC<FamilyLettersHelpModalProps> = ({ open, o
       </Typography>
     </HelpSection>
 
-    <HelpSection title="Your Letter">
+    <Divider sx={{ borderColor: folioColors.parchment, my: 2 }} />
+
+    <HelpSection title="Dictate to Text">
       <Typography sx={body}>
-        Type your message in the letter body. There is no length limit, so
-        take as much space as you need. You can save a draft and come back
-        to finish it later.
+        Prefer to speak rather than type? Click the{' '}
+        <strong>Dictate to Text</strong> button above the letter body and
+        start talking. Your words are transcribed in real time directly into
+        the text area. You can pause, edit what was typed, then resume
+        dictating — mix typing and speaking as you like. This feature works
+        in Chrome and Edge browsers.
       </Typography>
     </HelpSection>
 
-    <Divider sx={{ borderColor: folioColors.parchment, my: 2 }} />
-
-    <HelpSection title="Format Options">
-      <Typography sx={{ ...body, mb: 1.5 }}>
-        Choose how you want to deliver your message:
+    <HelpSection title="Your Letter">
+      <Typography sx={body}>
+        Type (or dictate) your message in the letter body. There is no length
+        limit, so take as much space as you need. You can save a draft and
+        come back to finish it later.
       </Typography>
-
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
-          <Chip
-            label="Written"
-            size="small"
-            sx={{ bgcolor: folioColors.parchment, color: folioColors.ink, fontWeight: 600, mt: 0.25 }}
-          />
-          <Typography sx={body}>
-            Type your letter directly. This is the default and simplest option.
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
-          <Chip
-            label="Audio"
-            size="small"
-            sx={{ bgcolor: '#e3f2fd', color: '#1565c0', fontWeight: 600, mt: 0.25 }}
-          />
-          <Typography sx={body}>
-            Record your voice using your device&apos;s microphone. Hearing
-            your actual voice can mean the world to loved ones. The recording
-            is saved securely to your account.
-          </Typography>
-        </Box>
-      </Box>
     </HelpSection>
 
     <HelpSection title="Privacy">
