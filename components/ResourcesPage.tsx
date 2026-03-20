@@ -45,6 +45,7 @@ import { useAuth } from '../lib/AuthContext';
 import { isAdminUser } from '../lib/adminUtils';
 import ObituaryHelpModal from './ObituaryHelpModal';
 import FamilyLettersHelpModal from './FamilyLettersHelpModal';
+import PersonalHistoryHelpModal from './PersonalHistoryHelpModal';
 
 const theme = createTheme({
   palette: {
@@ -134,6 +135,7 @@ const folioGuideCategories: {
     topics: [
       { id: 'obituary-info', title: 'Obituary Information', description: 'Learn what each field does and how the AI-enhanced obituary works.' },
       { id: 'family-letters', title: 'Letters to Family', description: 'How to write or record personal messages for loved ones.' },
+      { id: 'personal-history', title: 'Personal History', description: 'Record your life story through guided prompts across five chapters.' },
     ],
   },
   {
@@ -502,6 +504,10 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({
       />
       <FamilyLettersHelpModal
         open={helpModal === 'family-letters'}
+        onClose={() => setHelpModal(null)}
+      />
+      <PersonalHistoryHelpModal
+        open={helpModal === 'personal-history'}
         onClose={() => setHelpModal(null)}
       />
     </ThemeProvider>
