@@ -250,7 +250,7 @@ export default function MainPage() {
           <ResourcesPage
             onNavigateBack={() => handleNavigate('landing')}
             onNavigate={handleNavigate}
-            onEducationItemClick={handleEducationItemClick}
+
             onLogin={handleLogin}
             onRegister={handleRegister}
             onAdmin={handleAdminClick}

@@ -5,9 +5,6 @@ import {
   Box,
   Container,
   Typography,
-  Card,
-  CardContent,
-  Grid,
   AppBar,
   Toolbar,
   List,
@@ -17,32 +14,36 @@ import {
   ListItemText,
   Paper,
   Button,
-  Divider,
   Fade,
+  Collapse,
+  Chip,
 } from '@mui/material';
 import { ThemeProvider, createTheme, alpha } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArticleIcon from '@mui/icons-material/Article';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import SchoolIcon from '@mui/icons-material/School';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PeopleIcon from '@mui/icons-material/People';
-import ExploreIcon from '@mui/icons-material/Explore';
-import QuizIcon from '@mui/icons-material/Quiz';
-import CalculateIcon from '@mui/icons-material/Calculate';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import BalanceIcon from '@mui/icons-material/Balance';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import PersonIcon from '@mui/icons-material/Person';
+import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import ContactsIcon from '@mui/icons-material/Contacts';
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
+import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
+import HomeIcon from '@mui/icons-material/Home';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import { useAuth } from '../lib/AuthContext';
-
-const isAdminUser = (email: string | undefined): boolean => {
-  if (!email) return false;
-  const domain = email.split('@')[1];
-  return domain === 'mylifefolio.com';
-};
+import { isAdminUser } from '../lib/adminUtils';
+import ObituaryHelpModal from './ObituaryHelpModal';
 
 const theme = createTheme({
   palette: {
@@ -71,36 +72,94 @@ const theme = createTheme({
   },
 });
 
-// Education Center Items
-const educationItems = [
-  { id: 'getting-started-folio', title: 'Getting Started with Your Folio', type: 'article', description: 'Learn how to set up and organize your personal life folio.', readTime: '5 min read' },
-  { id: 'why-organize-documents', title: 'Why Organizing Your Documents Matters', type: 'article', description: 'How having everything in one place protects you and your family.', readTime: '6 min read' },
-  { id: 'estate-planning-basics', title: 'Estate Planning Basics', type: 'article', description: 'An introduction to wills, trusts, and planning for the future.', readTime: '8 min read' },
-  { id: 'power-of-attorney', title: 'Power of Attorney Explained', type: 'video', description: 'A video guide to understanding powers of attorney.', readTime: '12 min watch' },
-  { id: 'healthcare-directives', title: 'Healthcare Directives & Living Wills', type: 'article', description: 'Ensure your healthcare wishes are documented and honored.', readTime: '6 min read' },
-  { id: 'beneficiary-designations', title: 'Beneficiary Designations: Common Mistakes', type: 'article', description: 'Avoid costly errors with beneficiary designations.', readTime: '7 min read' },
-  { id: 'digital-assets', title: 'Managing Your Digital Life', type: 'article', description: 'How to account for online accounts, passwords, and digital property.', readTime: '8 min read' },
-  { id: 'family-communication', title: 'Talking to Family About Your Plans', type: 'video', description: 'Tips for having important conversations with loved ones.', readTime: '10 min watch' },
-  { id: 'insurance-overview', title: 'Insurance: What You Need to Know', type: 'guide', description: 'Life, long-term care, and other coverage to consider.', readTime: '12 min read' },
-  { id: 'financial-snapshot', title: 'Creating a Financial Snapshot', type: 'guide', description: 'How to compile a clear picture of your assets and liabilities.', readTime: '15 min read' },
-  { id: 'special-needs-planning', title: 'Special Needs Planning', type: 'guide', description: 'Protecting loved ones with disabilities.', readTime: '15 min read' },
+// ── Help topic type ──
+interface HelpTopic {
+  id: string;
+  title: string;
+  description: string;
+}
+
+// ── Folio categories with help topics ──
+const folioGuideCategories: {
+  id: string;
+  title: string;
+  icon: React.ReactNode;
+  accentColor: string;
+  topics: HelpTopic[];
+}[] = [
+  {
+    id: 'personal-information', title: 'Personal Information',
+    icon: <PersonIcon />, accentColor: '#1e3a5f',
+    topics: [],
+  },
+  {
+    id: 'family-dependents', title: 'Family & Dependents',
+    icon: <FamilyRestroomIcon />, accentColor: '#d4497a',
+    topics: [],
+  },
+  {
+    id: 'financial-life', title: 'Financial Life',
+    icon: <AccountBalanceIcon />, accentColor: '#0a5c36',
+    topics: [],
+  },
+  {
+    id: 'people-advisors', title: 'My People & Advisors',
+    icon: <ContactsIcon />, accentColor: '#2d6a4f',
+    topics: [],
+  },
+  {
+    id: 'insurance-coverage', title: 'Insurance Coverage',
+    icon: <HealthAndSafetyIcon />, accentColor: '#2e7d32',
+    topics: [],
+  },
+  {
+    id: 'emergency-care', title: 'Medical Data',
+    icon: <LocalHospitalIcon />, accentColor: '#0077b6',
+    topics: [],
+  },
+  {
+    id: 'care-decisions', title: 'Care Decisions',
+    icon: <FavoriteBorderIcon />, accentColor: '#00838f',
+    topics: [],
+  },
+  {
+    id: 'end-of-life', title: 'End of Life Issues',
+    icon: <VolunteerActivismIcon />, accentColor: '#6a1b9a',
+    topics: [],
+  },
+  {
+    id: 'legacy-life-story', title: 'Legacy & Life Story',
+    icon: <VideoLibraryIcon />, accentColor: '#c9a227',
+    topics: [
+      { id: 'obituary-info', title: 'Obituary Information', description: 'Learn what each field does and how the AI-enhanced obituary works.' },
+    ],
+  },
+  {
+    id: 'legal-documents', title: 'Legal Documents',
+    icon: <HistoryEduIcon />, accentColor: '#7b2cbf',
+    topics: [],
+  },
+  {
+    id: 'document-uploads', title: 'Documents Vault',
+    icon: <HomeIcon />, accentColor: '#e07a2f',
+    topics: [],
+  },
+  {
+    id: 'digital-life', title: 'Digital Life',
+    icon: <FingerprintIcon />, accentColor: '#00695c',
+    topics: [],
+  },
+  {
+    id: 'reports', title: 'Reports',
+    icon: <LibraryBooksIcon />, accentColor: '#455a64',
+    topics: [],
+  },
+  {
+    id: 'family-access', title: 'Family Access Portal',
+    icon: <FamilyRestroomIcon />, accentColor: '#1a237e',
+    topics: [],
+  },
 ];
-
-const getTypeIcon = (type: string) => {
-  switch (type) {
-    case 'video': return <PlayCircleOutlineIcon />;
-    case 'guide': return <MenuBookIcon />;
-    default: return <ArticleIcon />;
-  }
-};
-
-const getTypeConfig = (type: string) => {
-  switch (type) {
-    case 'video': return { color: '#9b2226', bgColor: alpha('#9b2226', 0.08), label: 'Video' };
-    case 'guide': return { color: '#2d6a4f', bgColor: alpha('#2d6a4f', 0.08), label: 'Guide' };
-    default: return { color: '#1e3a5f', bgColor: alpha('#1e3a5f', 0.08), label: 'Article' };
-  }
-};
 
 const AnimatedSection: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => {
   const [visible, setVisible] = useState(false);
@@ -118,7 +177,6 @@ const AnimatedSection: React.FC<{ children: React.ReactNode; delay?: number }> =
 interface ResourcesPageProps {
   onNavigateBack: () => void;
   onNavigate?: (page: string) => void;
-  onEducationItemClick?: (itemId: string) => void;
   onLogin?: () => void;
   onRegister?: () => void;
   onAdmin?: () => void;
@@ -128,19 +186,27 @@ interface ResourcesPageProps {
 const ResourcesPage: React.FC<ResourcesPageProps> = ({
   onNavigateBack,
   onNavigate,
-  onEducationItemClick,
   onLogin,
   onRegister,
   onAdmin,
   onProfile,
 }) => {
   const [scrolled, setScrolled] = useState(false);
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [helpModal, setHelpModal] = useState<string | null>(null);
   const { user, signOut } = useAuth();
 
   const handleLogout = async () => {
     await signOut();
     onNavigateBack();
+  };
+
+  const toggleCategory = (id: string) => {
+    setExpandedCategory((prev) => (prev === id ? null : id));
+  };
+
+  const handleTopicClick = (topicId: string) => {
+    setHelpModal(topicId);
   };
 
   useEffect(() => {
@@ -252,157 +318,160 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({
             </AnimatedSection>
             <AnimatedSection delay={300}>
               <Typography variant="body1" sx={{ opacity: 0.85, maxWidth: 600, fontSize: '1.1rem' }}>
-                Educational articles, videos, guides, and interactive tools to help you make informed decisions about your life planning.
+                Step-by-step guidance for every section of your folio, plus educational articles and interactive planning tools.
               </Typography>
             </AnimatedSection>
           </Container>
         </Box>
 
-        {/* Main Content - Two Column Layout */}
+        {/* Main Content */}
         <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, mt: -4 }}>
-          <Grid container spacing={3}>
-            {/* Column 1: Education Center */}
-            <Grid item xs={12} md={6}>
-              <AnimatedSection delay={400}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 3,
-                    height: '100%',
-                    border: '1px solid',
-                    borderColor: alpha('#2d6a4f', 0.08),
-                    position: 'relative',
-                    overflow: 'hidden',
-                    '&::before': {
-                      content: '""', position: 'absolute', top: 0, left: 0, right: 0, height: '4px',
-                      background: `linear-gradient(90deg, #2d6a4f, ${alpha('#2d6a4f', 0.6)})`,
-                    },
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                    <Box sx={{ width: 56, height: 56, borderRadius: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', background: `linear-gradient(135deg, ${alpha('#2d6a4f', 0.1)}, ${alpha('#2d6a4f', 0.05)})`, border: `1px solid ${alpha('#2d6a4f', 0.15)}` }}>
-                      <SchoolIcon sx={{ color: '#2d6a4f', fontSize: 28 }} />
-                    </Box>
-                    <Typography variant="h6" sx={{ color: '#2d6a4f', fontSize: '1.2rem' }}>
-                      Education Center
+          {/* ── Folio Guide ── */}
+          <AnimatedSection delay={350}>
+            <Paper
+              elevation={0}
+              sx={{
+                mb: 4,
+                border: '1px solid',
+                borderColor: alpha('#1e3a5f', 0.1),
+                position: 'relative',
+                overflow: 'hidden',
+                '&::before': {
+                  content: '""', position: 'absolute', top: 0, left: 0, right: 0, height: '4px',
+                  background: `linear-gradient(90deg, #1e3a5f, ${alpha('#c9a227', 0.8)})`,
+                },
+              }}
+            >
+              <Box sx={{ p: 3, pb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                  <Box sx={{ width: 48, height: 48, borderRadius: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', background: `linear-gradient(135deg, ${alpha('#1e3a5f', 0.1)}, ${alpha('#1e3a5f', 0.05)})`, border: `1px solid ${alpha('#1e3a5f', 0.15)}` }}>
+                    <HelpOutlineIcon sx={{ color: '#1e3a5f', fontSize: 26 }} />
+                  </Box>
+                  <Box>
+                    <Typography variant="h6" sx={{ color: '#1e3a5f', fontSize: '1.15rem', lineHeight: 1.3 }}>
+                      Folio Guide
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.82rem' }}>
+                      Select a category to view help topics and instructions
                     </Typography>
                   </Box>
+                </Box>
+              </Box>
 
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: '0.85rem' }}>
-                    Articles, videos, and guides to help you make informed decisions
-                  </Typography>
+              <List disablePadding sx={{ px: 1, pb: 1 }}>
+                {folioGuideCategories.map((cat) => {
+                  const isExpanded = expandedCategory === cat.id;
+                  const hasTopics = cat.topics.length > 0;
 
-                  <Divider sx={{ mb: 1 }} />
-
-                  <List sx={{ mx: -1 }}>
-                    {educationItems.map((item) => {
-                      const typeConfig = getTypeConfig(item.type);
-                      const isHovered = hoveredItem === item.id;
-
-                      return (
-                        <ListItem key={item.id} disablePadding sx={{ mb: 0.5 }}>
-                          <ListItemButton
-                            onClick={() => onEducationItemClick?.(item.id)}
-                            onMouseEnter={() => setHoveredItem(item.id)}
-                            onMouseLeave={() => setHoveredItem(null)}
-                            sx={{
-                              borderRadius: 1.5, py: 1.5, px: 1.5,
-                              transition: 'all 0.2s ease',
-                              border: '1px solid transparent',
-                              '&:hover': { bgcolor: alpha('#2d6a4f', 0.03), borderColor: alpha('#2d6a4f', 0.08) },
-                            }}
-                          >
-                            <ListItemIcon sx={{ minWidth: 36 }}>
-                              <Box sx={{ width: 28, height: 28, borderRadius: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: typeConfig.bgColor, color: typeConfig.color, transition: 'transform 0.2s ease', transform: isHovered ? 'scale(1.1)' : 'scale(1)', '& svg': { fontSize: 16 } }}>
-                                {getTypeIcon(item.type)}
+                  return (
+                    <React.Fragment key={cat.id}>
+                      <ListItem disablePadding sx={{ mb: 0.25 }}>
+                        <ListItemButton
+                          onClick={() => hasTopics ? toggleCategory(cat.id) : undefined}
+                          sx={{
+                            borderRadius: 1.5,
+                            py: 1.25,
+                            px: 2,
+                            transition: 'all 0.2s ease',
+                            cursor: hasTopics ? 'pointer' : 'default',
+                            '&:hover': hasTopics
+                              ? { bgcolor: alpha(cat.accentColor, 0.04), borderColor: alpha(cat.accentColor, 0.1) }
+                              : { bgcolor: 'transparent' },
+                          }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 40 }}>
+                            <Box
+                              sx={{
+                                width: 32,
+                                height: 32,
+                                borderRadius: 1,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                bgcolor: alpha(cat.accentColor, 0.08),
+                                color: cat.accentColor,
+                                '& svg': { fontSize: 18 },
+                              }}
+                            >
+                              {cat.icon}
+                            </Box>
+                          </ListItemIcon>
+                          <ListItemText
+                            disableTypography
+                            primary={
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.88rem' }}>
+                                  {cat.title}
+                                </Typography>
+                                {hasTopics ? (
+                                  <Chip
+                                    label={`${cat.topics.length} topic${cat.topics.length > 1 ? 's' : ''}`}
+                                    size="small"
+                                    sx={{ height: 20, fontSize: '0.68rem', fontWeight: 600, bgcolor: alpha(cat.accentColor, 0.1), color: cat.accentColor }}
+                                  />
+                                ) : (
+                                  <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.7rem', fontStyle: 'italic' }}>
+                                    Coming soon
+                                  </Typography>
+                                )}
                               </Box>
-                            </ListItemIcon>
-                            <ListItemText
-                              disableTypography
-                              primary={<Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.85rem', lineHeight: 1.3 }}>{item.title}</Typography>}
-                              secondary={
-                                <Box>
-                                  <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.75rem', mt: 0.5 }}>{item.description}</Typography>
-                                  <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.7rem' }}>{item.readTime}</Typography>
-                                </Box>
-                              }
-                            />
-                          </ListItemButton>
-                        </ListItem>
-                      );
-                    })}
-                  </List>
-                </Paper>
-              </AnimatedSection>
-            </Grid>
+                            }
+                          />
+                          {hasTopics && (
+                            isExpanded ? <ExpandLessIcon sx={{ color: 'text.secondary', fontSize: 20 }} /> : <ExpandMoreIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+                          )}
+                        </ListItemButton>
+                      </ListItem>
 
-            {/* Column 2: Planning Pathfinder */}
-            <Grid item xs={12} md={6}>
-              <AnimatedSection delay={500}>
-                <Card
-                  elevation={0}
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    border: '1px solid',
-                    borderColor: alpha('#7b2cbf', 0.08),
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    position: 'relative',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: `0 20px 40px ${alpha('#7b2cbf', 0.12)}`,
-                      borderColor: alpha('#7b2cbf', 0.3),
-                    },
-                    '&::before': {
-                      content: '""', position: 'absolute', top: 0, left: 0, right: 0, height: '4px',
-                      background: `linear-gradient(90deg, #7b2cbf, ${alpha('#7b2cbf', 0.6)})`,
-                    },
-                  }}
-                  onClick={() => onNavigate?.('planning-pathfinder')}
-                >
-                  <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Box sx={{ width: 56, height: 56, borderRadius: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 2, background: `linear-gradient(135deg, ${alpha('#7b2cbf', 0.1)}, ${alpha('#7b2cbf', 0.05)})`, border: `1px solid ${alpha('#7b2cbf', 0.15)}` }}>
-                      <ExploreIcon sx={{ fontSize: 28, color: '#7b2cbf' }} />
-                    </Box>
+                      {hasTopics && (
+                        <Collapse in={isExpanded} timeout="auto">
+                          <List disablePadding sx={{ pl: 7, pr: 2, pb: 1 }}>
+                            {cat.topics.map((topic) => (
+                              <ListItem key={topic.id} disablePadding sx={{ mb: 0.25 }}>
+                                <ListItemButton
+                                  onClick={() => handleTopicClick(topic.id)}
+                                  sx={{
+                                    borderRadius: 1.5,
+                                    py: 1,
+                                    px: 1.5,
+                                    border: '1px solid transparent',
+                                    transition: 'all 0.2s ease',
+                                    '&:hover': {
+                                      bgcolor: alpha(cat.accentColor, 0.04),
+                                      borderColor: alpha(cat.accentColor, 0.12),
+                                    },
+                                  }}
+                                >
+                                  <ListItemIcon sx={{ minWidth: 32 }}>
+                                    <HelpOutlineIcon sx={{ fontSize: 18, color: cat.accentColor }} />
+                                  </ListItemIcon>
+                                  <ListItemText
+                                    disableTypography
+                                    primary={
+                                      <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.84rem', color: 'text.primary' }}>
+                                        {topic.title}
+                                      </Typography>
+                                    }
+                                    secondary={
+                                      <Typography variant="body2" sx={{ fontSize: '0.75rem', color: 'text.secondary', mt: 0.25 }}>
+                                        {topic.description}
+                                      </Typography>
+                                    }
+                                  />
+                                  <ArrowForwardIcon sx={{ fontSize: 16, color: 'text.disabled' }} />
+                                </ListItemButton>
+                              </ListItem>
+                            ))}
+                          </List>
+                        </Collapse>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </List>
+            </Paper>
+          </AnimatedSection>
 
-                    <Typography variant="h6" component="h3" sx={{ color: '#7b2cbf', fontSize: '1.2rem', mb: 1 }}>
-                      Planning Pathfinder
-                    </Typography>
-
-                    <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2, lineHeight: 1.6 }}>
-                      Interactive tools to help you understand your options:
-                    </Typography>
-
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2, p: 1.5, borderRadius: 1.5, bgcolor: alpha('#7b2cbf', 0.04), border: `1px solid ${alpha('#7b2cbf', 0.1)}` }}>
-                        <QuizIcon sx={{ fontSize: 20, color: '#7b2cbf' }} />
-                        <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.85rem' }}>Do I Need a Trust?</Typography>
-                          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem' }}>5-7 questions to find out</Typography>
-                        </Box>
-                      </Box>
-
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2, p: 1.5, borderRadius: 1.5, bgcolor: alpha('#7b2cbf', 0.04), border: `1px solid ${alpha('#7b2cbf', 0.1)}` }}>
-                        <CalculateIcon sx={{ fontSize: 20, color: '#7b2cbf' }} />
-                        <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.85rem' }}>IRA RMD Calculator</Typography>
-                          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem' }}>Required minimum distribution</Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#7b2cbf', fontWeight: 600, fontSize: '0.875rem', mt: 'auto' }}>
-                      Explore Tools
-                      <ArrowForwardIcon sx={{ fontSize: 18 }} />
-                    </Box>
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
-            </Grid>
-          </Grid>
         </Container>
 
         {/* Footer */}
@@ -423,6 +492,12 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({
           </Container>
         </Box>
       </Box>
+
+      {/* ── Help Modals ── */}
+      <ObituaryHelpModal
+        open={helpModal === 'obituary-info'}
+        onClose={() => setHelpModal(null)}
+      />
     </ThemeProvider>
   );
 };
