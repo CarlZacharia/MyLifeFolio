@@ -1,0 +1,510 @@
+'use client';
+
+import React, { useMemo, useState } from 'react';
+import { Box } from '@mui/material';
+import { useFormContext, MaritalStatus } from '../lib/FormContext';
+import AssetsSummaryTable, { AssetCategoryType } from './AssetsSummaryTable';
+
+import {
+  RealEstateModal,
+  BankAccountModal,
+  NonQualifiedInvestmentModal,
+  RetirementAccountModal,
+  LifeInsuranceModal,
+  VehicleModal,
+  OtherAssetModal,
+  BusinessInterestModal,
+  DigitalAssetModal,
+  RealEstateData,
+  BankAccountData,
+  NonQualifiedInvestmentData,
+  RetirementAccountData,
+  LifeInsuranceData,
+  VehicleData,
+  OtherAssetData,
+  BusinessInterestData,
+  DigitalAssetData,
+  BeneficiaryOption,
+  TrustFlags,
+} from './AssetModals';
+
+const SHOW_SPOUSE_STATUSES: MaritalStatus[] = ['Married', 'Second Marriage', 'Domestic Partnership'];
+
+type ModalType =
+  | 'realEstate'
+  | 'bankAccount'
+  | 'nonQualifiedInvestment'
+  | 'retirementAccount'
+  | 'lifeInsurance'
+  | 'vehicle'
+  | 'otherAsset'
+  | 'businessInterest'
+  | 'digitalAsset'
+  | null;
+
+interface ModalState {
+  type: ModalType;
+  isEdit: boolean;
+  editIndex: number | null;
+}
+
+interface AssetsSectionProps {
+  visibleCategories?: AssetCategoryType[];
+  hideHeader?: boolean;
+}
+
+const AssetsSection = ({ visibleCategories, hideHeader }: AssetsSectionProps = {}) => {
+  const { formData, updateFormData } = useFormContext();
+
+  const showSpouseInfo = SHOW_SPOUSE_STATUSES.includes(formData.maritalStatus);
+
+  // Build trust flags for conditional ownership form options
+  const trustFlags: TrustFlags = useMemo(() => ({
+    clientHasLivingTrust: formData.clientHasLivingTrust,
+    clientHasIrrevocableTrust: formData.clientHasIrrevocableTrust,
+    spouseHasLivingTrust: formData.spouseHasLivingTrust,
+    spouseHasIrrevocableTrust: formData.spouseHasIrrevocableTrust,
+  }), [
+    formData.clientHasLivingTrust,
+    formData.clientHasIrrevocableTrust,
+    formData.spouseHasLivingTrust,
+    formData.spouseHasIrrevocableTrust,
+  ]);
+
+  // Modal state management
+  const [modalState, setModalState] = useState<ModalState>({
+    type: null,
+    isEdit: false,
+    editIndex: null,
+  });
+
+  // Build beneficiary options from all sources
+  const beneficiaryOptions = useMemo((): BeneficiaryOption[] => {
+    const options: BeneficiaryOption[] = [];
+
+    // Add spouse if available and married
+    if (showSpouseInfo && formData.spouseName) {
+      options.push({ value: `spouse:${formData.spouseName}`, label: `${formData.spouseName} (Spouse)` });
+    }
+
+    // Add client if available
+    if (formData.name) {
+      options.push({ value: `client:${formData.name}`, label: `${formData.name} (Client)` });
+    }
+
+    // Add all children
+    formData.children.forEach((child, index) => {
+      if (child.name) {
+        options.push({ value: `child:${index}:${child.name}`, label: `${child.name} (Child)` });
+      }
+    });
+
+    // Add other beneficiaries (includes grandchildren)
+    formData.otherBeneficiaries.forEach((beneficiary, index) => {
+      if (beneficiary.name) {
+        const label = beneficiary.relationship === 'Grandchild'
+          ? `${beneficiary.name} (Grandchild)`
+          : `${beneficiary.name} (${beneficiary.relationship || 'Other'})`;
+        options.push({ value: `beneficiary:${index}:${beneficiary.name}`, label });
+      }
+    });
+
+    // Add trust options if client/spouse has trusts
+    if (formData.clientHasLivingTrust) {
+      const trustName = formData.clientLivingTrustName || "Client's Living Trust";
+      options.push({ value: `trust:client-living:${trustName}`, label: `${trustName} (Living Trust)` });
+    }
+    if (formData.clientHasIrrevocableTrust) {
+      const trustName = formData.clientIrrevocableTrustName || "Client's Irrevocable Trust";
+      options.push({ value: `trust:client-irrevocable:${trustName}`, label: `${trustName} (Irrevocable Trust)` });
+    }
+    if (showSpouseInfo && formData.spouseHasLivingTrust) {
+      const trustName = formData.spouseLivingTrustName || "Spouse's Living Trust";
+      options.push({ value: `trust:spouse-living:${trustName}`, label: `${trustName} (Living Trust)` });
+    }
+    if (showSpouseInfo && formData.spouseHasIrrevocableTrust) {
+      const trustName = formData.spouseIrrevocableTrustName || "Spouse's Irrevocable Trust";
+      options.push({ value: `trust:spouse-irrevocable:${trustName}`, label: `${trustName} (Irrevocable Trust)` });
+    }
+
+    return options;
+  }, [
+    showSpouseInfo,
+    formData.spouseName,
+    formData.name,
+    formData.children,
+    formData.otherBeneficiaries,
+    formData.clientHasLivingTrust,
+    formData.clientLivingTrustName,
+    formData.clientHasIrrevocableTrust,
+    formData.clientIrrevocableTrustName,
+    formData.spouseHasLivingTrust,
+    formData.spouseLivingTrustName,
+    formData.spouseHasIrrevocableTrust,
+    formData.spouseIrrevocableTrustName,
+  ]);
+
+  // Modal open handlers
+  const openAddModal = (type: ModalType) => {
+    setModalState({ type, isEdit: false, editIndex: null });
+  };
+
+  const openEditModal = (type: ModalType, index: number) => {
+    setModalState({ type, isEdit: true, editIndex: index });
+  };
+
+  const closeModal = () => {
+    setModalState({ type: null, isEdit: false, editIndex: null });
+  };
+
+  // Real Estate handlers
+  const handleSaveRealEstate = (data: RealEstateData) => {
+    if (modalState.isEdit && modalState.editIndex !== null) {
+      const newRealEstate = [...formData.realEstate];
+      newRealEstate[modalState.editIndex] = data;
+      updateFormData({ realEstate: newRealEstate });
+    } else {
+      updateFormData({ realEstate: [...formData.realEstate, data] });
+    }
+  };
+
+  const handleDeleteRealEstate = () => {
+    if (modalState.editIndex !== null) {
+      const newRealEstate = formData.realEstate.filter((_, i) => i !== modalState.editIndex);
+      updateFormData({ realEstate: newRealEstate });
+      closeModal();
+    }
+  };
+
+  // Bank Account handlers
+  const handleSaveBankAccount = (data: BankAccountData) => {
+    if (modalState.isEdit && modalState.editIndex !== null) {
+      const newBankAccounts = [...formData.bankAccounts];
+      newBankAccounts[modalState.editIndex] = data;
+      updateFormData({ bankAccounts: newBankAccounts });
+    } else {
+      updateFormData({ bankAccounts: [...formData.bankAccounts, data] });
+    }
+  };
+
+  const handleDeleteBankAccount = () => {
+    if (modalState.editIndex !== null) {
+      const newBankAccounts = formData.bankAccounts.filter((_, i) => i !== modalState.editIndex);
+      updateFormData({ bankAccounts: newBankAccounts });
+      closeModal();
+    }
+  };
+
+  // Non-Qualified Investment handlers
+  const handleSaveNonQualifiedInvestment = (data: NonQualifiedInvestmentData) => {
+    if (modalState.isEdit && modalState.editIndex !== null) {
+      const newInvestments = [...formData.nonQualifiedInvestments];
+      newInvestments[modalState.editIndex] = data;
+      updateFormData({ nonQualifiedInvestments: newInvestments });
+    } else {
+      updateFormData({ nonQualifiedInvestments: [...formData.nonQualifiedInvestments, data] });
+    }
+  };
+
+  const handleDeleteNonQualifiedInvestment = () => {
+    if (modalState.editIndex !== null) {
+      const newInvestments = formData.nonQualifiedInvestments.filter((_, i) => i !== modalState.editIndex);
+      updateFormData({ nonQualifiedInvestments: newInvestments });
+      closeModal();
+    }
+  };
+
+  // Retirement Account handlers
+  const handleSaveRetirementAccount = (data: RetirementAccountData) => {
+    if (modalState.isEdit && modalState.editIndex !== null) {
+      const newAccounts = [...formData.retirementAccounts];
+      newAccounts[modalState.editIndex] = data;
+      updateFormData({ retirementAccounts: newAccounts });
+    } else {
+      updateFormData({ retirementAccounts: [...formData.retirementAccounts, data] });
+    }
+  };
+
+  const handleDeleteRetirementAccount = () => {
+    if (modalState.editIndex !== null) {
+      const newAccounts = formData.retirementAccounts.filter((_, i) => i !== modalState.editIndex);
+      updateFormData({ retirementAccounts: newAccounts });
+      closeModal();
+    }
+  };
+
+  // Life Insurance handlers
+  const handleSaveLifeInsurance = (data: LifeInsuranceData) => {
+    if (modalState.isEdit && modalState.editIndex !== null) {
+      const newLifeInsurance = [...formData.lifeInsurance];
+      newLifeInsurance[modalState.editIndex] = data;
+      updateFormData({ lifeInsurance: newLifeInsurance });
+    } else {
+      updateFormData({ lifeInsurance: [...formData.lifeInsurance, data] });
+    }
+  };
+
+  const handleDeleteLifeInsurance = () => {
+    if (modalState.editIndex !== null) {
+      const newLifeInsurance = formData.lifeInsurance.filter((_, i) => i !== modalState.editIndex);
+      updateFormData({ lifeInsurance: newLifeInsurance });
+      closeModal();
+    }
+  };
+
+  // Vehicle handlers
+  const handleSaveVehicle = (data: VehicleData) => {
+    if (modalState.isEdit && modalState.editIndex !== null) {
+      const newVehicles = [...formData.vehicles];
+      newVehicles[modalState.editIndex] = data;
+      updateFormData({ vehicles: newVehicles });
+    } else {
+      updateFormData({ vehicles: [...formData.vehicles, data] });
+    }
+  };
+
+  const handleDeleteVehicle = () => {
+    if (modalState.editIndex !== null) {
+      const newVehicles = formData.vehicles.filter((_, i) => i !== modalState.editIndex);
+      updateFormData({ vehicles: newVehicles });
+      closeModal();
+    }
+  };
+
+  // Other Asset handlers
+  const handleSaveOtherAsset = (data: OtherAssetData) => {
+    if (modalState.isEdit && modalState.editIndex !== null) {
+      const newAssets = [...formData.otherAssets];
+      newAssets[modalState.editIndex] = data;
+      updateFormData({ otherAssets: newAssets });
+    } else {
+      updateFormData({ otherAssets: [...formData.otherAssets, data] });
+    }
+  };
+
+  const handleDeleteOtherAsset = () => {
+    if (modalState.editIndex !== null) {
+      const newAssets = formData.otherAssets.filter((_, i) => i !== modalState.editIndex);
+      updateFormData({ otherAssets: newAssets });
+      closeModal();
+    }
+  };
+
+  // Business Interest handlers
+  const handleSaveBusinessInterest = (data: BusinessInterestData) => {
+    if (modalState.isEdit && modalState.editIndex !== null) {
+      const newInterests = [...formData.businessInterests];
+      newInterests[modalState.editIndex] = data;
+      updateFormData({ businessInterests: newInterests });
+    } else {
+      updateFormData({ businessInterests: [...formData.businessInterests, data] });
+    }
+  };
+
+  const handleDeleteBusinessInterest = () => {
+    if (modalState.editIndex !== null) {
+      const newInterests = formData.businessInterests.filter((_, i) => i !== modalState.editIndex);
+      updateFormData({ businessInterests: newInterests });
+      closeModal();
+    }
+  };
+
+  // Digital Asset handlers
+  const handleSaveDigitalAsset = (data: DigitalAssetData) => {
+    if (modalState.isEdit && modalState.editIndex !== null) {
+      const newAssets = [...formData.digitalAssets];
+      newAssets[modalState.editIndex] = data;
+      updateFormData({ digitalAssets: newAssets });
+    } else {
+      updateFormData({ digitalAssets: [...formData.digitalAssets, data] });
+    }
+  };
+
+  const handleDeleteDigitalAsset = () => {
+    if (modalState.editIndex !== null) {
+      const newAssets = formData.digitalAssets.filter((_, i) => i !== modalState.editIndex);
+      updateFormData({ digitalAssets: newAssets });
+      closeModal();
+    }
+  };
+
+  // Get initial data for edit modals
+  const getEditData = () => {
+    if (!modalState.isEdit || modalState.editIndex === null) return undefined;
+
+    switch (modalState.type) {
+      case 'realEstate':
+        return formData.realEstate[modalState.editIndex];
+      case 'bankAccount':
+        return formData.bankAccounts[modalState.editIndex];
+      case 'nonQualifiedInvestment':
+        return formData.nonQualifiedInvestments[modalState.editIndex];
+      case 'retirementAccount':
+        return formData.retirementAccounts[modalState.editIndex];
+      case 'lifeInsurance':
+        return formData.lifeInsurance[modalState.editIndex];
+      case 'vehicle':
+        return formData.vehicles[modalState.editIndex];
+      case 'otherAsset':
+        return formData.otherAssets[modalState.editIndex];
+      case 'businessInterest':
+        return formData.businessInterests[modalState.editIndex];
+      case 'digitalAsset':
+        return formData.digitalAssets[modalState.editIndex];
+      default:
+        return undefined;
+    }
+  };
+
+  return (
+    <Box>
+      <AssetsSummaryTable
+        visibleCategories={visibleCategories}
+        hideHeader={hideHeader}
+        realEstate={formData.realEstate}
+        bankAccounts={formData.bankAccounts}
+        nonQualifiedInvestments={formData.nonQualifiedInvestments}
+        retirementAccounts={formData.retirementAccounts}
+        lifeInsurance={formData.lifeInsurance}
+        vehicles={formData.vehicles}
+        otherAssets={formData.otherAssets}
+        businessInterests={formData.businessInterests}
+        digitalAssets={formData.digitalAssets}
+        onEditRealEstate={(index) => openEditModal('realEstate', index)}
+        onEditBankAccount={(index) => openEditModal('bankAccount', index)}
+        onEditNonQualifiedInvestment={(index) => openEditModal('nonQualifiedInvestment', index)}
+        onEditRetirementAccount={(index) => openEditModal('retirementAccount', index)}
+        onEditLifeInsurance={(index) => openEditModal('lifeInsurance', index)}
+        onEditVehicle={(index) => openEditModal('vehicle', index)}
+        onEditOtherAsset={(index) => openEditModal('otherAsset', index)}
+        onEditBusinessInterest={(index) => openEditModal('businessInterest', index)}
+        onEditDigitalAsset={(index) => openEditModal('digitalAsset', index)}
+        onAddRealEstate={() => openAddModal('realEstate')}
+        onAddBankAccount={() => openAddModal('bankAccount')}
+        onAddNonQualifiedInvestment={() => openAddModal('nonQualifiedInvestment')}
+        onAddRetirementAccount={() => openAddModal('retirementAccount')}
+        onAddLifeInsurance={() => openAddModal('lifeInsurance')}
+        onAddVehicle={() => openAddModal('vehicle')}
+        onAddOtherAsset={() => openAddModal('otherAsset')}
+        onAddBusinessInterest={() => openAddModal('businessInterest')}
+        onAddDigitalAsset={() => openAddModal('digitalAsset')}
+      />
+
+      {/* Real Estate Modal */}
+      <RealEstateModal
+        open={modalState.type === 'realEstate'}
+        onClose={closeModal}
+        onSave={handleSaveRealEstate}
+        onDelete={modalState.isEdit ? handleDeleteRealEstate : undefined}
+        initialData={getEditData() as RealEstateData | undefined}
+        beneficiaryOptions={beneficiaryOptions}
+        isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
+      />
+
+      {/* Bank Account Modal */}
+      <BankAccountModal
+        open={modalState.type === 'bankAccount'}
+        onClose={closeModal}
+        onSave={handleSaveBankAccount}
+        onDelete={modalState.isEdit ? handleDeleteBankAccount : undefined}
+        initialData={getEditData() as BankAccountData | undefined}
+        beneficiaryOptions={beneficiaryOptions}
+        isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
+      />
+
+      {/* Non-Qualified Investment Modal */}
+      <NonQualifiedInvestmentModal
+        open={modalState.type === 'nonQualifiedInvestment'}
+        onClose={closeModal}
+        onSave={handleSaveNonQualifiedInvestment}
+        onDelete={modalState.isEdit ? handleDeleteNonQualifiedInvestment : undefined}
+        initialData={getEditData() as NonQualifiedInvestmentData | undefined}
+        beneficiaryOptions={beneficiaryOptions}
+        isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
+      />
+
+      {/* Retirement Account Modal - No trustFlags: IRAs can only be owned by individuals */}
+      <RetirementAccountModal
+        open={modalState.type === 'retirementAccount'}
+        onClose={closeModal}
+        onSave={handleSaveRetirementAccount}
+        onDelete={modalState.isEdit ? handleDeleteRetirementAccount : undefined}
+        initialData={getEditData() as RetirementAccountData | undefined}
+        beneficiaryOptions={beneficiaryOptions}
+        isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
+      />
+
+      {/* Life Insurance Modal */}
+      <LifeInsuranceModal
+        open={modalState.type === 'lifeInsurance'}
+        onClose={closeModal}
+        onSave={handleSaveLifeInsurance}
+        onDelete={modalState.isEdit ? handleDeleteLifeInsurance : undefined}
+        initialData={getEditData() as LifeInsuranceData | undefined}
+        beneficiaryOptions={beneficiaryOptions}
+        isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
+      />
+
+      {/* Vehicle Modal */}
+      <VehicleModal
+        open={modalState.type === 'vehicle'}
+        onClose={closeModal}
+        onSave={handleSaveVehicle}
+        onDelete={modalState.isEdit ? handleDeleteVehicle : undefined}
+        initialData={getEditData() as VehicleData | undefined}
+        beneficiaryOptions={beneficiaryOptions}
+        isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
+      />
+
+      {/* Other Asset Modal */}
+      <OtherAssetModal
+        open={modalState.type === 'otherAsset'}
+        onClose={closeModal}
+        onSave={handleSaveOtherAsset}
+        onDelete={modalState.isEdit ? handleDeleteOtherAsset : undefined}
+        initialData={getEditData() as OtherAssetData | undefined}
+        beneficiaryOptions={beneficiaryOptions}
+        isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
+      />
+
+      {/* Business Interest Modal */}
+      <BusinessInterestModal
+        open={modalState.type === 'businessInterest'}
+        onClose={closeModal}
+        onSave={handleSaveBusinessInterest}
+        onDelete={modalState.isEdit ? handleDeleteBusinessInterest : undefined}
+        initialData={getEditData() as BusinessInterestData | undefined}
+        isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
+      />
+
+      {/* Digital Asset Modal */}
+      <DigitalAssetModal
+        open={modalState.type === 'digitalAsset'}
+        onClose={closeModal}
+        onSave={handleSaveDigitalAsset}
+        onDelete={modalState.isEdit ? handleDeleteDigitalAsset : undefined}
+        initialData={getEditData() as DigitalAssetData | undefined}
+        isEdit={modalState.isEdit}
+        showSpouse={showSpouseInfo}
+        trustFlags={trustFlags}
+      />
+    </Box>
+  );
+};
+
+export default AssetsSection;

@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MyLifeFolio
 
-## Getting Started
+A professional estate planning application built with React, TypeScript, Material-UI, and Supabase. Hosted on Cloudflare Pages.
 
-First, run the development server:
+## Features
+
+- Multi-section estate planning questionnaire
+- User authentication (email/password and Google OAuth) via Supabase Auth
+- Profile management with questions for consultation
+- Education Center with videos and FAQs
+- Planning Pathfinder (Trust quiz, IRA RMD calculator)
+- Trust Plan report generation (DOCX export)
+- Admin dashboard for managing intakes
+- Responsive Material-UI design
+
+## Tech Stack
+
+- **Frontend:** React 18, TypeScript, Material-UI (MUI v5)
+- **Build:** Vite
+- **Backend:** Supabase (Auth, Database, Storage)
+- **Hosting:** Cloudflare Pages
+- **Repository:** https://github.com/CarlZacharia/MyLifeFolio
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- Supabase project (zpbpdcwuwgkwmpfmgmyo.supabase.co)
+
+### Installation
+
+```bash
+cd mylifefolio
+npm install
+```
+
+### Configure Environment
+
+Create/edit `.env`:
+```env
+VITE_SUPABASE_URL=https://zpbpdcwuwgkwmpfmgmyo.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key_here
+```
+
+### Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:5173
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+Output goes to `dist/` directory.
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment (Cloudflare Pages)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Connect the `CarlZacharia/MyLifeFolio` GitHub repo in Cloudflare Pages dashboard
+2. Build settings:
+   - Build command: `npm run build`
+   - Output directory: `dist`
+3. Add environment variables: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+mylifefolio/
+├── app/
+│   ├── layout.tsx              # Root layout
+│   └── page.tsx                # Main questionnaire with stepper
+├── components/
+│   ├── LandingPage.tsx         # Landing/home page
+│   ├── MyLifeFolioHome.tsx     # MyLifeFolio home overview
+│   ├── Login.tsx               # Login form
+│   ├── Register.tsx            # Registration form
+│   ├── Profile.tsx             # User profile & questions
+│   ├── AdminDashboard.tsx      # Admin panel
+│   ├── EducationCenter.tsx     # Educational content
+│   ├── PlanningPathfinder.tsx  # Interactive planning tools
+│   ├── HelpModal.tsx           # Help dialog
+│   ├── ClientNotesModal.tsx    # Client notes
+│   └── TrustPlan/              # Trust plan report generation
+├── lib/
+│   ├── AuthContext.tsx         # Auth state management
+│   ├── FormContext.tsx         # Form data management
+│   ├── supabaseClient.ts      # Supabase browser client
+│   ├── supabaseIntake.ts      # Intake CRUD operations
+│   └── supabaseOfficesAttorneys.ts  # Office/attorney queries
+├── supabase/
+│   ├── mylifefolio_full_schema.sql  # Full database schema
+│   └── drop_all_tables.sql          # Schema cleanup script
+├── public/                     # Static assets
+├── .env                        # Environment variables (gitignored)
+├── vite.config.ts
+├── package.json
+└── tsconfig.json
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Database Setup
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Run `supabase/drop_all_tables.sql` in the Supabase SQL Editor to clear existing tables
+2. Run `supabase/mylifefolio_full_schema.sql` to create all tables, RLS policies, triggers, and seed data
+
+## Support
+
+- Email: info@mylifefolio.com
+
+## License
+
+Proprietary - MyLifeFolio
