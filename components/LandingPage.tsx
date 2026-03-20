@@ -594,8 +594,8 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
         </Box>
 
         {/* ── VIDEO MODAL ── */}
-        <Dialog open={videoModalOpen} onClose={() => setVideoModalOpen(false)} maxWidth="md" fullWidth
-          PaperProps={{ sx: { bgcolor: 'background.paper', borderRadius: 2 } }}>
+        <Dialog open={videoModalOpen} onClose={() => setVideoModalOpen(false)} maxWidth="sm" fullWidth
+          PaperProps={{ sx: { bgcolor: 'background.paper', borderRadius: 3 } }}>
           <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'primary.main', color: 'white', py: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <PlayCircleOutlineIcon />
@@ -603,16 +603,20 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
             </Box>
             <IconButton onClick={() => setVideoModalOpen(false)} sx={{ color: 'white' }} size="small"><CloseIcon /></IconButton>
           </DialogTitle>
-          <DialogContent sx={{ p: 0 }}>
-            <Box sx={{ position: 'relative', paddingTop: '56.25%', bgcolor: '#000' }}>
-              <Box component="video" controls sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} poster="/video-poster.jpg">
-                <source src="/demo-video.mp4" type="video/mp4" />
-              </Box>
-            </Box>
+          <DialogContent sx={{ textAlign: 'center', py: 5, px: 4 }}>
+            <VideoLibraryIcon sx={{ fontSize: 64, color: 'secondary.main', mb: 2 }} />
+            <Typography variant="h5" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, color: 'primary.main', mb: 1.5 }}>
+              Coming Soon
+            </Typography>
+            <Typography variant="body1" sx={{ color: 'text.secondary', fontSize: '1rem', lineHeight: 1.7 }}>
+              We're putting the finishing touches on a walkthrough video to show you everything MyLifeFolio can do. Please check back soon!
+            </Typography>
           </DialogContent>
-          <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
-            <Typography variant="body2" color="text.secondary">A short walkthrough of creating your folio</Typography>
-            <Button onClick={() => setVideoModalOpen(false)} variant="outlined">Close</Button>
+          <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
+            <Button onClick={() => setVideoModalOpen(false)} variant="contained"
+              sx={{ bgcolor: 'primary.main', px: 4, textTransform: 'none', fontWeight: 600, '&:hover': { bgcolor: 'primary.dark' } }}>
+              Got It
+            </Button>
           </DialogActions>
         </Dialog>
 
