@@ -17,6 +17,7 @@ const PersonalHistoryHelpModal: React.FC<PersonalHistoryHelpModalProps> = ({ ope
     open={open}
     onClose={onClose}
     title="How Personal History Works"
+    audioSrc="/audio/resources/legacy-personal-history.mp3"
   >
     <Typography sx={{ ...body, mb: 2.5 }}>
       Personal History is where you tell the story of your life — in your own

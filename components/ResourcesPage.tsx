@@ -46,6 +46,9 @@ import { isAdminUser } from '../lib/adminUtils';
 import ObituaryHelpModal from './ObituaryHelpModal';
 import FamilyLettersHelpModal from './FamilyLettersHelpModal';
 import PersonalHistoryHelpModal from './PersonalHistoryHelpModal';
+import ReflectionsHelpModal from './ReflectionsHelpModal';
+import SurprisesHelpModal from './SurprisesHelpModal';
+import FavoritesHelpModal from './FavoritesHelpModal';
 
 const theme = createTheme({
   palette: {
@@ -136,6 +139,9 @@ const folioGuideCategories: {
       { id: 'obituary-info', title: 'Obituary Information', description: 'Learn what each field does and how the AI-enhanced obituary works.' },
       { id: 'family-letters', title: 'Letters to Family', description: 'How to write or record personal messages for loved ones.' },
       { id: 'personal-history', title: 'Personal History', description: 'Record your life story through guided prompts across five chapters.' },
+      { id: 'reflections', title: 'Personal Reflections', description: 'Share your beliefs, values, and the wisdom you want to pass on.' },
+      { id: 'surprises', title: 'Surprises', description: 'Hidden talents, adventures, and fun facts your family will love.' },
+      { id: 'favorites', title: 'My Favorites', description: 'Music, books, foods, destinations, and the things that bring you joy.' },
     ],
   },
   {
@@ -508,6 +514,18 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({
       />
       <PersonalHistoryHelpModal
         open={helpModal === 'personal-history'}
+        onClose={() => setHelpModal(null)}
+      />
+      <ReflectionsHelpModal
+        open={helpModal === 'reflections'}
+        onClose={() => setHelpModal(null)}
+      />
+      <SurprisesHelpModal
+        open={helpModal === 'surprises'}
+        onClose={() => setHelpModal(null)}
+      />
+      <FavoritesHelpModal
+        open={helpModal === 'favorites'}
         onClose={() => setHelpModal(null)}
       />
     </ThemeProvider>
