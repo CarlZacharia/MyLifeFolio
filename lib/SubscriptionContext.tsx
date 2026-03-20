@@ -127,19 +127,13 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       : null;
 
   const canAccess = useCallback(
-    (feature: FeatureKey): boolean => {
-      // If account is disabled by admin, block everything
+    (_feature: FeatureKey): boolean => {
+      // TEMPORARY: Grant full access to all users for beta testing
+      // TODO: Re-enable tier gating when ready to go live with Stripe
       if (isDisabled) return false;
-
-      // If subscription is not active (expired, cancelled, past_due), block everything
-      if (status !== 'active') return false;
-
-      // If trial has expired, block everything
-      if (isTrialExpired) return false;
-
-      return TIER_ACCESS[tier].has(feature);
+      return true;
     },
-    [tier, status, isTrialExpired, isDisabled]
+    [isDisabled]
   );
 
   const value: SubscriptionContextType = {
