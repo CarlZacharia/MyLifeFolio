@@ -24,6 +24,13 @@ export interface Database {
           date_of_birth: string | null
           avatar_url: string | null
           spouse_name: string | null
+          gender: string | null
+          marital_status: string
+          spouse_full_name: string | null
+          spouse_date_of_birth: string | null
+          spouse_phone: string | null
+          spouse_email: string | null
+          spouse_gender: string | null
           onboarding_completed: boolean
           created_at: string
           updated_at: string
@@ -42,6 +49,13 @@ export interface Database {
           date_of_birth?: string | null
           avatar_url?: string | null
           spouse_name?: string | null
+          gender?: string | null
+          marital_status?: string
+          spouse_full_name?: string | null
+          spouse_date_of_birth?: string | null
+          spouse_phone?: string | null
+          spouse_email?: string | null
+          spouse_gender?: string | null
           onboarding_completed?: boolean
           created_at?: string
           updated_at?: string
@@ -60,6 +74,13 @@ export interface Database {
           date_of_birth?: string | null
           avatar_url?: string | null
           spouse_name?: string | null
+          gender?: string | null
+          marital_status?: string
+          spouse_full_name?: string | null
+          spouse_date_of_birth?: string | null
+          spouse_phone?: string | null
+          spouse_email?: string | null
+          spouse_gender?: string | null
           onboarding_completed?: boolean
           created_at?: string
           updated_at?: string
@@ -372,6 +393,50 @@ export interface Database {
           details?: Json
           ip_address?: string | null
           created_at?: string
+        }
+      }
+      children: {
+        Row: {
+          id: string
+          owner_id: string
+          full_name: string
+          date_of_birth: string | null
+          gender: string | null
+          phone: string | null
+          email: string | null
+          notes: string | null
+          parent_relationship: string
+          sort_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          owner_id: string
+          full_name: string
+          date_of_birth?: string | null
+          gender?: string | null
+          phone?: string | null
+          email?: string | null
+          notes?: string | null
+          parent_relationship?: string
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          owner_id?: string
+          full_name?: string
+          date_of_birth?: string | null
+          gender?: string | null
+          phone?: string | null
+          email?: string | null
+          notes?: string | null
+          parent_relationship?: string
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
         }
       }
     }

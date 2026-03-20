@@ -3,6 +3,7 @@
 import { useCategories } from "@/lib/hooks/use-categories"
 import { Header } from "@/components/layout/header"
 import { CategoryGrid } from "@/components/folio/category-grid"
+import { HouseholdSummaryCard } from "@/components/folio/household-summary-card"
 import { DashboardSkeleton } from "@/components/shared/loading-skeleton"
 
 export default function FolioPage() {
@@ -23,9 +24,11 @@ export default function FolioPage() {
               My Folio
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              All 20 categories of your life documentation
+              Your life documentation
             </p>
           </div>
+
+          <HouseholdSummaryCard />
 
           {loading ? (
             <DashboardSkeleton />

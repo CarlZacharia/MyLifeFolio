@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { CATEGORY_META } from "@/lib/constants/categories"
+import { isPartnered } from "@/lib/constants/household"
 import type { Category, FolioItemWithAttachments } from "@/lib/types/app"
 import type { Json } from "@/lib/types/database"
 import { toast } from "sonner"
@@ -26,7 +27,8 @@ export default function CategoryDetailPage() {
   const meta = CATEGORY_META[slug]
   const supabase = useSupabase()
   const { profile } = useAuth()
-  const spouseName = profile?.spouse_name
+  const partnered = isPartnered(profile?.marital_status)
+  const spouseName = profile?.spouse_name || profile?.spouse_full_name
 
   const [category, setCategory] = useState<Category | null>(null)
   const [catLoading, setCatLoading] = useState(true)
@@ -174,7 +176,7 @@ export default function CategoryDetailPage() {
                 </div>
               )}
             </div>
-            {!spouseName && (
+            {!partnered && (
               <Button onClick={() => openAddForm("self")}>
                 <Plus className="mr-2 size-4" />
                 Add Item
@@ -193,7 +195,7 @@ export default function CategoryDetailPage() {
           {/* Items */}
           {loading ? (
             <ItemListSkeleton />
-          ) : !spouseName ? (
+          ) : !partnered ? (
             <ItemList
               items={filtered}
               onEdit={(item) => setEditingItem(item)}
@@ -212,7 +214,7 @@ export default function CategoryDetailPage() {
                 onRefresh={refetch}
               />
               <ItemSection
-                label={spouseName}
+                label={spouseName || "Spouse"}
                 items={spouseItems}
                 onEdit={(item) => setEditingItem(item)}
                 onDelete={(item) => setDeleteTarget(item)}
@@ -238,8 +240,8 @@ export default function CategoryDetailPage() {
         open={formOpen}
         onOpenChange={setFormOpen}
         categorySlug={slug}
-        spouseName={spouseName}
-        initialData={spouseName ? { title: "", data: {}, belongs_to: addingForSection } : undefined}
+        spouseName={partnered ? spouseName : undefined}
+        initialData={partnered ? { title: "", data: {}, belongs_to: addingForSection } : undefined}
         onSubmit={handleAddItem}
       />
 
@@ -249,7 +251,7 @@ export default function CategoryDetailPage() {
           open={!!editingItem}
           onOpenChange={(open) => !open && setEditingItem(null)}
           categorySlug={slug}
-          spouseName={spouseName}
+          spouseName={partnered ? spouseName : undefined}
           initialData={{
             title: editingItem.title,
             data: editingItem.data as Record<string, Json>,

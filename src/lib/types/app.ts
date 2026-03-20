@@ -42,6 +42,12 @@ export type ItemType =
 // Belongs-to for household support
 export type BelongsTo = 'self' | 'spouse' | 'joint'
 
+// Household types
+export type Child = Database['public']['Tables']['children']['Row']
+export type MaritalStatus = 'single' | 'married' | 'domestic_partnership' | 'divorced' | 'widowed' | 'separated'
+export type Gender = 'male' | 'female' | 'non_binary' | 'prefer_not_to_say'
+export type ParentRelationship = 'both' | 'owner_only' | 'spouse_only'
+
 // Audit actions
 export type AuditAction =
   | 'view'
@@ -63,6 +69,9 @@ export type AuditAction =
   | 'role.revoke'
   | 'access.update'
   | 'category.view'
+  | 'child.create'
+  | 'child.update'
+  | 'child.delete'
 
 // Item template field definition
 export interface ItemTemplateField {
