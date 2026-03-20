@@ -1486,6 +1486,7 @@ async function saveLegacyLetters(
   const records = letters.map((l) => ({
     recipient_type: l.recipientType || null,
     recipient_name: l.recipientName || null,
+    subject: l.subject || null,
     letter_body: l.letterBody || null,
     format: l.format || null,
     media_url: l.mediaUrl || null,

@@ -78,6 +78,11 @@ const LegacyLettersTab = () => {
                             sx={{ bgcolor: '#fff3e0', color: '#e65100', fontWeight: 600, height: 22 }} />
                         )}
                       </Box>
+                      {letter.subject && (
+                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', lineHeight: 1.4 }}>
+                          {letter.subject}
+                        </Typography>
+                      )}
                       {letter.letterBody && (
                         <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 500 }}>
                           {letter.letterBody.slice(0, 120)}{letter.letterBody.length > 120 ? '...' : ''}

@@ -22,6 +22,7 @@ export const FOLDERS = {
   EXISTING_ESTATE_PLAN: 'existing-estate-plan',
   NEW_PLAN_REPORTS: 'new-plan-reports',
   LEGACY_OBITUARY: 'legacy/obituary',
+  LEGACY_LETTERS: 'legacy/letters',
 } as const;
 
 export type FolderType = typeof FOLDERS[keyof typeof FOLDERS];

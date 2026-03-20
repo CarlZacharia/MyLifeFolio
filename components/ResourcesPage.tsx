@@ -44,6 +44,7 @@ import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import { useAuth } from '../lib/AuthContext';
 import { isAdminUser } from '../lib/adminUtils';
 import ObituaryHelpModal from './ObituaryHelpModal';
+import FamilyLettersHelpModal from './FamilyLettersHelpModal';
 
 const theme = createTheme({
   palette: {
@@ -132,6 +133,7 @@ const folioGuideCategories: {
     icon: <VideoLibraryIcon />, accentColor: '#c9a227',
     topics: [
       { id: 'obituary-info', title: 'Obituary Information', description: 'Learn what each field does and how the AI-enhanced obituary works.' },
+      { id: 'family-letters', title: 'Letters to Family', description: 'How to write or record personal messages for loved ones.' },
     ],
   },
   {
@@ -496,6 +498,10 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({
       {/* ── Help Modals ── */}
       <ObituaryHelpModal
         open={helpModal === 'obituary-info'}
+        onClose={() => setHelpModal(null)}
+      />
+      <FamilyLettersHelpModal
+        open={helpModal === 'family-letters'}
         onClose={() => setHelpModal(null)}
       />
     </ThemeProvider>

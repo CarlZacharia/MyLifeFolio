@@ -1246,6 +1246,7 @@ export interface FormData {
   legacyLetters: Array<{
     recipientType: string;
     recipientName: string;
+    subject: string;
     letterBody: string;
     format: string;
     mediaUrl: string;
