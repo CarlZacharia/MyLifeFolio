@@ -10,6 +10,7 @@ import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import { filterFolioByAccess, FilteredFolio } from './utils/filterFolioByAccess';
+import { SavedReportConfig } from '../../../lib/savedReportService';
 import ChatInterface from './ChatInterface';
 import ReportViewer from './ReportViewer';
 import DocumentViewer from './DocumentViewer';
@@ -21,6 +22,7 @@ interface AuthorizedAccess {
   display_name: string;
   access_sections: string[];
   allowed_reports: string[];
+  allowed_custom_reports: string[];
   vault_instructions: string;
   is_active: boolean;
 }
@@ -35,6 +37,7 @@ const FamilyPortal: React.FC = () => {
   const [tab, setTab] = useState(0);
   const [userEmail, setUserEmail] = useState('');
   const [folioLastUpdated, setFolioLastUpdated] = useState<string | null>(null);
+  const [customReports, setCustomReports] = useState<SavedReportConfig[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -98,6 +101,16 @@ const FamilyPortal: React.FC = () => {
         setFolioLastUpdated(intakeRows[0].created_at as string);
         const filtered = filterFolioByAccess(folioData, auth.access_sections);
         setFilteredFolio(filtered);
+
+        // Fetch custom reports shared with this family member
+        const allowedCustom = auth.allowed_custom_reports || [];
+        if (allowedCustom.length > 0) {
+          const { data: customReportRows } = await supabase
+            .from('saved_report_configs')
+            .select('*')
+            .in('id', allowedCustom);
+          if (customReportRows) setCustomReports(customReportRows);
+        }
       } catch (err) {
         console.error('Portal init error:', err);
         setError('An error occurred loading the folio. Please try again.');
@@ -219,6 +232,7 @@ const FamilyPortal: React.FC = () => {
               accessorEmail={userEmail}
               accessorName={access.display_name}
               allowedReports={access.allowed_reports || []}
+              customReports={customReports}
             />
           )}
           {tab === 2 && (

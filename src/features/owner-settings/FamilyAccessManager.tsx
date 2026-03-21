@@ -34,6 +34,7 @@ import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../../lib/AuthContext';
 import { useFormContext } from '../../../lib/FormContext';
 import { REPORTS } from '../../../components/ReportsSection';
+import { SavedReportConfig } from '../../../lib/savedReportService';
 
 const ALL_SECTIONS = [
   { key: 'personal', label: 'Personal Info' },
@@ -67,6 +68,7 @@ interface AuthorizedUser {
   display_name: string;
   access_sections: string[];
   allowed_reports: string[];
+  allowed_custom_reports: string[];
   vault_instructions: string;
   is_active: boolean;
   created_at: string;
@@ -130,7 +132,9 @@ const FamilyAccessManager: React.FC = () => {
   const [formEmail, setFormEmail] = useState('');
   const [formSections, setFormSections] = useState<string[]>([]);
   const [formReports, setFormReports] = useState<string[]>([]);
+  const [formCustomReports, setFormCustomReports] = useState<string[]>([]);
   const [formVaultInstructions, setFormVaultInstructions] = useState('');
+  const [savedCustomReports, setSavedCustomReports] = useState<SavedReportConfig[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const fieldsVisible = useFolioFieldAnimation(dialogOpen);
@@ -151,14 +155,16 @@ const FamilyAccessManager: React.FC = () => {
     if (!user) return;
     setLoading(true);
     try {
-      const [usersRes, logsRes, docsRes] = await Promise.all([
+      const [usersRes, logsRes, docsRes, customReportsRes] = await Promise.all([
         supabase.from('folio_authorized_users').select('*').eq('owner_id', user.id).order('created_at', { ascending: false }),
         supabase.from('folio_access_log').select('*').eq('owner_id', user.id).order('created_at', { ascending: false }).limit(100),
         supabase.from('folio_documents').select('*').eq('owner_id', user.id).order('uploaded_at', { ascending: false }),
+        supabase.from('saved_report_configs').select('*').eq('user_id', user.id).order('name'),
       ]);
       if (usersRes.data) setUsers(usersRes.data);
       if (logsRes.data) setLogs(logsRes.data);
       if (docsRes.data) setDocuments(docsRes.data);
+      if (customReportsRes.data) setSavedCustomReports(customReportsRes.data);
     } catch (err) {
       console.error('Failed to fetch family access data:', err);
     } finally {
@@ -213,6 +219,7 @@ const FamilyAccessManager: React.FC = () => {
     setFormEmail(suggestion.email);
     setFormSections([]);
     setFormReports([]);
+    setFormCustomReports([]);
     setFormVaultInstructions('');
     setError('');
     setDialogOpen(true);
@@ -225,6 +232,7 @@ const FamilyAccessManager: React.FC = () => {
     setFormEmail('');
     setFormSections([]);
     setFormReports([]);
+    setFormCustomReports([]);
     setFormVaultInstructions('');
     setError('');
     setDialogOpen(true);
@@ -236,6 +244,7 @@ const FamilyAccessManager: React.FC = () => {
     setFormEmail(u.authorized_email);
     setFormSections(u.access_sections);
     setFormReports(u.allowed_reports || []);
+    setFormCustomReports(u.allowed_custom_reports || []);
     setFormVaultInstructions(u.vault_instructions || '');
     setError('');
     setDialogOpen(true);
@@ -262,6 +271,7 @@ const FamilyAccessManager: React.FC = () => {
             authorized_email: formEmail.trim().toLowerCase(),
             access_sections: formSections,
             allowed_reports: formReports,
+            allowed_custom_reports: formCustomReports,
             vault_instructions: formVaultInstructions.trim(),
           })
           .eq('id', editUser.id);
@@ -275,6 +285,7 @@ const FamilyAccessManager: React.FC = () => {
             authorized_email: formEmail.trim().toLowerCase(),
             access_sections: formSections,
             allowed_reports: formReports,
+            allowed_custom_reports: formCustomReports,
             vault_instructions: formVaultInstructions.trim(),
           });
         if (insertError) {
@@ -319,6 +330,12 @@ const FamilyAccessManager: React.FC = () => {
   const toggleReport = (reportId: string) => {
     setFormReports((prev) =>
       prev.includes(reportId) ? prev.filter((r) => r !== reportId) : [...prev, reportId]
+    );
+  };
+
+  const toggleCustomReport = (configId: string) => {
+    setFormCustomReports((prev) =>
+      prev.includes(configId) ? prev.filter((r) => r !== configId) : [...prev, configId]
     );
   };
 
@@ -621,13 +638,19 @@ const FamilyAccessManager: React.FC = () => {
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                    {(u.allowed_reports || []).length === 0 ? (
+                    {(u.allowed_reports || []).length === 0 && (u.allowed_custom_reports || []).length === 0 ? (
                       <Typography variant="caption" color="text.secondary">None</Typography>
                     ) : (
-                      (u.allowed_reports || []).map((rId) => {
-                        const rDef = REPORTS.find((r) => r.id === rId);
-                        return <Chip key={rId} label={rDef?.label || rId} size="small" variant="outlined" />;
-                      })
+                      <>
+                        {(u.allowed_reports || []).map((rId) => {
+                          const rDef = REPORTS.find((r) => r.id === rId);
+                          return <Chip key={rId} label={rDef?.label || rId} size="small" variant="outlined" />;
+                        })}
+                        {(u.allowed_custom_reports || []).map((cId) => {
+                          const cDef = savedCustomReports.find((r) => r.id === cId);
+                          return <Chip key={cId} label={cDef?.name || 'Custom Report'} size="small" variant="outlined" color="info" />;
+                        })}
+                      </>
                     )}
                   </Box>
                 </TableCell>
@@ -904,7 +927,58 @@ const FamilyAccessManager: React.FC = () => {
             </Button>
           </FolioFieldFade>
 
-          <FolioFieldFade visible={fieldsVisible} index={4}>
+          {savedCustomReports.length > 0 && (
+            <FolioFieldFade visible={fieldsVisible} index={4}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  Custom Reports
+                </Typography>
+                <Button
+                  size="small"
+                  onClick={() => setFormCustomReports(savedCustomReports.map((r) => r.id))}
+                  sx={{ textTransform: 'none', fontWeight: 500, color: '#8b6914' }}
+                >
+                  Select All
+                </Button>
+              </Box>
+              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 1 }}>
+                Share your custom reports with this family member. These are reports you built in the Custom Report Builder.
+              </Typography>
+              <FormGroup>
+                {savedCustomReports.map((report) => (
+                  <FormControlLabel
+                    key={report.id}
+                    control={
+                      <Checkbox
+                        checked={formCustomReports.includes(report.id)}
+                        onChange={() => toggleCustomReport(report.id)}
+                        sx={{ '&.Mui-checked': { color: '#8b6914' } }}
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography variant="body2" component="span">{report.name}</Typography>
+                        {report.description && (
+                          <Typography variant="caption" sx={{ color: 'text.secondary', ml: 1 }}>
+                            — {report.description}
+                          </Typography>
+                        )}
+                      </Box>
+                    }
+                  />
+                ))}
+              </FormGroup>
+              <Button
+                size="small"
+                onClick={() => setFormCustomReports([])}
+                sx={{ textTransform: 'none', fontWeight: 500, color: '#6b5c47', mt: 0.5 }}
+              >
+                Clear All
+              </Button>
+            </FolioFieldFade>
+          )}
+
+          <FolioFieldFade visible={fieldsVisible} index={savedCustomReports.length > 0 ? 5 : 4}>
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
               Vault Access Instructions
             </Typography>
