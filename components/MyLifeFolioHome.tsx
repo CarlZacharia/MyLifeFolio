@@ -681,6 +681,25 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
                 important documents, family information, and life decisions all in one secure place.
               </Typography>
             </AnimatedSection>
+
+            <AnimatedSection delay={500}>
+              <Typography
+                variant="h6"
+                sx={{
+                  color: '#c49a3c',
+                  mt: 3,
+                  maxWidth: 700,
+                  fontSize: '1.05rem',
+                  lineHeight: 1.6,
+                  fontStyle: 'italic',
+                }}
+              >
+                Below are all of the categories and data. Fill in as much and as many as you wish.
+                MyLifeFolio is a living document that can be added to and edited as much as you wish.
+                Choose the most important items to you first, then grow from there. Click on a box
+                below to open that section.
+              </Typography>
+            </AnimatedSection>
           </Container>
         </Box>
 
