@@ -380,12 +380,12 @@ const IncomeSection: React.FC = () => {
 
       <Grid item xs={12} md={8} />
 
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12}>
         <FormControl component="fieldset">
           <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1 }}>
             Medicare Coverage Type
           </FormLabel>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
             <RadioGroup
               row
               value={formData.clientMedicalInsurance.medicareCoverageType}
@@ -407,47 +407,62 @@ const IncomeSection: React.FC = () => {
                 />
               ))}
             </RadioGroup>
-            <TextField
-              label="Plan Name"
-              value={formData.clientMedicalInsurance.medicarePlanName}
-              onChange={(e) => {
-                updateFormData({
-                  clientMedicalInsurance: {
-                    ...formData.clientMedicalInsurance,
-                    medicarePlanName: e.target.value,
-                  },
-                });
-              }}
-              variant="outlined"
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              sx={{ minWidth: 150 }}
-            />
+            {formData.clientMedicalInsurance.medicareCoverageType && (
+              <>
+                <TextField
+                  label="Plan Name"
+                  value={formData.clientMedicalInsurance.medicarePlanName}
+                  onChange={(e) => {
+                    updateFormData({
+                      clientMedicalInsurance: {
+                        ...formData.clientMedicalInsurance,
+                        medicarePlanName: e.target.value,
+                      },
+                    });
+                  }}
+                  variant="outlined"
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ minWidth: 150 }}
+                />
+                <TextField
+                  label="Policy Number"
+                  value={formData.clientMedicalInsurance.medicarePolicyNo}
+                  onChange={(e) => {
+                    updateFormData({
+                      clientMedicalInsurance: {
+                        ...formData.clientMedicalInsurance,
+                        medicarePolicyNo: e.target.value,
+                      },
+                    });
+                  }}
+                  variant="outlined"
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ minWidth: 150 }}
+                />
+                <TextField
+                  label={`${formData.clientMedicalInsurance.medicareCoverageType} Monthly Cost`}
+                  value={formData.clientMedicalInsurance.medicareCoverageCost}
+                  onChange={(e) => {
+                    updateFormData({
+                      clientMedicalInsurance: {
+                        ...formData.clientMedicalInsurance,
+                        medicareCoverageCost: e.target.value,
+                      },
+                    });
+                  }}
+                  variant="outlined"
+                  size="small"
+                  placeholder="$0.00"
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ minWidth: 150 }}
+                />
+              </>
+            )}
           </Box>
         </FormControl>
       </Grid>
-
-      {formData.clientMedicalInsurance.medicareCoverageType && (
-        <Grid item xs={12} md={3}>
-          <TextField
-            fullWidth
-            label={`${formData.clientMedicalInsurance.medicareCoverageType} Monthly Cost`}
-            value={formData.clientMedicalInsurance.medicareCoverageCost}
-            onChange={(e) => {
-              updateFormData({
-                clientMedicalInsurance: {
-                  ...formData.clientMedicalInsurance,
-                  medicareCoverageCost: e.target.value,
-                },
-              });
-            }}
-            variant="outlined"
-            size="small"
-            placeholder="$0.00"
-            InputLabelProps={{ shrink: true }}
-          />
-        </Grid>
-      )}
 
       <Grid item xs={12} md={6}>
         <TextField
@@ -668,12 +683,12 @@ const IncomeSection: React.FC = () => {
 
       <Grid item xs={12} md={8} />
 
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12}>
         <FormControl component="fieldset">
           <FormLabel component="legend" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1 }}>
             Medicare Coverage Type
           </FormLabel>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
             <RadioGroup
               row
               value={formData.spouseMedicalInsurance.medicareCoverageType}
@@ -695,47 +710,62 @@ const IncomeSection: React.FC = () => {
                 />
               ))}
             </RadioGroup>
-            <TextField
-              label="Plan Name"
-              value={formData.spouseMedicalInsurance.medicarePlanName}
-              onChange={(e) => {
-                updateFormData({
-                  spouseMedicalInsurance: {
-                    ...formData.spouseMedicalInsurance,
-                    medicarePlanName: e.target.value,
-                  },
-                });
-              }}
-              variant="outlined"
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              sx={{ minWidth: 150 }}
-            />
+            {formData.spouseMedicalInsurance.medicareCoverageType && (
+              <>
+                <TextField
+                  label="Plan Name"
+                  value={formData.spouseMedicalInsurance.medicarePlanName}
+                  onChange={(e) => {
+                    updateFormData({
+                      spouseMedicalInsurance: {
+                        ...formData.spouseMedicalInsurance,
+                        medicarePlanName: e.target.value,
+                      },
+                    });
+                  }}
+                  variant="outlined"
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ minWidth: 150 }}
+                />
+                <TextField
+                  label="Policy Number"
+                  value={formData.spouseMedicalInsurance.medicarePolicyNo}
+                  onChange={(e) => {
+                    updateFormData({
+                      spouseMedicalInsurance: {
+                        ...formData.spouseMedicalInsurance,
+                        medicarePolicyNo: e.target.value,
+                      },
+                    });
+                  }}
+                  variant="outlined"
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ minWidth: 150 }}
+                />
+                <TextField
+                  label={`${formData.spouseMedicalInsurance.medicareCoverageType} Monthly Cost`}
+                  value={formData.spouseMedicalInsurance.medicareCoverageCost}
+                  onChange={(e) => {
+                    updateFormData({
+                      spouseMedicalInsurance: {
+                        ...formData.spouseMedicalInsurance,
+                        medicareCoverageCost: e.target.value,
+                      },
+                    });
+                  }}
+                  variant="outlined"
+                  size="small"
+                  placeholder="$0.00"
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ minWidth: 150 }}
+                />
+              </>
+            )}
           </Box>
         </FormControl>
       </Grid>
-
-      {formData.spouseMedicalInsurance.medicareCoverageType && (
-        <Grid item xs={12} md={3}>
-          <TextField
-            fullWidth
-            label={`${formData.spouseMedicalInsurance.medicareCoverageType} Monthly Cost`}
-            value={formData.spouseMedicalInsurance.medicareCoverageCost}
-            onChange={(e) => {
-              updateFormData({
-                spouseMedicalInsurance: {
-                  ...formData.spouseMedicalInsurance,
-                  medicareCoverageCost: e.target.value,
-                },
-              });
-            }}
-            variant="outlined"
-            size="small"
-            placeholder="$0.00"
-            InputLabelProps={{ shrink: true }}
-          />
-        </Grid>
-      )}
 
       <Grid item xs={12} md={6}>
         <TextField

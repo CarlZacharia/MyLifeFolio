@@ -22,6 +22,7 @@ const MedicalSummary: React.FC<MedicalSummaryProps> = ({ data, ownerName, embedd
           <ReportSectionTitle>Client Medical Insurance</ReportSectionTitle>
           <Typography sx={body}><strong>Medicare Coverage:</strong> {clientInsurance.medicareCoverageType || 'N/A'}</Typography>
           <Typography sx={body}><strong>Plan:</strong> {clientInsurance.medicarePlanName || 'N/A'}</Typography>
+          <Typography sx={body}><strong>Policy Number:</strong> {clientInsurance.medicarePolicyNo || 'N/A'}</Typography>
           <Typography sx={body}><strong>Monthly Cost:</strong> {clientInsurance.medicareCoverageCost || 'N/A'}</Typography>
           {clientInsurance.privateInsuranceDescription && (
             <Typography sx={body}><strong>Private Insurance:</strong> {clientInsurance.privateInsuranceDescription} ({clientInsurance.privateInsuranceCost}/mo)</Typography>
@@ -34,6 +35,7 @@ const MedicalSummary: React.FC<MedicalSummaryProps> = ({ data, ownerName, embedd
           <ReportSectionTitle>Spouse Medical Insurance</ReportSectionTitle>
           <Typography sx={body}><strong>Medicare Coverage:</strong> {spouseInsurance.medicareCoverageType}</Typography>
           <Typography sx={body}><strong>Plan:</strong> {spouseInsurance.medicarePlanName || 'N/A'}</Typography>
+          <Typography sx={body}><strong>Policy Number:</strong> {spouseInsurance.medicarePolicyNo || 'N/A'}</Typography>
         </Box>
       )}
 

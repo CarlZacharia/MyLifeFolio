@@ -44,6 +44,7 @@ export interface MedicalInsurance {
   medicarePartBDeduction: string;  // Monthly Medicare Part B deduction
   medicareCoverageType: MedicareCoverageType;
   medicarePlanName: string;  // Name of the Medicare plan
+  medicarePolicyNo: string;  // Policy number for Medicare Advantage or Supplement
   medicareCoverageCost: string;  // Monthly cost for Medicare Advantage or Supplement
   privateInsuranceDescription: string;
   privateInsuranceCost: string;  // Monthly cost
@@ -1481,6 +1482,7 @@ const initialFormData: FormData = {
     medicarePartBDeduction: '',
     medicareCoverageType: '',
     medicarePlanName: '',
+    medicarePolicyNo: '',
     medicareCoverageCost: '',
     privateInsuranceDescription: '',
     privateInsuranceCost: '',
@@ -1492,6 +1494,7 @@ const initialFormData: FormData = {
     medicarePartBDeduction: '',
     medicareCoverageType: '',
     medicarePlanName: '',
+    medicarePolicyNo: '',
     medicareCoverageCost: '',
     privateInsuranceDescription: '',
     privateInsuranceCost: '',

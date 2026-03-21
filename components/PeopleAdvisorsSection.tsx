@@ -42,17 +42,20 @@ const PeopleAdvisorsSection = () => {
   const [advisorIsEdit, setAdvisorIsEdit] = useState(false);
   const [advisorEditIndex, setAdvisorEditIndex] = useState<number | null>(null);
   const [defaultType, setDefaultType] = useState('');
+  const [advisorModalKey, setAdvisorModalKey] = useState(0);
 
   // Friend/Neighbor modal state
   const [fnModalOpen, setFnModalOpen] = useState(false);
   const [fnIsEdit, setFnIsEdit] = useState(false);
   const [fnEditIndex, setFnEditIndex] = useState<number | null>(null);
+  const [fnModalKey, setFnModalKey] = useState(0);
 
   // Advisor handlers
   const openAddAdvisor = (type: string) => {
     setDefaultType(type);
     setAdvisorIsEdit(false);
     setAdvisorEditIndex(null);
+    setAdvisorModalKey((k) => k + 1);
     setAdvisorModalOpen(true);
   };
 
@@ -60,6 +63,7 @@ const PeopleAdvisorsSection = () => {
     setAdvisorIsEdit(true);
     setAdvisorEditIndex(index);
     setDefaultType('');
+    setAdvisorModalKey((k) => k + 1);
     setAdvisorModalOpen(true);
   };
 
@@ -107,12 +111,14 @@ const PeopleAdvisorsSection = () => {
   const openAddFn = () => {
     setFnIsEdit(false);
     setFnEditIndex(null);
+    setFnModalKey((k) => k + 1);
     setFnModalOpen(true);
   };
 
   const openEditFn = (index: number) => {
     setFnIsEdit(true);
     setFnEditIndex(index);
+    setFnModalKey((k) => k + 1);
     setFnModalOpen(true);
   };
 
@@ -287,6 +293,7 @@ const PeopleAdvisorsSection = () => {
 
       {/* Modals */}
       <AdvisorModal
+        key={advisorModalKey}
         open={advisorModalOpen}
         onClose={closeAdvisorModal}
         onSave={handleSaveAdvisor}
@@ -297,6 +304,7 @@ const PeopleAdvisorsSection = () => {
       />
 
       <FriendNeighborModal
+        key={fnModalKey}
         open={fnModalOpen}
         onClose={closeFnModal}
         onSave={handleSaveFn}

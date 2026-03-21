@@ -28,14 +28,17 @@ interface PetCareSectionProps {
 export default function PetCareSection({ pets, onUpdatePets }: PetCareSectionProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [modalKey, setModalKey] = useState(0);
 
   const handleAddClick = () => {
     setEditIndex(null);
+    setModalKey((k) => k + 1);
     setModalOpen(true);
   };
 
   const handleEditClick = (index: number) => {
     setEditIndex(index);
+    setModalKey((k) => k + 1);
     setModalOpen(true);
   };
 
@@ -128,6 +131,7 @@ export default function PetCareSection({ pets, onUpdatePets }: PetCareSectionPro
       </Box>
 
       <PetModal
+        key={modalKey}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onSave={handleSave}
