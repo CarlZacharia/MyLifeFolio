@@ -8,7 +8,7 @@
 -- Fix:    Replace all domain-wildcard checks with the explicit email
 --         whitelist that matches lib/adminUtils.ts ADMIN_EMAILS.
 --
--- Admin emails: czacharia@zacbrownlaw.com, carl@seniorcares.com
+-- Admin emails: czacharia@zacbrownlaw.com, support@seniorcares.com
 -- ═══════════════════════════════════════════════════════════════════════
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -38,7 +38,7 @@ BEGIN
     END,
     NEW.raw_user_meta_data->>'agreed_to_terms_signature',
     CASE
-      WHEN lower(NEW.email) IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com') THEN TRUE
+      WHEN lower(NEW.email) IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com') THEN TRUE
       ELSE FALSE
     END,
     FALSE,
@@ -66,7 +66,7 @@ CREATE POLICY "Admins can read all profiles"
   FOR SELECT
   USING (
     auth.uid() = id
-    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   );
 
 DROP POLICY IF EXISTS "Admins can update all profiles" ON public.profiles;
@@ -75,7 +75,7 @@ CREATE POLICY "Admins can update all profiles"
   FOR UPDATE
   USING (
     auth.uid() = id
-    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   );
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -87,7 +87,7 @@ CREATE POLICY "Admins can read all subscriptions"
   FOR SELECT
   USING (
     auth.uid() = user_id
-    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   );
 
 DROP POLICY IF EXISTS "Admins can update all subscriptions" ON public.user_subscriptions;
@@ -95,7 +95,7 @@ CREATE POLICY "Admins can update all subscriptions"
   ON public.user_subscriptions
   FOR UPDATE
   USING (
-    lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   );
 
 DROP POLICY IF EXISTS "Admins can insert subscriptions" ON public.user_subscriptions;
@@ -103,7 +103,7 @@ CREATE POLICY "Admins can insert subscriptions"
   ON public.user_subscriptions
   FOR INSERT
   WITH CHECK (
-    lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   );
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -114,7 +114,7 @@ CREATE POLICY "Admins can read all questions"
   ON public.user_questions
   FOR SELECT
   USING (
-    lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   );
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -126,7 +126,7 @@ CREATE POLICY "Admins can read all authorized users"
   FOR SELECT
   USING (
     owner_id = auth.uid()
-    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   );
 
 DROP POLICY IF EXISTS "Admins can update authorized users" ON folio_authorized_users;
@@ -135,7 +135,7 @@ CREATE POLICY "Admins can update authorized users"
   FOR UPDATE
   USING (
     owner_id = auth.uid()
-    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   );
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -147,7 +147,7 @@ CREATE POLICY "Admins can read all access logs"
   FOR SELECT
   USING (
     owner_id = auth.uid()
-    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   );
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -159,7 +159,7 @@ CREATE POLICY "Admins can read all vault documents"
   FOR SELECT
   USING (
     user_id = auth.uid()
-    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   );
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -171,7 +171,7 @@ CREATE POLICY "Admins can read all intakes"
   FOR SELECT
   USING (
     user_id = auth.uid()
-    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR lower(auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   );
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -179,10 +179,10 @@ CREATE POLICY "Admins can read all intakes"
 -- ═══════════════════════════════════════════════════════════════════════
 UPDATE public.profiles
 SET is_admin = TRUE
-WHERE lower(email) IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+WHERE lower(email) IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   AND is_admin = FALSE;
 
 UPDATE public.profiles
 SET is_admin = FALSE
-WHERE lower(email) NOT IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+WHERE lower(email) NOT IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
   AND is_admin = TRUE;

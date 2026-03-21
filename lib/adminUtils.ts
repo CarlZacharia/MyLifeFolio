@@ -5,7 +5,7 @@
 
 export const ADMIN_EMAILS = [
   'czacharia@zacbrownlaw.com',
-  'carl@seniorcares.com',
+  'support@seniorcares.com',
 ];
 
 export const isAdminUser = (email: string | undefined): boolean => {

@@ -465,7 +465,7 @@ const SecurityInfoModalComprehensive: React.FC<SecurityInfoModalProps> = ({ open
           textAlign: 'center',
         }}
       >
-        Questions about our security practices? Contact us at carl@SeniorCareRes.com
+        Questions about our security practices? Contact us at support@seniorCareRes.com
       </Typography>
     </DialogContent>
 

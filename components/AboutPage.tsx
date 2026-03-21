@@ -285,10 +285,10 @@ const AboutPage: React.FC<AboutPageProps> = ({ onNavigateBack }) => (
               >
                 Carl can be reached at{' '}
                 <Link
-                  href="mailto:carl@seniorcareres.com"
+                  href="mailto:support@seniorcareres.com"
                   sx={{ color: 'primary.main', fontWeight: 600 }}
                 >
-                  carl@SeniorCareRes.com
+                  support@seniorCareRes.com
                 </Link>.
               </Typography>
             </Box>

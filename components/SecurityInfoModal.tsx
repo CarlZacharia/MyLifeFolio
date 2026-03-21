@@ -275,7 +275,7 @@ const SecurityInfoModal: React.FC<SecurityInfoModalProps> = ({ open, onClose }) 
           textAlign: 'center',
         }}
       >
-        Questions about our security practices? Contact us at carl@SeniorCareRes.com
+        Questions about our security practices? Contact us at support@seniorCareRes.com
       </Typography>
     </DialogContent>
 

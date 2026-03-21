@@ -14,7 +14,7 @@ BEGIN
     NEW.id,
     NEW.email,
     CASE
-      WHEN NEW.email IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com') THEN TRUE
+      WHEN NEW.email IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com') THEN TRUE
       WHEN NEW.email LIKE '%@zacfreylaw.com' THEN TRUE
       ELSE FALSE
     END
@@ -37,7 +37,7 @@ CREATE POLICY "Admins can read all profiles"
   ON profiles FOR SELECT
   USING (
     auth.uid() = id
-    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
     OR (auth.jwt() ->> 'email') LIKE '%@zacfreylaw.com'
   );
 
@@ -47,12 +47,12 @@ CREATE POLICY "Admins can update all profiles"
   ON profiles FOR UPDATE
   USING (
     auth.uid() = id
-    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
     OR (auth.jwt() ->> 'email') LIKE '%@zacfreylaw.com'
   )
   WITH CHECK (
     auth.uid() = id
-    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
     OR (auth.jwt() ->> 'email') LIKE '%@zacfreylaw.com'
   );
 
@@ -62,7 +62,7 @@ CREATE POLICY "Admins can read all subscriptions"
   ON user_subscriptions FOR SELECT
   USING (
     auth.uid() = user_id
-    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
     OR (auth.jwt() ->> 'email') LIKE '%@zacfreylaw.com'
   );
 
@@ -72,12 +72,12 @@ CREATE POLICY "Admins can update all subscriptions"
   ON user_subscriptions FOR UPDATE
   USING (
     auth.uid() = user_id
-    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
     OR (auth.jwt() ->> 'email') LIKE '%@zacfreylaw.com'
   )
   WITH CHECK (
     auth.uid() = user_id
-    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
     OR (auth.jwt() ->> 'email') LIKE '%@zacfreylaw.com'
   );
 
@@ -87,7 +87,7 @@ CREATE POLICY "Admins can delete subscriptions"
   ON user_subscriptions FOR DELETE
   USING (
     auth.uid() = user_id
-    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
     OR (auth.jwt() ->> 'email') LIKE '%@zacfreylaw.com'
   );
 
@@ -97,7 +97,7 @@ CREATE POLICY "Admins can read all authorized_users"
   ON folio_authorized_users FOR SELECT
   USING (
     auth.uid() = owner_id
-    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
     OR (auth.jwt() ->> 'email') LIKE '%@zacfreylaw.com'
   );
 
@@ -107,7 +107,7 @@ CREATE POLICY "Admins can read all access_log"
   ON folio_access_log FOR SELECT
   USING (
     auth.uid() = owner_id
-    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
     OR (auth.jwt() ->> 'email') LIKE '%@zacfreylaw.com'
   );
 
@@ -117,7 +117,7 @@ CREATE POLICY "Admins can read all intakes_raw"
   ON intakes_raw FOR SELECT
   USING (
     user_id = auth.uid()
-    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
     OR (auth.jwt() ->> 'email') LIKE '%@zacfreylaw.com'
   );
 
@@ -127,6 +127,6 @@ CREATE POLICY "Admins can read all vault_documents"
   ON vault_documents FOR SELECT
   USING (
     auth.uid() = user_id
-    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'carl@seniorcares.com')
+    OR (auth.jwt() ->> 'email') IN ('czacharia@zacbrownlaw.com', 'support@seniorcares.com')
     OR (auth.jwt() ->> 'email') LIKE '%@zacfreylaw.com'
   );

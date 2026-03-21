@@ -668,7 +668,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
 
             <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>6. Data Retention</Typography>
             <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8 }}>
-              We retain your personal information for as long as your account is active or as needed to provide you services. You may request deletion of your account and associated data at any time by contacting us at carl@SeniorCareRes.com.
+              We retain your personal information for as long as your account is active or as needed to provide you services. You may request deletion of your account and associated data at any time by contacting us at support@seniorCareRes.com.
             </Typography>
 
             <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>7. Your Rights</Typography>
@@ -687,7 +687,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
 
             <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>9. Contact Us</Typography>
             <Typography variant="body2" sx={{ lineHeight: 1.8 }}>
-              If you have questions about this Privacy Policy, please contact us at carl@SeniorCareRes.com or write to Senior Care Resources LLC, 4500 Walnut Street, McKeesport, PA 15132.
+              If you have questions about this Privacy Policy, please contact us at support@seniorCareRes.com or write to Senior Care Resources LLC, 4500 Walnut Street, McKeesport, PA 15132.
             </Typography>
           </DialogContent>
           <DialogActions sx={{ px: 3, py: 1.5 }}>
@@ -776,7 +776,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
 
             <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>13. Contact Us</Typography>
             <Typography variant="body2" sx={{ lineHeight: 1.8 }}>
-              If you have questions about these Terms of Service, please contact us at carl@SeniorCareRes.com or write to Senior Care Resources LLC, 4500 Walnut Street, McKeesport, PA 15132.
+              If you have questions about these Terms of Service, please contact us at support@seniorCareRes.com or write to Senior Care Resources LLC, 4500 Walnut Street, McKeesport, PA 15132.
             </Typography>
           </DialogContent>
           <DialogActions sx={{ px: 3, py: 1.5 }}>
