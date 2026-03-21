@@ -139,22 +139,25 @@ export async function listVaultDocuments(
   }
 }
 
-// ── Download (signed URL) ──────────────────────────────────────────────────
+// ── Download ───────────────────────────────────────────────────────────────
 
 export async function getVaultDocumentUrl(
   filePath: string
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
+    // Use download() to fetch the file as a blob — avoids createSignedUrl
+    // RLS issues where the signed URL creation triggers an internal write
     const { data, error } = await supabase.storage
       .from(BUCKET)
-      .createSignedUrl(filePath, 3600);
+      .download(filePath);
 
-    if (error) {
-      console.error('getVaultDocumentUrl error:', error);
-      return { success: false, error: error.message };
+    if (error || !data) {
+      console.error('getVaultDocumentUrl error:', error, 'path:', filePath);
+      return { success: false, error: error?.message || 'Failed to download file' };
     }
 
-    return { success: true, url: data.signedUrl };
+    const blobUrl = URL.createObjectURL(data);
+    return { success: true, url: blobUrl };
   } catch (err) {
     console.error('getVaultDocumentUrl error:', err);
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };

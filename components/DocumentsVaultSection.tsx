@@ -627,19 +627,29 @@ const DocumentsVaultSection: React.FC = () => {
   const handleDownload = async (doc: VaultDocumentRecord) => {
     const result = await getVaultDocumentUrl(doc.file_path);
     if (result.success && result.url) {
-      window.open(result.url, '_blank');
+      // Create a temporary link to trigger a proper file download
+      const a = document.createElement('a');
+      a.href = result.url;
+      a.download = doc.file_name || doc.document_name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      // Revoke the blob URL after a short delay to free memory
+      setTimeout(() => URL.revokeObjectURL(result.url!), 5000);
     } else {
-      setSnack({ open: true, message: 'Failed to generate download link.', severity: 'error' });
+      setSnack({ open: true, message: `Failed to download: ${result.error || 'Unknown error'}`, severity: 'error' });
     }
   };
 
   // View inline
   const handleViewInline = async (doc: VaultDocumentRecord) => {
+    console.log('View inline requested for:', doc.file_path);
     const result = await getVaultDocumentUrl(doc.file_path);
     if (result.success && result.url) {
       setViewInlineUrl({ url: result.url, name: doc.document_name, type: doc.file_type });
     } else {
-      setSnack({ open: true, message: 'Failed to load document preview.', severity: 'error' });
+      console.error('View inline failed for path:', doc.file_path, 'Error:', result.error);
+      setSnack({ open: true, message: `Failed to load document preview: ${result.error || 'Unknown error'}`, severity: 'error' });
     }
   };
 
