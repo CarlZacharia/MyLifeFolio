@@ -287,6 +287,7 @@ interface FolioModalProps {
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg';
   children: React.ReactNode;
   footer?: React.ReactNode;
+  hideClose?: boolean;
 }
 
 const FolioModal: React.FC<FolioModalProps> = ({
@@ -297,6 +298,7 @@ const FolioModal: React.FC<FolioModalProps> = ({
   maxWidth = 'sm',
   children,
   footer,
+  hideClose = false,
 }) => {
   return (
     <Dialog
@@ -351,19 +353,21 @@ const FolioModal: React.FC<FolioModalProps> = ({
         >
           <FolioTitle label={title} />
         </Box>
-        <IconButton
-          onClick={onClose}
-          size="small"
-          sx={{
-            position: 'absolute',
-            top: 12,
-            right: 12,
-            color: folioColors.inkFaint,
-            '&:hover': { color: '#ffffff' },
-          }}
-        >
-          <CloseIcon fontSize="small" />
-        </IconButton>
+        {!hideClose && (
+          <IconButton
+            onClick={onClose}
+            size="small"
+            sx={{
+              position: 'absolute',
+              top: 12,
+              right: 12,
+              color: folioColors.inkFaint,
+              '&:hover': { color: '#ffffff' },
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        )}
       </Box>
 
       {/* Body */}

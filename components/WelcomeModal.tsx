@@ -99,10 +99,11 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, initialData, onSave }
   return (
     <FolioModal
       open={open}
-      onClose={() => {}} // Cannot close without saving
+      onClose={() => {}}
       title="Welcome & Getting Started"
       eyebrow="My Life Folio"
       maxWidth="sm"
+      hideClose
       footer={
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
           <FolioSaveButton onClick={handleSave} disabled={!canSave}>
