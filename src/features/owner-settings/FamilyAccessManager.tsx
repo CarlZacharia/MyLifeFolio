@@ -151,6 +151,12 @@ const FamilyAccessManager: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const docFieldsVisible = useFolioFieldAnimation(docDialogOpen);
 
+  // Inline quick-add person from document dialog
+  const [quickAddName, setQuickAddName] = useState('');
+  const [quickAddEmail, setQuickAddEmail] = useState('');
+  const [quickAddSaving, setQuickAddSaving] = useState(false);
+  const [quickAddError, setQuickAddError] = useState('');
+
   const fetchData = async () => {
     if (!user) return;
     setLoading(true);
@@ -347,6 +353,9 @@ const FamilyAccessManager: React.FC = () => {
     setDocFile(null);
     setDocError('');
     setUploadProgress(0);
+    setQuickAddName('');
+    setQuickAddEmail('');
+    setQuickAddError('');
     setDocDialogOpen(true);
   };
 
@@ -356,6 +365,9 @@ const FamilyAccessManager: React.FC = () => {
     setDocVisibleTo(doc.visible_to);
     setDocFile(null);
     setDocError('');
+    setQuickAddName('');
+    setQuickAddEmail('');
+    setQuickAddError('');
     setDocDialogOpen(true);
   };
 
@@ -485,6 +497,55 @@ const FamilyAccessManager: React.FC = () => {
     a.download = doc.file_name;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleQuickAddPerson = async () => {
+    if (!quickAddName.trim() || !quickAddEmail.trim()) {
+      setQuickAddError('Name and email are required.');
+      return;
+    }
+    const emailLower = quickAddEmail.trim().toLowerCase();
+    if (users.some((u) => u.authorized_email.toLowerCase() === emailLower)) {
+      setQuickAddError('This email is already an authorized user.');
+      return;
+    }
+    setQuickAddSaving(true);
+    setQuickAddError('');
+    try {
+      const { data: newUser, error: insertError } = await supabase
+        .from('folio_authorized_users')
+        .insert({
+          owner_id: user!.id,
+          display_name: quickAddName.trim(),
+          authorized_email: emailLower,
+          access_sections: ['personal'],
+          allowed_reports: [],
+          allowed_custom_reports: [],
+          vault_instructions: '',
+        })
+        .select()
+        .single();
+      if (insertError) {
+        if (insertError.message.includes('duplicate') || insertError.message.includes('unique')) {
+          setQuickAddError('This email is already authorized.');
+        } else {
+          throw insertError;
+        }
+        return;
+      }
+      // Add the new user to local state and auto-check them for this document
+      if (newUser) {
+        setUsers((prev) => [newUser as AuthorizedUser, ...prev]);
+        setDocVisibleTo((prev) => [...prev, (newUser as AuthorizedUser).id]);
+      }
+      setQuickAddName('');
+      setQuickAddEmail('');
+    } catch (err) {
+      console.error('Quick add error:', err);
+      setQuickAddError('Failed to add. Please try again.');
+    } finally {
+      setQuickAddSaving(false);
+    }
   };
 
   const toggleDocVisibleTo = (userId: string) => {
@@ -1077,17 +1138,17 @@ const FamilyAccessManager: React.FC = () => {
               <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                 Who Can View This Document
               </Typography>
-              <Button
-                size="small"
-                onClick={() => setDocVisibleTo(users.filter((u) => u.is_active).map((u) => u.id))}
-                sx={{ textTransform: 'none', fontWeight: 500, color: '#8b6914' }}
-              >
-                Select All
-              </Button>
+              {users.filter((u) => u.is_active).length > 0 && (
+                <Button
+                  size="small"
+                  onClick={() => setDocVisibleTo(users.filter((u) => u.is_active).map((u) => u.id))}
+                  sx={{ textTransform: 'none', fontWeight: 500, color: '#8b6914' }}
+                >
+                  Select All
+                </Button>
+              )}
             </Box>
-            {users.filter((u) => u.is_active).length === 0 ? (
-              <Alert severity="info">Add family members first before uploading documents.</Alert>
-            ) : (
+            {users.filter((u) => u.is_active).length > 0 && (
               <FormGroup>
                 {users.filter((u) => u.is_active).map((u) => (
                   <FormControlLabel
@@ -1104,13 +1165,63 @@ const FamilyAccessManager: React.FC = () => {
                 ))}
               </FormGroup>
             )}
-            <Button
-              size="small"
-              onClick={() => setDocVisibleTo([])}
-              sx={{ textTransform: 'none', fontWeight: 500, color: '#6b5c47', mt: 0.5 }}
-            >
-              Clear All
-            </Button>
+
+            {/* Inline quick-add person */}
+            <Box sx={{ mt: 1.5, p: 2, bgcolor: '#f5f5f0', borderRadius: 1, border: '1px solid #e0ddd5' }}>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: '#1a237e', display: 'block', mb: 1 }}>
+                Add a Person
+              </Typography>
+              {quickAddError && <Alert severity="error" sx={{ mb: 1, py: 0 }}>{quickAddError}</Alert>}
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                <TextField
+                  size="small"
+                  label="Name"
+                  placeholder='e.g., "John Smith (Banker)"'
+                  value={quickAddName}
+                  onChange={(e) => setQuickAddName(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ ...folioTextFieldSx, flex: 1, minWidth: 140 }}
+                />
+                <TextField
+                  size="small"
+                  label="Email"
+                  type="email"
+                  placeholder="john@example.com"
+                  value={quickAddEmail}
+                  onChange={(e) => setQuickAddEmail(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ ...folioTextFieldSx, flex: 1, minWidth: 180 }}
+                />
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={handleQuickAddPerson}
+                  disabled={quickAddSaving || !quickAddName.trim() || !quickAddEmail.trim()}
+                  sx={{
+                    borderColor: '#8b6914',
+                    color: '#8b6914',
+                    mt: '2px',
+                    '&:hover': { borderColor: '#6b5c47', bgcolor: '#f9f6f0' },
+                  }}
+                >
+                  {quickAddSaving ? 'Adding...' : 'Add'}
+                </Button>
+              </Box>
+              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.75 }}>
+                This person will be added as an authorized user with basic access. You can edit their permissions later.
+              </Typography>
+            </Box>
+
+            {users.filter((u) => u.is_active).length > 0 && (
+              <Button
+                size="small"
+                onClick={() => setDocVisibleTo([])}
+                sx={{ textTransform: 'none', fontWeight: 500, color: '#6b5c47', mt: 0.5 }}
+              >
+                Clear All
+              </Button>
+            )}
           </FolioFieldFade>
         </Box>
       </FolioModal>
