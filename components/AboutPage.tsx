@@ -239,7 +239,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onNavigateBack }) => (
                   fontFamily: '"Source Sans 3", sans-serif',
                 }}
               >
-                Carl Zacharia has spent more than three decades practicing elder law in both
+                Carl Zacharia has spent more than three decades practicing estate planning, estate administration and elder law in both
                 Pennsylvania and Florida. Over those years, he has helped countless families
                 navigate estate planning, Medicaid planning, long-term care decisions, asset
                 protection, and guardianship matters. His deep experience with the real-world
@@ -272,7 +272,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onNavigateBack }) => (
                   fontFamily: '"Source Sans 3", sans-serif',
                 }}
               >
-                Before his career in law, Carl owned a computer business in Pittsburgh, worked for AT&T Data Systems Group and taught lawyers how to conduct legal research in the early days of computerized legal research.  He was always an avid technology aficionado — a passion he has continued to cultivate for over three decades. That rare combination of legal              expertise and technical skill gave him the ability to envision and build                MyLifeFolio from the ground up: a platform designed by someone who truly                understands both the legal complexities and real world problems families face.  He hassuccessfully employed technology to help solve them. 
+                Before his career in law, Carl owned a computer business in Pittsburgh, worked for AT&T Data Systems Group and taught lawyers how to conduct legal research in the early days of computerized legal research.  This rare combination of legal expertise and technical skill gave him the ability to envision and build MyLifeFolio from the ground up: a platform designed by someone who truly understands both the legal complexities and real world problems families face.   
               </Typography>
               <Typography
                 sx={{
