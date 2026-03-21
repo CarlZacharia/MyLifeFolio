@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyLifeFolio — Everything That Matters, Organized and Protected</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ── Reset & Base ─────────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:     #1a2e4a;
+    --navy-mid: #243d60;
+    --gold:     #b8975a;
+    --gold-lt:  #d4b07a;
+    --gold-pale:#f5efe3;
+    --cream:    #faf8f5;
+    --warm-gray:#6b6560;
+    --text:     #2c2825;
+    --rule:     #d8cfc4;
+    --green:    #2e6e4e;
+    --serif:    'Cormorant Garamond', Georgia, serif;
+    --sans:     'Jost', system-ui, sans-serif;
+    --max:      860px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--cream);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Animations ───────────────────────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────────────────── */
+  .hero {
+    background: var(--navy);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 80% 50%, rgba(184,151,90,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 80% at 10% 80%, rgba(26,46,74,0.8) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  /* decorative vertical rule */
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: 15%;
+    right: 12%;
+    width: 1px;
+    height: 70%;
+    background: linear-gradient(to bottom, transparent, rgba(184,151,90,0.4), transparent);
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 90px 40px 80px;
+    animation: fadeUp 0.9s ease both;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 32px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.8rem, 6vw, 4.2rem);
+    font-weight: 300;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 28px;
+    color: white;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold-lt);
+  }
+
+  .hero-lead {
+    font-family: var(--sans);
+    font-size: 1.05rem;
+    font-weight: 300;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.78);
+    max-width: 620px;
+    margin-bottom: 20px;
+  }
+  .hero-lead2 {
+    font-family: var(--serif);
+    font-size: 1.18rem;
+    font-style: italic;
+    color: rgba(255,255,255,0.6);
+    max-width: 560px;
+    margin-bottom: 48px;
+    line-height: 1.7;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--gold);
+    color: var(--navy);
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 16px 32px;
+    border-radius: 2px;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .hero-cta:hover { background: var(--gold-lt); transform: translateY(-1px); }
+  .hero-cta svg { width: 14px; height: 14px; }
+
+  /* ── Section wrapper ──────────────────────────────────────────────────── */
+  .section {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 72px 40px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section:last-of-type { border-bottom: none; }
+
+  /* ── Section numbers & titles ─────────────────────────────────────────── */
+  .section-num {
+    font-family: var(--serif);
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .section h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+    font-weight: 500;
+    color: var(--navy);
+    line-height: 1.25;
+    margin-bottom: 20px;
+  }
+  .section h2 .sub {
+    display: block;
+    font-size: 0.6em;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+  .section p {
+    font-size: 0.97rem;
+    color: #3a3530;
+    margin-bottom: 16px;
+    line-height: 1.82;
+  }
+  .section p:last-child { margin-bottom: 0; }
+
+  /* ── Rule accent ──────────────────────────────────────────────────────── */
+  .rule-accent {
+    width: 48px;
+    height: 2px;
+    background: var(--gold);
+    margin-bottom: 28px;
+  }
+
+  /* ── Two-col intro ───────────────────────────────────────────────────── */
+  .intro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 640px) { .intro-grid { grid-template-columns: 1fr; gap: 28px; } }
+
+  .intro-quote {
+    font-family: var(--serif);
+    font-size: 1.55rem;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.55;
+    color: var(--navy);
+    border-left: 3px solid var(--gold);
+    padding-left: 24px;
+  }
+
+  /* ── Feature grid (categories overview) ──────────────────────────────── */
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin-top: 40px;
+  }
+  .cat-card {
+    background: var(--cream);
+    padding: 28px 24px;
+    transition: background 0.2s;
+  }
+  .cat-card:hover { background: var(--gold-pale); }
+  .cat-num {
+    font-family: var(--serif);
+    font-size: 0.7rem;
+    font-style: italic;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .cat-title {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .cat-desc {
+    font-size: 0.82rem;
+    color: var(--warm-gray);
+    line-height: 1.65;
+  }
+
+  /* ── Bullet lists ─────────────────────────────────────────────────────── */
+  .bullet-list {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+  }
+  .bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.93rem;
+    color: #3a3530;
+    margin-bottom: 10px;
+    line-height: 1.7;
+  }
+  .bullet-list li::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+    margin-top: 10px;
+  }
+  .bullet-list li strong { color: var(--navy); font-weight: 600; }
+
+  /* ── Sub-category groups ─────────────────────────────────────────────── */
+  .subcat-group {
+    margin-top: 28px;
+  }
+  .subcat-label {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* ── Callout box ─────────────────────────────────────────────────────── */
+  .callout {
+    background: var(--navy);
+    color: white;
+    padding: 36px 40px;
+    margin: 36px 0 0;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+  .callout::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle at top right, rgba(184,151,90,0.18), transparent 70%);
+  }
+  .callout p {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.95rem;
+    margin-bottom: 0;
+  }
+  .callout strong { color: var(--gold-lt); }
+
+  /* ── Example list ────────────────────────────────────────────────────── */
+  .example-list {
+    list-style: none;
+    margin: 20px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .example-list li {
+    background: white;
+    border-left: 3px solid var(--gold);
+    padding: 14px 18px;
+    font-size: 0.9rem;
+    color: #3a3530;
+    line-height: 1.7;
+  }
+  .example-list li strong {
+    display: block;
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+
+  /* ── Platform features area ──────────────────────────────────────────── */
+  .platform-bg {
+    background: #f2ede6;
+  }
+
+  /* ── Security section ────────────────────────────────────────────────── */
+  .security-bg {
+    background: var(--navy);
+    color: white;
+    padding: 80px 40px;
+  }
+  .security-inner {
+    max-width: var(--max);
+    margin: 0 auto;
+  }
+  .security-bg .section-num { color: var(--gold-lt); }
+  .security-bg h2 { color: white; }
+  .security-bg p { color: rgba(255,255,255,0.78); }
+
+  .security-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 40px;
+    background: rgba(255,255,255,0.08);
+  }
+  @media (max-width: 600px) { .security-grid { grid-template-columns: 1fr; } }
+
+  .sec-card {
+    background: rgba(255,255,255,0.04);
+    padding: 28px 26px;
+    border: 1px solid rgba(255,255,255,0.07);
+    transition: background 0.2s;
+  }
+  .sec-card:hover { background: rgba(184,151,90,0.08); }
+  .sec-icon {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .sec-title {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--gold-lt);
+    margin-bottom: 8px;
+  }
+  .sec-desc {
+    font-size: 0.84rem;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.72;
+  }
+
+  .security-summary {
+    margin-top: 40px;
+    border: 1px solid rgba(184,151,90,0.35);
+    padding: 32px 36px;
+    background: rgba(184,151,90,0.07);
+  }
+  .security-summary h3 {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--gold-lt);
+    margin-bottom: 14px;
+  }
+  .security-summary p {
+    font-size: 0.92rem;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 12px;
+  }
+  .security-summary p:last-child { margin-bottom: 0; }
+
+  .candid-note {
+    margin-top: 28px;
+    padding: 24px 28px;
+    background: rgba(255,255,255,0.04);
+    border-left: 3px solid rgba(184,151,90,0.5);
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.6);
+    font-style: italic;
+    line-height: 1.8;
+  }
+
+  /* ── Other platform features ─────────────────────────────────────────── */
+  .mini-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-top: 36px;
+  }
+  @media (max-width: 580px) { .mini-features { grid-template-columns: 1fr; } }
+  .mini-feat {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .mini-feat-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--gold-pale);
+    border: 1px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .mini-feat-body h4 {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .mini-feat-body p {
+    font-size: 0.85rem;
+    color: var(--warm-gray);
+    margin: 0;
+    line-height: 1.65;
+  }
+
+  /* ── Chapter dividers ─────────────────────────────────────────────────── */
+  .chapter-divider {
+    background: var(--navy);
+    padding: 24px 40px;
+    text-align: center;
+  }
+  .chapter-label {
+    font-family: var(--sans);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(184,151,90,0.7);
+  }
+
+  /* ── Footer ───────────────────────────────────────────────────────────── */
+  footer {
+    background: #111a27;
+    color: rgba(255,255,255,0.45);
+    text-align: center;
+    padding: 36px 40px;
+    font-size: 0.8rem;
+    line-height: 1.8;
+  }
+  footer a { color: var(--gold); text-decoration: none; }
+  footer a:hover { color: var(--gold-lt); }
+
+  /* ── Responsive ──────────────────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    .section { padding: 52px 24px; }
+    .hero-inner { padding: 60px 24px 52px; }
+    .security-bg { padding: 60px 24px; }
+    .chapter-divider { padding: 20px 24px; }
+    .callout { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="hero-eyebrow">MyLifeFolio</span>
+    <h1>Everything That Matters,<br><em>Organized and Protected.</em></h1>
+    <p class="hero-lead">
+      A secure, comprehensive life documentation platform that ensures the right
+      people have the right information at exactly the right moment — whether that
+      moment comes during a medical emergency, after a loss, or simply when a loved
+      one needs to step in and help.
+    </p>
+    <p class="hero-lead2">
+      Nothing important lost. Nothing overlooked. Nothing inaccessible.
+    </p>
+    <a href="https://mylifefolio.com" class="hero-cta">
+      Visit MyLifeFolio
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- WHAT IT IS -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="section reveal">
+  <span class="section-num">Introduction</span>
+  <div class="rule-accent"></div>
+  <div class="intro-grid">
+    <div>
+      <h2>What Is<br>MyLifeFolio?</h2>
+      <p>MyLifeFolio is your single source of truth — the platform where you document, organize, and protect everything that matters about your life, your wishes, and your legacy.</p>
+      <p>From vital records and financial accounts to personal wishes, healthcare directives, and end-of-life preferences — it is all in one place, with precisely controlled access for the people who need it.</p>
+    </div>
+    <div>
+      <p class="intro-quote">"The document, the account, the wish, the story — always where it needs to be, always in the hands of the right person."</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- CATEGORIES OVERVIEW -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="chapter-divider">
+  <span class="chapter-label">The 23 Categories of MyLifeFolio</span>
+</div>
+
+<div class="section reveal" style="padding-top: 52px; padding-bottom: 52px;">
+  <p style="color: var(--warm-gray); font-size: 0.93rem; max-width: 640px;">
+    MyLifeFolio organizes your life across 23 comprehensive categories. Every section is designed to capture not just the facts, but the context, the wishes, and the instructions that give those facts meaning.
+  </p>
+  <div class="category-grid">
+
+    <div class="cat-card">
+      <span class="cat-num">01</span>
+      <div class="cat-title">Personal &amp; Identity</div>
+      <p class="cat-desc">Birth certificates, passports, Social Security cards, marriage certificates, licenses — with document numbers, issuing authorities, dates, and physical storage locations.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">02</span>
+      <div class="cat-title">Household Profile</div>
+      <p class="cat-desc">Complete household documentation: owner, spouse or partner, and unlimited children entries with full contact details and relationship notes.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">03</span>
+      <div class="cat-title">Family &amp; Relationships</div>
+      <p class="cat-desc">A living family directory with contact details for every family member — invaluable when an executor or trustee needs to identify and locate beneficiaries.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">04</span>
+      <div class="cat-title">Friends &amp; Neighbors</div>
+      <p class="cat-desc">Your local support network: who has a house key, who knows about your health, who is authorized for welfare checks, and emergency contact priority. This section can be a lifesaver — literally.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">05</span>
+      <div class="cat-title">Professional Advisory Team</div>
+      <p class="cat-desc">Attorneys, CPAs, wealth managers, insurance agents, bankers — with specialties, contact information, and how long each has served you. Your family will know exactly who to call and why.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">06</span>
+      <div class="cat-title">Medical History &amp; Current Care</div>
+      <p class="cat-desc">Conditions, medications, allergies, surgical history, devices, physicians, pharmacies, and insurance — comprehensive documentation that speaks for you when you cannot.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">07</span>
+      <div class="cat-title">Healthcare Preferences &amp; Directives</div>
+      <p class="cat-desc">Preferred hospitals, DNR status, living will specifics, organ donation preferences, and advance directives — with the location of each signed document noted. When seconds matter, your family will not have to guess.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">08</span>
+      <div class="cat-title">Long-Term Care Desires</div>
+      <p class="cat-desc">Preferred care settings, specific facilities, staffing preferences, quality-of-life definitions, and ranked priorities — giving your family permission to act on your wishes rather than argue over them.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">09</span>
+      <div class="cat-title">Mental Health &amp; Cognitive Decline</div>
+      <p class="cat-desc">Memory care preferences, comfort activities, the people who should be most involved in your care, and specific instructions. Leave your loved ones with clarity, not guesswork.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">10</span>
+      <div class="cat-title">Financial Overview</div>
+      <p class="cat-desc">Bank accounts, investments, retirement accounts, life insurance, real estate, vehicles, business interests, digital assets — a complete financial picture with values and document locations.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">11</span>
+      <div class="cat-title">Digital Life</div>
+      <p class="cat-desc">Email, cloud storage, social media, cryptocurrency, and subscriptions — with credentials, two-factor authentication details, and instructions for what should happen to each account. This section alone can save families months of frustration.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">12</span>
+      <div class="cat-title">Income Streams &amp; Recurring Obligations</div>
+      <p class="cat-desc">Pensions, Social Security, rental income, annuities, recurring bills — with amounts, frequencies, and payment details. An executor or surviving spouse will know immediately what is coming in and what must keep going out.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">13</span>
+      <div class="cat-title">Business Interests &amp; Ownership</div>
+      <p class="cat-desc">Active businesses, passive investments, buy-sell agreements, succession plans, key contacts, most recent valuation, and a "First 48 Hours" continuity plan. A business that survives its owner's death requires planning.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">14</span>
+      <div class="cat-title">Royalties &amp; Residual Income</div>
+      <p class="cat-desc">Books, music, patents, oil and gas rights, mineral rights — with payment schedules, annual income, transferability, and tax treatment. These often-overlooked streams can be significant estate assets.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">15</span>
+      <div class="cat-title">Personal Property &amp; Beneficiary Designations</div>
+      <p class="cat-desc">Jewelry, art, antiques, collectibles, wine — with appraised values, provenance, insurance riders, and named beneficiaries. Including instructions for what to do if no one wants an item — and who it must not go to.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">16</span>
+      <div class="cat-title">Firearms</div>
+      <p class="cat-desc">Complete inventory with NFA registration, Form 4/tax stamp details, concealed carry permits, desired recipients, and a legal-transfer flag for each intended recipient. Helps families avoid costly transfer mistakes.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">17</span>
+      <div class="cat-title">Funeral, Burial &amp; Memorial</div>
+      <p class="cat-desc">Your final arrangements on your own terms: burial or cremation preferences, cemetery, funeral home, memorial service wishes, pre-paid arrangements, and contract locations. Spare your family from impossible decisions.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">18</span>
+      <div class="cat-title">Personal Wishes &amp; Legacy</div>
+      <p class="cat-desc">The heart of MyLifeFolio — ethical will, legacy letters, personal history, stories, reflections, cherished memories, legacy videos, and obituary preparation. Not just what you owned, but who you were.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">19</span>
+      <div class="cat-title">Charitable Wishes</div>
+      <p class="cat-desc">Favorite organizations, preferences for memorial donations, scholarship funds, and legacy giving — with personal notes explaining why each cause matters to you. Let your generosity speak for you long after you are gone.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">20</span>
+      <div class="cat-title">Home &amp; Property</div>
+      <p class="cat-desc">Alarm codes, safe combinations, pool and lawn maintenance, vendor contacts, access codes, and service schedules — everything someone needs to manage your home competently and immediately.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">21</span>
+      <div class="cat-title">Club Memberships &amp; Social Commitments</div>
+      <p class="cat-desc">Country club, yacht club, and social organization memberships with transferability, resale value, dues, and key contacts. Also captures board positions and volunteer commitments.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">22</span>
+      <div class="cat-title">Travel &amp; Lifestyle</div>
+      <p class="cat-desc">Frequent flyer and hotel loyalty accounts, timeshares, travel agents — with account numbers and balances. Loyalty balances represent real value; this section ensures they are not abandoned.</p>
+    </div>
+
+    <div class="cat-card">
+      <span class="cat-num">23</span>
+      <div class="cat-title">Pets &amp; Pet Care</div>
+      <p class="cat-desc">Complete pet profiles with vet information, feeding and medication instructions, behavioral notes, designated caretakers, pet trust details, and monthly care costs. The people who love your pets will know exactly how to care for them.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- PLATFORM FEATURES -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="chapter-divider">
+  <span class="chapter-label">Platform-Wide Features</span>
+</div>
+
+<!-- Controlled Access -->
+<div class="section platform-bg reveal">
+  <span class="section-num">Platform Feature — Access Control</span>
+  <div class="rule-accent"></div>
+  <h2>Controlled Family Access
+    <span class="sub">Share exactly what you choose. Nothing more.</span>
+  </h2>
+
+  <p>One of MyLifeFolio's most powerful features is the ability to grant carefully controlled access to family members, friends, advisors, or anyone else you choose — giving each person a window into only the portions of your information you want them to see.</p>
+
+  <p>For each section of MyLifeFolio, you decide the access level. You can keep something entirely private — visible to you alone — or open specific sections to specific people. You are in complete control of who sees what, section by section.</p>
+
+  <p>When you grant someone access, you simply associate their email address with the sections you have chosen to share. When that person needs to view your information — during a health crisis, to help manage your affairs, or simply because you have asked them to — they visit MyLifeFolio, enter their email address, and the system sends a secure one-time access code to that email. When they enter the code, MyLifeFolio identifies them, looks up exactly what you have authorized them to see, and displays only that information. Nothing else. Nothing more.</p>
+
+  <p>There is no separate password to create or remember. There is no risk of accidentally exposing sections you meant to keep private. The system enforces your choices automatically.</p>
+
+  <ul class="example-list">
+    <li>
+      <strong>Adult child assisting with care</strong>
+      Share your Medical History and Healthcare Directives — without giving access to your financial accounts.
+    </li>
+    <li>
+      <strong>Estate planning attorney</strong>
+      Share your Financial Overview and Personal Property — without exposing your Legacy Letters or personal Reflections.
+    </li>
+    <li>
+      <strong>Trusted neighbor</strong>
+      Share your emergency contacts and pet care instructions — while keeping everything else completely private.
+    </li>
+    <li>
+      <strong>Sibling</strong>
+      Share your Funeral and Memorial preferences — so they know your wishes when the time comes.
+    </li>
+  </ul>
+
+  <div class="callout">
+    <p>The result is a system that works the way you actually think about information sharing: not all-or-nothing, but <strong>carefully calibrated to each relationship and each need.</strong></p>
+  </div>
+</div>
+
+<!-- Document Vault -->
+<div class="section platform-bg reveal">
+  <span class="section-num">Platform Feature — Document Storage</span>
+  <div class="rule-accent"></div>
+  <h2>Secure Document Vault
+    <span class="sub">Every critical document, always where it needs to be.</span>
+  </h2>
+
+  <p>The Secure Document Vault lets you upload and store the actual documents that matter most — not just references to them, but the files themselves — directly alongside their corresponding records. When someone needs a document, they will find it immediately, without searching through filing cabinets, desk drawers, or email archives.</p>
+
+  <div class="subcat-group">
+    <div class="subcat-label">Legal &amp; Estate Planning</div>
+    <ul class="bullet-list">
+      <li><strong>Financial Power of Attorney</strong> — the document that authorizes someone to manage your finances if you cannot</li>
+      <li><strong>Healthcare Power of Attorney / Healthcare Surrogate Designation</strong> — naming who makes medical decisions on your behalf</li>
+      <li><strong>Living Will / Advance Healthcare Directive</strong> — your wishes for end-of-life care, in writing</li>
+      <li><strong>Five Wishes</strong> — the widely recognized document addressing medical, personal, emotional, and spiritual preferences</li>
+      <li><strong>POLST</strong> (Physician Orders for Life-Sustaining Treatment) — the physician-signed medical order that travels with you and speaks for you in emergency settings</li>
+      <li>Revocable Living Trust agreement</li>
+      <li>Last Will and Testament</li>
+      <li>Guardianship designations for minor children</li>
+    </ul>
+  </div>
+
+  <div class="subcat-group">
+    <div class="subcat-label">Financial &amp; Property Documents</div>
+    <ul class="bullet-list">
+      <li>Deeds to real estate</li>
+      <li>Vehicle titles</li>
+      <li>Life insurance policies</li>
+      <li>Brokerage and retirement account statements</li>
+      <li>Business formation documents, operating agreements, and buy-sell agreements</li>
+      <li>Appraisals for real estate and personal property</li>
+    </ul>
+  </div>
+
+  <div class="subcat-group">
+    <div class="subcat-label">Identity &amp; Administrative Documents</div>
+    <ul class="bullet-list">
+      <li>Birth certificates</li>
+      <li>Passports and Social Security cards</li>
+      <li>Marriage and divorce certificates</li>
+      <li>Military discharge papers (DD-214)</li>
+      <li>Medicare and insurance cards</li>
+      <li>Pre-paid funeral contracts</li>
+    </ul>
+  </div>
+
+  <div class="callout">
+    <p>Your family, your attorney, your trustee, or your agent under a power of attorney can access exactly what they need — <strong>immediately, from anywhere</strong> — rather than discovering too late that the document they need is nowhere to be found.</p>
+  </div>
+</div>
+
+<!-- Credential Vault -->
+<div class="section platform-bg reveal">
+  <span class="section-num">Platform Feature — Credential Security</span>
+  <div class="rule-accent"></div>
+  <h2>Credential Vault
+    <span class="sub">Secure access to your online life — when your family needs it most.</span>
+  </h2>
+
+  <p>The Credential Vault is a dedicated, encrypted space for storing the login credentials your family will need to access your online accounts — after you are gone, or if you become unable to manage them yourself. These are not just passwords. They are the keys to significant portions of your financial, personal, and creative life that exist entirely online.</p>
+
+  <p>For each account, store the service name, username or email address, password, two-factor authentication method, recovery phone or email, and any special access notes. Without this information, families routinely lose access to priceless photographs, significant financial accounts, and meaningful digital content — permanently.</p>
+
+  <div class="subcat-group">
+    <div class="subcat-label">Photos &amp; Memories</div>
+    <ul class="bullet-list">
+      <li>iCloud Photos — potentially decades of irreplaceable family photographs</li>
+      <li>Google Photos, Amazon Photos</li>
+      <li>Shutterfly, Snapfish, Flickr, and other photo platforms</li>
+    </ul>
+  </div>
+
+  <div class="subcat-group">
+    <div class="subcat-label">Financial &amp; Banking</div>
+    <ul class="bullet-list">
+      <li>Online banking portals</li>
+      <li>Investment and brokerage accounts (Fidelity, Schwab, Vanguard, and others)</li>
+      <li>Retirement account portals</li>
+      <li>PayPal, Venmo, Cash App, and other payment platforms</li>
+      <li>Credit card online accounts</li>
+    </ul>
+  </div>
+
+  <div class="subcat-group">
+    <div class="subcat-label">Email &amp; Communications</div>
+    <ul class="bullet-list">
+      <li>Gmail, Outlook, Yahoo Mail, and other email accounts</li>
+      <li>Text message archives backed up to cloud services</li>
+    </ul>
+  </div>
+
+  <div class="subcat-group">
+    <div class="subcat-label">Cloud Storage &amp; Productivity</div>
+    <ul class="bullet-list">
+      <li>iCloud Drive, Google Drive, Dropbox, OneDrive</li>
+      <li>Microsoft 365 or Google Workspace accounts</li>
+      <li>Password manager accounts — which may themselves unlock dozens of others</li>
+    </ul>
+  </div>
+
+  <div class="subcat-group">
+    <div class="subcat-label">Social Media &amp; Online Identity</div>
+    <ul class="bullet-list">
+      <li>Facebook, Instagram, X (Twitter), LinkedIn, TikTok, YouTube, Pinterest</li>
+      <li>Personal blogs or websites</li>
+    </ul>
+  </div>
+
+  <div class="subcat-group">
+    <div class="subcat-label">Subscriptions &amp; Entertainment</div>
+    <ul class="bullet-list">
+      <li>Netflix, Hulu, Disney+, Apple TV+, and other streaming services</li>
+      <li>Spotify, Apple Music, Audible, and other media subscriptions</li>
+      <li>Amazon Prime and shopping accounts</li>
+      <li>Newspaper and magazine subscriptions</li>
+    </ul>
+  </div>
+
+  <div class="subcat-group">
+    <div class="subcat-label">Digital Assets</div>
+    <ul class="bullet-list">
+      <li>Cryptocurrency exchange accounts (Coinbase, Kraken, and others)</li>
+      <li>Digital wallet addresses and recovery phrases</li>
+      <li>NFT platforms and domain name registrars</li>
+    </ul>
+  </div>
+
+  <div class="subcat-group">
+    <div class="subcat-label">Health &amp; Professional</div>
+    <ul class="bullet-list">
+      <li>MyChart and patient portal accounts</li>
+      <li>Fitness apps and wearable device accounts (Fitbit, Apple Health, Peloton)</li>
+      <li>Life insurance company portals</li>
+      <li>LinkedIn, professional associations, and freelance platform accounts</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Custom Reports -->
+<div class="section platform-bg reveal">
+  <span class="section-num">Platform Feature — Custom Reporting</span>
+  <div class="rule-accent"></div>
+  <h2>Custom Reports
+    <span class="sub">Share precisely what each person needs — nothing more, nothing less.</span>
+  </h2>
+
+  <p>The Custom Reports feature gives you the ability to create tailored, shareable snapshots of your MyLifeFolio information — built around exactly what a specific person or situation requires.</p>
+
+  <p>The level of control is granular. You can build a report that includes an entire section — say, your complete Financial Overview — or go deeper and select only specific categories within a section, or even individual items within a category. Want to share your bank accounts and retirement accounts but not your investment accounts or life insurance? You can do that. Want to include only the medications list from your Medical History, without sharing your diagnoses or surgical history? That is possible too. You define the report; the platform assembles it.</p>
+
+  <p>Once configured, save your report with a name of your choosing. That saved report is always available to regenerate on demand — reflecting your most current information every time it is produced. Create as many report configurations as you need, each tailored to a different recipient or purpose.</p>
+
+  <ul class="example-list">
+    <li>
+      <strong>For your estate planning attorney</strong>
+      Financial Overview, Real Estate, Business Interests, Personal Property, and Beneficiary Designations — everything needed to review your plan, without personal medical or legacy content.
+    </li>
+    <li>
+      <strong>For your primary care physician</strong>
+      Current medications, allergies, conditions and diagnoses, and healthcare directives — nothing more.
+    </li>
+    <li>
+      <strong>For a successor trustee or executor</strong>
+      A comprehensive report: financial accounts, real estate, business interests, digital assets, income and obligations, and the location of key legal documents.
+    </li>
+    <li>
+      <strong>For an adult child assisting with your care</strong>
+      Medical history, current physicians, healthcare preferences, long-term care wishes, and emergency contacts.
+    </li>
+    <li>
+      <strong>For a family meeting</strong>
+      A high-level overview — household information, key contacts, and general financial structure — enough context without sensitive details.
+    </li>
+    <li>
+      <strong>For yourself</strong>
+      A complete, full-platform report serving as your personal master reference document.
+    </li>
+  </ul>
+</div>
+
+<!-- Other features -->
+<div class="section platform-bg reveal">
+  <span class="section-num">Platform Feature — Additional Tools</span>
+  <div class="rule-accent"></div>
+  <h2>More Platform Features</h2>
+  <div class="mini-features">
+    <div class="mini-feat">
+      <div class="mini-feat-icon">🔊</div>
+      <div class="mini-feat-body">
+        <h4>Audio Help Guides</h4>
+        <p>Built-in audio guides walk you through each section so you always know what to enter and why.</p>
+      </div>
+    </div>
+    <div class="mini-feat">
+      <div class="mini-feat-icon">🧭</div>
+      <div class="mini-feat-body">
+        <h4>Onboarding Wizard</h4>
+        <p>A guided setup process gets you started quickly and confidently, step by step.</p>
+      </div>
+    </div>
+    <div class="mini-feat">
+      <div class="mini-feat-icon">📊</div>
+      <div class="mini-feat-body">
+        <h4>Progress Tracking</h4>
+        <p>A dashboard shows your completion percentage across all categories so you always know where you stand.</p>
+      </div>
+    </div>
+    <div class="mini-feat">
+      <div class="mini-feat-icon">📱</div>
+      <div class="mini-feat-body">
+        <h4>Responsive Design</h4>
+        <p>Works seamlessly on desktop, tablet, and mobile — wherever life takes you.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- SECURITY -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="chapter-divider">
+  <span class="chapter-label">Security &amp; Data Protection</span>
+</div>
+
+<div class="security-bg reveal">
+  <div class="security-inner">
+    <span class="section-num">Your Data Is Safe</span>
+    <div class="rule-accent" style="background: var(--gold);"></div>
+    <h2>How We Protect<br><em style="font-family: var(--serif); font-style: italic; color: var(--gold-lt);">Everything You Entrust to Us</em></h2>
+    <p style="max-width: 640px; margin-bottom: 8px;">You are being asked to store some of the most personal information you own — family details, financial accounts, medical records, legal documents, end-of-life wishes, and online credentials. We take that responsibility with the seriousness it deserves. Here is a transparent account of the protections we have implemented at every layer of the platform.</p>
+
+    <div class="security-grid">
+      <div class="sec-card">
+        <span class="sec-icon">🌐</span>
+        <div class="sec-title">Infrastructure &amp; Network Protection</div>
+        <p class="sec-desc">All traffic is routed through an enterprise-grade global security network with DDoS protection, a Web Application Firewall (WAF) blocking OWASP Top 10 threats, bot protection on all login forms, and always-on HTTPS with automatic redirect of unencrypted requests.</p>
+      </div>
+      <div class="sec-card">
+        <span class="sec-icon">🗄️</span>
+        <div class="sec-title">Row-Level Database Security</div>
+        <p class="sec-desc">Every data table enforces security at the individual row level — at the database itself, not just the application layer. The database ensures you can only read, create, update, or delete your own data. Even if application code had a bug, the database would still block unauthorized access.</p>
+      </div>
+      <div class="sec-card">
+        <span class="sec-icon">🔐</span>
+        <div class="sec-title">Three Layers of Encryption</div>
+        <p class="sec-desc"><strong style="color:var(--gold-lt)">Layer 1:</strong> Encryption in transit (HTTPS). <strong style="color:var(--gold-lt)">Layer 2:</strong> Encryption at rest — all stored data is encrypted even if physical storage were compromised. <strong style="color:var(--gold-lt)">Layer 3:</strong> Client-side field encryption for the Credential Vault — passwords are encrypted in your browser before they ever leave your device, using the same class of encryption used by governments and financial institutions.</p>
+      </div>
+      <div class="sec-card">
+        <span class="sec-icon">🔑</span>
+        <div class="sec-title">Your Passphrase, Your Key</div>
+        <p class="sec-desc">Encryption keys for the Credential Vault are derived from a passphrase only you know. We never see or store it. Without it, the encrypted data is unreadable — even to us. A one-time recovery key is generated at setup; if you lose both, we cannot decrypt your vault. This is by design.</p>
+      </div>
+      <div class="sec-card">
+        <span class="sec-icon">✅</span>
+        <div class="sec-title">Authentication &amp; Session Security</div>
+        <p class="sec-desc">Email verification is required before access. Secure one-time codes eliminate password reuse risk. Re-authentication is required to access sensitive sections — protecting against someone accessing an unlocked device. Token-based sessions cannot be forged.</p>
+      </div>
+      <div class="sec-card">
+        <span class="sec-icon">👁️</span>
+        <div class="sec-title">Family Access Audit Trail</div>
+        <p class="sec-desc">Every family member access is logged with date, time, who accessed, and which sections they viewed. Highly sensitive data like Social Security numbers is automatically masked even for authorized family members. Access can be revoked with a single click, effective immediately.</p>
+      </div>
+      <div class="sec-card">
+        <span class="sec-icon">💳</span>
+        <div class="sec-title">PCI Level 1 Payment Security</div>
+        <p class="sec-desc">All billing is handled by a PCI DSS Level 1 certified payment processor — the highest level of payment security certification in the industry. Your card numbers and billing details never touch our servers or database.</p>
+      </div>
+      <div class="sec-card">
+        <span class="sec-icon">🛡️</span>
+        <div class="sec-title">Document &amp; File Storage</div>
+        <p class="sec-desc">Uploaded documents are stored in private, non-public storage — no publicly accessible URLs. Each user's files are isolated from all others. Only permitted file types can be uploaded. All stored files are encrypted at rest.</p>
+      </div>
+    </div>
+
+    <div class="security-summary">
+      <h3>Security at a Glance</h3>
+      <p>Your data is protected by a global security network with DDoS protection and a web application firewall · row-level security enforced at the database on every table · three layers of encryption: in transit, at rest, and client-side field encryption for your most sensitive credentials · re-authentication requirements for sensitive sections · comprehensive browser security policies · PCI Level 1 payment processing · a complete audit trail of all family access · secret keys that are never exposed to the browser.</p>
+    </div>
+
+    <div class="candid-note">
+      <strong style="font-style:normal; color: rgba(255,255,255,0.7);">A candid note:</strong> No platform in the world can promise 100% absolute security, and anyone who makes that claim is not being truthful. What we can promise is that we have implemented industry-leading practices at every layer of this platform — from the network edge to the database row. We continuously monitor for emerging threats, apply security updates promptly, and treat your data with the same care we would want for our own families' most personal information. Questions about our security practices are always welcome at <a href="mailto:carl@SeniorCareRes.com" style="color: var(--gold-lt);">carl@SeniorCareRes.com</a>.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<footer>
+  <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(255,255,255,0.6); margin-bottom: 10px;">MyLifeFolio</p>
+  <p>Questions? Contact us at <a href="mailto:carl@SeniorCareRes.com">carl@SeniorCareRes.com</a></p>
+  <p style="margin-top: 16px; font-size: 0.75rem; color: rgba(255,255,255,0.25);">&copy; 2026 MyLifeFolio. All rights reserved.</p>
+</footer>
+
+<!-- ── Scroll reveal ───────────────────────────────────────────────────── -->
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.07 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
