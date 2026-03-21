@@ -53,6 +53,8 @@ import LifeStoriesHelpModal from './LifeStoriesHelpModal';
 import VideoLegacyHelpModal from './VideoLegacyHelpModal';
 import MemoryVaultHelpModal from './MemoryVaultHelpModal';
 import CharitableWishesHelpModal from './CharitableWishesHelpModal';
+import CustomReportsHelpModal from './CustomReportsHelpModal';
+import FamilyAccessHelpModal from './FamilyAccessHelpModal';
 
 const theme = createTheme({
   palette: {
@@ -170,12 +172,16 @@ const folioGuideCategories: {
   {
     id: 'reports', title: 'Reports',
     icon: <LibraryBooksIcon />, accentColor: '#455a64',
-    topics: [],
+    topics: [
+      { id: 'custom-reports', title: 'Custom Reports', description: 'Learn how to build, save, and share custom reports from any combination of folio sections.' },
+    ],
   },
   {
     id: 'family-access', title: 'Family Access Portal',
     icon: <FamilyRestroomIcon />, accentColor: '#1a237e',
-    topics: [],
+    topics: [
+      { id: 'family-access-guide', title: 'Family Access', description: 'Learn how to grant family members secure, controlled access to your folio.' },
+    ],
   },
 ];
 
@@ -550,6 +556,14 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({
       />
       <CharitableWishesHelpModal
         open={helpModal === 'charitable-wishes'}
+        onClose={() => setHelpModal(null)}
+      />
+      <CustomReportsHelpModal
+        open={helpModal === 'custom-reports'}
+        onClose={() => setHelpModal(null)}
+      />
+      <FamilyAccessHelpModal
+        open={helpModal === 'family-access-guide'}
         onClose={() => setHelpModal(null)}
       />
     </ThemeProvider>

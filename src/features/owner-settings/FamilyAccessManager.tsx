@@ -20,6 +20,8 @@ import ImageIcon from '@mui/icons-material/Image';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import DescriptionIcon from '@mui/icons-material/Description';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import FamilyAccessHelpModal from '../../../components/FamilyAccessHelpModal';
 import FolioModal, {
   folioTextFieldSx,
   FolioCancelButton,
@@ -115,6 +117,7 @@ const FamilyAccessManager: React.FC = () => {
   const { user } = useAuth();
   const { formData } = useFormContext();
   const [tab, setTab] = useState(0);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [users, setUsers] = useState<AuthorizedUser[]>([]);
   const [logs, setLogs] = useState<AccessLogEntry[]>([]);
   const [documents, setDocuments] = useState<FolioDocument[]>([]);
@@ -485,9 +488,25 @@ const FamilyAccessManager: React.FC = () => {
   return (
     <Paper sx={{ p: 3, borderRadius: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h5" sx={{ color: '#1a237e', fontWeight: 600 }}>
-          Family Access
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Typography variant="h5" sx={{ color: '#1a237e', fontWeight: 600 }}>
+            Family Access
+          </Typography>
+          <IconButton
+            onClick={() => setHelpOpen(true)}
+            size="small"
+            sx={{
+              bgcolor: '#1a1a1a',
+              color: '#c9a227',
+              width: 28,
+              height: 28,
+              '&:hover': { bgcolor: '#333' },
+            }}
+            title="Audio guide"
+          >
+            <VolumeUpIcon sx={{ fontSize: 20 }} />
+          </IconButton>
+        </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           {tab === 2 && (
             <Button
@@ -1021,6 +1040,8 @@ const FamilyAccessManager: React.FC = () => {
           </FolioFieldFade>
         </Box>
       </FolioModal>
+
+      <FamilyAccessHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
     </Paper>
   );
 };

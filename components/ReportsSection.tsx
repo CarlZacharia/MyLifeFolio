@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import {
   Box,
+  IconButton,
   List,
   ListItemButton,
   ListItemIcon,
@@ -41,9 +42,11 @@ import WhatToDoIfIDie from '../src/features/family-access/reports/WhatToDoIfIDie
 import FamilyBriefingReport from '../src/features/family-access/reports/Familybriefingreport';
 import DigitalLifeSummary from '../src/features/family-access/reports/DigitalLifeSummary';
 import PersonalPropertyMemorandum from '../src/features/family-access/reports/PersonalPropertyMemorandum';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
 import { reportsHelp } from './folioHelpContent';
 import CustomReportBuilder from './CustomReportBuilder';
+import CustomReportsHelpModal from './CustomReportsHelpModal';
 
 // ─── Report definitions ──────────────────────────────────────────────────────
 
@@ -254,12 +257,14 @@ const ReportsSection = () => {
   const [activeTab, setActiveTab] = useState<0 | 1>(0);
   const data = useReportData();
   const { showHelp, openHelp, closeHelp } = useFolioHelp();
+  const [customReportsHelpOpen, setCustomReportsHelpOpen] = useState(false);
 
   const rendered = activeReport ? renderReportById(activeReport, data) : null;
 
   return (
     <Box sx={{ minHeight: 600 }}>
       <FolioHelpModal open={showHelp} onClose={closeHelp} content={reportsHelp} />
+      <CustomReportsHelpModal open={customReportsHelpOpen} onClose={() => setCustomReportsHelpOpen(false)} />
 
       {/* ── Tab toggle ── */}
       <Box
@@ -294,6 +299,23 @@ const ReportsSection = () => {
         </Tabs>
         {activeTab === 0 && (
           <FolioHelpButton onClick={openHelp} accentColor={folioColors.accent} tooltip="Reports help" />
+        )}
+        {activeTab === 1 && (
+          <IconButton
+            onClick={() => setCustomReportsHelpOpen(true)}
+            size="small"
+            sx={{
+              ml: 0.5,
+              bgcolor: '#1a1a1a',
+              color: '#c9a227',
+              width: 28,
+              height: 28,
+              '&:hover': { bgcolor: '#333' },
+            }}
+            title="Audio guide"
+          >
+            <VolumeUpIcon sx={{ fontSize: 20 }} />
+          </IconButton>
         )}
       </Box>
 
