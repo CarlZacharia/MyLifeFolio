@@ -300,15 +300,17 @@ const LegacyMemoryModal: React.FC<Props> = ({
           </Box>
         </FolioFieldFade>
 
-        {/* ── External Link ── */}
-        <FolioFieldFade visible={fieldsVisible} index={idx++}>
-          <TextField label="Photo / Media Link" value={data.mediaUrl}
-            onChange={(e) => handleChange({ mediaUrl: e.target.value })}
-            InputLabelProps={{ shrink: true }} fullWidth
-            placeholder="Google Photos, Dropbox, or cloud link"
-            helperText="You can also link to an external album or cloud folder"
-            sx={{ ...folioTextFieldSx }} />
-        </FolioFieldFade>
+        {/* ── External Link (hidden when files are attached) ── */}
+        {pendingFiles.length === 0 && (data.files?.length || 0) === 0 && (
+          <FolioFieldFade visible={fieldsVisible} index={idx++}>
+            <TextField label="Photo / Media Link" value={data.mediaUrl}
+              onChange={(e) => handleChange({ mediaUrl: e.target.value })}
+              InputLabelProps={{ shrink: true }} fullWidth
+              placeholder="Google Photos, Dropbox, or cloud link"
+              helperText="You can also link to an external album or cloud folder"
+              sx={{ ...folioTextFieldSx }} />
+          </FolioFieldFade>
+        )}
       </Box>
     </FolioModal>
   );

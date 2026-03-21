@@ -3,20 +3,27 @@
 import React, { useState } from 'react';
 import {
   Box, Button, Card, CardContent, Chip, IconButton, Typography, Paper,
-  Snackbar, CircularProgress,
+  Snackbar, CircularProgress, Dialog, DialogContent,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import ImageIcon from '@mui/icons-material/Image';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import CloseIcon from '@mui/icons-material/Close';
 import { useFormContext } from '../lib/FormContext';
 import { folioColors } from './FolioModal';
-import LegacyMemoryModal, { MemoryData } from './LegacyMemoryModal';
+import LegacyMemoryModal, { MemoryData, MemoryFileAttachment } from './LegacyMemoryModal';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import MemoryVaultHelpModal from './MemoryVaultHelpModal';
-import { uploadMemoryFile, deleteMemoryFile, generateClientFolderName } from '../lib/supabaseStorage';
+import { uploadMemoryFile, deleteMemoryFile, generateClientFolderName, getDownloadUrl } from '../lib/supabaseStorage';
 
 const MAX_TOTAL_FILES = 20;
+
+function isImageType(type: string): boolean {
+  return type.startsWith('image/');
+}
 
 const LegacyMemoryVaultTab = () => {
   const { formData, updateFormData } = useFormContext();
@@ -29,14 +36,41 @@ const LegacyMemoryVaultTab = () => {
   const [uploading, setUploading] = useState(false);
   const [snackMsg, setSnackMsg] = useState('');
 
+  // Image viewer state
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerUrl, setViewerUrl] = useState('');
+  const [viewerName, setViewerName] = useState('');
+  const [viewerLoading, setViewerLoading] = useState(false);
+
   const clientFolderName = formData.name ? generateClientFolderName(formData.name) : undefined;
 
   // Global file count across all memories
-  const totalFileCount = memories.reduce((sum, m) => sum + ((m.files as Array<{ path: string; name: string; size: number; type: string }>)?.length || 0), 0);
+  const totalFileCount = memories.reduce((sum, m) => sum + ((m.files as MemoryFileAttachment[])?.length || 0), 0);
 
   const openAdd = () => { setIsEdit(false); setEditIndex(null); setModalOpen(true); };
   const openEdit = (i: number) => { setIsEdit(true); setEditIndex(i); setModalOpen(true); };
   const closeModal = () => { setModalOpen(false); setIsEdit(false); setEditIndex(null); };
+
+  const handleFileClick = async (file: MemoryFileAttachment) => {
+    setViewerLoading(true);
+
+    const result = await getDownloadUrl(file.path);
+    if (!result.success || !result.url) {
+      setSnackMsg('Unable to load file. Please try again.');
+      setViewerLoading(false);
+      return;
+    }
+
+    if (isImageType(file.type)) {
+      setViewerName(file.name);
+      setViewerUrl(result.url);
+      setViewerOpen(true);
+    } else {
+      // PDFs and other non-image files open in a new tab
+      window.open(result.url, '_blank', 'noopener,noreferrer');
+    }
+    setViewerLoading(false);
+  };
 
   const handleSave = async (data: MemoryData, pendingFiles: File[]) => {
     // Handle removed files (cleanup storage)
@@ -90,7 +124,7 @@ const LegacyMemoryVaultTab = () => {
     if (editIndex !== null) {
       // Clean up storage for all files in this memory
       const memory = memories[editIndex];
-      const files = (memory.files as Array<{ path: string; name: string; size: number; type: string }>) || [];
+      const files = (memory.files as MemoryFileAttachment[]) || [];
       for (const file of files) {
         if (file.path) await deleteMemoryFile(file.path);
       }
@@ -137,14 +171,15 @@ const LegacyMemoryVaultTab = () => {
       {memories.length > 0 ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           {memories.map((memory, i) => {
-            const fileCount = ((memory.files as Array<{ path: string; name: string; size: number; type: string }>) || []).length;
+            const files = (memory.files as MemoryFileAttachment[]) || [];
+            const fileCount = files.length;
             return (
               <Card key={i} variant="outlined" sx={{ '&:hover': { borderColor: folioColors.accentWarm }, transition: 'border-color 0.2s' }}>
                 <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0 }}>
-                      <PhotoLibraryIcon sx={{ color: folioColors.accent, fontSize: 24 }} />
-                      <Box sx={{ minWidth: 0 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, flex: 1, minWidth: 0 }}>
+                      <PhotoLibraryIcon sx={{ color: folioColors.accent, fontSize: 24, mt: 0.25 }} />
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                           <Typography variant="subtitle1" sx={{ fontWeight: 600, lineHeight: 1.3 }}>
                             {memory.memoryTitle}
@@ -169,9 +204,41 @@ const LegacyMemoryVaultTab = () => {
                             ))}
                           </Box>
                         )}
+
+                        {/* Clickable file list */}
+                        {fileCount > 0 && (
+                          <Box sx={{ display: 'flex', gap: 0.75, mt: 1, flexWrap: 'wrap' }}>
+                            {files.map((file, fi) => (
+                              <Chip
+                                key={file.path || fi}
+                                icon={isImageType(file.type)
+                                  ? <ImageIcon sx={{ fontSize: 16 }} />
+                                  : <InsertDriveFileIcon sx={{ fontSize: 16 }} />}
+                                label={file.name}
+                                size="small"
+                                onClick={() => handleFileClick(file)}
+                                sx={{
+                                  cursor: 'pointer',
+                                  maxWidth: 200,
+                                  height: 26,
+                                  fontSize: '0.75rem',
+                                  fontWeight: 500,
+                                  bgcolor: isImageType(file.type) ? '#f3e8ff' : '#e3f2fd',
+                                  color: isImageType(file.type) ? '#7b2cbf' : '#1565c0',
+                                  '& .MuiChip-icon': {
+                                    color: isImageType(file.type) ? '#7b2cbf' : '#1565c0',
+                                  },
+                                  '&:hover': {
+                                    bgcolor: isImageType(file.type) ? '#e9d5ff' : '#bbdefb',
+                                  },
+                                }}
+                              />
+                            ))}
+                          </Box>
+                        )}
                       </Box>
                     </Box>
-                    <IconButton size="small" onClick={() => openEdit(i)} sx={{ color: folioColors.inkLight }}>
+                    <IconButton size="small" onClick={() => openEdit(i)} sx={{ color: folioColors.inkLight, mt: 0.25 }}>
                       <EditIcon fontSize="small" />
                     </IconButton>
                   </Box>
@@ -201,6 +268,53 @@ const LegacyMemoryVaultTab = () => {
         isEdit={isEdit}
         totalFileCount={totalFileCount}
       />
+
+      {/* ── Image Viewer Dialog ── */}
+      <Dialog
+        open={viewerOpen}
+        onClose={() => { setViewerOpen(false); setViewerUrl(''); }}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3, bgcolor: '#1a1a1a', overflow: 'hidden' } }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, pt: 1.5, pb: 1 }}>
+          <Typography variant="subtitle1" sx={{ color: 'white', fontWeight: 600, fontSize: '0.95rem' }}>
+            {viewerName}
+          </Typography>
+          <IconButton onClick={() => { setViewerOpen(false); setViewerUrl(''); }} sx={{ color: 'white' }}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <DialogContent sx={{ p: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: '#111' }}>
+          {viewerUrl && (
+            <Box
+              component="img"
+              src={viewerUrl}
+              alt={viewerName}
+              sx={{
+                maxWidth: '100%',
+                maxHeight: '75vh',
+                objectFit: 'contain',
+                display: 'block',
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Loading indicator for file fetching */}
+      {viewerLoading && (
+        <Box sx={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          bgcolor: 'rgba(0,0,0,0.3)', zIndex: 9999,
+          display: 'flex', justifyContent: 'center', alignItems: 'center',
+        }}>
+          <Box sx={{ bgcolor: 'white', borderRadius: 2, px: 3, py: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <CircularProgress size={20} />
+            <Typography variant="body2">Loading file...</Typography>
+          </Box>
+        </Box>
+      )}
 
       <Snackbar
         open={!!snackMsg}
