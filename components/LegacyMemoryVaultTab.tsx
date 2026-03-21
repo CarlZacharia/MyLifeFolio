@@ -17,7 +17,7 @@ import { folioColors } from './FolioModal';
 import LegacyMemoryModal, { MemoryData, MemoryFileAttachment } from './LegacyMemoryModal';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import MemoryVaultHelpModal from './MemoryVaultHelpModal';
-import { uploadMemoryFile, deleteMemoryFile, generateClientFolderName, getDownloadUrl } from '../lib/supabaseStorage';
+import { uploadMemoryFile, deleteMemoryFile, generateClientFolderName, downloadFile } from '../lib/supabaseStorage';
 
 const MAX_TOTAL_FILES = 20;
 
@@ -54,20 +54,24 @@ const LegacyMemoryVaultTab = () => {
   const handleFileClick = async (file: MemoryFileAttachment) => {
     setViewerLoading(true);
 
-    const result = await getDownloadUrl(file.path);
-    if (!result.success || !result.url) {
+    const blob = await downloadFile(file.path);
+    if (!blob) {
       setSnackMsg('Unable to load file. Please try again.');
       setViewerLoading(false);
       return;
     }
 
+    const objectUrl = URL.createObjectURL(blob);
+
     if (isImageType(file.type)) {
+      // Revoke any previous object URL
+      if (viewerUrl) URL.revokeObjectURL(viewerUrl);
       setViewerName(file.name);
-      setViewerUrl(result.url);
+      setViewerUrl(objectUrl);
       setViewerOpen(true);
     } else {
       // PDFs and other non-image files open in a new tab
-      window.open(result.url, '_blank', 'noopener,noreferrer');
+      window.open(objectUrl, '_blank', 'noopener,noreferrer');
     }
     setViewerLoading(false);
   };
@@ -272,7 +276,7 @@ const LegacyMemoryVaultTab = () => {
       {/* ── Image Viewer Dialog ── */}
       <Dialog
         open={viewerOpen}
-        onClose={() => { setViewerOpen(false); setViewerUrl(''); }}
+        onClose={() => { setViewerOpen(false); if (viewerUrl) URL.revokeObjectURL(viewerUrl); setViewerUrl(''); }}
         maxWidth="md"
         fullWidth
         PaperProps={{ sx: { borderRadius: 3, bgcolor: '#1a1a1a', overflow: 'hidden' } }}
