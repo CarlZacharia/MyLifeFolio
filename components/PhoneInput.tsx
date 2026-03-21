@@ -2,34 +2,18 @@
 
 import React from 'react';
 import { TextField, TextFieldProps } from '@mui/material';
-import { IMaskInput } from 'react-imask';
 
-interface PhoneMaskProps {
-  onChange: (event: { target: { name: string; value: string } }) => void;
-  name: string;
-  value?: string;
+/**
+ * Format a string of digits into (XXX) XXX-XXXX phone format.
+ * Accepts any input — non-digit characters are stripped automatically.
+ */
+function formatPhoneValue(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  if (digits.length === 0) return '';
+  if (digits.length <= 3) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
 }
-
-const PhoneMaskCustom = React.forwardRef<HTMLInputElement, PhoneMaskProps>(
-  function PhoneMaskCustom(props, ref) {
-    const { onChange, name, value, ...other } = props;
-    return (
-      <IMaskInput
-        {...other}
-        value={value || ''}
-        mask="(000) 000-0000"
-        definitions={{
-          '0': /[0-9]/,
-        }}
-        inputRef={ref}
-        onAccept={(acceptedValue: string) =>
-          onChange({ target: { name, value: acceptedValue } })
-        }
-        overwrite
-      />
-    );
-  }
-);
 
 interface PhoneInputProps extends Omit<TextFieldProps, 'onChange'> {
   value: string;
@@ -43,20 +27,24 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   name = 'phone',
   ...props
 }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneValue(e.target.value);
+    // Create a synthetic event with the formatted value
+    const syntheticEvent = {
+      ...e,
+      target: { ...e.target, name, value: formatted },
+    } as React.ChangeEvent<HTMLInputElement>;
+    onChange(syntheticEvent);
+  };
+
   return (
     <TextField
       {...props}
       value={value}
-      onChange={onChange}
+      onChange={handleChange}
       name={name}
-      InputProps={{
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        inputComponent: PhoneMaskCustom as any,
-        /* eslint-enable @typescript-eslint/no-explicit-any */
-        inputProps: {
-          name,
-        },
-      }}
+      inputProps={{ maxLength: 14 }}
+      placeholder="(___) ___-____"
     />
   );
 };
