@@ -404,7 +404,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                     ))}
                   </Box>
                   <Link component="button" onClick={() => setSecurityOpen(true)} underline="hover" sx={{ color: alpha('#fff', 0.6), fontSize: '0.78rem', fontFamily: '"Source Sans 3", sans-serif', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', width: 'fit-content' }}>
-                    About Security →
+                    About MyLifeFolio Security →
                   </Link>
                 </Box>
               </Grid>

@@ -100,7 +100,7 @@ const SecurityInfoModal: React.FC<SecurityInfoModalProps> = ({ open, onClose }) 
         MyLifeFolio stores some of the most personal information you own &mdash; your
         family details, financial accounts, medical data, legal documents, and end-of-life
         wishes. We take that responsibility seriously. Below is a transparent account
-        of the security measures we have implemented at every layer of the platform.
+        of the security measures we have implemented at every layer of the platform.  There are very few items that are required in MyLifeFolio. If entering information makes you uneasy or concerned, chances are you will not have to enter anything in that field or fields. 
       </Typography>
 
       <Chip
