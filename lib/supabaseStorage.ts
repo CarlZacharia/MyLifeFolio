@@ -23,6 +23,7 @@ export const FOLDERS = {
   NEW_PLAN_REPORTS: 'new-plan-reports',
   LEGACY_OBITUARY: 'legacy/obituary',
   LEGACY_LETTERS: 'legacy/letters',
+  LEGACY_MEMORIES: 'legacy/memories',
 } as const;
 
 export type FolderType = typeof FOLDERS[keyof typeof FOLDERS];
@@ -492,6 +493,78 @@ export async function uploadObituaryPdf(
       error: err instanceof Error ? err.message : 'Unknown error',
     };
   }
+}
+
+// ============================================================================
+// MEMORY VAULT FILE UPLOADS
+// ============================================================================
+
+const MEMORY_ACCEPTED_TYPES = [
+  'application/pdf',
+  'image/gif',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/bmp',
+  'image/tiff',
+];
+
+const MEMORY_MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+/**
+ * Upload a file to the Memory Vault folder.
+ * Validates file type and size before uploading.
+ */
+export async function uploadMemoryFile(
+  file: File,
+  clientFolderName: string
+): Promise<{ success: boolean; metadata?: FileMetadata; error?: string }> {
+  if (!MEMORY_ACCEPTED_TYPES.includes(file.type)) {
+    return { success: false, error: `File type "${file.type}" is not allowed. Accepted: PDF, GIF, JPEG, PNG, WEBP, BMP, TIFF.` };
+  }
+  if (file.size > MEMORY_MAX_FILE_SIZE) {
+    return { success: false, error: `File "${file.name}" exceeds the 10 MB limit.` };
+  }
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'User not authenticated' };
+
+    const timestamp = Date.now();
+    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const uniqueName = `${timestamp}-${cleanFileName}`;
+    const filePath = `${user.id}/${clientFolderName}/${FOLDERS.LEGACY_MEMORIES}/${uniqueName}`;
+
+    const { data, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, file, { cacheControl: '3600', upsert: false });
+
+    if (error) {
+      console.error('Error uploading memory file:', error);
+      return { success: false, error: error.message };
+    }
+
+    return {
+      success: true,
+      metadata: {
+        name: file.name,
+        path: data.path,
+        type: file.type,
+        size: file.size,
+        uploadedAt: new Date().toISOString(),
+      },
+    };
+  } catch (err) {
+    console.error('Error in uploadMemoryFile:', err);
+    return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
+  }
+}
+
+/**
+ * Delete a Memory Vault file from storage.
+ */
+export async function deleteMemoryFile(filePath: string): Promise<boolean> {
+  return deleteFile(filePath);
 }
 
 // ============================================================================

@@ -3,13 +3,15 @@
 import React, { useState } from 'react';
 import {
   Box, TextField, Typography, Accordion, AccordionSummary, AccordionDetails,
-  Button, Snackbar,
+  Button, Snackbar, IconButton,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import { useFormContext } from '../lib/FormContext';
 import { folioColors } from './FolioModal';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import PersonalHistoryHelpModal from './PersonalHistoryHelpModal';
 
 const sections = [
   {
@@ -65,6 +67,7 @@ const LegacyPersonalHistoryTab = () => {
   const { formData, updateFormData } = useFormContext();
   const hist = formData.legacyPersonalHistory;
   const [snackOpen, setSnackOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const handleChange = (field: string, value: string) => {
     updateFormData({ legacyPersonalHistory: { ...hist, [field]: value } });
@@ -78,7 +81,11 @@ const LegacyPersonalHistoryTab = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
         <HistoryEduIcon sx={{ color: '#c9a227', fontSize: 28 }} />
         <Typography variant="h6" sx={{ fontWeight: 600 }}>Personal History</Typography>
+        <IconButton onClick={() => setHelpOpen(true)} size="small" sx={{ ml: 0.5, bgcolor: '#1a1a1a', color: '#c9a227', width: 28, height: 28, '&:hover': { bgcolor: '#333' } }} title="Audio guide">
+          <VolumeUpIcon sx={{ fontSize: 20 }} />
+        </IconButton>
       </Box>
+      <PersonalHistoryHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 550 }}>
           Your life story, in your own words. Take your time — you can always come back and add more.

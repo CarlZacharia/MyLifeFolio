@@ -1,10 +1,12 @@
 'use client';
 
-import React from 'react';
-import { Box, TextField, Typography, Grid } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, TextField, Typography, Grid, IconButton } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import { useFormContext } from '../lib/FormContext';
 import { folioColors } from './FolioModal';
+import FavoritesHelpModal from './FavoritesHelpModal';
 
 const favFields = [
   { key: 'favoriteMusic', label: 'Music', placeholder: 'Artists, songs, genres you love' },
@@ -28,6 +30,7 @@ const tfSx = {
 const LegacyFavoritesTab = () => {
   const { formData, updateFormData } = useFormContext();
   const favs = formData.legacyFavorites;
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const handleChange = (field: string, value: string) => {
     updateFormData({ legacyFavorites: { ...favs, [field]: value } });
@@ -38,7 +41,11 @@ const LegacyFavoritesTab = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
         <StarIcon sx={{ color: '#c9a227', fontSize: 28 }} />
         <Typography variant="h6" sx={{ fontWeight: 600 }}>My Favorites</Typography>
+        <IconButton onClick={() => setHelpOpen(true)} size="small" sx={{ ml: 0.5, bgcolor: '#1a1a1a', color: '#c9a227', width: 28, height: 28, '&:hover': { bgcolor: '#333' } }} title="Audio guide">
+          <VolumeUpIcon sx={{ fontSize: 20 }} />
+        </IconButton>
       </Box>
+      <FavoritesHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 600 }}>
         The little things that bring you joy. Your family will treasure knowing these details about you.
       </Typography>

@@ -10,6 +10,8 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import { useFormContext } from '../lib/FormContext';
 import { folioColors } from './FolioModal';
 import LegacyStoryModal, { StoryData, emptyStory } from './LegacyStoryModal';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import LifeStoriesHelpModal from './LifeStoriesHelpModal';
 
 const STORY_PROMPTS = [
   'A story about my parents',
@@ -29,6 +31,7 @@ const LegacyLifeStoriesTab = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [prefillTitle, setPrefillTitle] = useState('');
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const openAdd = (title = '') => {
     setIsEdit(false); setEditIndex(null); setPrefillTitle(title); setModalOpen(true);
@@ -63,7 +66,11 @@ const LegacyLifeStoriesTab = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
         <AutoStoriesIcon sx={{ color: '#c9a227', fontSize: 28 }} />
         <Typography variant="h6" sx={{ fontWeight: 600 }}>Important Life Stories</Typography>
+        <IconButton onClick={() => setHelpOpen(true)} size="small" sx={{ ml: 0.5, bgcolor: '#1a1a1a', color: '#c9a227', width: 28, height: 28, '&:hover': { bgcolor: '#333' } }} title="Audio guide">
+          <VolumeUpIcon sx={{ fontSize: 20 }} />
+        </IconButton>
       </Box>
+      <LifeStoriesHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 600 }}>
         The stories that shaped who you are. Each one is a gift to your family.
       </Typography>

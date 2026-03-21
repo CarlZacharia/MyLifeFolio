@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box, TextField, Typography, MenuItem, Divider, Button, Alert, CircularProgress,
-  LinearProgress, Accordion, AccordionSummary, AccordionDetails, Chip, Tabs, Tab,
+  LinearProgress, Accordion, AccordionSummary, AccordionDetails, Chip, Tabs, Tab, IconButton,
 } from '@mui/material';
 import ArticleIcon from '@mui/icons-material/Article';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
@@ -21,6 +21,8 @@ import { saveDraft, loadDrafts, ObituaryDraft } from '../lib/obituaryDrafts';
 import { generateClientFolderName } from '../lib/supabaseStorage';
 import { supabase } from '../lib/supabase';
 import ObituaryPreviewModal from './ObituaryPreviewModal';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import ObituaryHelpModal from './ObituaryHelpModal';
 
 const TONES = ['Formal', 'Warm & Personal', 'Lighthearted', 'Religious/Faith-Based', 'Brief'] as const;
 const MAX_GENERATIONS = 5;
@@ -612,6 +614,7 @@ const ObituaryForm: React.FC<ObituaryFormProps> = ({ obit, formDataKey, intakeId
 const LegacyObituaryTab = () => {
   const { formData, intakeId } = useFormContext();
   const [personTab, setPersonTab] = useState(0);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const clientFolderName = formData.name ? generateClientFolderName(formData.name) : undefined;
 
@@ -620,7 +623,11 @@ const LegacyObituaryTab = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
         <ArticleIcon sx={{ color: '#c9a227', fontSize: 28 }} />
         <Typography variant="h6" sx={{ fontWeight: 600 }}>Obituary Information</Typography>
+        <IconButton onClick={() => setHelpOpen(true)} size="small" sx={{ ml: 0.5, bgcolor: '#1a1a1a', color: '#c9a227', width: 28, height: 28, '&:hover': { bgcolor: '#333' } }} title="Audio guide">
+          <VolumeUpIcon sx={{ fontSize: 20 }} />
+        </IconButton>
       </Box>
+      <ObituaryHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2, maxWidth: 650 }}>
         Gathering this information now makes it much easier for your family when the time comes.
         Fields marked with * are required to generate a professional obituary.

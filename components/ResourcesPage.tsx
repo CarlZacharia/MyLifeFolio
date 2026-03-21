@@ -49,6 +49,10 @@ import PersonalHistoryHelpModal from './PersonalHistoryHelpModal';
 import ReflectionsHelpModal from './ReflectionsHelpModal';
 import SurprisesHelpModal from './SurprisesHelpModal';
 import FavoritesHelpModal from './FavoritesHelpModal';
+import LifeStoriesHelpModal from './LifeStoriesHelpModal';
+import VideoLegacyHelpModal from './VideoLegacyHelpModal';
+import MemoryVaultHelpModal from './MemoryVaultHelpModal';
+import CharitableWishesHelpModal from './CharitableWishesHelpModal';
 
 const theme = createTheme({
   palette: {
@@ -142,6 +146,10 @@ const folioGuideCategories: {
       { id: 'reflections', title: 'Personal Reflections', description: 'Share your beliefs, values, and the wisdom you want to pass on.' },
       { id: 'surprises', title: 'Surprises', description: 'Hidden talents, adventures, and fun facts your family will love.' },
       { id: 'favorites', title: 'My Favorites', description: 'Music, books, foods, destinations, and the things that bring you joy.' },
+      { id: 'life-stories', title: 'Life Stories', description: 'Preserve the defining moments and stories that shaped who you are.' },
+      { id: 'video-legacy', title: 'Video Legacy', description: 'Record or link video messages for your loved ones.' },
+      { id: 'memory-vault', title: 'Memory Vault', description: 'Photos, keepsakes, and the stories behind your treasured moments.' },
+      { id: 'charitable-wishes', title: 'Charitable Wishes', description: 'Document the causes and organizations closest to your heart.' },
     ],
   },
   {
@@ -526,6 +534,22 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({
       />
       <FavoritesHelpModal
         open={helpModal === 'favorites'}
+        onClose={() => setHelpModal(null)}
+      />
+      <LifeStoriesHelpModal
+        open={helpModal === 'life-stories'}
+        onClose={() => setHelpModal(null)}
+      />
+      <VideoLegacyHelpModal
+        open={helpModal === 'video-legacy'}
+        onClose={() => setHelpModal(null)}
+      />
+      <MemoryVaultHelpModal
+        open={helpModal === 'memory-vault'}
+        onClose={() => setHelpModal(null)}
+      />
+      <CharitableWishesHelpModal
+        open={helpModal === 'charitable-wishes'}
         onClose={() => setHelpModal(null)}
       />
     </ThemeProvider>

@@ -11,6 +11,8 @@ import LockIcon from '@mui/icons-material/Lock';
 import { useFormContext } from '../lib/FormContext';
 import { folioColors } from './FolioModal';
 import LegacyLetterModal, { LetterData } from './LegacyLetterModal';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import FamilyLettersHelpModal from './FamilyLettersHelpModal';
 
 const LegacyLettersTab = () => {
   const { formData, updateFormData } = useFormContext();
@@ -19,6 +21,7 @@ const LegacyLettersTab = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const openAdd = () => { setIsEdit(false); setEditIndex(null); setModalOpen(true); };
   const openEdit = (i: number) => { setIsEdit(true); setEditIndex(i); setModalOpen(true); };
@@ -45,7 +48,11 @@ const LegacyLettersTab = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
         <MailOutlineIcon sx={{ color: '#c9a227', fontSize: 28 }} />
         <Typography variant="h6" sx={{ fontWeight: 600 }}>Letters to Family</Typography>
+        <IconButton onClick={() => setHelpOpen(true)} size="small" sx={{ ml: 0.5, bgcolor: '#1a1a1a', color: '#c9a227', width: 28, height: 28, '&:hover': { bgcolor: '#333' } }} title="Audio guide">
+          <VolumeUpIcon sx={{ fontSize: 20 }} />
+        </IconButton>
       </Box>
+      <FamilyLettersHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 600 }}>
         Write letters to the people who matter most. These will be treasured for generations.
       </Typography>

@@ -1325,6 +1325,7 @@ export interface FormData {
     location: string;
     tags: string;
     mediaUrl: string;
+    files: Array<{ path: string; name: string; size: number; type: string }>;
   }>;
 
   // Will/Trust Distribution Plans

@@ -11,6 +11,8 @@ import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import { useFormContext } from '../lib/FormContext';
 import { folioColors } from './FolioModal';
 import LegacyCharityModal, { CharityOrgData } from './LegacyCharityModal';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import CharitableWishesHelpModal from './CharitableWishesHelpModal';
 
 const tfSx = {
   '& .MuiOutlinedInput-root': {
@@ -28,6 +30,7 @@ const LegacyCharitableWishesTab = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const openAdd = () => { setIsEdit(false); setEditIndex(null); setModalOpen(true); };
   const openEdit = (i: number) => { setIsEdit(true); setEditIndex(i); setModalOpen(true); };
@@ -58,7 +61,11 @@ const LegacyCharitableWishesTab = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
         <VolunteerActivismIcon sx={{ color: '#c9a227', fontSize: 28 }} />
         <Typography variant="h6" sx={{ fontWeight: 600 }}>Charitable & Legacy Wishes</Typography>
+        <IconButton onClick={() => setHelpOpen(true)} size="small" sx={{ ml: 0.5, bgcolor: '#1a1a1a', color: '#c9a227', width: 28, height: 28, '&:hover': { bgcolor: '#333' } }} title="Audio guide">
+          <VolumeUpIcon sx={{ fontSize: 20 }} />
+        </IconButton>
       </Box>
+      <CharitableWishesHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         Organizations and causes that matter to you, and how you'd like to be remembered through giving.
       </Typography>

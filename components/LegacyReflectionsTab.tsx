@@ -1,10 +1,12 @@
 'use client';
 
-import React from 'react';
-import { Box, TextField, Typography, Chip } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, TextField, Typography, Chip, IconButton } from '@mui/material';
 import PsychologyIcon from '@mui/icons-material/Psychology';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import { useFormContext } from '../lib/FormContext';
 import { folioColors } from './FolioModal';
+import ReflectionsHelpModal from './ReflectionsHelpModal';
 
 const prompts = [
   { key: 'whatMattersMost', prompt: 'What matters most in life?' },
@@ -32,6 +34,7 @@ const tfSx = {
 const LegacyReflectionsTab = () => {
   const { formData, updateFormData } = useFormContext();
   const refl = formData.legacyReflections;
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const handleChange = (field: string, value: string) => {
     updateFormData({ legacyReflections: { ...refl, [field]: value } });
@@ -50,7 +53,11 @@ const LegacyReflectionsTab = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
         <PsychologyIcon sx={{ color: '#c9a227', fontSize: 28 }} />
         <Typography variant="h6" sx={{ fontWeight: 600 }}>Personal Reflections</Typography>
+        <IconButton onClick={() => setHelpOpen(true)} size="small" sx={{ ml: 0.5, bgcolor: '#1a1a1a', color: '#c9a227', width: 28, height: 28, '&:hover': { bgcolor: '#333' } }} title="Audio guide">
+          <VolumeUpIcon sx={{ fontSize: 20 }} />
+        </IconButton>
       </Box>
+      <ReflectionsHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 600 }}>
         Take your time with these. There are no right answers — just your honest thoughts.
       </Typography>

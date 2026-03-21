@@ -19,16 +19,90 @@ import { TIER_INFO } from '../lib/subscriptionConfig';
 import { folioColors } from './FolioModal';
 import LegacyVideoModal, { VideoData, emptyVideo } from './LegacyVideoModal';
 import VideoRecorderModal from './VideoRecorderModal';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import VideoLegacyHelpModal from './VideoLegacyHelpModal';
 
 const MAX_VIDEOS = 5;
 
-const VIDEO_PROMPTS = [
-  'My life story — where I came from and what I\'ve done',
-  'What I want my grandchildren to know',
-  'Advice for my family',
-  'What I hope my legacy will be',
-  'A message to be opened on a special occasion',
+// ─── Prompt categories shown on empty state ───────────────────────────────────
+interface PromptCategory {
+  label: string;
+  color: string;
+  bgColor: string;
+  prompts: string[];
+}
+
+const PROMPT_CATEGORIES: PromptCategory[] = [
+  {
+    label: 'Your life story',
+    color: '#0F6E56',
+    bgColor: 'rgba(29,158,117,0.08)',
+    prompts: [
+      'Where I came from and what shaped me',
+      'The hardest thing I ever got through',
+      'The proudest moments of my life',
+      'What I believe — my values and faith',
+    ],
+  },
+  {
+    label: 'Messages to family',
+    color: '#185FA5',
+    bgColor: 'rgba(55,138,221,0.08)',
+    prompts: [
+      'What I want my grandchildren to know',
+      'Advice for my children as they grow older',
+      'A message to be opened on a special occasion',
+      'What I love most about each of you',
+    ],
+  },
+  {
+    label: 'Wishes & intentions',
+    color: '#7a2a2a',
+    bgColor: 'rgba(226,75,74,0.07)',
+    prompts: [
+      'My wishes for my funeral or memorial',
+      'Why I made the choices I did in my estate plan',
+      'Special items and who I want to have them',
+      'Family traditions I hope you will carry on',
+    ],
+  },
+  {
+    label: 'Family harmony',
+    color: '#854F0B',
+    bgColor: 'rgba(186,117,23,0.08)',
+    prompts: [
+      'Explaining a difficult decision I made',
+      'Addressing a longtime family misunderstanding',
+      'Why I treated certain situations the way I did',
+      'My hopes for peace and unity after I am gone',
+    ],
+  },
+  {
+    label: 'Demonstrating my wishes',
+    color: '#534AB7',
+    bgColor: 'rgba(127,119,221,0.08)',
+    prompts: [
+      "Today's date and why I am recording this",
+      'A clear statement of my estate planning decisions',
+      'Confirming these are my own wishes — no one is pressuring me',
+      'My understanding of who will receive my assets and why',
+    ],
+  },
+  {
+    label: 'Wisdom & celebration',
+    color: '#5F5E5A',
+    bgColor: 'rgba(136,135,128,0.08)',
+    prompts: [
+      'The best advice I ever received',
+      'What I would tell my younger self',
+      'Funny stories and memories I do not want forgotten',
+      'A message just to say: I love you',
+    ],
+  },
 ];
+
+// Flat list of all prompts used for the chip display
+const ALL_PROMPTS = PROMPT_CATEGORIES.flatMap((c) => c.prompts);
 
 const LegacyVideoLegacyTab = () => {
   const { formData, updateFormData } = useFormContext();
@@ -43,6 +117,8 @@ const LegacyVideoLegacyTab = () => {
   const [recorderOpen, setRecorderOpen] = useState(false);
   const [recorderTitle, setRecorderTitle] = useState('');
   const [playbackIndex, setPlaybackIndex] = useState<number | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   const openAdd = () => { setIsEdit(false); setEditIndex(null); setModalOpen(true); };
   const openEdit = (i: number) => { setIsEdit(true); setEditIndex(i); setModalOpen(true); };
@@ -83,14 +159,28 @@ const LegacyVideoLegacyTab = () => {
 
   return (
     <Box>
+      {/* ── Header ── */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
         <VideocamIcon sx={{ color: '#c9a227', fontSize: 28 }} />
         <Typography variant="h6" sx={{ fontWeight: 600 }}>Video Legacy</Typography>
+        <IconButton
+          onClick={() => setHelpOpen(true)}
+          size="small"
+          sx={{ ml: 0.5, bgcolor: '#1a1a1a', color: '#c9a227', width: 28, height: 28, '&:hover': { bgcolor: '#333' } }}
+          title="How Video Legacy works"
+        >
+          <VolumeUpIcon sx={{ fontSize: 20 }} />
+        </IconButton>
       </Box>
+
+      <VideoLegacyHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
+
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 600 }}>
-        Record or link video messages for your loved ones. Seeing and hearing you will mean the world.
+        Record or link video messages for your loved ones. Seeing and hearing you will mean the world — 
+        and your own words, spoken on camera, speak for themselves.
       </Typography>
 
+      {/* ── Locked state ── */}
       {!hasVideoAccess && (
         <Box
           sx={{
@@ -117,24 +207,40 @@ const LegacyVideoLegacyTab = () => {
         </Box>
       )}
 
+      {/* ── Accessible state ── */}
       {hasVideoAccess && (
         <>
+          {/* Action bar */}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 2, gap: 1.5 }}>
             <Typography variant="body2" color="text.secondary" sx={{ mr: 'auto' }}>
               {videos.length} / {MAX_VIDEOS} videos
             </Typography>
-            <Button variant="outlined" startIcon={<FiberManualRecordIcon sx={{ color: atLimit ? 'inherit' : '#d32f2f' }} />}
-              onClick={openRecorder} size="small" disabled={atLimit}
-              sx={{ borderColor: folioColors.inkLight, color: folioColors.ink,
-                '&:hover': { borderColor: folioColors.ink, bgcolor: 'rgba(201,162,39,0.06)' } }}>
+            <Button
+              variant="outlined"
+              startIcon={<FiberManualRecordIcon sx={{ color: atLimit ? 'inherit' : '#d32f2f' }} />}
+              onClick={openRecorder}
+              size="small"
+              disabled={atLimit}
+              sx={{
+                borderColor: folioColors.inkLight, color: folioColors.ink,
+                '&:hover': { borderColor: folioColors.ink, bgcolor: 'rgba(201,162,39,0.06)' },
+              }}
+            >
               Record Now
             </Button>
-            <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd} size="small" disabled={atLimit}
-              sx={{ bgcolor: folioColors.ink, '&:hover': { bgcolor: '#3d3224' } }}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={openAdd}
+              size="small"
+              disabled={atLimit}
+              sx={{ bgcolor: folioColors.ink, '&:hover': { bgcolor: '#3d3224' } }}
+            >
               Add Video
             </Button>
           </Box>
 
+          {/* Video list */}
           {videos.length > 0 ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {videos.map((video, i) => (
@@ -149,8 +255,12 @@ const LegacyVideoLegacyTab = () => {
                               {video.videoTitle}
                             </Typography>
                             {video.isPrivate && (
-                              <Chip icon={<LockIcon sx={{ fontSize: 14 }} />} label="Private" size="small"
-                                sx={{ bgcolor: '#fff3e0', color: '#e65100', fontWeight: 600, height: 22 }} />
+                              <Chip
+                                icon={<LockIcon sx={{ fontSize: 14 }} />}
+                                label="Private"
+                                size="small"
+                                sx={{ bgcolor: '#fff3e0', color: '#e65100', fontWeight: 600, height: 22 }}
+                              />
                             )}
                           </Box>
                           <Typography variant="body2" color="text.secondary">
@@ -160,8 +270,11 @@ const LegacyVideoLegacyTab = () => {
                       </Box>
                       <Box sx={{ display: 'flex', gap: 0.5 }}>
                         {video.cloudLink && (
-                          <IconButton size="small" onClick={() => setPlaybackIndex(i)}
-                            sx={{ color: folioColors.accent, '&:hover': { bgcolor: 'rgba(139,105,20,0.08)' } }}>
+                          <IconButton
+                            size="small"
+                            onClick={() => setPlaybackIndex(i)}
+                            sx={{ color: folioColors.accent, '&:hover': { bgcolor: 'rgba(139,105,20,0.08)' } }}
+                          >
                             <PlayArrowIcon fontSize="small" />
                           </IconButton>
                         )}
@@ -175,36 +288,110 @@ const LegacyVideoLegacyTab = () => {
               ))}
             </Box>
           ) : (
+            /* ── Empty state with categorized prompts ── */
             <Box>
               <Paper variant="outlined" sx={{ p: 4, textAlign: 'center', mb: 3 }}>
                 <VideocamIcon sx={{ fontSize: 48, color: folioColors.inkFaint, mb: 1 }} />
-                <Typography color="text.secondary" sx={{ mb: 2 }}>
+                <Typography color="text.secondary" sx={{ mb: 0.5 }}>
                   No videos yet. Record a message with your camera or add a link to an existing video.
                 </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.7 }}>
+                  Up to {MAX_VIDEOS} videos · Visible only to people you grant access
+                </Typography>
               </Paper>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>Recording ideas:</Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {VIDEO_PROMPTS.map((prompt) => (
-                  <Chip key={prompt} label={prompt} variant="outlined"
-                    sx={{ cursor: 'default' }} />
+
+              {/* Categorized prompt cards */}
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
+                Ideas for your videos:
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {PROMPT_CATEGORIES.map((cat) => (
+                  <Box
+                    key={cat.label}
+                    sx={{
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {/* Category header — clickable to expand */}
+                    <Box
+                      onClick={() => setExpandedCategory(expandedCategory === cat.label ? null : cat.label)}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        px: 2,
+                        py: 1.25,
+                        bgcolor: cat.bgColor,
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        '&:hover': { filter: 'brightness(0.97)' },
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: cat.color, letterSpacing: '0.02em' }}>
+                        {cat.label}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: cat.color, opacity: 0.7, fontSize: 18, lineHeight: 1 }}>
+                        {expandedCategory === cat.label ? '−' : '+'}
+                      </Typography>
+                    </Box>
+
+                    {/* Prompt chips — shown when expanded */}
+                    {expandedCategory === cat.label && (
+                      <Box sx={{ px: 2, py: 1.5, display: 'flex', flexWrap: 'wrap', gap: 1, bgcolor: 'background.paper' }}>
+                        {cat.prompts.map((prompt) => (
+                          <Chip
+                            key={prompt}
+                            label={prompt}
+                            variant="outlined"
+                            size="small"
+                            sx={{
+                              cursor: 'default',
+                              borderColor: cat.color,
+                              color: cat.color,
+                              fontSize: '0.78rem',
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    )}
+                  </Box>
                 ))}
               </Box>
+
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2, fontStyle: 'italic' }}>
+                Tip: Don't worry about production quality — your family just wants to see and hear you being you.
+              </Typography>
             </Box>
           )}
 
-          <LegacyVideoModal open={modalOpen} onClose={closeModal} onSave={handleSave}
+          {/* ── Modals ── */}
+          <LegacyVideoModal
+            open={modalOpen}
+            onClose={closeModal}
+            onSave={handleSave}
             onDelete={isEdit ? handleDelete : undefined}
             initialData={isEdit && editIndex !== null ? videos[editIndex] as VideoData : undefined}
-            isEdit={isEdit} />
+            isEdit={isEdit}
+          />
 
-          <VideoRecorderModal open={recorderOpen} onClose={() => setRecorderOpen(false)}
+          <VideoRecorderModal
+            open={recorderOpen}
+            onClose={() => setRecorderOpen(false)}
             onRecordingComplete={handleRecordingComplete}
-            videoTitle={recorderTitle || 'legacy-video'} />
+            videoTitle={recorderTitle || 'legacy-video'}
+          />
 
-          {/* Video Playback Dialog */}
-          <Dialog open={playbackIndex !== null} onClose={() => setPlaybackIndex(null)}
-            maxWidth="md" fullWidth
-            PaperProps={{ sx: { borderRadius: 3, bgcolor: '#1a1a1a', color: 'white' } }}>
+          {/* ── Video Playback Dialog ── */}
+          <Dialog
+            open={playbackIndex !== null}
+            onClose={() => setPlaybackIndex(null)}
+            maxWidth="md"
+            fullWidth
+            PaperProps={{ sx: { borderRadius: 3, bgcolor: '#1a1a1a', color: 'white' } }}
+          >
             {playbackIndex !== null && videos[playbackIndex] && (
               <>
                 <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
@@ -241,7 +428,6 @@ const LegacyVideoLegacyTab = () => {
                         </Box>
                       );
                     }
-                    // Direct video file (e.g. Supabase storage URL or .mp4/.webm)
                     return (
                       <video
                         src={link}
