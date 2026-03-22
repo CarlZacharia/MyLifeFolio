@@ -145,18 +145,32 @@ export async function getVaultDocumentUrl(
   filePath: string
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
-    // Use download() to fetch the file as a blob — avoids createSignedUrl
-    // RLS issues where the signed URL creation triggers an internal write
-    const { data, error } = await supabase.storage
-      .from(BUCKET)
-      .download(filePath);
-
-    if (error || !data) {
-      console.error('getVaultDocumentUrl error:', error, 'path:', filePath);
-      return { success: false, error: error?.message || 'Failed to download file' };
+    // Direct authenticated fetch — bypasses Supabase client library to avoid
+    // RLS issues with createSignedUrl and download() on private buckets
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      return { success: false, error: 'Not authenticated' };
     }
 
-    const blobUrl = URL.createObjectURL(data);
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const response = await fetch(
+      `${supabaseUrl}/storage/v1/object/authenticated/${BUCKET}/${filePath}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('getVaultDocumentUrl error:', response.status, errorText, 'path:', filePath);
+      return { success: false, error: `Download failed (${response.status})` };
+    }
+
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
     return { success: true, url: blobUrl };
   } catch (err) {
     console.error('getVaultDocumentUrl error:', err);
