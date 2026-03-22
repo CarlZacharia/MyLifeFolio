@@ -1,6 +1,8 @@
 -- Fix vault-documents bucket storage policies
 -- Match the pattern from estate-planning-intakes which works correctly
--- Key changes: add TO authenticated, add UPDATE policy, add mime types
+-- Key changes: add UPDATE policy, add mime types, NO "TO authenticated" clause
+-- (Supabase storage internally uses roles other than "authenticated" for
+-- some operations during file downloads, so TO authenticated blocks them)
 
 -- Update bucket with file size limit and allowed mime types
 UPDATE storage.buckets
@@ -20,34 +22,34 @@ SET
   ]
 WHERE id = 'vault-documents';
 
--- Recreate INSERT policy with TO authenticated
+-- Clean up any previous policies
 DROP POLICY IF EXISTS "Users can upload vault documents" ON storage.objects;
+DROP POLICY IF EXISTS "Users can view own vault documents" ON storage.objects;
+DROP POLICY IF EXISTS "Users can read own vault documents" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update own vault documents" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete own vault documents" ON storage.objects;
+DROP POLICY IF EXISTS "Vault documents owner access" ON storage.objects;
+DROP POLICY IF EXISTS "temp_debug_allow_all" ON storage.objects;
+
+-- INSERT policy
 CREATE POLICY "Users can upload vault documents"
-  ON storage.objects
-  FOR INSERT
-  TO authenticated
+  ON storage.objects FOR INSERT
   WITH CHECK (
     bucket_id = 'vault-documents'
     AND (storage.foldername(name))[1] = auth.uid()::text
   );
 
--- Recreate SELECT policy with TO authenticated
-DROP POLICY IF EXISTS "Users can view own vault documents" ON storage.objects;
+-- SELECT policy
 CREATE POLICY "Users can view own vault documents"
-  ON storage.objects
-  FOR SELECT
-  TO authenticated
+  ON storage.objects FOR SELECT
   USING (
     bucket_id = 'vault-documents'
     AND (storage.foldername(name))[1] = auth.uid()::text
   );
 
--- Add UPDATE policy (missing previously)
-DROP POLICY IF EXISTS "Users can update own vault documents" ON storage.objects;
+-- UPDATE policy (required — Supabase storage updates metadata during downloads)
 CREATE POLICY "Users can update own vault documents"
-  ON storage.objects
-  FOR UPDATE
-  TO authenticated
+  ON storage.objects FOR UPDATE
   USING (
     bucket_id = 'vault-documents'
     AND (storage.foldername(name))[1] = auth.uid()::text
@@ -57,12 +59,9 @@ CREATE POLICY "Users can update own vault documents"
     AND (storage.foldername(name))[1] = auth.uid()::text
   );
 
--- Recreate DELETE policy with TO authenticated
-DROP POLICY IF EXISTS "Users can delete own vault documents" ON storage.objects;
+-- DELETE policy
 CREATE POLICY "Users can delete own vault documents"
-  ON storage.objects
-  FOR DELETE
-  TO authenticated
+  ON storage.objects FOR DELETE
   USING (
     bucket_id = 'vault-documents'
     AND (storage.foldername(name))[1] = auth.uid()::text
