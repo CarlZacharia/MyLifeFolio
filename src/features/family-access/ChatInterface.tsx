@@ -40,12 +40,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setLoading(true);
 
     try {
+      // Get the current session token explicitly to avoid timing issues with the global fetch override
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+
       // Call the Supabase Edge Function proxy (it handles filtering, prompting, and logging server-side)
       const { data, error } = await supabase.functions.invoke('family-chat-proxy', {
         body: {
           question: trimmed,
           owner_id: ownerId,
         },
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
       });
 
       if (error) throw error;

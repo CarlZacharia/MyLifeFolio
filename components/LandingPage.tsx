@@ -384,10 +384,6 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                     sx={{ bgcolor: 'secondary.main', color: 'primary.dark', px: 4, py: 1.6, fontSize: '1rem', fontFamily: '"Source Sans 3", sans-serif', fontWeight: 700, '&:hover': { bgcolor: 'secondary.light', transform: 'translateY(-2px)', boxShadow: '0 8px 28px rgba(201,162,39,0.35)' }, transition: 'all 0.3s ease' }}>
                     {primaryBtn.text}
                   </Button>
-                  <Button variant="outlined" size="large" onClick={() => setVideoModalOpen(true)} startIcon={<PlayCircleOutlineIcon />}
-                    sx={{ borderColor: 'rgba(255,255,255,0.4)', color: 'white', px: 4, py: 1.6, fontFamily: '"Source Sans 3", sans-serif', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.06)' } }}>
-                    See How It Works
-                  </Button>
                 </Box>
 
                 {/* Trust bar */}
