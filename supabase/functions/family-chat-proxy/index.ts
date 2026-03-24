@@ -4,11 +4,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 // @ts-ignore - Deno global available in Edge Functions runtime
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-// Allowed origins for CORS — production only
+// Allowed origins for CORS
 const ALLOWED_ORIGINS = new Set([
   'https://mylifefolio.com',
   'https://www.mylifefolio.com',
-
+  'http://localhost:5173',
+  'http://localhost:5174',
   ...(Deno.env.get('ALLOWED_ORIGIN') ? [Deno.env.get('ALLOWED_ORIGIN')!] : []),
 ]);
 
@@ -16,6 +17,14 @@ const ALLOWED_ORIGINS = new Set([
 function getCorsOrigin(req: Request): string {
   const origin = req.headers.get('Origin') || '';
   return ALLOWED_ORIGINS.has(origin) ? origin : 'https://mylifefolio.com';
+}
+
+/** Standard CORS + JSON headers for all responses */
+function corsHeaders(req: Request): Record<string, string> {
+  return {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': getCorsOrigin(req),
+  };
 }
 
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
@@ -245,7 +254,7 @@ serve(async (req: Request) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: "Missing authorization header" }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
+        { status: 401, headers: corsHeaders(req) }
       );
     }
 
@@ -262,7 +271,7 @@ serve(async (req: Request) => {
     if (authError || !user) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
+        { status: 401, headers: corsHeaders(req) }
       );
     }
 
@@ -271,14 +280,14 @@ serve(async (req: Request) => {
     if (!question || !owner_id) {
       return new Response(
         JSON.stringify({ error: "Missing question or owner_id" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: corsHeaders(req) }
       );
     }
 
     if (typeof question !== "string" || question.length > 2000) {
       return new Response(
         JSON.stringify({ error: "Invalid question" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: corsHeaders(req) }
       );
     }
 
@@ -299,7 +308,7 @@ serve(async (req: Request) => {
     if (authRecordError || !authRecord) {
       return new Response(
         JSON.stringify({ error: "Access not authorized" }),
-        { status: 403, headers: { "Content-Type": "application/json" } }
+        { status: 403, headers: corsHeaders(req) }
       );
     }
 
@@ -318,7 +327,7 @@ serve(async (req: Request) => {
     if (folioError || !folioRecord) {
       return new Response(
         JSON.stringify({ error: "Folio not found" }),
-        { status: 404, headers: { "Content-Type": "application/json" } }
+        { status: 404, headers: corsHeaders(req) }
       );
     }
 
@@ -376,16 +385,13 @@ serve(async (req: Request) => {
     // --- 9. Return answer to browser ---
     return new Response(JSON.stringify({ answer }), {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": getCorsOrigin(req),
-      },
+      headers: corsHeaders(req),
     });
   } catch (err) {
     console.error("family-chat-proxy error:", err);
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: corsHeaders(req) }
     );
   }
 });
