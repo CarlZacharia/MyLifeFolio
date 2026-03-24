@@ -215,17 +215,6 @@ const folioCategories = [
   },
 ];
 
-// Row 4 cards — rendered separately below the main 12-card grid
-const row4Cards = [
-  {
-    id: 'reports', title: 'Reports', icon: <LibraryBooksIcon sx={{ fontSize: 26 }} />, accentColor: '#455a64',
-    items: ['Emergency Medical Summary', 'Family Contact Sheet', 'Asset Inventory', 'Insurance Summary', 'Advisor Directory', 'Estate Planning Overview', 'Digital Life Summary', 'Funeral Instructions', '"What To Do If I Die" Checklist', 'Family Briefing Report'],
-  },
-  {
-    id: 'family-access', title: 'Family Access Portal', icon: <FamilyRestroomIcon sx={{ fontSize: 26 }} />, accentColor: '#1a237e',
-    items: ['Grant family members view access', 'Share reports & key documents', 'Control what family can see', 'Secure login for each member', 'Revoke access at any time'],
-  },
-];
 
 // Animated category card matching LandingPage ChapterCard style
 const FolioCard: React.FC<{
@@ -538,6 +527,10 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
                         paper: { sx: { borderRadius: 2, minWidth: 180, mt: 1 } },
                       }}
                     >
+                      <MenuItem onClick={() => { setAccountMenuAnchor(null); onNavigate?.('category-reports'); }}>
+                        <ListItemIcon><LibraryBooksIcon fontSize="small" /></ListItemIcon>
+                        <ListItemText>Reports</ListItemText>
+                      </MenuItem>
                       <MenuItem onClick={() => { setAccountMenuAnchor(null); onProfile?.(); }}>
                         <ListItemIcon><PeopleIcon fontSize="small" /></ListItemIcon>
                         <ListItemText>Family Access</ListItemText>
@@ -775,39 +768,6 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
               );
             })}
 
-            {/* Row 4: Reports, Family Access, and two placeholders */}
-            {row4Cards.map((cat, i) => {
-              const featureKey = cat.id as FeatureKey;
-              const locked = user ? !canAccess(featureKey) : false;
-              const reqTier = getRequiredTier(featureKey);
-              return (
-                <Grid item xs={12} sm={6} md={3} key={cat.id}>
-                  <FolioCard
-                    icon={cat.icon}
-                    title={cat.title}
-                    accentColor={cat.accentColor}
-                    items={cat.items}
-                    delay={400 + (folioCategories.length + i) * 80}
-                    locked={locked}
-                    requiredTierName={locked ? TIER_INFO[reqTier].name : undefined}
-                    onClick={() =>
-                      locked
-                        ? onNavigate?.('pricing')
-                        : cat.id === 'family-access'
-                          ? onNavigate?.('family-access-settings')
-                          : onNavigate?.(`category-${cat.id}`)
-                    }
-                  />
-                </Grid>
-              );
-            })}
-            {/* Two placeholder slots for future use */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Box sx={{ height: '100%' }} />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Box sx={{ height: '100%' }} />
-            </Grid>
           </Grid>
         </Container>
 
