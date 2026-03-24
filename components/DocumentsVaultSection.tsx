@@ -634,8 +634,7 @@ const DocumentsVaultSection: React.FC = () => {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      // Revoke the blob URL after a short delay to free memory
-      setTimeout(() => URL.revokeObjectURL(result.url!), 5000);
+      // No cleanup needed — signed URLs are regular HTTPS URLs, not blob URLs
     } else {
       setSnack({ open: true, message: `Failed to download: ${result.error || 'Unknown error'}`, severity: 'error' });
     }
