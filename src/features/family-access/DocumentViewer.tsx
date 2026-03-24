@@ -15,6 +15,7 @@ interface FolioDocument {
   id: string;
   file_name: string;
   storage_path: string;
+  storage_bucket: string;
   file_size: number | null;
   mime_type: string | null;
   description: string;
@@ -57,7 +58,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         // RLS ensures only documents visible to this user are returned
         const { data, error } = await supabase
           .from('folio_documents')
-          .select('id, file_name, storage_path, file_size, mime_type, description, uploaded_at')
+          .select('id, file_name, storage_path, storage_bucket, file_size, mime_type, description, uploaded_at')
           .eq('owner_id', ownerId)
           .order('uploaded_at', { ascending: false });
 
@@ -76,14 +77,21 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   const handleDownload = async (doc: FolioDocument) => {
     setDownloading(doc.id);
     try {
-      const { data, error } = await supabase.storage
-        .from('folio-documents')
-        .download(doc.storage_path);
+      // Get the current session token for the edge function call
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
 
-      if (error || !data) {
-        console.error('Download error:', error);
-        return;
-      }
+      // Use the edge function for all downloads — it handles both buckets
+      // and uses service role to bypass storage RLS
+      const { data, error } = await supabase.functions.invoke('folio-document-download', {
+        body: { documentId: doc.id },
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+      });
+
+      if (error) throw error;
+
+      const signedUrl = data?.signedUrl;
+      if (!signedUrl) throw new Error('No signed URL returned');
 
       // Log the access
       await supabase.from('folio_access_log').insert({
@@ -95,12 +103,12 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         sections_queried: [],
       });
 
-      const url = URL.createObjectURL(data);
+      // Open in new tab for viewing, or download
       const a = document.createElement('a');
-      a.href = url;
+      a.href = signedUrl;
+      a.target = '_blank';
       a.download = doc.file_name;
       a.click();
-      URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Download failed:', err);
     } finally {

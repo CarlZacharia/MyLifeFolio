@@ -21,6 +21,7 @@ import TableChartIcon from '@mui/icons-material/TableChart';
 import DescriptionIcon from '@mui/icons-material/Description';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import LinkIcon from '@mui/icons-material/Link';
 import FamilyAccessHelpModal from '../../../components/FamilyAccessHelpModal';
 import FolioModal, {
   folioTextFieldSx,
@@ -91,11 +92,26 @@ interface FolioDocument {
   owner_id: string;
   file_name: string;
   storage_path: string;
+  storage_bucket: string;
+  source_vault_document_id: string | null;
   file_size: number | null;
   mime_type: string | null;
   description: string;
   visible_to: string[];
   uploaded_at: string;
+}
+
+interface VaultDocument {
+  id: string;
+  document_name: string;
+  description: string | null;
+  category: string;
+  file_name: string;
+  file_path: string;
+  file_size: number;
+  file_type: string;
+  sensitivity: string;
+  created_at: string;
 }
 
 function getFileIcon(mimeType: string | null) {
@@ -156,6 +172,15 @@ const FamilyAccessManager: React.FC = () => {
   const [quickAddEmail, setQuickAddEmail] = useState('');
   const [quickAddSaving, setQuickAddSaving] = useState(false);
   const [quickAddError, setQuickAddError] = useState('');
+
+  // Share from Vault dialog state
+  const [vaultDialogOpen, setVaultDialogOpen] = useState(false);
+  const [vaultDocs, setVaultDocs] = useState<VaultDocument[]>([]);
+  const [vaultLoading, setVaultLoading] = useState(false);
+  const [selectedVaultDocs, setSelectedVaultDocs] = useState<string[]>([]);
+  const [vaultVisibleTo, setVaultVisibleTo] = useState<string[]>([]);
+  const [vaultSaving, setVaultSaving] = useState(false);
+  const [vaultError, setVaultError] = useState('');
 
   const fetchData = async () => {
     if (!user) return;
@@ -477,26 +502,117 @@ const FamilyAccessManager: React.FC = () => {
   };
 
   const handleDeleteDoc = async (doc: FolioDocument) => {
-    if (!window.confirm(`Delete "${doc.description || doc.file_name}"?`)) return;
-    await supabase.storage.from('folio-documents').remove([doc.storage_path]);
+    const isVaultShared = !!doc.source_vault_document_id;
+    const message = isVaultShared
+      ? `Stop sharing "${doc.description || doc.file_name}" with family members? (The original vault document will not be deleted.)`
+      : `Delete "${doc.description || doc.file_name}"?`;
+    if (!window.confirm(message)) return;
+    // Only delete the storage file if it was directly uploaded (not shared from vault)
+    if (!isVaultShared) {
+      await supabase.storage.from('folio-documents').remove([doc.storage_path]);
+    }
     await supabase.from('folio_documents').delete().eq('id', doc.id);
     fetchData();
   };
 
   const handleDownloadDoc = async (doc: FolioDocument) => {
-    const { data, error: dlError } = await supabase.storage
-      .from('folio-documents')
-      .download(doc.storage_path);
-    if (dlError || !data) {
-      console.error('Download error:', dlError);
+    const bucket = doc.storage_bucket || 'folio-documents';
+    if (bucket === 'vault-documents') {
+      // Use the vault-download-url edge function (owner has access via file path check)
+      const { data: { session } } = await supabase.auth.getSession();
+      const { data, error } = await supabase.functions.invoke('vault-download-url', {
+        body: { filePath: doc.storage_path },
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
+      if (error || !data?.signedUrl) {
+        console.error('Download error:', error);
+        return;
+      }
+      window.open(data.signedUrl, '_blank');
+    } else {
+      const { data, error: dlError } = await supabase.storage
+        .from('folio-documents')
+        .download(doc.storage_path);
+      if (dlError || !data) {
+        console.error('Download error:', dlError);
+        return;
+      }
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = doc.file_name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  // ── Share from Vault ──────────────────────────────────────────────────────
+  const openVaultDialog = async () => {
+    setVaultError('');
+    setSelectedVaultDocs([]);
+    setVaultVisibleTo([]);
+    setVaultDialogOpen(true);
+    setVaultLoading(true);
+    try {
+      const { data, error: vaultErr } = await supabase
+        .from('vault_documents')
+        .select('id, document_name, description, category, file_name, file_path, file_size, file_type, sensitivity, created_at')
+        .eq('user_id', user!.id)
+        .order('category')
+        .order('document_name');
+      if (vaultErr) throw vaultErr;
+      // Filter out vault docs already shared
+      const alreadySharedIds = new Set(documents.filter(d => d.source_vault_document_id).map(d => d.source_vault_document_id));
+      setVaultDocs((data || []).filter(d => !alreadySharedIds.has(d.id)));
+    } catch (err) {
+      console.error('Failed to load vault documents:', err);
+      setVaultError('Failed to load vault documents.');
+    } finally {
+      setVaultLoading(false);
+    }
+  };
+
+  const handleVaultShare = async () => {
+    if (selectedVaultDocs.length === 0) {
+      setVaultError('Select at least one document to share.');
       return;
     }
-    const url = URL.createObjectURL(data);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = doc.file_name;
-    a.click();
-    URL.revokeObjectURL(url);
+    if (vaultVisibleTo.length === 0) {
+      setVaultError('Select at least one family member who can view these documents.');
+      return;
+    }
+    setVaultSaving(true);
+    setVaultError('');
+    try {
+      const rows = selectedVaultDocs.map(vaultId => {
+        const vDoc = vaultDocs.find(d => d.id === vaultId)!;
+        return {
+          owner_id: user!.id,
+          file_name: vDoc.file_name,
+          storage_path: vDoc.file_path,
+          file_size: vDoc.file_size,
+          mime_type: vDoc.file_type,
+          description: vDoc.document_name,
+          visible_to: vaultVisibleTo,
+          storage_bucket: 'vault-documents',
+          source_vault_document_id: vDoc.id,
+        };
+      });
+      const { error: insertErr } = await supabase.from('folio_documents').insert(rows);
+      if (insertErr) throw insertErr;
+      setVaultDialogOpen(false);
+      fetchData();
+    } catch (err: unknown) {
+      console.error('Share from vault error:', err);
+      const msg = err instanceof Error ? err.message : 'Failed to share documents.';
+      if (msg.includes('duplicate') || msg.includes('unique')) {
+        setVaultError('One or more documents are already shared.');
+      } else {
+        setVaultError(msg);
+      }
+    } finally {
+      setVaultSaving(false);
+    }
   };
 
   const handleQuickAddPerson = async () => {
@@ -587,14 +703,24 @@ const FamilyAccessManager: React.FC = () => {
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           {tab === 2 && (
-            <Button
-              variant="contained"
-              startIcon={<UploadFileIcon />}
-              onClick={openDocUploadDialog}
-              sx={{ bgcolor: '#1a237e', '&:hover': { bgcolor: '#000051' } }}
-            >
-              Upload Document
-            </Button>
+            <>
+              <Button
+                variant="outlined"
+                startIcon={<LinkIcon />}
+                onClick={openVaultDialog}
+                sx={{ borderColor: '#1a237e', color: '#1a237e' }}
+              >
+                Share from Vault
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<UploadFileIcon />}
+                onClick={openDocUploadDialog}
+                sx={{ bgcolor: '#1a237e', '&:hover': { bgcolor: '#000051' } }}
+              >
+                Upload Document
+              </Button>
+            </>
           )}
           {tab === 0 && (
             <Button
@@ -813,7 +939,7 @@ const FamilyAccessManager: React.FC = () => {
               {documents.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={7} sx={{ textAlign: 'center', py: 3, color: 'text.secondary' }}>
-                    No documents uploaded yet. Click "Upload Document" to get started.
+                    No documents shared yet. Upload a new document or share one from your vault.
                   </TableCell>
                 </TableRow>
               )}
@@ -824,6 +950,9 @@ const FamilyAccessManager: React.FC = () => {
                   </TableCell>
                   <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {doc.file_name}
+                    {doc.source_vault_document_id && (
+                      <Chip label="Vault" size="small" variant="outlined" sx={{ ml: 1, fontSize: '0.7rem', height: 20, color: '#6d4c41', borderColor: '#d7ccc8' }} />
+                    )}
                   </TableCell>
                   <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {doc.description}
@@ -1227,6 +1356,108 @@ const FamilyAccessManager: React.FC = () => {
       </FolioModal>
 
       <FamilyAccessHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
+
+      {/* Share from Vault Dialog */}
+      <FolioModal
+        open={vaultDialogOpen}
+        onClose={() => setVaultDialogOpen(false)}
+        title="Share from Vault"
+        eyebrow="My Life Folio — Family Access"
+        footer={
+          <>
+            <Box />
+            <Box sx={{ display: 'flex', gap: 1.5 }}>
+              <FolioCancelButton onClick={() => setVaultDialogOpen(false)} />
+              <FolioSaveButton
+                onClick={handleVaultShare}
+                disabled={vaultSaving || selectedVaultDocs.length === 0 || vaultVisibleTo.length === 0}
+              >
+                {vaultSaving ? 'Sharing...' : `Share ${selectedVaultDocs.length || ''} Document${selectedVaultDocs.length !== 1 ? 's' : ''}`}
+              </FolioSaveButton>
+            </Box>
+          </>
+        }
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          {vaultError && <Alert severity="error">{vaultError}</Alert>}
+
+          {vaultLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : vaultDocs.length === 0 ? (
+            <Alert severity="info">
+              No vault documents available to share. All documents have either already been shared, or you haven't uploaded any to the vault yet.
+            </Alert>
+          ) : (
+            <>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                Select documents to share
+              </Typography>
+              <Box sx={{ maxHeight: 300, overflowY: 'auto', border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                {vaultDocs.map((vDoc) => (
+                  <Box
+                    key={vDoc.id}
+                    sx={{
+                      display: 'flex', alignItems: 'center', px: 2, py: 1,
+                      borderBottom: '1px solid #f0f0f0',
+                      bgcolor: selectedVaultDocs.includes(vDoc.id) ? '#e8eaf6' : 'transparent',
+                      '&:hover': { bgcolor: selectedVaultDocs.includes(vDoc.id) ? '#e8eaf6' : '#fafafa' },
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => setSelectedVaultDocs(prev =>
+                      prev.includes(vDoc.id) ? prev.filter(id => id !== vDoc.id) : [...prev, vDoc.id]
+                    )}
+                  >
+                    <Checkbox
+                      checked={selectedVaultDocs.includes(vDoc.id)}
+                      size="small"
+                      sx={{ mr: 1, color: '#1a237e', '&.Mui-checked': { color: '#1a237e' } }}
+                    />
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        {vDoc.document_name}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                        {vDoc.category} &middot; {vDoc.file_name} &middot; {formatFileSize(vDoc.file_size)}
+                      </Typography>
+                    </Box>
+                    {vDoc.sensitivity === 'highly_sensitive' && (
+                      <Chip label="Sensitive" size="small" color="warning" variant="outlined" sx={{ ml: 1, fontSize: '0.65rem', height: 18 }} />
+                    )}
+                  </Box>
+                ))}
+              </Box>
+            </>
+          )}
+
+          {vaultDocs.length > 0 && (
+            <>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                Who can view these documents?
+              </Typography>
+              <FormGroup>
+                {users.filter(u => u.is_active).map((u) => (
+                  <FormControlLabel
+                    key={u.id}
+                    control={
+                      <Checkbox
+                        checked={vaultVisibleTo.includes(u.id)}
+                        onChange={() => setVaultVisibleTo(prev =>
+                          prev.includes(u.id) ? prev.filter(id => id !== u.id) : [...prev, u.id]
+                        )}
+                        size="small"
+                        sx={{ color: '#1a237e', '&.Mui-checked': { color: '#1a237e' } }}
+                      />
+                    }
+                    label={`${u.display_name} (${u.authorized_email})`}
+                  />
+                ))}
+              </FormGroup>
+            </>
+          )}
+        </Box>
+      </FolioModal>
     </Paper>
   );
 };
