@@ -19,7 +19,8 @@
       "Bash(grep -E \"\\\\.ts$|\\\\.tsx$\")",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx supabase:*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\czach\\apps\\react\\mylifefolio\\components"

@@ -936,7 +936,7 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
         <Box sx={{ mb: 3 }}>
           <TextField
             select
-            label="State Where Documents Were Signed"
+            label="State Where Signed"
             value={data.documentState || ''}
             onChange={(e) => onChange('documentState', e.target.value)}
             size="small"
