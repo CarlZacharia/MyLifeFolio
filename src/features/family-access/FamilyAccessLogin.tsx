@@ -65,8 +65,11 @@ const FamilyAccessLogin: React.FC = () => {
         });
         if (signInError) {
           setError('Dev login failed: ' + signInError.message + '. Make sure the user exists in Supabase with password "devtest123".');
+        } else {
+          // Hard redirect — react-router navigate doesn't work reliably after auth changes
+          window.location.href = '/family-portal';
+          return;
         }
-        // onAuthStateChange handles navigation on success
       } else {
         const { error: otpError } = await supabase.auth.signInWithOtp({
           email: email.trim().toLowerCase(),
