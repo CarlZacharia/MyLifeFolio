@@ -159,7 +159,7 @@ const MedicalProvidersTab = () => {
         </Tabs>
       )}
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 1, mb: 2, flexWrap: 'wrap' }}>
         <Button variant="outlined" startIcon={<AddIcon />} onClick={() => openAdd(pcpCategory)} size="small">
           PCP
         </Button>
