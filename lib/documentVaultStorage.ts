@@ -145,17 +145,35 @@ export async function getVaultDocumentUrl(
   filePath: string
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
-    // Use createSignedUrl which only requires SELECT policy (no INSERT/UPDATE)
-    const { data, error } = await supabase.storage
-      .from(BUCKET)
-      .createSignedUrl(filePath, 300); // 5-minute expiry
-
-    if (error) {
-      console.error('getVaultDocumentUrl signedUrl error:', error, 'path:', filePath);
-      return { success: false, error: error.message };
+    // Use edge function with service role to bypass storage.objects RLS
+    // (private bucket downloads trigger internal INSERT that client-side RLS blocks)
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      return { success: false, error: 'Not authenticated' };
     }
 
-    return { success: true, url: data.signedUrl };
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const response = await fetch(
+      `${supabaseUrl}/functions/v1/vault-download-url`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filePath }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+      console.error('getVaultDocumentUrl error:', errorData, 'path:', filePath);
+      return { success: false, error: errorData.error || `Download failed (${response.status})` };
+    }
+
+    const { signedUrl } = await response.json();
+    return { success: true, url: signedUrl };
   } catch (err) {
     console.error('getVaultDocumentUrl error:', err);
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
