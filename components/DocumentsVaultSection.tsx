@@ -627,14 +627,7 @@ const DocumentsVaultSection: React.FC = () => {
   const handleDownload = async (doc: VaultDocumentRecord) => {
     const result = await getVaultDocumentUrl(doc.file_path);
     if (result.success && result.url) {
-      // Create a temporary link to trigger a proper file download
-      const a = document.createElement('a');
-      a.href = result.url;
-      a.download = doc.file_name || doc.document_name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      // No cleanup needed — signed URLs are regular HTTPS URLs, not blob URLs
+      window.open(result.url, '_blank', 'noopener');
     } else {
       setSnack({ open: true, message: `Failed to download: ${result.error || 'Unknown error'}`, severity: 'error' });
     }
