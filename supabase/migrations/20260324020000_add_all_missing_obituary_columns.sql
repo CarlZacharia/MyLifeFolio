@@ -1,5 +1,6 @@
--- Add ALL columns that may be missing from legacy_obituary if the table was created
--- before the full schema migration (CREATE TABLE IF NOT EXISTS skips existing tables)
+-- Add ALL columns that may be missing from legacy_obituary.
+-- The table was created early with a partial schema, and the later
+-- CREATE TABLE IF NOT EXISTS migration skipped it entirely.
 
 -- The Basics
 ALTER TABLE legacy_obituary ADD COLUMN IF NOT EXISTS preferred_name TEXT;
