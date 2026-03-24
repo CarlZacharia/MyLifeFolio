@@ -179,7 +179,7 @@ const MedicalProvidersTab = () => {
           Rehab
         </Button>
         <Button variant="outlined" startIcon={<AddIcon />} onClick={() => openAdd(ptCategory)} size="small">
-          Physical Therapy
+          Phys. Therapy
         </Button>
         <Button variant="outlined" startIcon={<AddIcon />} onClick={() => openAdd(hospiceCategory)} size="small">
           Hospice
