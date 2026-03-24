@@ -46,45 +46,46 @@ const FamilyAccessLogin: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // DEV BYPASS: In dev mode, sign in with password instead of OTP.
+  // DEV BYPASS: commented out — uncomment to test with password instead of OTP
   // To use: create user sonny@gmail.com in Supabase dashboard with password "devtest123"
-  const isDevMode = import.meta.env.DEV;
-  const DEV_PASSWORD = 'devtest123';
+  // const isDevMode = import.meta.env.DEV;
+  // const DEV_PASSWORD = 'devtest123';
+  const isDevMode = false;
 
-  // Step 1: send OTP code (skipped in dev mode)
+  // Step 1: send OTP code
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
+      /* DEV BYPASS — uncomment to test with password instead of OTP
       if (isDevMode) {
-        // In dev mode, skip sending real OTP — go straight to sign-in
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: email.trim().toLowerCase(),
-          password: DEV_PASSWORD,
+          password: 'devtest123',
         });
         if (signInError) {
-          setError('Dev login failed: ' + signInError.message + '. Make sure the user exists in Supabase with password "devtest123".');
+          setError('Dev login failed: ' + signInError.message);
         } else {
-          // Hard redirect — react-router navigate doesn't work reliably after auth changes
           window.location.href = '/family-portal';
           return;
         }
       } else {
-        const { error: otpError } = await supabase.auth.signInWithOtp({
-          email: email.trim().toLowerCase(),
-          options: { shouldCreateUser: true },
-        });
-        if (otpError) {
-          if (otpError.message.includes('not allowed') || otpError.message.includes('Signups not allowed')) {
-            setError('This email is not authorized to access any folio. Please contact your family member to add you.');
-          } else {
-            setError(otpError.message);
-          }
+      */
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email: email.trim().toLowerCase(),
+        options: { shouldCreateUser: true },
+      });
+      if (otpError) {
+        if (otpError.message.includes('not allowed') || otpError.message.includes('Signups not allowed')) {
+          setError('This email is not authorized to access any folio. Please contact your family member to add you.');
         } else {
-          setStep('code');
+          setError(otpError.message);
         }
+      } else {
+        setStep('code');
       }
+      /* } // end DEV BYPASS else */
     } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -160,15 +161,8 @@ const FamilyAccessLogin: React.FC = () => {
                 disabled={loading || !email}
                 sx={{ bgcolor: '#1a237e', '&:hover': { bgcolor: '#000051' }, py: 1.5 }}
               >
-                {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : isDevMode ? 'Dev Sign In' : 'Send me a code'}
+                {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Send me a code'}
               </Button>
-
-              {isDevMode && (
-                <Alert severity="warning" sx={{ mt: 2 }}>
-                  DEV MODE: Will sign in with password "devtest123" — no OTP needed.
-                  Create the user in Supabase dashboard first.
-                </Alert>
-              )}
 
               <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: 'text.secondary' }}>
                 You must be pre-authorized by the account holder to access their folio.

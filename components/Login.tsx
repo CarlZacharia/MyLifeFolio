@@ -112,18 +112,20 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
   };
 
   const switchLoginType = (t: LoginType) => {
+    if (t === loginType) return; // no-op if already on this type
     setLoginType(t);
     setMode('otp');
     setOtpStep('email');
     setError(null);
     setCode('');
     setPassword('');
-    setCaptchaToken(null);
+    // Don't reset captchaToken — the Turnstile widget persists and won't re-challenge
   };
 
-  // DEV BYPASS for family access testing
-  const isDevMode = import.meta.env.DEV;
-  const DEV_PASSWORD = 'devtest123';
+  // DEV BYPASS for family access testing (uncomment to re-enable)
+  // const isDevMode = import.meta.env.DEV;
+  // const DEV_PASSWORD = 'devtest123';
+  const isDevMode = false;
 
   // ── Family Access: send OTP ─────────────────────────────────────────────
   const handleFamilySendCode = async (e: React.FormEvent) => {
@@ -132,32 +134,34 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
     setLoading(true);
     setError(null);
     try {
+      /* DEV BYPASS — uncomment to test with password instead of OTP
       if (isDevMode) {
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: email.trim().toLowerCase(),
           password: DEV_PASSWORD,
         });
         if (signInError) {
-          setError('Dev login failed: ' + signInError.message + '. Make sure the user exists in Supabase with password "devtest123".');
+          setError('Dev login failed: ' + signInError.message);
         } else {
           window.location.href = '/family-portal';
           return;
         }
       } else {
-        const { error: otpError } = await supabase.auth.signInWithOtp({
-          email: email.trim().toLowerCase(),
-          options: { shouldCreateUser: true },
-        });
-        if (otpError) {
-          if (otpError.message.includes('not allowed') || otpError.message.includes('Signups not allowed')) {
-            setError('This email is not authorized to access any folio. Please contact your family member to add you.');
-          } else {
-            setError(otpError.message);
-          }
+      */
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email: email.trim().toLowerCase(),
+        options: { shouldCreateUser: true },
+      });
+      if (otpError) {
+        if (otpError.message.includes('not allowed') || otpError.message.includes('Signups not allowed')) {
+          setError('This email is not authorized to access any folio. Please contact your family member to add you.');
         } else {
-          setOtpStep('code');
+          setError(otpError.message);
         }
+      } else {
+        setOtpStep('code');
       }
+      /* } // end DEV BYPASS else */
     } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -273,9 +277,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
             {otpStep === 'email' ? (
               <>
                 <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary', mb: 2 }}>
-                  {isDevMode
-                    ? 'DEV MODE: Enter your email and click sign in (no code needed).'
-                    : 'Enter your email and we\'ll send you a sign-in code.'}
+                  Enter your email and we'll send you a sign-in code.
                 </Typography>
                 <Box component="form" onSubmit={handleFamilySendCode}>
                   <TextField
@@ -292,11 +294,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
                     InputLabelProps={{ shrink: true }}
                   />
 
-                  {isDevMode && (
-                    <Alert severity="warning" sx={{ mt: 1 }}>
-                      DEV MODE: Will sign in with password — no OTP needed.
-                    </Alert>
-                  )}
+
 
                   <Button
                     type="submit"
@@ -305,7 +303,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSuccess }) =
                     disabled={loading || !email.trim()}
                     sx={{ mt: 2, mb: 2, bgcolor: '#1a237e', '&:hover': { bgcolor: '#000051' }, py: 1.5 }}
                   >
-                    {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : isDevMode ? 'Dev Sign In' : 'Send me a code'}
+                    {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Send me a code'}
                   </Button>
                 </Box>
               </>
