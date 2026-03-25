@@ -45,6 +45,7 @@ import DocumentsVaultSection from '../components/DocumentsVaultSection';
 import DigitalLifeSection from '../components/DigitalLifeSection';
 import FamilyAccessManager from '../src/features/owner-settings/FamilyAccessManager';
 import PricingPage from '../components/PricingPage';
+import BenefitsOverview from '../components/BenefitsOverview';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
@@ -75,7 +76,8 @@ type PageType = 'landing' | 'mylifefolio-home' | 'long-term-care' | 'medicaid' |
   | 'family-access-settings'
   | 'about'
   | 'account-settings'
-  | 'pricing';
+  | 'pricing'
+  | 'benefits';
 
 import { isAdminUser } from '../lib/adminUtils';
 
@@ -594,6 +596,13 @@ export default function MainPage() {
           <PricingPage
             onNavigateBack={() => handleNavigate('mylifefolio-home')}
             onNavigate={handleNavigate}
+          />
+        );
+
+      case 'benefits':
+        return (
+          <BenefitsOverview
+            onNavigateBack={() => handleNavigate(previousPage || 'landing')}
           />
         );
 

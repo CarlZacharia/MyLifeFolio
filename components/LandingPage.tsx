@@ -379,11 +379,20 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                 </Box>
 
                 {/* CTAs */}
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 5, opacity: 0, animation: 'fadeUp 0.8s 0.55s ease forwards', '@keyframes fadeUp': { from: { opacity: 0, transform: 'translateY(20px)' }, to: { opacity: 1, transform: 'translateY(0)' } } }}>
-                  <Button variant="contained" size="large" onClick={primaryBtn.onClick} endIcon={primaryBtn.icon}
-                    sx={{ bgcolor: 'secondary.main', color: 'primary.dark', px: 4, py: 1.6, fontSize: '1rem', fontFamily: '"Source Sans 3", sans-serif', fontWeight: 700, '&:hover': { bgcolor: 'secondary.light', transform: 'translateY(-2px)', boxShadow: '0 8px 28px rgba(201,162,39,0.35)' }, transition: 'all 0.3s ease' }}>
-                    {primaryBtn.text}
-                  </Button>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 5, opacity: 0, animation: 'fadeUp 0.8s 0.55s ease forwards', '@keyframes fadeUp': { from: { opacity: 0, transform: 'translateY(20px)' }, to: { opacity: 1, transform: 'translateY(0)' } } }}>
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                    <Button variant="contained" size="large" onClick={primaryBtn.onClick} endIcon={primaryBtn.icon}
+                      sx={{ bgcolor: 'secondary.main', color: 'primary.dark', px: 4, py: 1.6, fontSize: '1rem', fontFamily: '"Source Sans 3", sans-serif', fontWeight: 700, '&:hover': { bgcolor: 'secondary.light', transform: 'translateY(-2px)', boxShadow: '0 8px 28px rgba(201,162,39,0.35)' }, transition: 'all 0.3s ease' }}>
+                      {primaryBtn.text}
+                    </Button>
+                    <Button variant="outlined" size="large" onClick={() => onNavigate('benefits')}
+                      sx={{ borderColor: 'rgba(255,255,255,0.4)', color: 'white', px: 4, py: 1.6, fontFamily: '"Source Sans 3", sans-serif', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.06)' } }}>
+                      See What MyLifeFolio Does For You →
+                    </Button>
+                  </Box>
+                  <Typography variant="body2" sx={{ color: alpha('#fff', 0.6), fontSize: '0.8rem', fontFamily: '"Source Sans 3", sans-serif' }}>
+                    Not sure if it's right for you? Explore 24 real-life scenarios.
+                  </Typography>
                 </Box>
 
                 {/* Trust bar */}
