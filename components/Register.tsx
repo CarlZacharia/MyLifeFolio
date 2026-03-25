@@ -156,9 +156,14 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
       }
 
       if (data.user) {
-        // Sign out immediately — user must confirm email before they can use the app
-        await supabase.auth.signOut();
-        setSuccess(true);
+        if (data.user.email_confirmed_at) {
+          // Email confirmation is disabled — user is already confirmed, proceed directly
+          onSuccess?.();
+        } else {
+          // Email confirmation is enabled — sign out and prompt user to check email
+          await supabase.auth.signOut();
+          setSuccess(true);
+        }
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
