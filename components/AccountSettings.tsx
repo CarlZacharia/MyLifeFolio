@@ -143,16 +143,28 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
           throw new Error(fetchError.message);
         }
       } else if (data) {
-        setProfileData({
-          name: data.name || '',
+        const meta = user.user_metadata || {};
+        const merged = {
+          name: data.name || meta.name || '',
           email: data.email || user.email || '',
-          address: data.address || '',
-          city: data.city || '',
-          state: data.state || '',
-          state_of_domicile: data.state_of_domicile || '',
-          zip: data.zip || '',
-          telephone: data.telephone || '',
-        });
+          address: data.address || meta.address || '',
+          city: data.city || meta.city || '',
+          state: data.state || meta.state || '',
+          state_of_domicile: data.state_of_domicile || meta.state_of_domicile || '',
+          zip: data.zip || meta.zip || '',
+          telephone: data.telephone || meta.telephone || '',
+        };
+        setProfileData(merged);
+
+        // Backfill profile row if metadata had values the profile was missing
+        const patches: Record<string, string> = {};
+        if (!data.city && merged.city) patches.city = merged.city;
+        if (!data.state && merged.state) patches.state = merged.state;
+        if (!data.zip && merged.zip) patches.zip = merged.zip;
+        if (!data.address && merged.address) patches.address = merged.address;
+        if (Object.keys(patches).length > 0) {
+          await supabase.from('profiles').update(patches).eq('id', user.id);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile');
