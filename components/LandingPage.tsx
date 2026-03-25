@@ -293,10 +293,10 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                       <ListItemIcon><PeopleIcon fontSize="small" /></ListItemIcon>
                       <ListItemText>Family Access</ListItemText>
                     </MenuItem>
-                    <MenuItem onClick={() => { setAccountMenuAnchor(null); onNavigate('resources'); }}>
+                    {/* <MenuItem onClick={() => { setAccountMenuAnchor(null); onNavigate('resources'); }}>
                       <ListItemIcon><LibraryBooksIcon fontSize="small" /></ListItemIcon>
                       <ListItemText>Resources</ListItemText>
-                    </MenuItem>
+                    </MenuItem> */}
                     <MenuItem onClick={() => { setAccountMenuAnchor(null); onNavigate('account-settings'); }}>
                       <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
                       <ListItemText>Account Settings</ListItemText>
@@ -310,10 +310,10 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                 </>
               ) : (
                 <>
-                  <Button variant="outlined" onClick={() => onNavigate('resources')} startIcon={<LibraryBooksIcon />}
+                  {/* <Button variant="outlined" onClick={() => onNavigate('resources')} startIcon={<LibraryBooksIcon />}
                     sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
                     Resources
-                  </Button>
+                  </Button> */}
                   <Button variant="outlined" onClick={() => onNavigate('about')} startIcon={<InfoOutlinedIcon />}
                     sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
                     About
