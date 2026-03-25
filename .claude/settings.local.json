@@ -20,7 +20,8 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(npx supabase:*)"
+      "Bash(npx supabase:*)",
+      "Bash(python -m pip install python-docx)"
     ],
     "additionalDirectories": [
       "c:\\Users\\czach\\apps\\react\\mylifefolio\\components"
