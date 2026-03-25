@@ -33,9 +33,15 @@ const benefits = [
   { icon: "🔐", title: "Granular access control — you decide who sees what", desc: "The client controls exactly which sections each authorized person can view. A healthcare agent sees medical data. A financial trustee sees accounts. Adult children see what you choose. Privacy is preserved.", tags: ["All sections"], cat: "Platform" },
   { icon: "📱", title: "One place, always current, always accessible", desc: "No more filing cabinets, multiple binders, scattered email folders, or Post-it notes in a sock drawer. One secure, organized, web-accessible record that is always where you left it.", tags: ["All sections"], cat: "Platform" },
   { icon: "🤝", title: "Peace of mind for the whole family", desc: "Perhaps the most underrated benefit: the person completing it knows their family will be okay. The family knows they won't be helpless. Everyone sleeps better.", tags: ["All sections"], cat: "Platform" },
+  { icon: "🔒", title: "Multiple layers of encryption protect your data", desc: "Your information is encrypted in transit and at rest. Your most sensitive credentials receive an additional layer of encryption on your device before the data ever leaves your browser — we never see it in readable form.", tags: ["All sections"], cat: "Security" },
+  { icon: "🛡️", title: "Your Credential Vault is yours alone", desc: "The Credential Vault is protected by a passphrase that only you know. Without it, the encrypted data is unreadable — even to us. Social Security numbers are encrypted separately and are never stored in readable form.", tags: ["All sections"], cat: "Security" },
+  { icon: "🔑", title: "Strict authentication and session controls", desc: "Your identity is verified before you can access the platform. Sensitive sections require re-verification, protecting against unauthorized use of an unlocked device. Sessions use short-lived credentials that refresh automatically.", tags: ["All sections"], cat: "Security" },
+  { icon: "👁️", title: "You control who sees what — and you can see who looked", desc: "You choose exactly which categories each family member can view. Sensitive information is automatically masked even for authorized viewers. Every access is logged so you can review who viewed what and when.", tags: ["All sections"], cat: "Security" },
+  { icon: "📂", title: "Documents stored in private, encrypted isolation", desc: "Uploaded documents live in private, encrypted storage with no publicly accessible links. Each user's files are completely isolated from every other user's files.", tags: ["Documents Vault"], cat: "Security" },
+  { icon: "💳", title: "Payment security at the highest level", desc: "All payment processing is handled by a PCI DSS Level 1 certified processor — the highest level of payment security certification in the industry. Your credit card numbers and billing details never touch our servers.", tags: ["All sections"], cat: "Security" },
 ];
 
-const categories = ["All", "Emergency", "Estate & Legal", "Aging & Cognitive", "Legacy", "Professional", "End of Life", "Platform"];
+const categories = ["All", "Emergency", "Estate & Legal", "Aging & Cognitive", "Legacy", "Professional", "End of Life", "Platform", "Security"];
 
 interface BenefitsOverviewProps {
   onNavigateBack: () => void;
