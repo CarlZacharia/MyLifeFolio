@@ -44,6 +44,9 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import CancelIcon from '@mui/icons-material/Cancel';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import InputAdornment from '@mui/material/InputAdornment';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthContext';
 import { useSubscription } from '../lib/SubscriptionContext';
@@ -99,6 +102,8 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [savingPassword, setSavingPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData>({
     name: '',
     email: '',
@@ -478,7 +483,6 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
                     value={profileData.name}
                     InputLabelProps={{ shrink: true }}
                     fullWidth
-                    disabled
                     InputProps={{
                       readOnly: true,
                       startAdornment: <PersonIcon sx={{ color: 'text.secondary', mr: 1, fontSize: 20 }} />,
@@ -491,7 +495,6 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
                     value={profileData.email}
                     InputLabelProps={{ shrink: true }}
                     fullWidth
-                    disabled
                     InputProps={{
                       readOnly: true,
                       startAdornment: <EmailIcon sx={{ color: 'text.secondary', mr: 1, fontSize: 20 }} />,
@@ -504,7 +507,6 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
                     value={profileData.telephone}
                     InputLabelProps={{ shrink: true }}
                     fullWidth
-                    disabled
                     InputProps={{
                       readOnly: true,
                       startAdornment: <PhoneIcon sx={{ color: 'text.secondary', mr: 1, fontSize: 20 }} />,
@@ -517,7 +519,6 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
                     value={profileData.state_of_domicile}
                     InputLabelProps={{ shrink: true }}
                     fullWidth
-                    disabled
                     InputProps={{
                       readOnly: true,
                       startAdornment: <GavelIcon sx={{ color: 'text.secondary', mr: 1, fontSize: 20 }} />,
@@ -530,7 +531,6 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
                     value={profileData.address}
                     InputLabelProps={{ shrink: true }}
                     fullWidth
-                    disabled
                     sx={{ gridColumn: { sm: '1 / -1' } }}
                     InputProps={{
                       readOnly: true,
@@ -544,7 +544,6 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
                     value={profileData.city}
                     InputLabelProps={{ shrink: true }}
                     fullWidth
-                    disabled
                     InputProps={{ readOnly: true }}
                   />
 
@@ -554,7 +553,6 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
                     value={profileData.state}
                     InputLabelProps={{ shrink: true }}
                     fullWidth
-                    disabled
                     InputProps={{ readOnly: true }}
                   />
 
@@ -564,7 +562,6 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
                     value={profileData.zip}
                     InputLabelProps={{ shrink: true }}
                     fullWidth
-                    disabled
                     InputProps={{ readOnly: true }}
                   />
                 </Box>
@@ -614,23 +611,41 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
                   <TextField
                     label="New Password"
-                    type="password"
+                    type={showNewPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     InputLabelProps={{ shrink: true }}
                     fullWidth
                     size="small"
                     placeholder="Min. 8 characters"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowNewPassword(!showNewPassword)} edge="end" size="small">
+                            {showNewPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                   <TextField
                     label="Confirm Password"
-                    type="password"
+                    type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     InputLabelProps={{ shrink: true }}
                     fullWidth
                     size="small"
                     placeholder="Re-enter password"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end" size="small">
+                            {showConfirmPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Box>
 
