@@ -14,7 +14,11 @@
     "test:coverage": "vitest run --coverage",
     "test:rls": "vitest run src/test/rls/ --no-file-parallelism --environment node --config vitest.rls.config.ts",
     "test:rls:slow": "vitest run src/test/rls/ --no-file-parallelism --environment node --config vitest.rls.config.ts --pool forks --poolOptions.forks.maxForks 1",
-    "test:edge": "vitest run src/test/edge/ --reporter=verbose --config vitest.edge.config.ts"
+    "test:edge": "vitest run src/test/edge/ --reporter=verbose --config vitest.edge.config.ts",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
+    "test:e2e:headed": "npx playwright test --headed",
+    "test:e2e:codegen": "npx playwright codegen http://localhost:5173"
   },
   "dependencies": {
     "@emotion/react": "^11.11.0",
@@ -40,6 +44,7 @@
     "supabase": "^2.70.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
