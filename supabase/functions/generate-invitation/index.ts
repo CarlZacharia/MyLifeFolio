@@ -75,7 +75,7 @@ serve(async (req: Request) => {
     }
 
     // Validate trial_months
-    if (!trial_months || ![6, 12].includes(trial_months)) {
+    if (trial_months !== undefined && ![6, 12].includes(trial_months)) {
       return new Response(JSON.stringify({ error: 'trial_months must be 6 or 12' }), {
         status: 400,
         headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
@@ -90,17 +90,29 @@ serve(async (req: Request) => {
       });
     }
 
+    // created_by must be provided — it references attorneys(id)
+    if (!created_by) {
+      return new Response(JSON.stringify({ error: 'created_by (attorney ID) is required' }), {
+        status: 400,
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
+      });
+    }
+
     // Service role client to insert into invitations (bypasses RLS)
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
+    const insertPayload: Record<string, unknown> = {
+      invited_email: invited_email || null,
+      plan_type,
+      created_by,
+    };
+    if (trial_months !== undefined) {
+      insertPayload.trial_months = trial_months;
+    }
+
     const { data: invitation, error: insertError } = await supabaseAdmin
       .from('invitations')
-      .insert({
-        invited_email: invited_email || null,
-        plan_type,
-        trial_months,
-        created_by: created_by || user.id,
-      })
+      .insert(insertPayload)
       .select('code')
       .single();
 

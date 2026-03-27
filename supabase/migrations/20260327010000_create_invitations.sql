@@ -1,48 +1,30 @@
 -- Create invitations table for tracking signup invitations
+-- NOTE: This table was already created directly in Supabase.
+-- This migration file is kept for reference / version control.
 CREATE TABLE IF NOT EXISTS invitations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  code UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
-  invited_email TEXT,
-  plan_type TEXT NOT NULL CHECK (plan_type IN ('client', 'public')),
-  trial_months INTEGER NOT NULL CHECK (trial_months IN (6, 12)),
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'expired', 'revoked')),
-  created_by UUID REFERENCES auth.users(id),
-  accepted_by UUID REFERENCES auth.users(id),
-  accepted_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  code text UNIQUE NOT NULL DEFAULT gen_random_uuid()::text,
+  created_by uuid REFERENCES attorneys(id) ON DELETE SET NULL,
+  invited_email text,
+  plan_type text NOT NULL CHECK (plan_type IN ('client', 'public')),
+  trial_months integer NOT NULL DEFAULT 12,
+  used_at timestamptz,
+  used_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  expires_at timestamptz NOT NULL DEFAULT now() + interval '90 days',
+  created_at timestamptz NOT NULL DEFAULT now()
 );
 
--- Index for fast lookup by code (used during signup)
-CREATE INDEX idx_invitations_code ON invitations (code);
--- Index for listing invitations by creator
-CREATE INDEX idx_invitations_created_by ON invitations (created_by);
-
--- Auto-update updated_at
-CREATE OR REPLACE FUNCTION update_invitations_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_invitations_updated_at
-  BEFORE UPDATE ON invitations
-  FOR EACH ROW
-  EXECUTE FUNCTION update_invitations_updated_at();
-
--- Enable RLS
+-- RLS
 ALTER TABLE invitations ENABLE ROW LEVEL SECURITY;
 
--- Users can read invitations they created
-DROP POLICY IF EXISTS "Users can read own invitations" ON invitations;
-CREATE POLICY "Users can read own invitations"
-  ON invitations FOR SELECT
-  USING (auth.uid() = created_by);
-
--- Service role handles all writes (via edge functions)
+-- Only service role can insert/update (staff-generated via Edge Function)
 DROP POLICY IF EXISTS "Service role full access" ON invitations;
 CREATE POLICY "Service role full access"
-  ON invitations FOR ALL
+  ON invitations
   USING (auth.role() = 'service_role');
+
+-- Authenticated users can read their own used invitation
+DROP POLICY IF EXISTS "Users can read their own invitation" ON invitations;
+CREATE POLICY "Users can read their own invitation"
+  ON invitations FOR SELECT
+  USING (used_by = auth.uid());
