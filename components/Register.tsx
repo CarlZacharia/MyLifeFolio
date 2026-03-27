@@ -130,6 +130,40 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
     setError(null);
 
     try {
+      // Rate limit check by IP address
+      let ipAddress = 'unknown';
+      try {
+        const ipRes = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipRes.json();
+        ipAddress = ipData.ip;
+      } catch {
+        // If IP lookup fails, proceed without blocking
+      }
+
+      if (ipAddress !== 'unknown') {
+        const rateRes = await supabase.functions.invoke('check-signup-rate', {
+          body: { email: formData.email, ip_address: ipAddress },
+        });
+        // supabase.functions.invoke returns error for non-2xx (including 429)
+        // Check both error and data paths for the rate limit response
+        if (rateRes.data?.allowed === false) {
+          setError(rateRes.data.reason);
+          return;
+        }
+        if (rateRes.error) {
+          // 429 comes back as a FunctionsHttpError — parse the body
+          try {
+            const errBody = JSON.parse(rateRes.error.message);
+            if (errBody.allowed === false) {
+              setError(errBody.reason);
+              return;
+            }
+          } catch {
+            // Not a JSON error body — ignore and proceed
+          }
+        }
+      }
+
       // Validate email against disposable domain blocklist
       const validateRes = await supabase.functions.invoke('validate-email', {
         body: { email: formData.email },
