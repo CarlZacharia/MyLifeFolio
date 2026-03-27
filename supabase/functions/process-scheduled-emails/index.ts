@@ -219,7 +219,7 @@ serve(async (req: Request) => {
             Authorization: `Bearer ${resendApiKey}`,
           },
           body: JSON.stringify({
-            from: 'MyLifeFolio <noreply@mylifefolio.com>',
+            from: 'MyLifeFolio <noreply@mail.seniorcareres.com>',
             to: [profile.email],
             subject: template.subject,
             html: template.html,
