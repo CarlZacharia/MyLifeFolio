@@ -16,6 +16,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import FolderIcon from '@mui/icons-material/Folder';
 import ListAltIcon from '@mui/icons-material/ListAlt';
+import PlaceIcon from '@mui/icons-material/Place';
 import { folioColors } from './FolioModal';
 import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
 import { documentsVaultHelp } from './folioHelpContent';
@@ -34,6 +35,7 @@ import {
   getVaultDocumentCounts,
 } from '../lib/documentVaultStorage';
 import DocumentUploadModal, { DocumentUploadData } from './DocumentUploadModal';
+import DocumentStorageLocationPanel from './DocumentStorageLocationPanel';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -560,6 +562,7 @@ const DocumentsVaultSection: React.FC = () => {
   const [uploadCategory, setUploadCategory] = useState<VaultCategoryDef | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<VaultDocumentRecord | null>(null);
   const [viewInlineUrl, setViewInlineUrl] = useState<{ url: string; name: string; type: string } | null>(null);
+  const [storageLocationOpen, setStorageLocationOpen] = useState(false);
   const [snack, setSnack] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
     open: false, message: '', severity: 'success',
   });
@@ -724,7 +727,81 @@ const DocumentsVaultSection: React.FC = () => {
             onDelete={(doc) => setDeleteTarget(doc)}
           />
         ))}
+
+        {/* 12th card — Document Storage Location */}
+        <Card
+          variant="outlined"
+          sx={{
+            borderRadius: '10px',
+            transition: 'all 0.2s',
+            borderColor: storageLocationOpen ? '#7b2cbf' : 'rgba(0,0,0,0.12)',
+            boxShadow: storageLocationOpen ? '0 4px 20px rgba(0,0,0,0.08)' : 'none',
+            '&:hover': {
+              borderColor: '#7b2cbf',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+            },
+          }}
+        >
+          <CardContent
+            sx={{
+              cursor: 'pointer',
+              py: 2,
+              px: 2.5,
+              '&:last-child': { pb: 2 },
+            }}
+            onClick={() => setStorageLocationOpen((prev) => !prev)}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+              <Box
+                sx={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  bgcolor: 'rgba(123,44,191,0.08)',
+                  flexShrink: 0,
+                }}
+              >
+                <PlaceIcon sx={{ fontSize: 22, color: '#7b2cbf' }} />
+              </Box>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, lineHeight: 1.3, color: folioColors.ink }}>
+                    Document Storage Location
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: folioColors.inkLight, fontSize: '0.82rem', lineHeight: 1.4 }}>
+                  Track where physical copies of important documents are kept
+                </Typography>
+              </Box>
+              <IconButton size="small" sx={{ color: folioColors.inkFaint, mt: 0.25 }}>
+                {storageLocationOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              </IconButton>
+            </Box>
+          </CardContent>
+        </Card>
       </Box>
+
+      {/* Document Storage Location expanded panel (full width, below grid) */}
+      <Collapse in={storageLocationOpen}>
+        <Paper
+          variant="outlined"
+          sx={{
+            mt: 2,
+            p: 3,
+            borderRadius: '10px',
+            borderColor: '#7b2cbf',
+            bgcolor: '#fefcff',
+          }}
+        >
+          <DocumentStorageLocationPanel
+            intakeId={intakeId}
+            onViewVaultDoc={handleViewInline}
+          />
+        </Paper>
+      </Collapse>
 
       {/* All Documents listing */}
       {intakeId && (

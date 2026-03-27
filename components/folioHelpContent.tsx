@@ -8,6 +8,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import HomeIcon from '@mui/icons-material/Home';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import SecurityIcon from '@mui/icons-material/Security';
+import PlaceIcon from '@mui/icons-material/Place';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import HealingIcon from '@mui/icons-material/Healing';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
@@ -392,6 +393,51 @@ export const documentsVaultHelp: HelpContent = {
         'Use the sensitivity level to control who can see each document through the Family Access Portal.',
         'Set expiration dates on documents like insurance policies, passports, and driver\'s licenses so you get reminders to renew.',
         'The "All Documents" table at the bottom provides a comprehensive view across all categories.',
+      ],
+    },
+  ],
+};
+
+// ─── 7b. Document Storage Location ───────────────────────────────────────────
+
+export const documentStorageLocationHelp: HelpContent = {
+  title: 'Document Storage Location — Help',
+  icon: <PlaceIcon sx={{ fontSize: 26 }} />,
+  accentColor: '#7b2cbf',
+  sections: [
+    {
+      title: 'Overview',
+      body: 'This section tracks where the physical copies of your important documents are stored — at home, in a safe, at your attorney\'s office, in a safe deposit box, etc. When a crisis happens, your family needs to find these documents quickly.',
+    },
+    {
+      title: 'Categories',
+      body: 'Documents are organized into these groups:',
+      bullets: [
+        'Estate Planning — Will, Trust, Powers of Attorney, Living Will, Prenuptial Agreement.',
+        'Insurance — Life, Homeowners, Auto, Umbrella, Long-Term Care, Medicare Supplement.',
+        'Real Property — Deed locations are pulled automatically from properties you\'ve entered in Assets. Mortgage documents have their own entry.',
+        'Financial Accounts — Brokerage statements and retirement account beneficiary designations.',
+        'Tax Records — Prior returns and property tax records.',
+        'Business Interests — Buy-sell agreements and operating agreements.',
+        'Vehicle Titles — Pulled automatically from vehicles you\'ve entered in Assets.',
+        'Safe Deposit Box — Box location and key location.',
+        'Personal Identity & Vital Records — Birth certificates, marriage certificates, passports, Social Security cards, and more.',
+        'Funeral & Cemetery — Pre-paid funeral contracts and burial/cremation instructions.',
+        'Military — DD-214 and VA benefit letters.',
+        'Other — A catch-all for any documents not listed above. You can add as many rows as needed.',
+      ],
+    },
+    {
+      title: 'Digital Copy Cross-Reference',
+      body: 'If you\'ve already uploaded a digital copy of a document to the Documents Vault, you\'ll see a blue eye icon next to that item — click it to view the uploaded file. If no digital copy exists, you\'ll see a cloud-upload icon that lets you upload one directly from this screen.',
+    },
+    {
+      title: 'Tips',
+      bullets: [
+        'Be specific about locations: "fireproof safe in master bedroom closet" is more useful than "at home".',
+        'If you keep originals at your attorney\'s office, note which attorney and their contact info.',
+        'Changes are auto-saved after you stop typing, or use the Save button.',
+        'The Other category lets you add custom entries for documents unique to your situation.',
       ],
     },
   ],
