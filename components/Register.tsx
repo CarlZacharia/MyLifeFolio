@@ -130,6 +130,19 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
     setError(null);
 
     try {
+      // Validate email against disposable domain blocklist
+      const validateRes = await supabase.functions.invoke('validate-email', {
+        body: { email: formData.email },
+      });
+      if (validateRes.error) {
+        setError('Unable to validate email. Please try again.');
+        return;
+      }
+      if (validateRes.data?.valid === false) {
+        setError(validateRes.data.reason);
+        return;
+      }
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
