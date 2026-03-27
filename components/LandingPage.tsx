@@ -143,17 +143,20 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [securityOpen, setSecurityOpen] = useState(false);
+  const [trialModalOpen, setTrialModalOpen] = useState(false);
   const { user, signOut, hasRegistered } = useAuth();
 
   const handleLogout = async () => { await signOut(); onNavigate('landing'); };
   const [accountMenuAnchor, setAccountMenuAnchor] = useState<null | HTMLElement>(null);
 
+  const handleGetStarted = () => setTrialModalOpen(true);
+
   const primaryBtn = useMemo(() => user
     ? { text: 'Open My Folio', icon: <ArrowForwardIcon />, onClick: () => onNavigate('mylifefolio-home') }
     : hasRegistered
       ? { text: 'Sign In', icon: <ArrowForwardIcon />, onClick: onLogin }
-      : { text: 'Create Your Folio', icon: <AutoStoriesIcon />, onClick: onRegister },
-    [user, hasRegistered, onNavigate, onLogin, onRegister]);
+      : { text: 'Create Your Folio', icon: <AutoStoriesIcon />, onClick: handleGetStarted },
+    [user, hasRegistered, onNavigate, onLogin]);
 
   const chapters = [
     {
@@ -321,7 +324,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                   <Button color="inherit" onClick={onLogin} sx={{ opacity: 0.9, '&:hover': { opacity: 1, bgcolor: 'rgba(255,255,255,0.08)' } }}>
                     Sign In
                   </Button>
-                  <Button variant="contained" onClick={onRegister}
+                  <Button variant="contained" onClick={handleGetStarted}
                     sx={{ bgcolor: 'secondary.main', color: 'primary.dark', boxShadow: 'none', '&:hover': { bgcolor: 'secondary.light', boxShadow: '0 4px 12px rgba(201,162,39,0.3)' } }}>
                     Get Started
                   </Button>
@@ -517,7 +520,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
 
             <ScrollFade delay={400}>
               <Box sx={{ textAlign: 'center', mt: 8 }}>
-                <Button variant="contained" size="large" onClick={onRegister} endIcon={<AutoStoriesIcon />}
+                <Button variant="contained" size="large" onClick={handleGetStarted} endIcon={<AutoStoriesIcon />}
                   sx={{ bgcolor: 'secondary.main', color: 'primary.dark', px: 5, py: 1.7, fontSize: '1rem', fontFamily: '"Source Sans 3", sans-serif', fontWeight: 700, '&:hover': { bgcolor: 'secondary.light', transform: 'translateY(-2px)', boxShadow: '0 8px 28px rgba(201,162,39,0.35)' }, transition: 'all 0.3s ease' }}>
                   Start Your Folio — It's Free
                 </Button>
@@ -791,6 +794,77 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
 
         {/* ── SECURITY MODAL ── */}
         <SecurityInfoModal open={securityOpen} onClose={() => setSecurityOpen(false)} />
+
+        {/* ── Free Trial Info Modal ── */}
+        <Dialog
+          open={trialModalOpen}
+          onClose={() => setTrialModalOpen(false)}
+          maxWidth="sm"
+          fullWidth
+          PaperProps={{ sx: { borderRadius: 3, overflow: 'hidden' } }}
+        >
+          <DialogTitle
+            sx={{
+              bgcolor: '#1e3a5f',
+              color: 'white',
+              fontFamily: '"Playfair Display", serif',
+              fontWeight: 600,
+              fontSize: '1.4rem',
+              py: 2.5,
+              px: 3,
+            }}
+          >
+            12-Month Free Trial
+          </DialogTitle>
+          <DialogContent sx={{ px: 3, pt: 3, pb: 1 }}>
+            <Typography sx={{ fontSize: '1rem', lineHeight: 1.8, color: '#1a1a1a', fontFamily: '"Source Sans 3", sans-serif' }}>
+              MyLifeFolio is free for your first year — no credit card required. When you sign up,
+              you get twelve months of full access to every feature on the platform, including
+              document storage, asset tracking, legacy planning, and the Digital Credentials Vault.
+            </Typography>
+            <Typography sx={{ fontSize: '1rem', lineHeight: 1.8, color: '#1a1a1a', fontFamily: '"Source Sans 3", sans-serif', mt: 2 }}>
+              If you were invited by your estate planning attorney, your account is set up as a
+              complimentary client benefit and your access period may be adjusted accordingly.
+            </Typography>
+            <Typography sx={{ fontSize: '1rem', lineHeight: 1.8, color: '#1a1a1a', fontFamily: '"Source Sans 3", sans-serif', mt: 2 }}>
+              As your trial period approaches its end, we'll send you a series of friendly reminders
+              so you're never caught off guard. If you'd like to keep your MyLifeFolio after the free
+              period, you can renew for <strong>$140 per year</strong> — everything you've built stays
+              exactly as you left it.
+            </Typography>
+            <Typography sx={{ fontSize: '1rem', lineHeight: 1.8, color: '#1a1a1a', fontFamily: '"Source Sans 3", sans-serif', mt: 2 }}>
+              If you choose not to renew, your data will remain on file for a grace period before
+              being permanently deleted, giving you time to download and save anything you'd like to keep.
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 3, pt: 2, gap: 1.5 }}>
+            <Button
+              onClick={() => setTrialModalOpen(false)}
+              sx={{ color: 'text.secondary', textTransform: 'none', fontWeight: 600 }}
+            >
+              Close
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setTrialModalOpen(false);
+                onRegister();
+              }}
+              sx={{
+                bgcolor: '#c9a227',
+                color: '#0f2744',
+                fontWeight: 600,
+                textTransform: 'none',
+                px: 4,
+                py: 1.2,
+                fontSize: '1rem',
+                '&:hover': { bgcolor: '#e8c547' },
+              }}
+            >
+              Create Your Free Account
+            </Button>
+          </DialogActions>
+        </Dialog>
 
       </Box>
     </ThemeProvider>
