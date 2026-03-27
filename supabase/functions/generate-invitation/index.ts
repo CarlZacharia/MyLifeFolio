@@ -90,21 +90,24 @@ serve(async (req: Request) => {
       });
     }
 
-    // created_by must be provided — it references attorneys(id)
-    if (!created_by) {
-      return new Response(JSON.stringify({ error: 'created_by (attorney ID) is required' }), {
-        status: 400,
-        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
-      });
-    }
-
     // Service role client to insert into invitations (bypasses RLS)
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Resolve created_by: use provided value, or look up attorney by authenticated user's email
+    let resolvedCreatedBy = created_by || null;
+    if (!resolvedCreatedBy && user.email) {
+      const { data: attorney } = await supabaseAdmin
+        .from('attorneys')
+        .select('id')
+        .eq('email', user.email)
+        .maybeSingle();
+      resolvedCreatedBy = attorney?.id || null;
+    }
 
     const insertPayload: Record<string, unknown> = {
       invited_email: invited_email || null,
       plan_type,
-      created_by,
+      created_by: resolvedCreatedBy,
     };
     if (trial_months !== undefined) {
       insertPayload.trial_months = trial_months;

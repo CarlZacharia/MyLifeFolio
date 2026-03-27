@@ -9,10 +9,12 @@ import PeopleIcon from '@mui/icons-material/People';
 import PaymentIcon from '@mui/icons-material/Payment';
 import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import AdminUsersTab from './admin/AdminUsersTab';
 import AdminSubscriptionsTab from './admin/AdminSubscriptionsTab';
 import AdminAccessTab from './admin/AdminAccessTab';
 import AdminSystemTab from './admin/AdminSystemTab';
+import AdminInvitationsTab from './admin/AdminInvitationsTab';
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -65,6 +67,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
           <Tab icon={<PaymentIcon />} iconPosition="start" label="Subscriptions" />
           <Tab icon={<SecurityIcon />} iconPosition="start" label="Access & Security" />
           <Tab icon={<SettingsIcon />} iconPosition="start" label="System" />
+          <Tab icon={<MailOutlineIcon />} iconPosition="start" label="Invitations" />
         </Tabs>
       </Paper>
 
@@ -80,6 +83,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
       </TabPanel>
       <TabPanel value={tab} index={3}>
         <AdminSystemTab />
+      </TabPanel>
+      <TabPanel value={tab} index={4}>
+        <AdminInvitationsTab />
       </TabPanel>
     </Box>
   );
