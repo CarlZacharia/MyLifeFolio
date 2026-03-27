@@ -97,11 +97,11 @@ interface PricingPageProps {
   onNavigate?: (page: string) => void;
 }
 
-// Stripe price IDs — set these to your actual Stripe price IDs
-const STRIPE_PRICES: Record<string, string> = {
-  standard: import.meta.env.VITE_STRIPE_PRICE_STANDARD || '',
-  enhanced: import.meta.env.VITE_STRIPE_PRICE_ENHANCED || '',
-};
+// STRIPE DISABLED — uncomment when ready to re-enable billing
+// const STRIPE_PRICES: Record<string, string> = {
+//   standard: import.meta.env.VITE_STRIPE_PRICE_STANDARD || '',
+//   enhanced: import.meta.env.VITE_STRIPE_PRICE_ENHANCED || '',
+// };
 
 const PricingPage: React.FC<PricingPageProps> = ({ onNavigateBack, onNavigate }) => {
   const { tier: currentTier, isTrialExpired } = useSubscription();
@@ -115,33 +115,34 @@ const PricingPage: React.FC<PricingPageProps> = ({ onNavigateBack, onNavigate })
     { key: 'enhanced', highlighted: false },
   ];
 
+  // STRIPE DISABLED — uncomment when ready to re-enable billing
   const handleSubscribe = async (planTier: SubscriptionTier) => {
     if (planTier === 'trial') return;
-
-    const priceId = STRIPE_PRICES[planTier];
-    if (!priceId) {
-      setError('Stripe is not configured yet. Please contact support.');
-      return;
-    }
-
-    setLoading(planTier);
-    setError(null);
-
-    try {
-      const { data, error: fnError } = await supabase.functions.invoke('stripe-checkout', {
-        body: { priceId },
-      });
-
-      if (fnError) throw new Error(fnError.message);
-      if (!data?.sessionUrl) throw new Error('No checkout URL returned');
-
-      // Redirect to Stripe Checkout
-      window.location.href = data.sessionUrl;
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to start checkout';
-      setError(message);
-      setLoading(null);
-    }
+    setError('Billing is not yet available. Please check back soon.');
+    // const priceId = STRIPE_PRICES[planTier];
+    // if (!priceId) {
+    //   setError('Stripe is not configured yet. Please contact support.');
+    //   return;
+    // }
+    //
+    // setLoading(planTier);
+    // setError(null);
+    //
+    // try {
+    //   const { data, error: fnError } = await supabase.functions.invoke('stripe-checkout', {
+    //     body: { priceId },
+    //   });
+    //
+    //   if (fnError) throw new Error(fnError.message);
+    //   if (!data?.sessionUrl) throw new Error('No checkout URL returned');
+    //
+    //   // Redirect to Stripe Checkout
+    //   window.location.href = data.sessionUrl;
+    // } catch (err: unknown) {
+    //   const message = err instanceof Error ? err.message : 'Failed to start checkout';
+    //   setError(message);
+    //   setLoading(null);
+    // }
   };
 
   const getButtonLabel = (planTier: SubscriptionTier): string => {

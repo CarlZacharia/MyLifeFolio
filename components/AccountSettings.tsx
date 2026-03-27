@@ -211,39 +211,41 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
     }
   };
 
+  // STRIPE DISABLED — uncomment when ready to re-enable billing
   const handleManageBilling = async () => {
-    if (!user) return;
-    setPortalLoading(true);
-    try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session?.access_token) {
-        setError('Your session has expired. Please log in again.');
-        return;
-      }
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-portal`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({ return_url: window.location.href }),
-        }
-      );
-      const data = await res.json();
-      if (data.portalUrl) {
-        window.location.href = data.portalUrl;
-      } else if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setError(data.error || 'Failed to open billing portal.');
-      }
-    } catch {
-      setError('Failed to open billing portal.');
-    } finally {
-      setPortalLoading(false);
-    }
+    setError('Billing management is not yet available. Please check back soon.');
+    // if (!user) return;
+    // setPortalLoading(true);
+    // try {
+    //   const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    //   if (sessionError || !session?.access_token) {
+    //     setError('Your session has expired. Please log in again.');
+    //     return;
+    //   }
+    //   const res = await fetch(
+    //     `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-portal`,
+    //     {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //         Authorization: `Bearer ${session.access_token}`,
+    //       },
+    //       body: JSON.stringify({ return_url: window.location.href }),
+    //     }
+    //   );
+    //   const data = await res.json();
+    //   if (data.portalUrl) {
+    //     window.location.href = data.portalUrl;
+    //   } else if (data.url) {
+    //     window.location.href = data.url;
+    //   } else {
+    //     setError(data.error || 'Failed to open billing portal.');
+    //   }
+    // } catch {
+    //   setError('Failed to open billing portal.');
+    // } finally {
+    //   setPortalLoading(false);
+    // }
   };
 
   const USER_DATA_TABLES = [
@@ -289,28 +291,29 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onNavigateBack, onNav
         .update({ status: 'cancelled', tier: 'trial' })
         .eq('user_id', user.id);
 
+      // STRIPE DISABLED — uncomment when ready to re-enable billing
       // If they have a Stripe subscription, cancel it via the portal
       // The webhook will handle the actual cancellation
-      if (tier !== 'trial') {
-        const { data: { session } } = await supabase.auth.getSession();
-        const res = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-portal`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session?.access_token}`,
-            },
-            body: JSON.stringify({ return_url: window.location.href }),
-          }
-        );
-        const data = await res.json();
-        if (data.url) {
-          // Redirect to Stripe portal so they can confirm cancellation there
-          window.location.href = data.url;
-          return;
-        }
-      }
+      // if (tier !== 'trial') {
+      //   const { data: { session } } = await supabase.auth.getSession();
+      //   const res = await fetch(
+      //     `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-portal`,
+      //     {
+      //       method: 'POST',
+      //       headers: {
+      //         'Content-Type': 'application/json',
+      //         Authorization: `Bearer ${session?.access_token}`,
+      //       },
+      //       body: JSON.stringify({ return_url: window.location.href }),
+      //     }
+      //   );
+      //   const data = await res.json();
+      //   if (data.url) {
+      //     // Redirect to Stripe portal so they can confirm cancellation there
+      //     window.location.href = data.url;
+      //     return;
+      //   }
+      // }
 
       setCancelSuccess(true);
       setCancelModalOpen(false);
