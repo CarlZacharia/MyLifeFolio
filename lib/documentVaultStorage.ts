@@ -187,25 +187,31 @@ export async function deleteVaultDocument(
   filePath: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Delete from storage first
-    const { error: storageError } = await supabase.storage
-      .from(BUCKET)
-      .remove([filePath]);
-
-    if (storageError) {
-      console.error('deleteVaultDocument storage error:', storageError);
-      return { success: false, error: storageError.message };
+    // Use edge function with service role to bypass storage.objects RLS
+    // (private bucket deletes trigger internal operations that client-side RLS blocks)
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      return { success: false, error: 'Not authenticated' };
     }
 
-    // Delete metadata row
-    const { error: dbError } = await supabase
-      .from('vault_documents')
-      .delete()
-      .eq('id', documentId);
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const response = await fetch(
+      `${supabaseUrl}/functions/v1/vault-delete`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filePath, documentId }),
+      }
+    );
 
-    if (dbError) {
-      console.error('deleteVaultDocument db error:', dbError);
-      return { success: false, error: dbError.message };
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+      console.error('deleteVaultDocument error:', errorData, 'path:', filePath);
+      return { success: false, error: errorData.error || `Delete failed (${response.status})` };
     }
 
     return { success: true };
