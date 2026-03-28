@@ -69,7 +69,7 @@ serve(async (req: Request) => {
     }
 
     // Whitelist of allowed buckets
-    const ALLOWED_BUCKETS = ['vault-documents', 'estate-planning-intakes'];
+    const ALLOWED_BUCKETS = ['vault-documents', 'estate-planning-intakes', 'folio-documents', 'attachments'];
     const targetBucket = bucket || 'vault-documents';
     if (!ALLOWED_BUCKETS.includes(targetBucket)) {
       return new Response(JSON.stringify({ error: 'Invalid bucket' }), {

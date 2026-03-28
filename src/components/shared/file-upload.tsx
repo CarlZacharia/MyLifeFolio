@@ -81,9 +81,21 @@ export function FileUpload({
   }
 
   const handleDelete = async (attachment: FileAttachment) => {
-    await supabase.storage
-      .from("attachments")
-      .remove([attachment.storage_path])
+    // Route through edge function to bypass storage.objects RLS
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.access_token) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || import.meta.env?.VITE_SUPABASE_URL
+      const apikey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || import.meta.env?.VITE_SUPABASE_ANON_KEY
+      await fetch(`${supabaseUrl}/functions/v1/vault-delete`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: apikey || '',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filePath: attachment.storage_path, bucket: 'attachments' }),
+      })
+    }
 
     const { error } = await supabase
       .from("file_attachments")

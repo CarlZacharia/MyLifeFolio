@@ -94,8 +94,26 @@ export async function uploadVaultDocument(
       .single();
 
     if (dbError) {
-      // Roll back the file upload on metadata failure
-      await supabase.storage.from(BUCKET).remove([storagePath]);
+      // Roll back the file upload on metadata failure via edge function
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/vault-delete`,
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ filePath: storagePath, bucket: BUCKET }),
+            }
+          );
+        }
+      } catch {
+        // best-effort rollback
+      }
       console.error('Vault metadata insert error:', dbError);
       return { success: false, error: dbError.message };
     }

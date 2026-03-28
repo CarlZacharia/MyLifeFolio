@@ -37,6 +37,24 @@ import { useFormContext } from '../../../lib/FormContext';
 import { REPORTS } from '../../../components/ReportsSection';
 import { SavedReportConfig } from '../../../lib/savedReportService';
 
+// Helper to delete storage files via edge function (bypasses storage.objects RLS)
+async function deleteStorageFile(filePath: string, bucket: string): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) return;
+  await fetch(
+    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/vault-delete`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ filePath, bucket }),
+    }
+  );
+}
+
 const ALL_SECTIONS = [
   { key: 'personal', label: 'Personal Info' },
   { key: 'medical', label: 'Medical' },
@@ -459,7 +477,7 @@ const FamilyAccessManager: React.FC = () => {
 
         if (editDoc) {
           // Replace file: delete old one, update record
-          await supabase.storage.from('folio-documents').remove([editDoc.storage_path]);
+          await deleteStorageFile(editDoc.storage_path, 'folio-documents');
           const { error: updateError } = await supabase
             .from('folio_documents')
             .update({
@@ -509,7 +527,7 @@ const FamilyAccessManager: React.FC = () => {
     if (!window.confirm(message)) return;
     // Only delete the storage file if it was directly uploaded (not shared from vault)
     if (!isVaultShared) {
-      await supabase.storage.from('folio-documents').remove([doc.storage_path]);
+      await deleteStorageFile(doc.storage_path, 'folio-documents');
     }
     await supabase.from('folio_documents').delete().eq('id', doc.id);
     fetchData();
