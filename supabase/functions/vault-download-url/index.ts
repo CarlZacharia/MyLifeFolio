@@ -1,6 +1,7 @@
-// Supabase Edge Function to generate signed download URLs for vault documents.
+// Supabase Edge Function to generate signed download URLs for private storage buckets.
 // Uses the service role to bypass storage.objects RLS (which blocks client-side
 // signed URL generation on private buckets due to internal INSERT operations).
+// Supports vault-documents, estate-planning-intakes, folio-documents, and attachments.
 
 // @ts-ignore - Deno imports work in Supabase Edge Functions runtime
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
@@ -59,9 +60,19 @@ serve(async (req: Request) => {
       });
     }
 
-    const { filePath } = await req.json();
+    const { filePath, bucket } = await req.json();
     if (!filePath || typeof filePath !== 'string') {
       return new Response(JSON.stringify({ error: 'filePath is required' }), {
+        status: 400,
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Whitelist of allowed buckets
+    const ALLOWED_BUCKETS = ['vault-documents', 'estate-planning-intakes', 'folio-documents', 'attachments'];
+    const targetBucket = bucket || 'vault-documents';
+    if (!ALLOWED_BUCKETS.includes(targetBucket)) {
+      return new Response(JSON.stringify({ error: 'Invalid bucket' }), {
         status: 400,
         headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       });
@@ -82,7 +93,7 @@ serve(async (req: Request) => {
     );
 
     const { data, error } = await supabaseAdmin.storage
-      .from('vault-documents')
+      .from(targetBucket)
       .createSignedUrl(filePath, 300); // 5-minute expiry
 
     if (error) {

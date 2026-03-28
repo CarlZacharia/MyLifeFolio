@@ -535,32 +535,31 @@ const FamilyAccessManager: React.FC = () => {
 
   const handleDownloadDoc = async (doc: FolioDocument) => {
     const bucket = doc.storage_bucket || 'folio-documents';
-    if (bucket === 'vault-documents') {
-      // Use the vault-download-url edge function (owner has access via file path check)
-      const { data: { session } } = await supabase.auth.getSession();
-      const { data, error } = await supabase.functions.invoke('vault-download-url', {
-        body: { filePath: doc.storage_path },
-        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
-      });
-      if (error || !data?.signedUrl) {
-        console.error('Download error:', error);
-        return;
+    // Route all downloads through edge function to bypass storage.objects RLS
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) return;
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/vault-download-url`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filePath: doc.storage_path, bucket }),
       }
-      window.open(data.signedUrl, '_blank');
-    } else {
-      const { data, error: dlError } = await supabase.storage
-        .from('folio-documents')
-        .download(doc.storage_path);
-      if (dlError || !data) {
-        console.error('Download error:', dlError);
-        return;
-      }
-      const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = doc.file_name;
-      a.click();
-      URL.revokeObjectURL(url);
+    );
+
+    if (!response.ok) {
+      console.error('Download error:', await response.text());
+      return;
+    }
+
+    const { signedUrl } = await response.json();
+    if (signedUrl) {
+      window.open(signedUrl, '_blank');
     }
   };
 

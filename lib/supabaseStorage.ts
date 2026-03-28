@@ -634,20 +634,38 @@ export async function listFiles(
 }
 
 /**
- * Get a signed URL for downloading a file
+ * Get a signed URL for downloading a file.
+ * Routes through edge function to bypass storage.objects RLS.
  */
 export async function getDownloadUrl(filePath: string): Promise<StorageResult> {
   try {
-    const { data, error } = await supabase.storage
-      .from(BUCKET_NAME)
-      .createSignedUrl(filePath, 3600); // 1 hour expiry
-
-    if (error) {
-      console.error('Error creating signed URL:', error);
-      return { success: false, error: error.message };
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      return { success: false, error: 'Not authenticated' };
     }
 
-    return { success: true, url: data.signedUrl };
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const response = await fetch(
+      `${supabaseUrl}/functions/v1/vault-download-url`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filePath, bucket: BUCKET_NAME }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+      console.error('Error creating signed URL:', errorData);
+      return { success: false, error: errorData.error || `Download failed (${response.status})` };
+    }
+
+    const { signedUrl } = await response.json();
+    return { success: true, url: signedUrl };
   } catch (err) {
     console.error('Error in getDownloadUrl:', err);
     return {
@@ -658,20 +676,18 @@ export async function getDownloadUrl(filePath: string): Promise<StorageResult> {
 }
 
 /**
- * Download a file directly
+ * Download a file directly via signed URL.
  */
 export async function downloadFile(filePath: string): Promise<Blob | null> {
   try {
-    const { data, error } = await supabase.storage
-      .from(BUCKET_NAME)
-      .download(filePath);
-
-    if (error) {
-      console.error('Error downloading file:', error);
+    const result = await getDownloadUrl(filePath);
+    if (!result.success || !result.url) {
+      console.error('Error getting download URL:', result.error);
       return null;
     }
-
-    return data;
+    const response = await fetch(result.url);
+    if (!response.ok) return null;
+    return await response.blob();
   } catch (err) {
     console.error('Error in downloadFile:', err);
     return null;

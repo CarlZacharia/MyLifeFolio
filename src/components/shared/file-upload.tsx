@@ -111,12 +111,23 @@ export function FileUpload({
   }
 
   const handleDownload = async (attachment: FileAttachment) => {
-    const { data } = await supabase.storage
-      .from("attachments")
-      .createSignedUrl(attachment.storage_path, 60)
-
-    if (data?.signedUrl) {
-      window.open(data.signedUrl, "_blank")
+    // Route through edge function to bypass storage.objects RLS
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.access_token) return
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || import.meta.env?.VITE_SUPABASE_URL
+    const apikey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || import.meta.env?.VITE_SUPABASE_ANON_KEY
+    const response = await fetch(`${supabaseUrl}/functions/v1/vault-download-url`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: apikey || '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ filePath: attachment.storage_path, bucket: 'attachments' }),
+    })
+    if (response.ok) {
+      const { signedUrl } = await response.json()
+      if (signedUrl) window.open(signedUrl, "_blank")
     }
   }
 
