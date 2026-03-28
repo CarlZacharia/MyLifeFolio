@@ -288,16 +288,31 @@ export async function uploadEstatePlanDocuments(
 }
 
 /**
- * Delete an uploaded estate plan document
+ * Delete an uploaded estate plan document.
+ * Routes through edge function to bypass storage.objects RLS.
  */
 export async function deleteEstatePlanDocument(filePath: string): Promise<boolean> {
   try {
-    const { error } = await supabase.storage
-      .from(BUCKET_NAME)
-      .remove([filePath]);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) return false;
 
-    if (error) {
-      console.error('Error deleting estate plan document:', error);
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const response = await fetch(
+      `${supabaseUrl}/functions/v1/vault-delete`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filePath, bucket: BUCKET_NAME }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+      console.error('Error deleting estate plan document:', errorData);
       return false;
     }
 
@@ -664,16 +679,31 @@ export async function downloadFile(filePath: string): Promise<Blob | null> {
 }
 
 /**
- * Delete a file
+ * Delete a file.
+ * Routes through edge function to bypass storage.objects RLS.
  */
 export async function deleteFile(filePath: string): Promise<boolean> {
   try {
-    const { error } = await supabase.storage
-      .from(BUCKET_NAME)
-      .remove([filePath]);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) return false;
 
-    if (error) {
-      console.error('Error deleting file:', error);
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const response = await fetch(
+      `${supabaseUrl}/functions/v1/vault-delete`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filePath, bucket: BUCKET_NAME }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+      console.error('Error deleting file:', errorData);
       return false;
     }
 

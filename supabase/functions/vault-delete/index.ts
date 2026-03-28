@@ -1,6 +1,7 @@
-// Supabase Edge Function to delete vault documents from storage.
+// Supabase Edge Function to delete files from private storage buckets.
 // Uses the service role to bypass storage.objects RLS (which blocks
 // client-side delete on private buckets due to internal RLS checks).
+// Supports vault-documents and estate-planning-intakes buckets.
 
 // @ts-ignore - Deno imports work in Supabase Edge Functions runtime
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
@@ -59,9 +60,19 @@ serve(async (req: Request) => {
       });
     }
 
-    const { filePath, documentId } = await req.json();
+    const { filePath, documentId, bucket } = await req.json();
     if (!filePath || typeof filePath !== 'string') {
       return new Response(JSON.stringify({ error: 'filePath is required' }), {
+        status: 400,
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Whitelist of allowed buckets
+    const ALLOWED_BUCKETS = ['vault-documents', 'estate-planning-intakes'];
+    const targetBucket = bucket || 'vault-documents';
+    if (!ALLOWED_BUCKETS.includes(targetBucket)) {
+      return new Response(JSON.stringify({ error: 'Invalid bucket' }), {
         status: 400,
         headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       });
@@ -83,7 +94,7 @@ serve(async (req: Request) => {
 
     // Delete from storage
     const { error: storageError } = await supabaseAdmin.storage
-      .from('vault-documents')
+      .from(targetBucket)
       .remove([filePath]);
 
     if (storageError) {
