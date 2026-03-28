@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box, Typography, Card, CardContent, Chip, IconButton, Button, Badge,
-  Paper, Dialog, DialogTitle, DialogContent, DialogActions, Collapse, Fade,
+  Paper, Dialog, DialogTitle, DialogContent, DialogActions, Fade,
   Alert, Snackbar,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -14,6 +14,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FolderIcon from '@mui/icons-material/Folder';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import PlaceIcon from '@mui/icons-material/Place';
@@ -72,17 +73,10 @@ function formatDate(dateStr: string | null): string {
 interface CategoryCardProps {
   category: VaultCategoryDef;
   count: number;
-  expanded: boolean;
-  onToggle: () => void;
-  documents: VaultDocumentRecord[];
-  onUpload: () => void;
-  onDownload: (doc: VaultDocumentRecord) => void;
-  onDelete: (doc: VaultDocumentRecord) => void;
+  onClick: () => void;
 }
 
-const CategoryCard: React.FC<CategoryCardProps> = ({
-  category, count, expanded, onToggle, documents, onUpload, onDownload, onDelete,
-}) => {
+const CategoryCard: React.FC<CategoryCardProps> = ({ category, count, onClick }) => {
   const Icon = category.icon;
   const maxExamples = 3;
   const shownExamples = category.examples.slice(0, maxExamples);
@@ -94,41 +88,27 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
       sx={{
         borderRadius: '10px',
         transition: 'all 0.2s',
-        borderColor: expanded ? category.accentColor : 'rgba(0,0,0,0.12)',
-        boxShadow: expanded ? `0 4px 20px rgba(0,0,0,0.08)` : 'none',
+        borderColor: 'rgba(0,0,0,0.12)',
         '&:hover': {
           borderColor: category.accentColor,
-          boxShadow: `0 2px 12px rgba(0,0,0,0.06)`,
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
         },
       }}
     >
       <CardContent
-        sx={{
-          cursor: 'pointer',
-          py: 2,
-          px: 2.5,
-          '&:last-child': { pb: expanded ? 0 : 2 },
-        }}
-        onClick={onToggle}
+        sx={{ cursor: 'pointer', py: 2, px: 2.5, '&:last-child': { pb: 2 } }}
+        onClick={onClick}
       >
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-          {/* Icon */}
           <Box
             sx={{
-              width: 42,
-              height: 42,
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              bgcolor: `${category.accentColor}14`,
-              flexShrink: 0,
+              width: 42, height: 42, borderRadius: '10px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              bgcolor: `${category.accentColor}14`, flexShrink: 0,
             }}
           >
             <Icon sx={{ fontSize: 22, color: category.accentColor }} />
           </Box>
-
-          {/* Content */}
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 600, lineHeight: 1.3, color: folioColors.ink }}>
@@ -140,12 +120,8 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
                   sx={{
                     ml: 1.5,
                     '& .MuiBadge-badge': {
-                      bgcolor: category.accentColor,
-                      color: '#fff',
-                      fontSize: '0.7rem',
-                      fontWeight: 700,
-                      minWidth: 20,
-                      height: 20,
+                      bgcolor: category.accentColor, color: '#fff',
+                      fontSize: '0.7rem', fontWeight: 700, minWidth: 20, height: 20,
                     },
                   }}
                 />
@@ -156,71 +132,77 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
               {moreCount > 0 && `, +${moreCount} more`}
             </Typography>
           </Box>
-
-          {/* Expand icon */}
-          <IconButton size="small" sx={{ color: folioColors.inkFaint, mt: 0.25 }}>
-            {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </IconButton>
+          <ExpandMoreIcon sx={{ color: folioColors.inkFaint, mt: 0.75, fontSize: 20 }} />
         </Box>
       </CardContent>
-
-      {/* Expanded documents list */}
-      <Collapse in={expanded}>
-        <Box
-          sx={{
-            px: 2.5,
-            pb: 2,
-            borderTop: `1px solid ${folioColors.parchment}`,
-            pt: 1.5,
-          }}
-        >
-          {/* Category note */}
-          {category.note && (
-            <Alert
-              severity="info"
-              sx={{
-                mb: 1.5,
-                py: 0.25,
-                fontSize: '0.8rem',
-                '& .MuiAlert-message': { fontSize: '0.8rem' },
-              }}
-            >
-              {category.note}
-            </Alert>
-          )}
-
-          {/* Upload button */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1.5 }}>
-            <Button
-              variant="contained" size="small" startIcon={<AddIcon />}
-              onClick={(e) => { e.stopPropagation(); onUpload(); }}
-              sx={{ bgcolor: folioColors.ink, '&:hover': { bgcolor: '#3d3224' }, textTransform: 'none' }}
-            >
-              Upload Document
-            </Button>
-          </Box>
-
-          {/* Document list */}
-          {documents.length > 0 ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {documents.map((doc) => (
-                <DocumentRow
-                  key={doc.id}
-                  doc={doc}
-                  accentColor={category.accentColor}
-                  onDownload={() => onDownload(doc)}
-                  onDelete={() => onDelete(doc)}
-                />
-              ))}
-            </Box>
-          ) : (
-            <Typography variant="body2" sx={{ color: folioColors.inkFaint, textAlign: 'center', py: 1.5 }}>
-              No documents uploaded yet.
-            </Typography>
-          )}
-        </Box>
-      </Collapse>
     </Card>
+  );
+};
+
+// ── Category Detail View (full-page replacement) ──────────────────────────
+
+interface CategoryDetailViewProps {
+  category: VaultCategoryDef;
+  intakeId: string;
+  documents: VaultDocumentRecord[];
+  onUpload: () => void;
+  onDownload: (doc: VaultDocumentRecord) => void;
+  onDelete: (doc: VaultDocumentRecord) => void;
+}
+
+const CategoryDetailView: React.FC<CategoryDetailViewProps> = ({
+  category, intakeId, documents, onUpload, onDownload, onDelete,
+}) => {
+  const Icon = category.icon;
+
+  return (
+    <Box>
+      {/* Category note */}
+      {category.note && (
+        <Alert
+          severity="info"
+          sx={{ mb: 2, py: 0.25, fontSize: '0.8rem', '& .MuiAlert-message': { fontSize: '0.8rem' } }}
+        >
+          {category.note}
+        </Alert>
+      )}
+
+      {/* Upload button */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Button
+          variant="contained" size="small" startIcon={<AddIcon />}
+          onClick={onUpload}
+          sx={{ bgcolor: folioColors.ink, '&:hover': { bgcolor: '#3d3224' }, textTransform: 'none' }}
+        >
+          Upload Document
+        </Button>
+      </Box>
+
+      {/* Document list */}
+      {documents.length > 0 ? (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {documents.map((doc) => (
+            <DocumentRow
+              key={doc.id}
+              doc={doc}
+              accentColor={category.accentColor}
+              onDownload={() => onDownload(doc)}
+              onDelete={() => onDelete(doc)}
+            />
+          ))}
+        </Box>
+      ) : (
+        <Paper
+          variant="outlined"
+          sx={{ py: 4, textAlign: 'center', borderRadius: '8px', borderStyle: 'dashed' }}
+        >
+          <Icon sx={{ fontSize: 40, color: folioColors.inkFaint, mb: 1 }} />
+          <Typography variant="body2" sx={{ color: folioColors.inkFaint }}>
+            No documents uploaded yet. Click "Upload Document" to add your first.
+          </Typography>
+        </Paper>
+      )}
+    </Box>
   );
 };
 
@@ -555,14 +537,14 @@ const DocumentsVaultSection: React.FC = () => {
 
   const intakeId = resolvedIntakeId;
 
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  // activeView: null = card grid, 'storage-location' = physical doc panel, vault category id = category detail
+  const [activeView, setActiveView] = useState<string | null>(null);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [documents, setDocuments] = useState<Record<string, VaultDocumentRecord[]>>({});
   const [allDocuments, setAllDocuments] = useState<VaultDocumentRecord[]>([]);
   const [uploadCategory, setUploadCategory] = useState<VaultCategoryDef | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<VaultDocumentRecord | null>(null);
   const [viewInlineUrl, setViewInlineUrl] = useState<{ url: string; name: string; type: string } | null>(null);
-  const [storageLocationOpen, setStorageLocationOpen] = useState(false);
   const [snack, setSnack] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
     open: false, message: '', severity: 'success',
   });
@@ -591,13 +573,13 @@ const DocumentsVaultSection: React.FC = () => {
     }
   }, [intakeId]);
 
-  const handleToggleCategory = (categoryId: string) => {
-    if (expandedCategory === categoryId) {
-      setExpandedCategory(null);
-    } else {
-      setExpandedCategory(categoryId);
-      loadCategoryDocs(categoryId);
-    }
+  const handleOpenCategory = (categoryId: string) => {
+    setActiveView(categoryId);
+    loadCategoryDocs(categoryId);
+  };
+
+  const handleBack = () => {
+    setActiveView(null);
   };
 
   // Upload
@@ -621,7 +603,7 @@ const DocumentsVaultSection: React.FC = () => {
     // Refresh
     await refreshCounts();
     await refreshAllDocuments();
-    if (expandedCategory === uploadCategory.id) {
+    if (activeView === uploadCategory.id) {
       await loadCategoryDocs(uploadCategory.id);
     }
   };
@@ -656,7 +638,7 @@ const DocumentsVaultSection: React.FC = () => {
       setSnack({ open: true, message: 'Document deleted.', severity: 'success' });
       await refreshCounts();
       await refreshAllDocuments();
-      if (expandedCategory) await loadCategoryDocs(expandedCategory);
+      if (activeView && activeView !== 'storage-location') await loadCategoryDocs(activeView);
     } else {
       setSnack({ open: true, message: result.error || 'Delete failed.', severity: 'error' });
     }
@@ -665,177 +647,191 @@ const DocumentsVaultSection: React.FC = () => {
 
   const totalDocuments = Object.values(counts).reduce((sum, n) => sum + n, 0);
 
+  // Resolve the active vault category (if viewing one)
+  const activeVaultCategory = activeView && activeView !== 'storage-location'
+    ? VAULT_CATEGORIES.find((c) => c.id === activeView) || null
+    : null;
+
   return (
     <Box>
       <FolioHelpModal open={showHelp} onClose={closeHelp} content={documentsVaultHelp} />
-      {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-        <FolderIcon sx={{ color: '#e07a2f', fontSize: 28 }} />
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>Documents Vault</Typography>
-        <FolioHelpButton onClick={openHelp} accentColor="#e07a2f" />
-        {totalDocuments > 0 && (
-          <Chip
-            label={`${totalDocuments} document${totalDocuments !== 1 ? 's' : ''}`}
-            size="small"
-            sx={{
-              bgcolor: '#e07a2f',
-              color: '#fff',
-              fontWeight: 600,
-              fontSize: '0.75rem',
-              height: 24,
-            }}
-          />
-        )}
-      </Box>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 640 }}>
-        Organize and securely store your important documents. Click any category to view documents or upload new ones.
-      </Typography>
 
-      {loadingIntake && (
-        <Alert severity="info" sx={{ mb: 3 }}>
-          Loading your vault…
-        </Alert>
-      )}
-      {!loadingIntake && !intakeId && (
-        <Alert severity="info" sx={{ mb: 3 }}>
-          Please save your folio at least once (from the Personal Information section) before uploading documents.
-        </Alert>
-      )}
+      {/* ═══════════════════════════════════════════════════════════════════
+          DETAIL VIEW — shown when a card is clicked (replaces the grid)
+          ═══════════════════════════════════════════════════════════════════ */}
+      {activeView ? (
+        <Fade in>
+          <Box>
+            {/* Back button + title */}
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={handleBack}
+              sx={{ mb: 2, textTransform: 'none', color: folioColors.inkLight, fontWeight: 600 }}
+            >
+              Back to Documents Vault
+            </Button>
 
-      {/* Category grid */}
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: {
-            xs: '1fr',
-            sm: 'repeat(2, 1fr)',
-            md: 'repeat(3, 1fr)',
-          },
-          gap: 2,
-        }}
-      >
-        {VAULT_CATEGORIES.map((cat) => (
-          <CategoryCard
-            key={cat.id}
-            category={cat}
-            count={counts[cat.id] || 0}
-            expanded={expandedCategory === cat.id}
-            onToggle={() => handleToggleCategory(cat.id)}
-            documents={documents[cat.id] || []}
-            onUpload={() => setUploadCategory(cat)}
-            onDownload={handleDownload}
-            onDelete={(doc) => setDeleteTarget(doc)}
-          />
-        ))}
+            {activeView === 'storage-location' ? (
+              /* ── Document Storage Location panel ── */
+              <DocumentStorageLocationPanel
+                intakeId={intakeId}
+                onViewVaultDoc={handleViewInline}
+              />
+            ) : activeVaultCategory ? (
+              /* ── Vault category detail view ── */
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                  {React.createElement(activeVaultCategory.icon, {
+                    sx: { fontSize: 28, color: activeVaultCategory.accentColor },
+                  })}
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    {activeVaultCategory.label}
+                  </Typography>
+                  {(counts[activeVaultCategory.id] || 0) > 0 && (
+                    <Chip
+                      label={`${counts[activeVaultCategory.id]} document${counts[activeVaultCategory.id] !== 1 ? 's' : ''}`}
+                      size="small"
+                      sx={{
+                        bgcolor: activeVaultCategory.accentColor,
+                        color: '#fff', fontWeight: 600, fontSize: '0.75rem', height: 24,
+                      }}
+                    />
+                  )}
+                </Box>
+                <CategoryDetailView
+                  category={activeVaultCategory}
+                  intakeId={intakeId!}
+                  documents={documents[activeVaultCategory.id] || []}
+                  onUpload={() => setUploadCategory(activeVaultCategory)}
+                  onDownload={handleDownload}
+                  onDelete={(doc) => setDeleteTarget(doc)}
+                />
+              </Box>
+            ) : null}
+          </Box>
+        </Fade>
+      ) : (
+        /* ═══════════════════════════════════════════════════════════════════
+           GRID VIEW — the 12 cards + All Documents table
+           ═══════════════════════════════════════════════════════════════════ */
+        <Fade in>
+          <Box>
+            {/* Header */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+              <FolderIcon sx={{ color: '#e07a2f', fontSize: 28 }} />
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>Documents Vault</Typography>
+              <FolioHelpButton onClick={openHelp} accentColor="#e07a2f" />
+              {totalDocuments > 0 && (
+                <Chip
+                  label={`${totalDocuments} document${totalDocuments !== 1 ? 's' : ''}`}
+                  size="small"
+                  sx={{ bgcolor: '#e07a2f', color: '#fff', fontWeight: 600, fontSize: '0.75rem', height: 24 }}
+                />
+              )}
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 640 }}>
+              Organize and securely store your important documents. Click any category to view documents or upload new ones.
+            </Typography>
 
-        {/* 12th card — Document Storage Location */}
-        <Card
-          variant="outlined"
-          sx={{
-            borderRadius: '10px',
-            transition: 'all 0.2s',
-            borderColor: storageLocationOpen ? '#7b2cbf' : 'rgba(0,0,0,0.12)',
-            boxShadow: storageLocationOpen ? '0 4px 20px rgba(0,0,0,0.08)' : 'none',
-            '&:hover': {
-              borderColor: '#7b2cbf',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-            },
-          }}
-        >
-          <CardContent
-            sx={{
-              cursor: 'pointer',
-              py: 2,
-              px: 2.5,
-              '&:last-child': { pb: 2 },
-            }}
-            onClick={() => setStorageLocationOpen((prev) => !prev)}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-              <Box
+            {loadingIntake && (
+              <Alert severity="info" sx={{ mb: 3 }}>Loading your vault…</Alert>
+            )}
+            {!loadingIntake && !intakeId && (
+              <Alert severity="info" sx={{ mb: 3 }}>
+                Please save your folio at least once (from the Personal Information section) before uploading documents.
+              </Alert>
+            )}
+
+            {/* Category grid — 11 vault cards + Document Storage Location */}
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+                gap: 2,
+              }}
+            >
+              {VAULT_CATEGORIES.map((cat) => (
+                <CategoryCard
+                  key={cat.id}
+                  category={cat}
+                  count={counts[cat.id] || 0}
+                  onClick={() => handleOpenCategory(cat.id)}
+                />
+              ))}
+
+              {/* 12th card — Document Storage Location */}
+              <Card
+                variant="outlined"
                 sx={{
-                  width: 42,
-                  height: 42,
                   borderRadius: '10px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  bgcolor: 'rgba(123,44,191,0.08)',
-                  flexShrink: 0,
+                  transition: 'all 0.2s',
+                  borderColor: 'rgba(0,0,0,0.12)',
+                  '&:hover': { borderColor: '#7b2cbf', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
                 }}
               >
-                <PlaceIcon sx={{ fontSize: 22, color: '#7b2cbf' }} />
-              </Box>
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, lineHeight: 1.3, color: folioColors.ink }}>
-                    Document Storage Location
-                  </Typography>
-                </Box>
-                <Typography variant="body2" sx={{ color: folioColors.inkLight, fontSize: '0.82rem', lineHeight: 1.4 }}>
-                  Track where physical copies of important documents are kept
-                </Typography>
-              </Box>
-              <IconButton size="small" sx={{ color: folioColors.inkFaint, mt: 0.25 }}>
-                {storageLocationOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-              </IconButton>
+                <CardContent
+                  sx={{ cursor: 'pointer', py: 2, px: 2.5, '&:last-child': { pb: 2 } }}
+                  onClick={() => setActiveView('storage-location')}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                    <Box
+                      sx={{
+                        width: 42, height: 42, borderRadius: '10px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        bgcolor: 'rgba(123,44,191,0.08)', flexShrink: 0,
+                      }}
+                    >
+                      <PlaceIcon sx={{ fontSize: 22, color: '#7b2cbf' }} />
+                    </Box>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600, lineHeight: 1.3, color: folioColors.ink, mb: 0.5 }}>
+                        Document Storage Location
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: folioColors.inkLight, fontSize: '0.82rem', lineHeight: 1.4 }}>
+                        Track where physical copies of important documents are kept
+                      </Typography>
+                    </Box>
+                    <ExpandMoreIcon sx={{ color: folioColors.inkFaint, mt: 0.75, fontSize: 20 }} />
+                  </Box>
+                </CardContent>
+              </Card>
             </Box>
-          </CardContent>
-        </Card>
-      </Box>
 
-      {/* Document Storage Location expanded panel (full width, below grid) */}
-      <Collapse in={storageLocationOpen}>
-        <Paper
-          variant="outlined"
-          sx={{
-            mt: 2,
-            p: 3,
-            borderRadius: '10px',
-            borderColor: '#7b2cbf',
-            bgcolor: '#fefcff',
-          }}
-        >
-          <DocumentStorageLocationPanel
-            intakeId={intakeId}
-            onViewVaultDoc={handleViewInline}
-          />
-        </Paper>
-      </Collapse>
-
-      {/* All Documents listing */}
-      {intakeId && (
-        <Paper
-          variant="outlined"
-          sx={{
-            mt: 4,
-            borderRadius: '10px',
-            overflow: 'hidden',
-            borderColor: folioColors.parchment,
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2.5, py: 2, bgcolor: folioColors.cream, borderBottom: `1px solid ${folioColors.parchment}` }}>
-            <ListAltIcon sx={{ color: folioColors.ink, fontSize: 22 }} />
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: folioColors.ink }}>
-              All Documents
-            </Typography>
-            {totalDocuments > 0 && (
-              <Chip
-                label={`${totalDocuments} total`}
-                size="small"
-                sx={{ bgcolor: folioColors.ink, color: '#fff', fontWeight: 600, fontSize: '0.75rem', height: 22 }}
-              />
+            {/* All Documents listing */}
+            {intakeId && (
+              <Paper
+                variant="outlined"
+                sx={{ mt: 4, borderRadius: '10px', overflow: 'hidden', borderColor: folioColors.parchment }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2.5, py: 2, bgcolor: folioColors.cream, borderBottom: `1px solid ${folioColors.parchment}` }}>
+                  <ListAltIcon sx={{ color: folioColors.ink, fontSize: 22 }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, color: folioColors.ink }}>
+                    All Documents
+                  </Typography>
+                  {totalDocuments > 0 && (
+                    <Chip
+                      label={`${totalDocuments} total`}
+                      size="small"
+                      sx={{ bgcolor: folioColors.ink, color: '#fff', fontWeight: 600, fontSize: '0.75rem', height: 22 }}
+                    />
+                  )}
+                </Box>
+                <Box sx={{ overflowX: 'auto' }}>
+                  <AllDocumentsTable
+                    documents={allDocuments}
+                    onDownload={handleDownload}
+                    onViewInline={handleViewInline}
+                  />
+                </Box>
+              </Paper>
             )}
           </Box>
-          <Box sx={{ overflowX: 'auto' }}>
-            <AllDocumentsTable
-              documents={allDocuments}
-              onDownload={handleDownload}
-              onViewInline={handleViewInline}
-            />
-          </Box>
-        </Paper>
+        </Fade>
       )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SHARED DIALOGS — always rendered regardless of view
+          ═══════════════════════════════════════════════════════════════════ */}
 
       {/* Inline document viewer dialog */}
       <Dialog
