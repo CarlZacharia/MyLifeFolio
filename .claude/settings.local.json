@@ -21,7 +21,12 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(npx supabase:*)",
-      "Bash(python -m pip install python-docx)"
+      "Bash(python -m pip install python-docx)",
+      "Bash(curl -s -X POST https://zpbpdcwuwgkwmpfmgmyo.supabase.co/functions/v1/validate-email -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwYnBkY3d1d2drd21wZm1nbXlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxODA2NTUsImV4cCI6MjA4Nzc1NjY1NX0.hhoXXB7RzKRBlFecibyIwuR0SL7azdcnHo0LuNHCFzA\" -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"test@mailinator.com\"\"}')",
+      "Bash(curl -s -X POST https://zpbpdcwuwgkwmpfmgmyo.supabase.co/functions/v1/validate-email -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwYnBkY3d1d2drd21wZm1nbXlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxODA2NTUsImV4cCI6MjA4Nzc1NjY1NX0.hhoXXB7RzKRBlFecibyIwuR0SL7azdcnHo0LuNHCFzA\" -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"test@gmail.com\"\"}')",
+      "Bash(grep -r \"Supabase.*email\\\\|SMTP\\\\|mail.*config\\\\|auth.*email\" /c/Users/czach/apps/react/MyLifeFolio --include=*.ts --include=*.tsx --include=*.md)",
+      "Bash(grep -rn \"email.*config\\\\|SMTP\\\\|mail.*service\" /c/Users/czach/apps/react/MyLifeFolio --include=*.ts --include=*.tsx --include=*.json --include=*.sql)",
+      "Bash(grep -r \"RESEND\\\\|SENDGRID\\\\|POSTMARK\\\\|NODEMAILER\\\\|EMAIL_SERVICE\\\\|SMTP\\\\|Mail\" /c/Users/czach/apps/react/MyLifeFolio --include=*.ts --include=*.tsx --include=*.env* --include=*.json)"
     ],
     "additionalDirectories": [
       "c:\\Users\\czach\\apps\\react\\mylifefolio\\components"
