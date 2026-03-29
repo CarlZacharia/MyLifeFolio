@@ -1719,5 +1719,16 @@ function migration_001(db: Database.Database): void {
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
+
+    -- Local tracking of published reports (cloud metadata cached locally)
+    CREATE TABLE IF NOT EXISTS published_reports (
+      id TEXT PRIMARY KEY,
+      report_type TEXT NOT NULL UNIQUE,
+      report_label TEXT NOT NULL,
+      storage_path TEXT NOT NULL,
+      published_at TEXT NOT NULL,
+      access_list TEXT DEFAULT '[]',
+      created_at TEXT DEFAULT (datetime('now'))
+    );
   `);
 }
