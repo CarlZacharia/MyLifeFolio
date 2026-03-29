@@ -94,23 +94,9 @@ export async function uploadVaultDocument(
       .single();
 
     if (dbError) {
-      // Roll back the file upload on metadata failure via edge function
+      // Roll back the file upload on metadata failure
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.access_token) {
-          await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/vault-delete`,
-            {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${session.access_token}`,
-                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ filePath: storagePath, bucket: BUCKET }),
-            }
-          );
-        }
+        await supabase.storage.from(BUCKET).remove([storagePath]);
       } catch {
         // best-effort rollback
       }
@@ -163,35 +149,12 @@ export async function getVaultDocumentUrl(
   filePath: string
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
-    // Use edge function with service role to bypass storage.objects RLS
-    // (private bucket downloads trigger internal INSERT that client-side RLS blocks)
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.access_token) {
-      return { success: false, error: 'Not authenticated' };
+    // Electron: get local file URL via IPC
+    const result = await supabase.storage.from(BUCKET).createSignedUrl(filePath, 3600);
+    if (result.error) {
+      return { success: false, error: (result.error as { message: string }).message };
     }
-
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const response = await fetch(
-      `${supabaseUrl}/functions/v1/vault-download-url`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filePath }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
-      console.error('getVaultDocumentUrl error:', errorData, 'path:', filePath);
-      return { success: false, error: errorData.error || `Download failed (${response.status})` };
-    }
-
-    const { signedUrl } = await response.json();
-    return { success: true, url: signedUrl };
+    return { success: true, url: (result.data as { signedUrl: string }).signedUrl };
   } catch (err) {
     console.error('getVaultDocumentUrl error:', err);
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
@@ -205,31 +168,24 @@ export async function deleteVaultDocument(
   filePath: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Use edge function with service role to bypass storage.objects RLS
-    // (private bucket deletes trigger internal operations that client-side RLS blocks)
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.access_token) {
-      return { success: false, error: 'Not authenticated' };
+    // Electron: delete local file and database record
+    // Delete the file from local storage
+    const { error: fileError } = await supabase.storage.from(BUCKET).remove([filePath]);
+    if (fileError) {
+      console.error('deleteVaultDocument file error:', fileError);
     }
 
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const response = await fetch(
-      `${supabaseUrl}/functions/v1/vault-delete`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filePath, documentId }),
-      }
-    );
+    // Delete the metadata row
+    if (documentId) {
+      const { error: dbError } = await supabase
+        .from('vault_documents')
+        .delete()
+        .eq('id', documentId);
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
-      console.error('deleteVaultDocument error:', errorData, 'path:', filePath);
-      return { success: false, error: errorData.error || `Delete failed (${response.status})` };
+      if (dbError) {
+        console.error('deleteVaultDocument db error:', dbError);
+        return { success: false, error: (dbError as { message: string }).message };
+      }
     }
 
     return { success: true };

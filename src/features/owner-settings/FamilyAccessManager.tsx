@@ -32,27 +32,14 @@ import FolioModal, {
   useFolioFieldAnimation,
 } from '../../../components/FolioModal';
 import { supabase } from '../../../lib/supabase';
-import { useAuth } from '../../../lib/AuthContext';
+import { useAuth } from '../../../lib/ElectronAuthContext';
 import { useFormContext } from '../../../lib/FormContext';
 import { REPORTS } from '../../../components/ReportsSection';
 import { SavedReportConfig } from '../../../lib/savedReportService';
 
-// Helper to delete storage files via edge function (bypasses storage.objects RLS)
+// Helper to delete storage files — uses local filesystem in Electron
 async function deleteStorageFile(filePath: string, bucket: string): Promise<void> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) return;
-  await fetch(
-    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/vault-delete`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-        apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ filePath, bucket }),
-    }
-  );
+  await supabase.storage.from(bucket).remove([filePath]);
 }
 
 const ALL_SECTIONS = [
@@ -535,31 +522,15 @@ const FamilyAccessManager: React.FC = () => {
 
   const handleDownloadDoc = async (doc: FolioDocument) => {
     const bucket = doc.storage_bucket || 'folio-documents';
-    // Route all downloads through edge function to bypass storage.objects RLS
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.access_token) return;
-
-    const response = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/vault-download-url`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filePath: doc.storage_path, bucket }),
-      }
-    );
-
-    if (!response.ok) {
-      console.error('Download error:', await response.text());
+    // Electron: get local file URL
+    const result = await supabase.storage.from(bucket).createSignedUrl(doc.storage_path, 3600);
+    if (result.error) {
+      console.error('Download error:', result.error);
       return;
     }
-
-    const { signedUrl } = await response.json();
-    if (signedUrl) {
-      window.open(signedUrl, '_blank');
+    const url = (result.data as { signedUrl: string })?.signedUrl;
+    if (url) {
+      window.open(url, '_blank');
     }
   };
 
