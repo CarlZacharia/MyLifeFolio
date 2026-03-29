@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
+import ErrorBoundary from './components/ErrorBoundary'
 import { ElectronAuthProvider, useAuth } from '../lib/ElectronAuthContext'
 import { ReauthPrefsProvider } from '../lib/ReauthPrefsContext'
 import UnlockScreen from './pages/UnlockScreen'
@@ -50,12 +51,14 @@ const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ElectronAuthProvider>
-      <AuthGate>
-        <ReauthPrefsProvider>
-          <App />
-        </ReauthPrefsProvider>
-      </AuthGate>
-    </ElectronAuthProvider>
+    <ErrorBoundary>
+      <ElectronAuthProvider>
+        <AuthGate>
+          <ReauthPrefsProvider>
+            <App />
+          </ReauthPrefsProvider>
+        </AuthGate>
+      </ElectronAuthProvider>
+    </ErrorBoundary>
   </React.StrictMode>,
 )

@@ -30,6 +30,25 @@ function createWindow(): void {
     },
   });
 
+  // Content Security Policy
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          "default-src 'self'; " +
+          "script-src 'self'; " +
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+          "font-src 'self' https://fonts.gstatic.com; " +
+          "img-src 'self' data: blob: file:; " +
+          "connect-src 'self' https://*.supabase.co; " +
+          "object-src 'none'; " +
+          "base-uri 'self'"
+        ],
+      },
+    });
+  });
+
   // Open external links in browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
@@ -99,4 +118,13 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   if (autoLockInterval) clearInterval(autoLockInterval);
+});
+
+// Global error handlers
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught exception in main process:', error);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled rejection in main process:', reason);
 });

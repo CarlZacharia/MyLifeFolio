@@ -3,7 +3,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import QuestionnairePage from '../app/page';
 import EducationCenter from '../components/EducationCenter';
 import { FormProvider, useFormContext } from '../lib/FormContext';
@@ -163,12 +163,12 @@ const AppContent = () => {
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <CssBaseline />
           <Routes>
-            <Route path="/auth/callback" element={<AuthCallback />} />
+            {/* Auth callback removed — desktop app uses local passphrase */}
             <Route path="/family-access" element={<FamilyAccessLogin />} />
             <Route path="/family-portal" element={<FamilyPortal />} />
             <Route path="*" element={
@@ -181,7 +181,7 @@ function App() {
           </Routes>
         </LocalizationProvider>
       </ThemeProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
