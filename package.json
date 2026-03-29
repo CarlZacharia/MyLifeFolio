@@ -2,10 +2,15 @@
   "name": "mylifefolio",
   "version": "1.0.0",
   "private": true,
+  "main": "dist-electron/main/main.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "build:win": "electron-vite build && electron-builder --win",
+    "build:mac": "electron-vite build && electron-builder --mac",
+    "preview": "electron-vite preview",
+    "dev:web": "vite",
+    "build:web": "vite build",
     "lint": "eslint . --ext .ts,.tsx",
     "seed": "tsx scripts/seed.ts",
     "seed:reset": "tsx scripts/seed-reset.ts",
@@ -74,5 +79,32 @@
     "typescript": "^5",
     "vite": "^7.3.0",
     "vitest": "^4.0.18"
+  },
+  "build": {
+    "appId": "com.mylifefolio.desktop",
+    "productName": "MyLifeFolio",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
