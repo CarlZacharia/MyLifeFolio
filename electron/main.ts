@@ -23,7 +23,7 @@ function createWindow(): void {
     minHeight: 680,
     title: 'MyLifeFolio',
     webPreferences: {
-      preload: join(__dirname, 'preload.js'),
+      preload: join(__dirname, '../preload/preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
@@ -59,7 +59,7 @@ function createWindow(): void {
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
   } else {
-    mainWindow.loadFile(join(__dirname, '../dist/index.html'));
+    mainWindow.loadFile(join(__dirname, '../../dist/index.html'));
   }
 
   mainWindow.on('closed', () => {
