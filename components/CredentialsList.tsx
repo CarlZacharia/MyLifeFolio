@@ -24,6 +24,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import CloseIcon from '@mui/icons-material/Close';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import GavelIcon from '@mui/icons-material/Gavel';
@@ -103,6 +105,9 @@ const CredentialsList: React.FC<CredentialsListProps> = ({ vaultKey, onLockVault
 
   // Revealed passwords (per credential id)
   const [revealed, setRevealed] = useState<Record<string, Record<string, string>>>({});
+
+  // Vault help modal
+  const [showVaultHelp, setShowVaultHelp] = useState(false);
 
   const loadCredentials = async () => {
     if (!user) return;
@@ -282,11 +287,16 @@ const CredentialsList: React.FC<CredentialsListProps> = ({ vaultKey, onLockVault
     <Box>
       {/* Header row */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <LockOpenIcon sx={{ color: '#2e7d32', fontSize: 20 }} />
           <Typography variant="subtitle2" sx={{ color: '#2e7d32', fontWeight: 600 }}>
             Vault Unlocked
           </Typography>
+          <Tooltip title="How vault locking works">
+            <IconButton size="small" onClick={() => setShowVaultHelp(true)} sx={{ color: 'text.secondary' }}>
+              <HelpOutlineIcon sx={{ fontSize: 18 }} />
+            </IconButton>
+          </Tooltip>
         </Box>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button
@@ -520,6 +530,63 @@ const CredentialsList: React.FC<CredentialsListProps> = ({ vaultKey, onLockVault
           <Button onClick={() => setDeleteTarget(null)} color="inherit">Cancel</Button>
           <Button onClick={handleDelete} color="error" variant="contained">Delete</Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Vault Help Modal */}
+      <Dialog open={showVaultHelp} onClose={() => setShowVaultHelp(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <LockIcon sx={{ color: '#00695c' }} />
+            How Vault Locking Works
+          </Box>
+          <IconButton size="small" onClick={() => setShowVaultHelp(false)}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+            What is the Credentials Vault?
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+            The Credentials Vault is an encrypted storage area for your online account passwords,
+            PINs, security questions, and other sensitive credentials. All data is encrypted
+            on your device using AES-256 encryption before being saved.
+          </Typography>
+
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+            Unlocking the Vault
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+            The vault is automatically unlocked when you open MyLifeFolio and enter your app
+            passphrase. If you enabled a separate vault passphrase during setup, you'll need to
+            enter that additional passphrase each time you access the Credentials tab.
+          </Typography>
+
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+            Locking the Vault
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+            The vault locks automatically when you lock the app, close the app, or after
+            15 minutes of inactivity. You can also manually lock it by clicking the
+            "Lock Vault" button. When locked, your encryption key is cleared from memory
+            and credentials cannot be viewed until you unlock again.
+          </Typography>
+
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+            What happens to my data?
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 1, color: 'text.secondary' }}>
+            Your credentials are always stored encrypted on disk — locking and unlocking only
+            controls whether the decryption key is held in memory. Even if someone accessed
+            your device's files directly, they could not read your credentials without
+            your passphrase.
+          </Typography>
+
+          <Alert severity="info" sx={{ mt: 2 }}>
+            <strong>Tip:</strong> If you enabled a separate vault passphrase, you can change it
+            or generate a new recovery key from the "Vault Settings" button.
+          </Alert>
+        </DialogContent>
       </Dialog>
     </Box>
   );
