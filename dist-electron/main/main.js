@@ -35,7 +35,7 @@ const is = {
   isMacOS: process.platform === "darwin",
   isLinux: process.platform === "linux"
 });
-const CURRENT_VERSION = 1;
+const CURRENT_VERSION = 2;
 function runMigrations(db2) {
   db2.exec(`
     CREATE TABLE IF NOT EXISTS _schema_version (
@@ -48,6 +48,7 @@ function runMigrations(db2) {
   if (currentVersion < CURRENT_VERSION) {
     db2.transaction(() => {
       if (currentVersion < 1) migration_001(db2);
+      if (currentVersion < 2) migration_002(db2);
       db2.prepare("INSERT INTO _schema_version (version) VALUES (?)").run(CURRENT_VERSION);
     })();
   }
@@ -222,6 +223,7 @@ function migration_001(db2) {
       storage_folder TEXT,
       uploaded_files TEXT DEFAULT '[]',
       report_files TEXT DEFAULT '[]',
+      submission_comments TEXT,
       office_id TEXT,
       attorney_id TEXT,
       created_at TEXT DEFAULT (datetime('now')),
@@ -1729,6 +1731,9 @@ function migration_001(db2) {
     );
   `);
 }
+function migration_002(db2) {
+  db2.exec(`ALTER TABLE intakes_raw ADD COLUMN submission_comments TEXT`);
+}
 let db = null;
 function openDatabase() {
   if (db) return db;
@@ -2166,6 +2171,27 @@ function registerAuthHandlers() {
       return { data: false, error: null };
     }
   });
+  electron.ipcMain.handle("auth:getVaultPref", async () => {
+    try {
+      const config = readConfig();
+      return { data: config?.vaultExtraSecurity ?? false, error: null };
+    } catch (err) {
+      return { data: false, error: { message: err.message } };
+    }
+  });
+  electron.ipcMain.handle("auth:setVaultPref", async (_event, extraSecurity) => {
+    try {
+      const config = readConfig();
+      if (!config) {
+        return { data: null, error: { message: "App not set up yet" } };
+      }
+      config.vaultExtraSecurity = extraSecurity;
+      writeConfig(config);
+      return { data: true, error: null };
+    } catch (err) {
+      return { data: null, error: { message: err.message } };
+    }
+  });
   electron.ipcMain.handle("auth:changePassphrase", async (_event, current, newPassphrase) => {
     try {
       const config = readConfig();
@@ -2433,22 +2459,25 @@ function createWindow() {
       sandbox: false
     }
   });
-  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        "Content-Security-Policy": [
-          "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: file:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'"
-        ]
-      }
+  if (!is.dev) {
+    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          "Content-Security-Policy": [
+            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: file:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'"
+          ]
+        }
+      });
     });
-  });
+  }
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     electron.shell.openExternal(url);
     return { action: "deny" };
   });
   if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
     mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
+    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, "../../dist/index.html"));
   }
