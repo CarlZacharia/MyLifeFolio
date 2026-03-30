@@ -30,24 +30,26 @@ function createWindow(): void {
     },
   });
 
-  // Content Security Policy
-  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        'Content-Security-Policy': [
-          "default-src 'self'; " +
-          "script-src 'self'; " +
-          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-          "font-src 'self' https://fonts.gstatic.com; " +
-          "img-src 'self' data: blob: file:; " +
-          "connect-src 'self' https://*.supabase.co; " +
-          "object-src 'none'; " +
-          "base-uri 'self'"
-        ],
-      },
+  // Content Security Policy — relaxed in dev for Vite HMR
+  if (!is.dev) {
+    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': [
+            "default-src 'self'; " +
+            "script-src 'self'; " +
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+            "font-src 'self' https://fonts.gstatic.com; " +
+            "img-src 'self' data: blob: file:; " +
+            "connect-src 'self' https://*.supabase.co; " +
+            "object-src 'none'; " +
+            "base-uri 'self'"
+          ],
+        },
+      });
     });
-  });
+  }
 
   // Open external links in browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
@@ -58,6 +60,7 @@ function createWindow(): void {
   // Load the app
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
+    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(join(__dirname, '../../dist/index.html'));
   }

@@ -49,7 +49,7 @@ interface DigitalLifeSectionProps {
 }
 
 const DigitalLifeSection: React.FC<DigitalLifeSectionProps> = ({ initialTab }) => {
-  const { user } = useAuth();
+  const { user, autoVaultKey, vaultExtraSecurity } = useAuth();
   const [activeTab, setActiveTab] = useState(initialTab ?? 0);
 
   useEffect(() => {
@@ -147,6 +147,19 @@ const DigitalLifeSection: React.FC<DigitalLifeSectionProps> = ({ initialTab }) =
   }
 
   const renderCredentialsTab = () => {
+    // Auto-vault: no extra security — vault key comes from app passphrase
+    if (!vaultExtraSecurity && autoVaultKey) {
+      return (
+        <CredentialsList
+          vaultKey={autoVaultKey}
+          onLockVault={() => {}}
+          onVaultKeyChanged={() => {}}
+        />
+      );
+    }
+
+    // ── Extra security flow (separate vault passphrase) ──
+
     if (loadingVault) {
       return (
         <Box sx={{ textAlign: 'center', py: 6 }}>

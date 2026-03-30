@@ -1,7 +1,7 @@
 import type Database from 'better-sqlite3';
 
 // Schema version tracking
-const CURRENT_VERSION = 1;
+const CURRENT_VERSION = 2;
 
 export function runMigrations(db: Database.Database): void {
   // Create version tracking table
@@ -19,6 +19,7 @@ export function runMigrations(db: Database.Database): void {
     // Run all pending migrations in a transaction
     db.transaction(() => {
       if (currentVersion < 1) migration_001(db);
+      if (currentVersion < 2) migration_002(db);
       db.prepare('INSERT INTO _schema_version (version) VALUES (?)').run(CURRENT_VERSION);
     })();
   }
@@ -197,6 +198,7 @@ function migration_001(db: Database.Database): void {
       storage_folder TEXT,
       uploaded_files TEXT DEFAULT '[]',
       report_files TEXT DEFAULT '[]',
+      submission_comments TEXT,
       office_id TEXT,
       attorney_id TEXT,
       created_at TEXT DEFAULT (datetime('now')),
@@ -1731,4 +1733,9 @@ function migration_001(db: Database.Database): void {
       created_at TEXT DEFAULT (datetime('now'))
     );
   `);
+}
+
+function migration_002(db: Database.Database): void {
+  // Add missing submission_comments column to intakes_raw
+  db.exec(`ALTER TABLE intakes_raw ADD COLUMN submission_comments TEXT`);
 }

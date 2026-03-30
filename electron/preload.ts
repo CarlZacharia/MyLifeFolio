@@ -20,6 +20,9 @@ const electronAPI = {
     changePassphrase: (current: string, newPassphrase: string) =>
       ipcRenderer.invoke('auth:changePassphrase', current, newPassphrase),
     isUnlocked: () => ipcRenderer.invoke('auth:isUnlocked'),
+    getVaultPref: () => ipcRenderer.invoke('auth:getVaultPref'),
+    setVaultPref: (extraSecurity: boolean) =>
+      ipcRenderer.invoke('auth:setVaultPref', extraSecurity),
   },
 
   // PDF operations

@@ -8,6 +8,7 @@ interface AppConfig {
   passphraseHash: string;
   setupComplete: boolean;
   setupDate: string;
+  vaultExtraSecurity?: boolean;
 }
 
 let failedAttempts = 0;
@@ -116,6 +117,29 @@ export function registerAuthHandlers(): void {
       return { data: getDb() !== null, error: null };
     } catch {
       return { data: false, error: null };
+    }
+  });
+
+  ipcMain.handle('auth:getVaultPref', async () => {
+    try {
+      const config = readConfig();
+      return { data: config?.vaultExtraSecurity ?? false, error: null };
+    } catch (err) {
+      return { data: false, error: { message: (err as Error).message } };
+    }
+  });
+
+  ipcMain.handle('auth:setVaultPref', async (_event, extraSecurity: boolean) => {
+    try {
+      const config = readConfig();
+      if (!config) {
+        return { data: null, error: { message: 'App not set up yet' } };
+      }
+      config.vaultExtraSecurity = extraSecurity;
+      writeConfig(config);
+      return { data: true, error: null };
+    } catch (err) {
+      return { data: null, error: { message: (err as Error).message } };
     }
   });
 

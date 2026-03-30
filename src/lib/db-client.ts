@@ -44,8 +44,15 @@ class QueryBuilder<T = Record<string, unknown>> {
   }
 
   select(columns: string = '*'): this {
-    this._method = 'select';
-    this._columns = columns;
+    // If called after insert/update/upsert (e.g. .insert({}).select('id')),
+    // this means "return the affected rows" — don't overwrite the method.
+    if (this._method === 'insert' || this._method === 'update' || this._method === 'upsert') {
+      this._returning = true;
+      this._columns = columns;
+    } else {
+      this._method = 'select';
+      this._columns = columns;
+    }
     return this;
   }
 
@@ -151,13 +158,6 @@ class QueryBuilder<T = Record<string, unknown>> {
       }
       return result;
     });
-  }
-
-  // For chaining after insert/update/upsert to get returned data
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  select_after(_columns?: string): this {
-    this._returning = true;
-    return this;
   }
 
   // Execute the query via IPC
