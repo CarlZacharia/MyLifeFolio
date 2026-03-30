@@ -149,10 +149,14 @@ export const ElectronAuthProvider: React.FC<ElectronAuthProviderProps> = ({ chil
     const pref = await window.electronAPI.auth.getVaultPref();
     if (!pref.data) {
       try {
-        const key = await autoUnlockVault(passphrase, LOCAL_USER_ID);
+        let key = await autoUnlockVault(passphrase, LOCAL_USER_ID);
+        if (!key) {
+          // Vault not set up yet — auto-create it with the app passphrase
+          key = await autoSetupVault(passphrase, LOCAL_USER_ID);
+        }
         if (key) setAutoVaultKey(key);
-      } catch {
-        // Vault not set up yet — that's fine
+      } catch (err) {
+        console.error('Auto vault setup/unlock failed:', err);
       }
     }
 
