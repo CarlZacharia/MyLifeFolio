@@ -68,7 +68,7 @@ const theme = createTheme({
       dark: '#9a7b1a',
     },
     background: {
-      default: '#faf9f7',
+      default: '#ebe7dd',
       paper: '#ffffff',
     },
     text: {
@@ -261,13 +261,9 @@ const FolioCard: React.FC<{
           position: 'relative',
           overflow: 'hidden',
           cursor: 'pointer',
-          border: empty && !hovered ? '1.5px dashed' : '1px solid',
-          borderColor: hovered
-            ? alpha(effectiveAccent, 0.35)
-            : empty
-              ? alpha('#6a6a6a', 0.3)
-              : alpha(effectiveAccent, 0.12),
-          bgcolor: empty ? '#e8e6e1' : 'background.paper',
+          border: '1px solid',
+          borderColor: hovered ? alpha(effectiveAccent, 0.35) : alpha(effectiveAccent, 0.12),
+          bgcolor: empty ? '#f5f5f3' : 'background.paper',
           transform: hovered ? 'translateY(-6px)' : 'translateY(0)',
           boxShadow: hovered
             ? `0 20px 48px ${alpha(effectiveAccent, 0.13)}`
