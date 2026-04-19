@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Container,
@@ -51,6 +51,8 @@ import { useSubscription } from '../lib/SubscriptionContext';
 import { FeatureKey, getRequiredTier, TIER_INFO } from '../lib/subscriptionConfig';
 import FolioSearchBar from './FolioSearchBar';
 import { isAdminUser } from '../lib/adminUtils';
+import { useFormContext } from '../lib/FormContext';
+import { getFolioCardCounts, useVaultDocumentCount, FolioCardId } from '../lib/folioCardStatus';
 
 // Custom theme matching LandingPage
 const theme = createTheme({
@@ -230,7 +232,8 @@ const FolioCard: React.FC<{
   onClick?: () => void;
   locked?: boolean;
   requiredTierName?: string;
-}> = ({ icon, title, accentColor, items, delay = 0, onClick, locked = false, requiredTierName }) => {
+  itemCount?: number;
+}> = ({ icon, title, accentColor, items, delay = 0, onClick, locked = false, requiredTierName, itemCount = 0 }) => {
   const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -238,6 +241,11 @@ const FolioCard: React.FC<{
     const timer = setTimeout(() => setVisible(true), delay);
     return () => clearTimeout(timer);
   }, [delay]);
+
+  const empty = itemCount === 0;
+  const meaningful = itemCount >= 2;
+  const mutedColor = '#9a9a9a';
+  const effectiveAccent = empty ? mutedColor : accentColor;
 
   return (
     <Fade in={visible} timeout={600}>
@@ -254,10 +262,11 @@ const FolioCard: React.FC<{
           overflow: 'hidden',
           cursor: 'pointer',
           border: '1px solid',
-          borderColor: hovered ? alpha(accentColor, 0.35) : alpha(accentColor, 0.12),
+          borderColor: hovered ? alpha(effectiveAccent, 0.35) : alpha(effectiveAccent, 0.12),
+          bgcolor: empty ? '#f5f5f3' : 'background.paper',
           transform: hovered ? 'translateY(-6px)' : 'translateY(0)',
           boxShadow: hovered
-            ? `0 20px 48px ${alpha(accentColor, 0.13)}`
+            ? `0 20px 48px ${alpha(effectiveAccent, 0.13)}`
             : '0 4px 24px rgba(0,0,0,0.06)',
           transition: 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)',
           '&::after': {
@@ -267,7 +276,7 @@ const FolioCard: React.FC<{
             left: 0,
             right: 0,
             height: '3px',
-            background: `linear-gradient(90deg, ${accentColor}, ${alpha(accentColor, 0.4)})`,
+            background: `linear-gradient(90deg, ${effectiveAccent}, ${alpha(effectiveAccent, 0.4)})`,
             transform: hovered ? 'scaleX(1)' : 'scaleX(0)',
             transformOrigin: 'left',
             transition: 'transform 0.4s ease',
@@ -285,18 +294,19 @@ const FolioCard: React.FC<{
                 justifyContent: 'center',
                 alignItems: 'center',
                 flexShrink: 0,
-                background: `linear-gradient(135deg, ${alpha(accentColor, 0.12)}, ${alpha(accentColor, 0.05)})`,
-                border: `1px solid ${alpha(accentColor, 0.2)}`,
+                background: `linear-gradient(135deg, ${alpha(effectiveAccent, 0.12)}, ${alpha(effectiveAccent, 0.05)})`,
+                border: `1px solid ${alpha(effectiveAccent, 0.2)}`,
               }}
             >
-              <Box sx={{ color: accentColor, display: 'flex' }}>{icon}</Box>
+              <Box sx={{ color: effectiveAccent, display: 'flex' }}>{icon}</Box>
             </Box>
             <Typography
               variant="h6"
               sx={{
-                color: 'text.primary',
+                color: empty ? 'text.secondary' : 'text.primary',
                 fontSize: '1.05rem',
                 lineHeight: 1.3,
+                flexGrow: 1,
               }}
             >
               {title}
@@ -311,6 +321,36 @@ const FolioCard: React.FC<{
               ))}
             </Box>
           )}
+          {/* Status chip */}
+          <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 0.75 }}>
+            {meaningful && (
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  bgcolor: '#2e7d32',
+                  flexShrink: 0,
+                }}
+              />
+            )}
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                px: 1.25,
+                py: 0.4,
+                borderRadius: 1,
+                bgcolor: empty ? alpha('#9a9a9a', 0.12) : alpha('#2e7d32', 0.1),
+                color: empty ? '#6a6a6a' : '#1b5e20',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                letterSpacing: '0.02em',
+              }}
+            >
+              {empty ? 'Not started' : `${itemCount} ${itemCount === 1 ? 'item' : 'items'}`}
+            </Box>
+          </Box>
         </CardContent>
 
         {/* Lock overlay for gated features */}
@@ -376,6 +416,9 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
   const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
   const { canAccess, tier, trialDaysRemaining, isTrialExpired } = useSubscription();
+  const { formData } = useFormContext();
+  const cardCounts = useMemo(() => getFolioCardCounts(formData), [formData]);
+  const vaultDocCount = useVaultDocumentCount(user?.id);
 
   const handleLogout = async () => {
     await signOut();
@@ -753,6 +796,10 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
               const featureKey = cat.id as FeatureKey;
               const locked = user ? !canAccess(featureKey) : false;
               const reqTier = getRequiredTier(featureKey);
+              const itemCount =
+                cat.id === 'document-uploads'
+                  ? vaultDocCount
+                  : (cardCounts[cat.id as Exclude<FolioCardId, 'document-uploads'>] ?? 0);
               return (
                 <Grid item xs={12} sm={6} md={3} key={cat.id}>
                   <FolioCard
@@ -763,6 +810,7 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
                     delay={400 + i * 80}
                     locked={locked}
                     requiredTierName={locked ? TIER_INFO[reqTier].name : undefined}
+                    itemCount={itemCount}
                     onClick={() =>
                       locked
                         ? onNavigate?.('pricing')
