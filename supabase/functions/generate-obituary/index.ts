@@ -168,7 +168,9 @@ serve(async (req: Request) => {
       );
     }
 
-    // --- Verify subscription tier (Enhanced required) ---
+    // --- Verify the caller has an active subscription ---
+    // (As of the trial+paid collapse, AI obituary is included for everyone
+    // with an active subscription — no separate Enhanced tier exists.)
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!

@@ -71,8 +71,7 @@ export default function AdminSubscriptionsTab() {
         <StatCard label="Total Users" value={stats.total} />
         <StatCard label="Active Trials" value={stats.trial} color="#2196f3" />
         <StatCard label="Expired Trials" value={stats.trialExpired} color="#ff9800" />
-        <StatCard label="Standard" value={stats.standard} color="#4caf50" />
-        <StatCard label="Enhanced" value={stats.enhanced} color="#9c27b0" />
+        <StatCard label="Paid" value={stats.paid} color="#4caf50" />
         <StatCard label="Cancelled" value={stats.cancelled} color="#f44336" />
         <StatCard label="Past Due" value={stats.pastDue} color="#ff5722" />
       </Box>
@@ -86,7 +85,7 @@ export default function AdminSubscriptionsTab() {
               ${stats.mrr.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Based on {stats.standard} Standard + {stats.enhanced} Enhanced subscribers
+              Based on {stats.paid} paid subscribers at $149/yr
             </Typography>
           </Box>
           <Box>
@@ -106,8 +105,7 @@ export default function AdminSubscriptionsTab() {
         {[
           { label: 'Trial (active)', count: stats.trial, color: '#2196f3' },
           { label: 'Trial (expired)', count: stats.trialExpired, color: '#ff9800' },
-          { label: 'Standard', count: stats.standard, color: '#4caf50' },
-          { label: 'Enhanced', count: stats.enhanced, color: '#9c27b0' },
+          { label: 'Paid', count: stats.paid, color: '#4caf50' },
           { label: 'Cancelled', count: stats.cancelled, color: '#f44336' },
           { label: 'Past Due', count: stats.pastDue, color: '#ff5722' },
         ].map((row) => {
