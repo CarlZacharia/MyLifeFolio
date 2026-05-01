@@ -179,9 +179,11 @@ serve(async (req: Request) => {
       .eq('user_id', user.id)
       .single();
 
-    if (!subscription || subscription.tier !== 'enhanced' || subscription.status !== 'active') {
+    // AI obituary is available to all active subscribers (trial + paid).
+    // Reject only when there's no active row at all.
+    if (!subscription || subscription.status !== 'active') {
       return new Response(
-        JSON.stringify({ success: false, error: 'AI obituary generation requires the Enhanced plan.' }),
+        JSON.stringify({ success: false, error: 'An active MyLifeFolio subscription is required to generate AI obituaries.' }),
         { headers: { ...corsHeaders(req), 'Content-Type': 'application/json' }, status: 403 }
       );
     }

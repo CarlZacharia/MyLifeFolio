@@ -20,7 +20,7 @@ const AdminGrantCompModal: React.FC<AdminGrantCompModalProps> = ({
   open, onClose, users, onGranted,
 }) => {
   const [selectedUserId, setSelectedUserId] = useState('');
-  const [tier, setTier] = useState<SubscriptionTier>('standard');
+  const [tier, setTier] = useState<SubscriptionTier>('paid');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,8 +80,7 @@ const AdminGrantCompModal: React.FC<AdminGrantCompModalProps> = ({
           fullWidth
           sx={{ mb: 2 }}
         >
-          <MenuItem value="standard">Standard ($139/yr value)</MenuItem>
-          <MenuItem value="enhanced">Enhanced ($159/yr value)</MenuItem>
+          <MenuItem value="paid">Paid ($149/yr value)</MenuItem>
         </TextField>
 
         <Box sx={{ bgcolor: '#e3f2fd', border: '1px solid #90caf9', borderRadius: 1, p: 1.5 }}>

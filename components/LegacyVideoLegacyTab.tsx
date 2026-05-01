@@ -180,32 +180,8 @@ const LegacyVideoLegacyTab = () => {
         and your own words, spoken on camera, speak for themselves.
       </Typography>
 
-      {/* ── Locked state ── */}
-      {!hasVideoAccess && (
-        <Box
-          sx={{
-            bgcolor: 'rgba(30, 58, 95, 0.04)',
-            border: '1px solid rgba(30, 58, 95, 0.15)',
-            borderRadius: 2,
-            px: 3,
-            py: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 2,
-            textAlign: 'center',
-          }}
-        >
-          <LockOutlinedIcon sx={{ fontSize: 40, color: '#1e3a5f', opacity: 0.5 }} />
-          <Typography variant="h6" sx={{ fontWeight: 600, color: '#1e3a5f' }}>
-            Video Legacy — {TIER_INFO.enhanced.name} Feature
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 440 }}>
-            Upgrade to the {TIER_INFO.enhanced.name} plan ({TIER_INFO.enhanced.price}/{TIER_INFO.enhanced.priceDetail}) to record
-            and store up to {MAX_VIDEOS} video messages for your loved ones.
-          </Typography>
-        </Box>
-      )}
+      {/* Video Legacy is available to all users (trial + paid). If feature
+          gating returns later, reintroduce a !hasVideoAccess lock here. */}
 
       {/* ── Accessible state ── */}
       {hasVideoAccess && (

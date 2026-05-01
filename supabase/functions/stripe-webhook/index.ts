@@ -11,16 +11,17 @@ import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno';
 // @ts-ignore - Deno global available in Edge Functions runtime
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-// Stripe price ID to tier mapping — set these in Supabase Edge Function secrets
-// STRIPE_PRICE_STANDARD and STRIPE_PRICE_ENHANCED
+// Stripe price ID for the single paid plan ($149/yr).
+// Set STRIPE_PRICE_PAID in Supabase Edge Function secrets.
 
 serve(async (req: Request) => {
   const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')!;
   const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  const priceStandard = Deno.env.get('STRIPE_PRICE_STANDARD') || '';
-  const priceEnhanced = Deno.env.get('STRIPE_PRICE_ENHANCED') || '';
+  // Single paid price ID. Old STRIPE_PRICE_STANDARD / STRIPE_PRICE_ENHANCED
+  // env vars are no longer consulted.
+  const pricePaid = Deno.env.get('STRIPE_PRICE_PAID') || '';
 
   const stripe = new Stripe(stripeSecretKey, { apiVersion: '2023-10-16' });
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -35,10 +36,11 @@ serve(async (req: Request) => {
 
     const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
 
-    // Map price ID to tier
-    const priceToTier = (priceId: string): 'standard' | 'enhanced' => {
-      if (priceId === priceEnhanced) return 'enhanced';
-      return 'standard'; // default to standard
+    // Map price ID to tier. With only one paid plan, any matching price ID
+    // (or any non-empty price ID, when env isn't yet configured) becomes 'paid'.
+    const priceToTier = (priceId: string): 'paid' => {
+      if (priceId && priceId === pricePaid) return 'paid';
+      return 'paid'; // fall through — any active subscription is the paid tier
     };
 
     // Extract supabase_user_id from subscription metadata

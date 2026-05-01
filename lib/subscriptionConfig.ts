@@ -1,9 +1,18 @@
 /**
- * Subscription tier configuration
- * Maps each tier to the features it can access.
+ * Subscription tier configuration.
+ *
+ * As of 2026-05-01, MyLifeFolio has only two tiers:
+ *   • 'trial' — free for 6 months from signup
+ *   • 'paid'  — $149/year
+ *
+ * Both tiers grant full access to every feature. The 'standard' / 'enhanced'
+ * split was retired; AI obituary and legacy video are now available to all
+ * users. Tier-aware code remains so that future paywalls can reuse this
+ * config, but `canAccess()` in SubscriptionContext currently returns true for
+ * any active or trialing user.
  */
 
-export type SubscriptionTier = 'trial' | 'standard' | 'enhanced';
+export type SubscriptionTier = 'trial' | 'paid';
 
 export type FeatureKey =
   // Main folio categories (match folioCategories ids in MyLifeFolioHome)
@@ -22,11 +31,10 @@ export type FeatureKey =
   // Row 4 cards
   | 'reports'
   | 'family-access'
-  // Enhanced-only sub-features
+  // Premium-feeling features (now included for everyone)
   | 'ai-obituary'
   | 'legacy-video';
 
-// All features available in the app
 const ALL_FEATURES: FeatureKey[] = [
   'personal-information',
   'family-dependents',
@@ -46,21 +54,13 @@ const ALL_FEATURES: FeatureKey[] = [
   'legacy-video',
 ];
 
-// Standard has everything except AI obituary and legacy video
-const STANDARD_FEATURES: FeatureKey[] = ALL_FEATURES.filter(
-  (f) => f !== 'ai-obituary' && f !== 'legacy-video'
-);
-
-// Trial gets the same access as Standard (7-day free trial)
-const TRIAL_FEATURES: FeatureKey[] = [...STANDARD_FEATURES];
-
+// Trial and Paid both get the full feature set.
 export const TIER_ACCESS: Record<SubscriptionTier, Set<FeatureKey>> = {
-  trial: new Set(TRIAL_FEATURES),
-  standard: new Set(STANDARD_FEATURES),
-  enhanced: new Set(ALL_FEATURES),
+  trial: new Set(ALL_FEATURES),
+  paid: new Set(ALL_FEATURES),
 };
 
-// Display info for each tier (used on pricing page and upgrade prompts)
+// Display info for each tier (used on PricingPage and elsewhere in the UI).
 export const TIER_INFO: Record<SubscriptionTier, {
   name: string;
   price: string;
@@ -70,28 +70,31 @@ export const TIER_INFO: Record<SubscriptionTier, {
   trial: {
     name: 'Free Trial',
     price: '$0',
-    priceDetail: '7 days',
-    description: 'Full access to all Standard features free for 7 days.',
+    priceDetail: '6 months',
+    description: 'Full access to MyLifeFolio for the first 6 months — no credit card required.',
   },
-  standard: {
-    name: 'Standard',
-    price: '$139',
+  paid: {
+    name: 'MyLifeFolio Subscription',
+    price: '$149',
     priceDetail: 'per year',
-    description: 'Full access to all sections, documents, reports, and family access.',
-  },
-  enhanced: {
-    name: 'Enhanced',
-    price: '$159',
-    priceDetail: 'per year',
-    description: 'Everything in Standard plus AI-powered obituary and legacy video recording.',
+    description: 'Full access — every category, every report, family access, and legacy video.',
   },
 };
 
+/** Annual price as a number, for billing/checkout flows. */
+export const PAID_ANNUAL_PRICE_USD = 149;
+
+/** Trial length in months (single source of truth — keep in sync with the SQL trigger). */
+export const TRIAL_LENGTH_MONTHS = 6;
+
+/** Days the user has to renew or delete after trial ends. */
+export const GRACE_PERIOD_DAYS = 30;
+
 /**
  * Returns the minimum tier required to access a feature.
+ * With every feature available to both tiers today this always returns
+ * 'trial', but the function is kept for forward compatibility.
  */
-export function getRequiredTier(feature: FeatureKey): SubscriptionTier {
-  if (TIER_ACCESS.trial.has(feature)) return 'trial';
-  if (TIER_ACCESS.standard.has(feature)) return 'standard';
-  return 'enhanced';
+export function getRequiredTier(_feature: FeatureKey): SubscriptionTier {
+  return 'trial';
 }

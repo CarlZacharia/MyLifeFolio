@@ -19,34 +19,21 @@ import {
 import { ThemeProvider, createTheme, alpha } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import StarIcon from '@mui/icons-material/Star';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { useSubscription } from '../lib/SubscriptionContext';
-import { useAuth } from '../lib/AuthContext';
-import { SubscriptionTier, TIER_INFO } from '../lib/subscriptionConfig';
+import {
+  SubscriptionTier,
+  TIER_INFO,
+} from '../lib/subscriptionConfig';
 import { supabase } from '../lib/supabase';
 
 // Match the MyLifeFolioHome theme
 const theme = createTheme({
   palette: {
-    primary: {
-      main: '#1e3a5f',
-      light: '#2d5a8e',
-      dark: '#0f2744',
-    },
-    secondary: {
-      main: '#c9a227',
-      light: '#e8c547',
-      dark: '#9a7b1a',
-    },
-    background: {
-      default: '#faf9f7',
-      paper: '#ffffff',
-    },
-    text: {
-      primary: '#1a1a1a',
-      secondary: '#5a5a5a',
-    },
+    primary: { main: '#1e3a5f', light: '#2d5a8e', dark: '#0f2744' },
+    secondary: { main: '#c9a227', light: '#e8c547', dark: '#9a7b1a' },
+    background: { default: '#faf9f7', paper: '#ffffff' },
+    text: { primary: '#1a1a1a', secondary: '#5a5a5a' },
   },
   typography: {
     fontFamily: '"Source Sans 3", "Georgia", serif',
@@ -63,100 +50,64 @@ const theme = createTheme({
   shape: { borderRadius: 4 },
 });
 
-// Feature list for each tier
-const TIER_FEATURES: Record<SubscriptionTier, string[]> = {
-  trial: [
-    'Personal Information',
-    'Family & Dependents',
-    'My People & Advisors',
-    '7-day access',
-    'Explore the platform',
-  ],
-  standard: [
-    'All 12 folio categories',
-    'Documents Vault with uploads',
-    'Credential Vault (encrypted)',
-    'Digital Life management',
-    'All 11 report formats',
-    'Family Access Portal',
-    'Legacy section (stories, letters, favorites)',
-    'Care decisions & end-of-life',
-    'Insurance coverage tracking',
-    'Medical data management',
-  ],
-  enhanced: [
-    'Everything in Standard, plus:',
-    'AI-powered obituary generation',
-    'Legacy video recording (up to 5 videos)',
-    'Priority support',
-  ],
-};
+const TRIAL_FEATURES: string[] = [
+  'Full access to all 12 categories',
+  'Documents Vault with uploads',
+  'Credential Vault (encrypted)',
+  'All standard reports',
+  'Family Access Portal',
+  'AI-powered obituary',
+  'Legacy video recording',
+  'No credit card required',
+];
+
+const PAID_FEATURES: string[] = [
+  'Everything in the trial — no features removed',
+  'Continued access after the first 6 months',
+  'Annual billing — cancel anytime',
+  'Priority support',
+];
 
 interface PricingPageProps {
   onNavigateBack: () => void;
   onNavigate?: (page: string) => void;
 }
 
-// STRIPE DISABLED — uncomment when ready to re-enable billing
-// const STRIPE_PRICES: Record<string, string> = {
-//   standard: import.meta.env.VITE_STRIPE_PRICE_STANDARD || '',
-//   enhanced: import.meta.env.VITE_STRIPE_PRICE_ENHANCED || '',
-// };
-
-const PricingPage: React.FC<PricingPageProps> = ({ onNavigateBack, onNavigate }) => {
-  const { tier: currentTier, isTrialExpired } = useSubscription();
-  const { session } = useAuth();
-  const [loading, setLoading] = useState<SubscriptionTier | null>(null);
+const PricingPage: React.FC<PricingPageProps> = ({ onNavigateBack }) => {
+  const { tier: currentTier, isTrialExpired, refresh } = useSubscription();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const tiers: { key: SubscriptionTier; highlighted: boolean }[] = [
-    { key: 'trial', highlighted: false },
-    { key: 'standard', highlighted: true },
-    { key: 'enhanced', highlighted: false },
-  ];
+  /**
+   * Renew handler. Wired to the existing stripe-checkout edge function so
+   * that the click path is real, but the function returns an explicit error
+   * until Stripe credentials (STRIPE_SECRET_KEY, VITE_STRIPE_PRICE_PAID, etc.)
+   * are configured. See memory/billing_followups.md.
+   */
+  const handleRenew = async () => {
+    const priceId = (import.meta.env as Record<string, string>).VITE_STRIPE_PRICE_PAID || '';
+    if (!priceId) {
+      setError('Online billing is being finalized. Please contact us at support@mylifefolio.com to renew while we wrap up Stripe setup.');
+      return;
+    }
 
-  // STRIPE DISABLED — uncomment when ready to re-enable billing
-  const handleSubscribe = async (planTier: SubscriptionTier) => {
-    if (planTier === 'trial') return;
-    setError('Billing is not yet available. Please check back soon.');
-    // const priceId = STRIPE_PRICES[planTier];
-    // if (!priceId) {
-    //   setError('Stripe is not configured yet. Please contact support.');
-    //   return;
-    // }
-    //
-    // setLoading(planTier);
-    // setError(null);
-    //
-    // try {
-    //   const { data, error: fnError } = await supabase.functions.invoke('stripe-checkout', {
-    //     body: { priceId },
-    //   });
-    //
-    //   if (fnError) throw new Error(fnError.message);
-    //   if (!data?.sessionUrl) throw new Error('No checkout URL returned');
-    //
-    //   // Redirect to Stripe Checkout
-    //   window.location.href = data.sessionUrl;
-    // } catch (err: unknown) {
-    //   const message = err instanceof Error ? err.message : 'Failed to start checkout';
-    //   setError(message);
-    //   setLoading(null);
-    // }
-  };
-
-  const getButtonLabel = (planTier: SubscriptionTier): string => {
-    if (planTier === currentTier && !isTrialExpired) return 'Current Plan';
-    if (planTier === 'trial') return isTrialExpired ? 'Trial Expired' : 'Current Plan';
-    return 'Subscribe';
-  };
-
-  const isButtonDisabled = (planTier: SubscriptionTier): boolean => {
-    if (planTier === currentTier && !isTrialExpired) return true;
-    if (planTier === 'trial') return true;
-    // Don't allow downgrading from enhanced to standard
-    if (planTier === 'standard' && currentTier === 'enhanced') return true;
-    return false;
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('stripe-checkout', {
+        body: { priceId },
+      });
+      if (fnError) throw new Error(fnError.message);
+      if (!data?.sessionUrl) throw new Error('No checkout URL returned');
+      window.location.href = data.sessionUrl;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to start checkout';
+      setError(message);
+      setLoading(false);
+    } finally {
+      // refresh subscription state in case the webhook already fired
+      void refresh();
+    }
   };
 
   return (
@@ -167,11 +118,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onNavigateBack, onNavigate })
 
       <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
         {/* App Bar */}
-        <AppBar
-          position="fixed"
-          elevation={1}
-          sx={{ bgcolor: 'primary.main' }}
-        >
+        <AppBar position="fixed" elevation={1} sx={{ bgcolor: 'primary.main' }}>
           <Toolbar sx={{ py: 1, minHeight: 64 }}>
             <Button
               color="inherit"
@@ -192,7 +139,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onNavigateBack, onNavigate })
                 MyLifeFolio
               </Typography>
             </Box>
-            <Box sx={{ width: 80 }} /> {/* Spacer to center logo */}
+            <Box sx={{ width: 80 }} />
           </Toolbar>
         </AppBar>
 
@@ -203,7 +150,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onNavigateBack, onNavigate })
             color: 'white',
             pt: { xs: 14, md: 16 },
             pb: { xs: 6, md: 8 },
-            position: 'relative',
           }}
         >
           <Container maxWidth="lg" sx={{ textAlign: 'center' }}>
@@ -221,14 +167,14 @@ const PricingPage: React.FC<PricingPageProps> = ({ onNavigateBack, onNavigate })
                     mb: 2,
                   }}
                 >
-                  Choose Your Plan
+                  Simple, Honest Pricing
                 </Typography>
                 <Typography variant="h2" component="h1" sx={{ fontSize: { xs: '2rem', md: '2.75rem' }, mb: 2 }}>
-                  Simple, Transparent Pricing
+                  Free for 6 months. <br /> Then $149 a year.
                 </Typography>
-                <Typography variant="body1" sx={{ opacity: 0.85, maxWidth: 600, mx: 'auto', fontSize: '1.1rem' }}>
-                  Organize your most important information in one secure place.
-                  Choose the plan that fits your needs.
+                <Typography variant="body1" sx={{ opacity: 0.85, maxWidth: 620, mx: 'auto', fontSize: '1.1rem' }}>
+                  No credit card today. Use everything for the first six months.
+                  When the trial ends, decide whether to renew — or cancel and have your data permanently deleted.
                 </Typography>
               </Box>
             </Fade>
@@ -236,7 +182,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onNavigateBack, onNavigate })
         </Box>
 
         {/* Pricing Cards */}
-        <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, mt: -4 }}>
+        <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 }, mt: -4 }}>
           <Box
             sx={{
               display: 'flex',
@@ -246,243 +192,95 @@ const PricingPage: React.FC<PricingPageProps> = ({ onNavigateBack, onNavigate })
               justifyContent: 'center',
             }}
           >
-            {tiers.map(({ key, highlighted }, index) => {
-              const info = TIER_INFO[key];
-              const features = TIER_FEATURES[key];
-              const isCurrent = key === currentTier && !isTrialExpired;
+            {/* Trial card */}
+            <PricingCard
+              tier="trial"
+              info={TIER_INFO.trial}
+              features={TRIAL_FEATURES}
+              isCurrent={currentTier === 'trial' && !isTrialExpired}
+              ctaLabel={currentTier === 'trial' && !isTrialExpired ? 'Your current plan' : 'Free for 6 months'}
+              ctaDisabled
+              onClick={() => undefined}
+              loading={false}
+            />
 
-              return (
-                <Fade in timeout={600 + index * 200} key={key}>
-                  <Card
-                    elevation={highlighted ? 8 : 0}
-                    sx={{
-                      width: { xs: '100%', md: 340 },
-                      maxWidth: 380,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      position: 'relative',
-                      overflow: 'visible',
-                      border: '1px solid',
-                      borderColor: highlighted
-                        ? alpha('#c9a227', 0.5)
-                        : isCurrent
-                          ? alpha('#1e3a5f', 0.3)
-                          : alpha('#000', 0.08),
-                      transform: highlighted ? { md: 'scale(1.05)' } : 'none',
-                      zIndex: highlighted ? 1 : 0,
-                    }}
-                  >
-                    {/* Popular badge */}
-                    {highlighted && (
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: -14,
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          bgcolor: '#c9a227',
-                          color: '#0f2744',
-                          px: 2.5,
-                          py: 0.5,
-                          borderRadius: 2,
-                          fontSize: '0.8rem',
-                          fontWeight: 700,
-                          letterSpacing: '0.05em',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          boxShadow: '0 2px 8px rgba(201, 162, 39, 0.4)',
-                        }}
-                      >
-                        <StarIcon sx={{ fontSize: 16 }} />
-                        Most Popular
-                      </Box>
-                    )}
+            {/* Paid card */}
+            <PricingCard
+              tier="paid"
+              info={TIER_INFO.paid}
+              features={PAID_FEATURES}
+              highlighted
+              isCurrent={currentTier === 'paid'}
+              ctaLabel={
+                currentTier === 'paid'
+                  ? 'You are subscribed'
+                  : isTrialExpired
+                    ? 'Renew now'
+                    : 'Renew when trial ends'
+              }
+              ctaDisabled={currentTier === 'paid'}
+              onClick={handleRenew}
+              loading={loading}
+            />
+          </Box>
 
-                    {/* Current plan badge */}
-                    {isCurrent && (
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: -14,
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          bgcolor: '#1e3a5f',
-                          color: 'white',
-                          px: 2.5,
-                          py: 0.5,
-                          borderRadius: 2,
-                          fontSize: '0.8rem',
-                          fontWeight: 700,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                        }}
-                      >
-                        <LockOpenIcon sx={{ fontSize: 16 }} />
-                        Current Plan
-                      </Box>
-                    )}
-
-                    <CardContent sx={{ p: 4, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                      {/* Tier name */}
-                      <Typography
-                        variant="h5"
-                        sx={{
-                          fontFamily: '"Playfair Display", serif',
-                          color: '#1e3a5f',
-                          mb: 1,
-                          textAlign: 'center',
-                        }}
-                      >
-                        {info.name}
-                      </Typography>
-
-                      {/* Price */}
-                      <Box sx={{ textAlign: 'center', mb: 2 }}>
-                        <Typography
-                          component="span"
-                          sx={{
-                            fontSize: '2.75rem',
-                            fontWeight: 700,
-                            color: '#1a1a1a',
-                            fontFamily: '"Source Sans 3", sans-serif',
-                          }}
-                        >
-                          {info.price}
-                        </Typography>
-                        <Typography
-                          component="span"
-                          sx={{
-                            fontSize: '1rem',
-                            color: 'text.secondary',
-                            ml: 0.5,
-                          }}
-                        >
-                          /{info.priceDetail}
-                        </Typography>
-                      </Box>
-
-                      {/* Description */}
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: 'text.secondary',
-                          textAlign: 'center',
-                          mb: 3,
-                          minHeight: 40,
-                        }}
-                      >
-                        {info.description}
-                      </Typography>
-
-                      <Divider sx={{ mb: 3 }} />
-
-                      {/* Features list */}
-                      <Box sx={{ flexGrow: 1, mb: 3 }}>
-                        {features.map((feature, idx) => (
-                          <Box
-                            key={idx}
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'flex-start',
-                              gap: 1,
-                              mb: 1.5,
-                            }}
-                          >
-                            <CheckCircleIcon
-                              sx={{
-                                fontSize: 18,
-                                color: highlighted ? '#c9a227' : '#2e7d32',
-                                mt: 0.3,
-                                flexShrink: 0,
-                              }}
-                            />
-                            <Typography variant="body2" sx={{ color: 'text.primary', fontSize: '0.92rem' }}>
-                              {feature}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </Box>
-
-                      {/* CTA Button */}
-                      <Button
-                        variant={highlighted ? 'contained' : 'outlined'}
-                        size="large"
-                        fullWidth
-                        disabled={isButtonDisabled(key)}
-                        onClick={() => handleSubscribe(key)}
-                        sx={{
-                          py: 1.5,
-                          fontWeight: 600,
-                          fontSize: '1rem',
-                          ...(highlighted
-                            ? {
-                                bgcolor: '#1e3a5f',
-                                color: 'white',
-                                '&:hover': { bgcolor: '#0f2744' },
-                                '&.Mui-disabled': { bgcolor: alpha('#1e3a5f', 0.4), color: 'white' },
-                              }
-                            : {
-                                borderColor: '#1e3a5f',
-                                color: '#1e3a5f',
-                                '&:hover': { bgcolor: alpha('#1e3a5f', 0.04) },
-                                '&.Mui-disabled': { borderColor: alpha('#1e3a5f', 0.3), color: alpha('#1e3a5f', 0.4) },
-                              }),
-                        }}
-                      >
-                        {loading === key ? (
-                          <CircularProgress size={24} sx={{ color: highlighted ? 'white' : '#1e3a5f' }} />
-                        ) : (
-                          getButtonLabel(key)
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </Fade>
-              );
-            })}
+          {/* Notices */}
+          <Box sx={{ maxWidth: 720, mx: 'auto', mt: 6, p: 3, bgcolor: alpha('#1e3a5f', 0.04), borderRadius: 2, borderLeft: `3px solid #1e3a5f` }}>
+            <Typography variant="body2" sx={{ color: '#1e3a5f', fontWeight: 600, mb: 1 }}>
+              What happens at the 6-month mark
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+              When your trial ends you have <strong>30 days</strong> to decide.
+              You can log in during this grace period to renew or to confirm
+              cancellation.
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              <strong>If you choose not to renew, your folio and all uploaded
+              files are permanently deleted.</strong> We do not retain data
+              for cancelled accounts. We will email you 30 days, 7 days, on,
+              and 7 days after the trial end so you have plenty of warning.
+            </Typography>
           </Box>
 
           {/* Error Snackbar */}
           <Snackbar
             open={!!error}
-            autoHideDuration={6000}
+            autoHideDuration={8000}
             onClose={() => setError(null)}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           >
-            <Alert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
+            <Alert onClose={() => setError(null)} severity="warning" sx={{ width: '100%' }}>
               {error}
             </Alert>
           </Snackbar>
 
-          {/* FAQ / Info section */}
+          {/* FAQ */}
           <Box sx={{ textAlign: 'center', mt: 8, mb: 4 }}>
             <Typography variant="h4" sx={{ fontFamily: '"Playfair Display", serif', color: '#1e3a5f', mb: 3 }}>
               Frequently Asked Questions
             </Typography>
 
-            <Box sx={{ maxWidth: 700, mx: 'auto', textAlign: 'left' }}>
+            <Box sx={{ maxWidth: 720, mx: 'auto', textAlign: 'left' }}>
               {[
                 {
-                  q: 'Can I upgrade from Standard to Enhanced later?',
-                  a: 'Yes! You can upgrade at any time. You\'ll only pay the difference for the remainder of your billing period.',
+                  q: 'Why no credit card up front?',
+                  a: "We don't want anything in the way of you trying it. Add a card only if you decide to keep going at the 6-month mark.",
                 },
                 {
-                  q: 'What happens when my free trial ends?',
-                  a: 'Your data is safely preserved. You\'ll need to subscribe to a paid plan to continue accessing and editing your folio.',
+                  q: 'What happens to my data if I don\'t renew?',
+                  a: "It is permanently deleted. We do not store inactive accounts. You'll get four reminder emails — 30 days before the trial ends, 7 days before, the day of, and 7 days after — so you have plenty of warning to renew or to download anything you want to keep.",
+                },
+                {
+                  q: 'Can I cancel partway through the year?',
+                  a: 'Yes. Your subscription stays active through the end of the period you paid for, then deletes per the same policy as a trial cancellation.',
                 },
                 {
                   q: 'Is my data secure?',
-                  a: 'Absolutely. All data is encrypted, your credential vault uses client-side AES-256 encryption, and we use row-level security so only you can access your information.',
+                  a: 'All data is encrypted at rest. The credential vault uses client-side AES-256 encryption — even MyLifeFolio cannot read it. Row-level security ensures only you and the people you grant access to can see your folio.',
                 },
                 {
-                  q: 'Can I cancel my subscription?',
-                  a: 'Yes, you can cancel anytime. Your data remains accessible until the end of your billing period.',
-                },
-                {
-                  q: 'What\'s included in the AI obituary feature?',
-                  a: 'Our AI-powered obituary generator creates a personalized, thoughtful obituary based on the life information you\'ve entered. You can generate multiple drafts and edit them to your liking.',
+                  q: 'What\'s included in the AI obituary?',
+                  a: "An AI-generated, thoughtful obituary draft based on the life information you've entered. Generate multiple versions and edit them to your liking. Included for everyone — trial and paid alike.",
                 },
               ].map(({ q, a }, idx) => (
                 <Box key={idx} sx={{ mb: 3 }}>
@@ -510,5 +308,132 @@ const PricingPage: React.FC<PricingPageProps> = ({ onNavigateBack, onNavigate })
     </ThemeProvider>
   );
 };
+
+interface PricingCardProps {
+  tier: SubscriptionTier;
+  info: { name: string; price: string; priceDetail: string; description: string };
+  features: string[];
+  highlighted?: boolean;
+  isCurrent: boolean;
+  ctaLabel: string;
+  ctaDisabled: boolean;
+  onClick: () => void;
+  loading: boolean;
+}
+
+const PricingCard: React.FC<PricingCardProps> = ({
+  tier,
+  info,
+  features,
+  highlighted = false,
+  isCurrent,
+  ctaLabel,
+  ctaDisabled,
+  onClick,
+  loading,
+}) => (
+  <Fade in timeout={700}>
+    <Card
+      elevation={highlighted ? 8 : 0}
+      sx={{
+        width: { xs: '100%', md: 360 },
+        maxWidth: 420,
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        overflow: 'visible',
+        border: '1px solid',
+        borderColor: highlighted ? alpha('#c9a227', 0.5) : isCurrent ? alpha('#1e3a5f', 0.3) : alpha('#000', 0.08),
+        transform: highlighted ? { md: 'scale(1.04)' } : 'none',
+      }}
+    >
+      {isCurrent && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: -14,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            bgcolor: '#1e3a5f',
+            color: 'white',
+            px: 2.5,
+            py: 0.5,
+            borderRadius: 2,
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <LockOpenIcon sx={{ fontSize: 16 }} />
+          Your current plan
+        </Box>
+      )}
+
+      <CardContent sx={{ p: 4, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        <Typography variant="h5" sx={{ fontFamily: '"Playfair Display", serif', color: '#1e3a5f', mb: 1, textAlign: 'center' }}>
+          {info.name}
+        </Typography>
+
+        <Box sx={{ textAlign: 'center', mb: 2 }}>
+          <Typography component="span" sx={{ fontSize: '2.75rem', fontWeight: 700, color: '#1a1a1a', fontFamily: '"Source Sans 3", sans-serif' }}>
+            {info.price}
+          </Typography>
+          <Typography component="span" sx={{ fontSize: '1rem', color: 'text.secondary', ml: 0.5 }}>
+            /{info.priceDetail}
+          </Typography>
+        </Box>
+
+        <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center', mb: 3, minHeight: 40 }}>
+          {info.description}
+        </Typography>
+
+        <Divider sx={{ mb: 3 }} />
+
+        <Box sx={{ flexGrow: 1, mb: 3 }}>
+          {features.map((feature, idx) => (
+            <Box key={idx} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1.5 }}>
+              <CheckCircleIcon sx={{ fontSize: 18, color: highlighted ? '#c9a227' : '#2e7d32', mt: 0.3, flexShrink: 0 }} />
+              <Typography variant="body2" sx={{ color: 'text.primary', fontSize: '0.92rem' }}>
+                {feature}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+
+        <Button
+          variant={highlighted ? 'contained' : 'outlined'}
+          size="large"
+          fullWidth
+          disabled={ctaDisabled}
+          onClick={onClick}
+          sx={{
+            py: 1.5,
+            fontWeight: 600,
+            fontSize: '1rem',
+            ...(highlighted
+              ? {
+                  bgcolor: '#1e3a5f',
+                  color: 'white',
+                  '&:hover': { bgcolor: '#0f2744' },
+                  '&.Mui-disabled': { bgcolor: alpha('#1e3a5f', 0.4), color: 'white' },
+                }
+              : {
+                  borderColor: '#1e3a5f',
+                  color: '#1e3a5f',
+                  '&:hover': { bgcolor: alpha('#1e3a5f', 0.04) },
+                  '&.Mui-disabled': { borderColor: alpha('#1e3a5f', 0.3), color: alpha('#1e3a5f', 0.4) },
+                }),
+          }}
+        >
+          {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : ctaLabel}
+        </Button>
+      </CardContent>
+      <input type="hidden" value={tier} />
+    </Card>
+  </Fade>
+);
 
 export default PricingPage;
