@@ -58,6 +58,24 @@ interface CurrentEstatePlan {
   financial_poa_agent1?: string;
   health_care_poa_agent1?: string;
   document_state?: string;
+  // Storage location (where the original is kept)
+  will_storage_location?: string;
+  will_storage_location_other?: string;
+  will_storage_notes?: string;
+  trust_storage_location?: string;
+  trust_storage_location_other?: string;
+  trust_storage_notes?: string;
+  // Drafting attorney
+  will_attorney_name?: string;
+  will_attorney_firm?: string;
+  will_attorney_email?: string;
+  will_attorney_phone?: string;
+  will_attorney_address?: string;
+  trust_attorney_name?: string;
+  trust_attorney_firm?: string;
+  trust_attorney_email?: string;
+  trust_attorney_phone?: string;
+  trust_attorney_address?: string;
 }
 
 interface Advisor {
@@ -549,14 +567,43 @@ const WhatToDoIfIDie: React.FC<WhatToDoIfIDieProps> = ({
         />
         <CheckItem
           text="Locate the original Will and/or Trust documents"
-          detail={[
-            clientPlan?.has_will && clientPlan.will_personal_rep
-              ? `Will — Personal Representative: ${clientPlan.will_personal_rep}`
-              : null,
-            clientPlan?.has_trust && clientPlan.trust_name
-              ? `Trust: ${clientPlan.trust_name}`
-              : null,
-          ].filter(Boolean).join(' | ') || 'Check the Documents Vault in this Folio.'}
+          detail={(() => {
+            const fmtStorage = (loc?: string, other?: string, notes?: string) => {
+              if (!loc) return '';
+              if (loc === 'Other') return other || 'Other';
+              return notes ? `${loc} — ${notes}` : loc;
+            };
+            const willStorage = clientPlan?.has_will
+              ? fmtStorage(clientPlan.will_storage_location, clientPlan.will_storage_location_other, clientPlan.will_storage_notes)
+              : '';
+            const trustStorage = clientPlan?.has_trust
+              ? fmtStorage(clientPlan.trust_storage_location, clientPlan.trust_storage_location_other, clientPlan.trust_storage_notes)
+              : '';
+            const parts = [
+              clientPlan?.has_will
+                ? `Will${willStorage ? ' — kept at: ' + willStorage : ''}${clientPlan.will_personal_rep ? ' (Personal Rep: ' + clientPlan.will_personal_rep + ')' : ''}`
+                : null,
+              clientPlan?.has_trust
+                ? `Trust${clientPlan.trust_name ? ' (' + clientPlan.trust_name + ')' : ''}${trustStorage ? ' — kept at: ' + trustStorage : ''}`
+                : null,
+            ].filter(Boolean);
+            return parts.length > 0 ? parts.join(' | ') : 'Check the Documents Vault in this Folio.';
+          })()}
+          note={(() => {
+            const lines: string[] = [];
+            if (clientPlan?.has_will && clientPlan.will_attorney_name) {
+              const firm = clientPlan.will_attorney_firm ? ' — ' + clientPlan.will_attorney_firm : '';
+              const phone = clientPlan.will_attorney_phone ? ' • ' + clientPlan.will_attorney_phone : '';
+              const email = clientPlan.will_attorney_email ? ' • ' + clientPlan.will_attorney_email : '';
+              lines.push(`Will drafted by: ${clientPlan.will_attorney_name}${firm}${phone}${email}`);
+            }
+            if (clientPlan?.has_trust && clientPlan.trust_attorney_name && clientPlan.trust_attorney_name !== clientPlan.will_attorney_name) {
+              const firm = clientPlan.trust_attorney_firm ? ' — ' + clientPlan.trust_attorney_firm : '';
+              const phone = clientPlan.trust_attorney_phone ? ' • ' + clientPlan.trust_attorney_phone : '';
+              lines.push(`Trust drafted by: ${clientPlan.trust_attorney_name}${firm}${phone}`);
+            }
+            return lines.length > 0 ? lines.join(' ') : undefined;
+          })()}
         />
         <CheckItem
           text="Secure the home and vehicle(s)"
