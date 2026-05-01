@@ -53,6 +53,11 @@ import FolioSearchBar from './FolioSearchBar';
 import { isAdminUser } from '../lib/adminUtils';
 import { useFormContext } from '../lib/FormContext';
 import { getFolioCardCounts, useVaultDocumentCount, FolioCardId } from '../lib/folioCardStatus';
+import { useEnabledCategories } from '../lib/EnabledCategoriesContext';
+import { FolioCategoryId, DEFAULT_ENABLED_CATEGORIES } from '../lib/folioCategoryConfig';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 // Custom theme matching LandingPage
 const theme = createTheme({
@@ -423,6 +428,31 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
   const { formData } = useFormContext();
   const cardCounts = useMemo(() => getFolioCardCounts(formData), [formData]);
   const vaultDocCount = useVaultDocumentCount(user?.id);
+  const { enabled: enabledCategories, setEnabled: setEnabledCategories } = useEnabledCategories();
+  const [manageOpen, setManageOpen] = useState(false);
+  const [draftEnabled, setDraftEnabled] = useState<FolioCategoryId[]>(enabledCategories);
+  const [savingCategories, setSavingCategories] = useState(false);
+
+  // Reset draft to current state every time the dialog opens
+  useEffect(() => {
+    if (manageOpen) setDraftEnabled(enabledCategories);
+  }, [manageOpen, enabledCategories]);
+
+  const visibleFolioCategories = useMemo(
+    () => folioCategories.filter((c) => enabledCategories.includes(c.id as FolioCategoryId)),
+    [enabledCategories],
+  );
+
+  const handleSaveCategories = async () => {
+    setSavingCategories(true);
+    // Always force-include the 4 foundational modules. They are not editable
+    // in the dialog (filtered out of the list), so this guarantees they stay
+    // enabled regardless of the draft state.
+    const merged = Array.from(new Set([...DEFAULT_ENABLED_CATEGORIES, ...draftEnabled])) as FolioCategoryId[];
+    const { error } = await setEnabledCategories(merged);
+    setSavingCategories(false);
+    if (!error) setManageOpen(false);
+  };
 
   const handleLogout = async () => {
     await signOut();
@@ -739,10 +769,13 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
                   fontStyle: 'italic',
                 }}
               >
-                Below are all of the categories and data. Fill in as much and as many as you wish.
-                MyLifeFolio is a living document that can be added to and edited as much as you wish.
-                Choose the most important items to you first, then grow from there. Click on a box
-                below to open that section.
+                Below are the four foundational categories — the starting point of every
+                folio. Fill in as much as you wish; MyLifeFolio is a living document, so you
+                can return and edit anytime. When you&rsquo;re ready, click the
+                <Box component="span" sx={{ fontWeight: 600, fontStyle: 'normal' }}> Add modules </Box>
+                button beneath the categories to bring in additional sections —
+                Financial Life, Medical Data, Insurance, Digital Life, and more —
+                one at a time or several at once. Click any card to open that section.
               </Typography>
             </AnimatedSection>
           </Container>
@@ -796,7 +829,7 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
         {/* Main Content - Category Blocks */}
         <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, mt: -4 }}>
           <Grid container spacing={3}>
-            {folioCategories.map((cat, i) => {
+            {visibleFolioCategories.map((cat, i) => {
               const featureKey = cat.id as FeatureKey;
               const locked = user ? !canAccess(featureKey) : false;
               const reqTier = getRequiredTier(featureKey);
@@ -824,9 +857,117 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
                 </Grid>
               );
             })}
-
           </Grid>
+
+          {/* Add / manage modules */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <Button
+              variant="contained"
+              startIcon={<AddCircleOutlineIcon />}
+              onClick={() => setManageOpen(true)}
+              sx={{
+                fontFamily: '"Source Sans 3", sans-serif',
+                fontWeight: 700,
+                letterSpacing: '0.04em',
+                fontSize: '0.95rem',
+                bgcolor: '#1e3a5f',
+                color: '#ffffff',
+                px: 4,
+                py: 1.4,
+                boxShadow: '0 4px 14px rgba(30, 58, 95, 0.35)',
+                '&:hover': {
+                  bgcolor: '#162d4a',
+                  boxShadow: '0 6px 20px rgba(30, 58, 95, 0.45)',
+                  transform: 'translateY(-1px)',
+                },
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {visibleFolioCategories.length < folioCategories.length
+                ? `Add modules (${folioCategories.length - visibleFolioCategories.length} hidden)`
+                : 'Manage modules'}
+            </Button>
+          </Box>
         </Container>
+
+        {/* Manage modules dialog */}
+        <Dialog
+          open={manageOpen}
+          onClose={() => setManageOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, color: '#1e3a5f' }}>
+            Choose which modules to show on your dashboard
+          </DialogTitle>
+          <DialogContent dividers>
+            <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+              Pick the additional modules you want visible. You can add or remove
+              them anytime — hiding a module never deletes its data, and Family
+              Access sections and reports tied to a hidden module are simply not
+              offered until you turn the module back on. The four foundational
+              categories are always shown.
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              {folioCategories
+                .filter((cat) => !DEFAULT_ENABLED_CATEGORIES.includes(cat.id as FolioCategoryId))
+                .map((cat) => {
+                const id = cat.id as FolioCategoryId;
+                const checked = draftEnabled.includes(id);
+                const itemCount =
+                  cat.id === 'document-uploads'
+                    ? vaultDocCount
+                    : (cardCounts[cat.id as Exclude<FolioCardId, 'document-uploads'>] ?? 0);
+                return (
+                  <FormControlLabel
+                    key={cat.id}
+                    sx={{ alignItems: 'flex-start', py: 0.75, m: 0 }}
+                    control={
+                      <Checkbox
+                        checked={checked}
+                        onChange={(e) => {
+                          setDraftEnabled((prev) =>
+                            e.target.checked
+                              ? Array.from(new Set([...prev, id]))
+                              : prev.filter((x) => x !== id),
+                          );
+                        }}
+                        sx={{ color: cat.accentColor, '&.Mui-checked': { color: cat.accentColor }, mt: -0.25 }}
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography sx={{ fontWeight: 600, color: '#1e3a5f' }}>
+                          {cat.title}
+                          {itemCount > 0 && (
+                            <Typography component="span" sx={{ ml: 1, fontSize: '0.78rem', color: 'text.secondary', fontWeight: 400 }}>
+                              ({itemCount} {itemCount === 1 ? 'item' : 'items'})
+                            </Typography>
+                          )}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>
+                          {cat.items.slice(0, 3).join(' · ')}
+                          {cat.items.length > 3 ? '…' : ''}
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                );
+              })}
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 2 }}>
+            <Button onClick={() => setManageOpen(false)} disabled={savingCategories}>Cancel</Button>
+            <Button
+              variant="contained"
+              onClick={handleSaveCategories}
+              disabled={savingCategories || draftEnabled.length === 0}
+              sx={{ bgcolor: '#1e3a5f', '&:hover': { bgcolor: '#162d4a' } }}
+            >
+              {savingCategories ? 'Saving…' : 'Save'}
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {/* Footer */}
         <Box sx={{ bgcolor: '#0a1929', color: 'white', py: 4, mt: 6 }}>
