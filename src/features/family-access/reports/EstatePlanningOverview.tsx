@@ -109,6 +109,14 @@ interface CurrentEstatePlan {
   will_personal_rep_alternate2?: string;
   will_primary_beneficiary?: string;
   will_secondary_beneficiaries?: string;
+  will_storage_location?: string;
+  will_storage_location_other?: string;
+  will_storage_notes?: string;
+  will_attorney_name?: string;
+  will_attorney_firm?: string;
+  will_attorney_email?: string;
+  will_attorney_phone?: string;
+  will_attorney_address?: string;
   // Trust
   trust_name?: string;
   trust_date_signed?: string;
@@ -118,23 +126,63 @@ interface CurrentEstatePlan {
   trust_trustee_alternate2?: string;
   trust_primary_beneficiary?: string;
   trust_secondary_beneficiaries?: string;
+  trust_storage_location?: string;
+  trust_storage_location_other?: string;
+  trust_storage_notes?: string;
+  trust_attorney_name?: string;
+  trust_attorney_firm?: string;
+  trust_attorney_email?: string;
+  trust_attorney_phone?: string;
+  trust_attorney_address?: string;
   // Irrevocable trust
   irrevocable_trust_name?: string;
   irrevocable_trust_date_signed?: string;
   irrevocable_trust_reason?: string;
+  irrevocable_trust_storage_location?: string;
+  irrevocable_trust_storage_location_other?: string;
+  irrevocable_trust_storage_notes?: string;
+  irrevocable_trust_attorney_name?: string;
+  irrevocable_trust_attorney_firm?: string;
+  irrevocable_trust_attorney_email?: string;
+  irrevocable_trust_attorney_phone?: string;
+  irrevocable_trust_attorney_address?: string;
   // POA
   financial_poa_date_signed?: string;
   financial_poa_state_signed?: string;
   financial_poa_agent1?: string;
   financial_poa_agent2?: string;
   financial_poa_agent3?: string;
+  financial_poa_storage_location?: string;
+  financial_poa_storage_location_other?: string;
+  financial_poa_storage_notes?: string;
+  financial_poa_attorney_name?: string;
+  financial_poa_attorney_firm?: string;
+  financial_poa_attorney_email?: string;
+  financial_poa_attorney_phone?: string;
+  financial_poa_attorney_address?: string;
   // Health care
   health_care_poa_date_signed?: string;
   health_care_poa_state_signed?: string;
   health_care_poa_agent1?: string;
+  health_care_poa_storage_location?: string;
+  health_care_poa_storage_location_other?: string;
+  health_care_poa_storage_notes?: string;
+  health_care_poa_attorney_name?: string;
+  health_care_poa_attorney_firm?: string;
+  health_care_poa_attorney_email?: string;
+  health_care_poa_attorney_phone?: string;
+  health_care_poa_attorney_address?: string;
   // Living will
   living_will_date_signed?: string;
   living_will_state_signed?: string;
+  living_will_storage_location?: string;
+  living_will_storage_location_other?: string;
+  living_will_storage_notes?: string;
+  living_will_attorney_name?: string;
+  living_will_attorney_firm?: string;
+  living_will_attorney_email?: string;
+  living_will_attorney_phone?: string;
+  living_will_attorney_address?: string;
   // Review
   review_option?: string;
   document_state?: string;
@@ -251,6 +299,25 @@ const formatDate = (d?: string | null): string => {
       year: 'numeric', month: 'long', day: 'numeric',
     });
   } catch { return d; }
+};
+
+const fmtStorage = (
+  loc?: string,
+  other?: string,
+  notes?: string,
+): string | undefined => {
+  if (!loc) return undefined;
+  if (loc === 'Other') return other || 'Other';
+  return notes ? `${loc} — ${notes}` : loc;
+};
+
+const fmtAttorney = (
+  name?: string,
+  firm?: string,
+): string | undefined => {
+  if (!name && !firm) return undefined;
+  if (name && firm) return `${name} (${firm})`;
+  return name || firm;
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -516,6 +583,11 @@ const EstatePlanningOverview: React.FC<EstatePlanningOverviewProps> = ({
               <Grid item xs={12} sm={6}>
                 <InfoRow label="Primary Beneficiary"    value={plan.will_primary_beneficiary} />
                 <InfoRow label="Secondary Beneficiaries" value={plan.will_secondary_beneficiaries} />
+                <InfoRow label="Stored At" value={fmtStorage(plan.will_storage_location, plan.will_storage_location_other, plan.will_storage_notes)} />
+                <InfoRow label="Drafted By" value={fmtAttorney(plan.will_attorney_name, plan.will_attorney_firm)} />
+                <InfoRow label="Atty. Phone" value={plan.will_attorney_phone} />
+                <InfoRow label="Atty. Email" value={plan.will_attorney_email} />
+                <InfoRow label="Atty. Address" value={plan.will_attorney_address} />
               </Grid>
             </Grid>
           </DocumentBlock>
@@ -530,6 +602,7 @@ const EstatePlanningOverview: React.FC<EstatePlanningOverviewProps> = ({
                 <InfoRow label="Date Signed"         value={formatDate(plan.trust_date_signed)} />
                 <InfoRow label="State Signed"        value={plan.trust_state_signed} />
                 <InfoRow label="Joint Trust"         value={plan.is_joint_trust ? 'Yes' : undefined} />
+                <InfoRow label="Stored At" value={fmtStorage(plan.trust_storage_location, plan.trust_storage_location_other, plan.trust_storage_notes)} />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <InfoRow label="Trustee"             value={plan.trust_trustee} />
@@ -537,6 +610,9 @@ const EstatePlanningOverview: React.FC<EstatePlanningOverviewProps> = ({
                 <InfoRow label="Alternate Trustee #2" value={plan.trust_trustee_alternate2} />
                 <InfoRow label="Primary Beneficiary"  value={plan.trust_primary_beneficiary} />
                 <InfoRow label="Secondary Beneficiaries" value={plan.trust_secondary_beneficiaries} />
+                <InfoRow label="Drafted By" value={fmtAttorney(plan.trust_attorney_name, plan.trust_attorney_firm)} />
+                <InfoRow label="Atty. Phone" value={plan.trust_attorney_phone} />
+                <InfoRow label="Atty. Email" value={plan.trust_attorney_email} />
               </Grid>
             </Grid>
           </DocumentBlock>
@@ -550,9 +626,13 @@ const EstatePlanningOverview: React.FC<EstatePlanningOverviewProps> = ({
                 <InfoRow label="Trust Name"   value={plan.irrevocable_trust_name} />
                 <InfoRow label="Date Signed"  value={formatDate(plan.irrevocable_trust_date_signed)} />
                 <InfoRow label="Joint"        value={plan.is_joint_irrevocable_trust ? 'Yes' : undefined} />
+                <InfoRow label="Stored At" value={fmtStorage(plan.irrevocable_trust_storage_location, plan.irrevocable_trust_storage_location_other, plan.irrevocable_trust_storage_notes)} />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <InfoRow label="Purpose / Reason" value={plan.irrevocable_trust_reason} />
+                <InfoRow label="Drafted By" value={fmtAttorney(plan.irrevocable_trust_attorney_name, plan.irrevocable_trust_attorney_firm)} />
+                <InfoRow label="Atty. Phone" value={plan.irrevocable_trust_attorney_phone} />
+                <InfoRow label="Atty. Email" value={plan.irrevocable_trust_attorney_email} />
               </Grid>
             </Grid>
           </DocumentBlock>
@@ -565,11 +645,14 @@ const EstatePlanningOverview: React.FC<EstatePlanningOverviewProps> = ({
               <Grid item xs={12} sm={6}>
                 <InfoRow label="Date Signed"  value={formatDate(plan.financial_poa_date_signed)} />
                 <InfoRow label="State Signed" value={plan.financial_poa_state_signed} />
+                <InfoRow label="Stored At" value={fmtStorage(plan.financial_poa_storage_location, plan.financial_poa_storage_location_other, plan.financial_poa_storage_notes)} />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <InfoRow label="Agent #1"     value={plan.financial_poa_agent1} />
                 <InfoRow label="Agent #2"     value={plan.financial_poa_agent2} />
                 <InfoRow label="Agent #3"     value={plan.financial_poa_agent3} />
+                <InfoRow label="Drafted By" value={fmtAttorney(plan.financial_poa_attorney_name, plan.financial_poa_attorney_firm)} />
+                <InfoRow label="Atty. Phone" value={plan.financial_poa_attorney_phone} />
               </Grid>
             </Grid>
           </DocumentBlock>
@@ -582,9 +665,12 @@ const EstatePlanningOverview: React.FC<EstatePlanningOverviewProps> = ({
               <Grid item xs={12} sm={6}>
                 <InfoRow label="Date Signed"  value={formatDate(plan.health_care_poa_date_signed)} />
                 <InfoRow label="State Signed" value={plan.health_care_poa_state_signed} />
+                <InfoRow label="Stored At" value={fmtStorage(plan.health_care_poa_storage_location, plan.health_care_poa_storage_location_other, plan.health_care_poa_storage_notes)} />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <InfoRow label="Agent #1"     value={plan.health_care_poa_agent1} />
+                <InfoRow label="Drafted By" value={fmtAttorney(plan.health_care_poa_attorney_name, plan.health_care_poa_attorney_firm)} />
+                <InfoRow label="Atty. Phone" value={plan.health_care_poa_attorney_phone} />
               </Grid>
             </Grid>
           </DocumentBlock>
@@ -593,8 +679,18 @@ const EstatePlanningOverview: React.FC<EstatePlanningOverviewProps> = ({
         {/* Living Will */}
         {plan.has_living_will && (
           <DocumentBlock title="Living Will / Advance Directive">
-            <InfoRow label="Date Signed"  value={formatDate(plan.living_will_date_signed)} />
-            <InfoRow label="State Signed" value={plan.living_will_state_signed} />
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <InfoRow label="Date Signed"  value={formatDate(plan.living_will_date_signed)} />
+                <InfoRow label="State Signed" value={plan.living_will_state_signed} />
+                <InfoRow label="Stored At" value={fmtStorage(plan.living_will_storage_location, plan.living_will_storage_location_other, plan.living_will_storage_notes)} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InfoRow label="Drafted By" value={fmtAttorney(plan.living_will_attorney_name, plan.living_will_attorney_firm)} />
+                <InfoRow label="Atty. Phone" value={plan.living_will_attorney_phone} />
+                <InfoRow label="Atty. Email" value={plan.living_will_attorney_email} />
+              </Grid>
+            </Grid>
           </DocumentBlock>
         )}
 

@@ -61,7 +61,7 @@ const CustomReportPreview: React.FC<CustomReportPreviewProps> = ({ reportName, s
               }}
             />
           )}
-          {renderReportById(reportId, data)}
+          {renderReportById(reportId, data, formData as unknown as Record<string, unknown>)}
         </React.Fragment>
       ))}
     </ReportLayout>

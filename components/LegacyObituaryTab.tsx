@@ -453,31 +453,9 @@ const ObituaryForm: React.FC<ObituaryFormProps> = ({ obit, formDataKey, intakeId
       {/* ── GENERATE SECTION ── */}
       <Divider sx={{ my: 2 }} />
 
-      {!hasAiAccess && (
-        <Box
-          sx={{
-            bgcolor: 'rgba(30, 58, 95, 0.04)',
-            border: '1px solid rgba(30, 58, 95, 0.15)',
-            borderRadius: 2,
-            px: 3,
-            py: 2.5,
-            mb: 2,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-          }}
-        >
-          <LockOutlinedIcon sx={{ fontSize: 28, color: '#1e3a5f', opacity: 0.6 }} />
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="body1" sx={{ fontWeight: 600, color: '#1e3a5f' }}>
-              AI Obituary Generation — {TIER_INFO.enhanced.name} Feature
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Upgrade to the {TIER_INFO.enhanced.name} plan ({TIER_INFO.enhanced.price}/{TIER_INFO.enhanced.priceDetail}) to generate professional obituaries with AI. You can still fill in the form and export it as entered.
-            </Typography>
-          </Box>
-        </Box>
-      )}
+      {/* AI obituary is available to all users (trial + paid) — no upgrade
+          prompt. If feature gating returns in the future (canAccess('ai-obituary')
+          is currently true for everyone), reintroduce a lock screen here. */}
 
       {hasAiAccess && error && (
         <Alert severity="error" sx={{ mb: 1 }}>

@@ -129,6 +129,22 @@ interface CurrentEstatePlan {
   health_care_poa_date_signed?: string;
   health_care_poa_state_signed?: string;
   living_will_date_signed?: string;
+  // Storage location
+  financial_poa_storage_location?: string;
+  financial_poa_storage_location_other?: string;
+  financial_poa_storage_notes?: string;
+  health_care_poa_storage_location?: string;
+  health_care_poa_storage_location_other?: string;
+  health_care_poa_storage_notes?: string;
+  // Drafting attorney
+  financial_poa_attorney_name?: string;
+  financial_poa_attorney_firm?: string;
+  financial_poa_attorney_phone?: string;
+  financial_poa_attorney_email?: string;
+  health_care_poa_attorney_name?: string;
+  health_care_poa_attorney_firm?: string;
+  health_care_poa_attorney_phone?: string;
+  health_care_poa_attorney_email?: string;
 }
 
 /** folio_medical_providers */
@@ -613,6 +629,16 @@ const WhatToDoIfINeedCare: React.FC<WhatToDoIfINeedCareProps> = ({
                 <InfoRow label="Agent #3"      value={clientPlan.financial_poa_agent3} />
                 <InfoRow label="Date Signed"   value={formatDate(clientPlan.financial_poa_date_signed)} />
                 <InfoRow label="State"         value={clientPlan.financial_poa_state_signed} />
+                <InfoRow label="Stored At"     value={(() => {
+                  const loc = clientPlan.financial_poa_storage_location;
+                  if (!loc) return undefined;
+                  if (loc === 'Other') return clientPlan.financial_poa_storage_location_other || 'Other';
+                  return clientPlan.financial_poa_storage_notes ? `${loc} — ${clientPlan.financial_poa_storage_notes}` : loc;
+                })()} />
+                <InfoRow label="Drafted By"    value={clientPlan.financial_poa_attorney_name
+                  ? `${clientPlan.financial_poa_attorney_name}${clientPlan.financial_poa_attorney_firm ? ' (' + clientPlan.financial_poa_attorney_firm + ')' : ''}`
+                  : undefined} />
+                <InfoRow label="Atty. Phone"   value={clientPlan.financial_poa_attorney_phone} />
                 <Box sx={{ mt: 1, px: 1.25, py: 0.5, bgcolor: colors.cream, borderRadius: 1 }}>
                   <Typography sx={{
                     fontFamily: '"Jost", sans-serif', fontSize: '11px',
@@ -645,6 +671,16 @@ const WhatToDoIfINeedCare: React.FC<WhatToDoIfINeedCareProps> = ({
                 <InfoRow label="Agent"         value={clientPlan.health_care_poa_agent1} />
                 <InfoRow label="Date Signed"   value={formatDate(clientPlan.health_care_poa_date_signed)} />
                 <InfoRow label="State"         value={clientPlan.health_care_poa_state_signed} />
+                <InfoRow label="Stored At"     value={(() => {
+                  const loc = clientPlan.health_care_poa_storage_location;
+                  if (!loc) return undefined;
+                  if (loc === 'Other') return clientPlan.health_care_poa_storage_location_other || 'Other';
+                  return clientPlan.health_care_poa_storage_notes ? `${loc} — ${clientPlan.health_care_poa_storage_notes}` : loc;
+                })()} />
+                <InfoRow label="Drafted By"    value={clientPlan.health_care_poa_attorney_name
+                  ? `${clientPlan.health_care_poa_attorney_name}${clientPlan.health_care_poa_attorney_firm ? ' (' + clientPlan.health_care_poa_attorney_firm + ')' : ''}`
+                  : undefined} />
+                <InfoRow label="Atty. Phone"   value={clientPlan.health_care_poa_attorney_phone} />
                 <Box sx={{ mt: 1, px: 1.25, py: 0.5, bgcolor: colors.cream, borderRadius: 1 }}>
                   <Typography sx={{
                     fontFamily: '"Jost", sans-serif', fontSize: '11px',

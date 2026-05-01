@@ -418,10 +418,20 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
               </Grid>
 
               {/* Hero right image */}
-              <Grid item xs={12} md={5} sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center' }}>
+              <Grid item xs={12} md={5} sx={{ display: { xs: 'none', md: 'flex' }, flexDirection: 'column', alignItems: 'center', gap: 5 }}>
                 <Box sx={{ position: 'relative', opacity: 0, animation: 'fadeIn 1s 0.6s ease forwards', '@keyframes fadeIn': { from: { opacity: 0 }, to: { opacity: 1 } } }}>
                   <Box component="img" src="/logo.svg" alt="MyLifeFolio" sx={{ width: 300, height: 300, borderRadius: '5%', objectFit: 'cover', border: '3px solid', borderColor: alpha('#c9a227', 0.4), boxShadow: `0 0 60px ${alpha('#c9a227', 0.15)}` }} />
-  
+                </Box>
+
+                {/* Mission statement */}
+                <Box sx={{ opacity: 0, animation: 'fadeUp 1s 0.9s ease forwards', '@keyframes fadeUp': { from: { opacity: 0, transform: 'translateY(20px)' }, to: { opacity: 1, transform: 'translateY(0)' } }, maxWidth: 380, textAlign: 'center', position: 'relative' }}>
+                  <Typography component="span" sx={{ display: 'block', fontFamily: '"Cormorant Garamond", "Source Serif Pro", serif', fontStyle: 'italic', fontWeight: 500, fontSize: { md: '1.55rem', lg: '1.75rem' }, lineHeight: 1.45, color: '#fff', textShadow: '0 2px 20px rgba(0,0,0,0.4)' }}>
+                    The real problem families face isn&rsquo;t legal &mdash; it&rsquo;s
+                    <Box component="span" sx={{ color: 'secondary.main', fontWeight: 600 }}> informational chaos under stress</Box>.
+                  </Typography>
+                  <Typography component="span" sx={{ display: 'block', mt: 2, fontFamily: '"Source Sans 3", sans-serif', fontSize: '0.82rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'secondary.main' }}>
+                    MyLifeFolio is the answer they won&rsquo;t have to search for.
+                  </Typography>
                 </Box>
               </Grid>
             </Grid>

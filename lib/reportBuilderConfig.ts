@@ -207,7 +207,7 @@ export const CATEGORY_TO_REPORT_IDS: Record<string, string[]> = {
   'emergency-care': ['emergency-medical'],
   'care-decisions': ['need-care'],
   'end-of-life': ['funeral-instructions'],
-  'legal-documents': ['estate-planning'],
+  'legal-documents': ['estate-planning', 'legal-documents'],
   'document-uploads': [], // Documents vault doesn't map to a pre-existing report
   'legacy-life-story': ['funeral-instructions'],
   'digital-life': ['digital-life'],

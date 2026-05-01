@@ -233,20 +233,74 @@ export interface CurrentEstatePlanData {
   // Per-document details: date signed and home state at signing
   willDateSigned: string;
   willStateSigned: string;
+  // Will: where the executed document is currently kept + who drafted it
+  willStorageLocation: string;
+  willStorageLocationOther: string;
+  willStorageNotes: string;
+  willAttorneyName: string;
+  willAttorneyFirm: string;
+  willAttorneyEmail: string;
+  willAttorneyPhone: string;
+  willAttorneyAddress: string;
   trustDateSigned: string;
   trustStateSigned: string;
   trustName: string; // Name of the trust
   trustStateResided: string; // State where the person resided when trust was signed
+  // Trust: storage + drafting attorney
+  trustStorageLocation: string;
+  trustStorageLocationOther: string;
+  trustStorageNotes: string;
+  trustAttorneyName: string;
+  trustAttorneyFirm: string;
+  trustAttorneyEmail: string;
+  trustAttorneyPhone: string;
+  trustAttorneyAddress: string;
   irrevocableTrustName: string;
   irrevocableTrustDateSigned: string;
   irrevocableTrustStateResided: string;
   irrevocableTrustReason: string; // Reason for the irrevocable trust
+  // Irrevocable Trust: storage + drafting attorney
+  irrevocableTrustStorageLocation: string;
+  irrevocableTrustStorageLocationOther: string;
+  irrevocableTrustStorageNotes: string;
+  irrevocableTrustAttorneyName: string;
+  irrevocableTrustAttorneyFirm: string;
+  irrevocableTrustAttorneyEmail: string;
+  irrevocableTrustAttorneyPhone: string;
+  irrevocableTrustAttorneyAddress: string;
   financialPOADateSigned: string;
   financialPOAStateSigned: string;
+  // Financial POA: storage + drafting attorney
+  financialPOAStorageLocation: string;
+  financialPOAStorageLocationOther: string;
+  financialPOAStorageNotes: string;
+  financialPOAAttorneyName: string;
+  financialPOAAttorneyFirm: string;
+  financialPOAAttorneyEmail: string;
+  financialPOAAttorneyPhone: string;
+  financialPOAAttorneyAddress: string;
   healthCarePOADateSigned: string;
   healthCarePOAStateSigned: string;
+  // Health Care POA: storage + drafting attorney
+  healthCarePOAStorageLocation: string;
+  healthCarePOAStorageLocationOther: string;
+  healthCarePOAStorageNotes: string;
+  healthCarePOAAttorneyName: string;
+  healthCarePOAAttorneyFirm: string;
+  healthCarePOAAttorneyEmail: string;
+  healthCarePOAAttorneyPhone: string;
+  healthCarePOAAttorneyAddress: string;
   livingWillDateSigned: string;
   livingWillStateSigned: string;
+  // Living Will: storage + drafting attorney
+  livingWillStorageLocation: string;
+  livingWillStorageLocationOther: string;
+  livingWillStorageNotes: string;
+  livingWillAttorneyName: string;
+  livingWillAttorneyFirm: string;
+  livingWillAttorneyEmail: string;
+  livingWillAttorneyPhone: string;
+  livingWillAttorneyAddress: string;
 
   // Legacy document details - kept for backwards compatibility
   documentState: string;
@@ -1918,20 +1972,68 @@ const initialFormData: FormData = {
     hasNone: false,
     willDateSigned: '',
     willStateSigned: '',
+    willStorageLocation: '',
+    willStorageLocationOther: '',
+    willStorageNotes: '',
+    willAttorneyName: '',
+    willAttorneyFirm: '',
+    willAttorneyEmail: '',
+    willAttorneyPhone: '',
+    willAttorneyAddress: '',
     trustDateSigned: '',
     trustStateSigned: '',
     trustName: '',
     trustStateResided: '',
+    trustStorageLocation: '',
+    trustStorageLocationOther: '',
+    trustStorageNotes: '',
+    trustAttorneyName: '',
+    trustAttorneyFirm: '',
+    trustAttorneyEmail: '',
+    trustAttorneyPhone: '',
+    trustAttorneyAddress: '',
     irrevocableTrustName: '',
     irrevocableTrustDateSigned: '',
     irrevocableTrustStateResided: '',
     irrevocableTrustReason: '',
+    irrevocableTrustStorageLocation: '',
+    irrevocableTrustStorageLocationOther: '',
+    irrevocableTrustStorageNotes: '',
+    irrevocableTrustAttorneyName: '',
+    irrevocableTrustAttorneyFirm: '',
+    irrevocableTrustAttorneyEmail: '',
+    irrevocableTrustAttorneyPhone: '',
+    irrevocableTrustAttorneyAddress: '',
     financialPOADateSigned: '',
     financialPOAStateSigned: '',
+    financialPOAStorageLocation: '',
+    financialPOAStorageLocationOther: '',
+    financialPOAStorageNotes: '',
+    financialPOAAttorneyName: '',
+    financialPOAAttorneyFirm: '',
+    financialPOAAttorneyEmail: '',
+    financialPOAAttorneyPhone: '',
+    financialPOAAttorneyAddress: '',
     healthCarePOADateSigned: '',
     healthCarePOAStateSigned: '',
+    healthCarePOAStorageLocation: '',
+    healthCarePOAStorageLocationOther: '',
+    healthCarePOAStorageNotes: '',
+    healthCarePOAAttorneyName: '',
+    healthCarePOAAttorneyFirm: '',
+    healthCarePOAAttorneyEmail: '',
+    healthCarePOAAttorneyPhone: '',
+    healthCarePOAAttorneyAddress: '',
     livingWillDateSigned: '',
     livingWillStateSigned: '',
+    livingWillStorageLocation: '',
+    livingWillStorageLocationOther: '',
+    livingWillStorageNotes: '',
+    livingWillAttorneyName: '',
+    livingWillAttorneyFirm: '',
+    livingWillAttorneyEmail: '',
+    livingWillAttorneyPhone: '',
+    livingWillAttorneyAddress: '',
     documentState: '',
     documentDate: '',
     reviewOption: '',
@@ -1981,20 +2083,68 @@ const initialFormData: FormData = {
     hasNone: false,
     willDateSigned: '',
     willStateSigned: '',
+    willStorageLocation: '',
+    willStorageLocationOther: '',
+    willStorageNotes: '',
+    willAttorneyName: '',
+    willAttorneyFirm: '',
+    willAttorneyEmail: '',
+    willAttorneyPhone: '',
+    willAttorneyAddress: '',
     trustDateSigned: '',
     trustStateSigned: '',
     trustName: '',
     trustStateResided: '',
+    trustStorageLocation: '',
+    trustStorageLocationOther: '',
+    trustStorageNotes: '',
+    trustAttorneyName: '',
+    trustAttorneyFirm: '',
+    trustAttorneyEmail: '',
+    trustAttorneyPhone: '',
+    trustAttorneyAddress: '',
     irrevocableTrustName: '',
     irrevocableTrustDateSigned: '',
     irrevocableTrustStateResided: '',
     irrevocableTrustReason: '',
+    irrevocableTrustStorageLocation: '',
+    irrevocableTrustStorageLocationOther: '',
+    irrevocableTrustStorageNotes: '',
+    irrevocableTrustAttorneyName: '',
+    irrevocableTrustAttorneyFirm: '',
+    irrevocableTrustAttorneyEmail: '',
+    irrevocableTrustAttorneyPhone: '',
+    irrevocableTrustAttorneyAddress: '',
     financialPOADateSigned: '',
     financialPOAStateSigned: '',
+    financialPOAStorageLocation: '',
+    financialPOAStorageLocationOther: '',
+    financialPOAStorageNotes: '',
+    financialPOAAttorneyName: '',
+    financialPOAAttorneyFirm: '',
+    financialPOAAttorneyEmail: '',
+    financialPOAAttorneyPhone: '',
+    financialPOAAttorneyAddress: '',
     healthCarePOADateSigned: '',
     healthCarePOAStateSigned: '',
+    healthCarePOAStorageLocation: '',
+    healthCarePOAStorageLocationOther: '',
+    healthCarePOAStorageNotes: '',
+    healthCarePOAAttorneyName: '',
+    healthCarePOAAttorneyFirm: '',
+    healthCarePOAAttorneyEmail: '',
+    healthCarePOAAttorneyPhone: '',
+    healthCarePOAAttorneyAddress: '',
     livingWillDateSigned: '',
     livingWillStateSigned: '',
+    livingWillStorageLocation: '',
+    livingWillStorageLocationOther: '',
+    livingWillStorageNotes: '',
+    livingWillAttorneyName: '',
+    livingWillAttorneyFirm: '',
+    livingWillAttorneyEmail: '',
+    livingWillAttorneyPhone: '',
+    livingWillAttorneyAddress: '',
     documentState: '',
     documentDate: '',
     reviewOption: '',

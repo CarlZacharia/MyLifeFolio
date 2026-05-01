@@ -54,9 +54,8 @@ const AdminChangeTierModal: React.FC<AdminChangeTierModalProps> = ({
           fullWidth
           sx={{ mb: 2 }}
         >
-          <MenuItem value="trial">Trial</MenuItem>
-          <MenuItem value="standard">Standard ($139/yr)</MenuItem>
-          <MenuItem value="enhanced">Enhanced ($159/yr)</MenuItem>
+          <MenuItem value="trial">Trial (free 6 months)</MenuItem>
+          <MenuItem value="paid">Paid ($149/yr)</MenuItem>
         </TextField>
 
         <Box sx={{ bgcolor: '#fff3e0', border: '1px solid #ff9800', borderRadius: 1, p: 1.5, display: 'flex', gap: 1, alignItems: 'flex-start' }}>

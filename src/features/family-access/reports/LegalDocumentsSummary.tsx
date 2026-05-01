@@ -14,34 +14,110 @@ const LegalDocumentsSummary: React.FC<LegalDocumentsSummaryProps> = ({ data, own
   const renderPlan = (plan: Record<string, unknown> | undefined, label: string) => {
     if (!plan) return null;
 
-    const docs = [
-      { key: 'hasWill', label: 'Last Will & Testament', date: plan.willDateSigned, state: plan.willStateSigned },
-      { key: 'hasTrust', label: 'Revocable Trust', date: plan.trustDateSigned, state: plan.trustStateSigned },
-      { key: 'hasIrrevocableTrust', label: 'Irrevocable Trust', date: plan.irrevocableTrustDateSigned, state: plan.irrevocableTrustStateResided },
-      { key: 'hasFinancialPOA', label: 'Financial Power of Attorney', date: plan.financialPOADateSigned, state: plan.financialPOAStateSigned },
-      { key: 'hasHealthCarePOA', label: 'Health Care Power of Attorney', date: plan.healthCarePOADateSigned, state: plan.healthCarePOAStateSigned },
-      { key: 'hasLivingWill', label: 'Living Will / Advance Directive', date: plan.livingWillDateSigned, state: plan.livingWillStateSigned },
+    interface DocRow {
+      key: string;
+      label: string;
+      date: unknown;
+      state: unknown;
+      storage: unknown;
+      storageOther: unknown;
+      storageNotes: unknown;
+      atty: { name: unknown; firm: unknown; email: unknown; phone: unknown; address: unknown };
+    }
+
+    const docs: DocRow[] = [
+      {
+        key: 'hasWill', label: 'Last Will & Testament',
+        date: plan.willDateSigned, state: plan.willStateSigned,
+        storage: plan.willStorageLocation, storageOther: plan.willStorageLocationOther, storageNotes: plan.willStorageNotes,
+        atty: { name: plan.willAttorneyName, firm: plan.willAttorneyFirm, email: plan.willAttorneyEmail, phone: plan.willAttorneyPhone, address: plan.willAttorneyAddress },
+      },
+      {
+        key: 'hasTrust', label: 'Revocable Trust',
+        date: plan.trustDateSigned, state: plan.trustStateSigned,
+        storage: plan.trustStorageLocation, storageOther: plan.trustStorageLocationOther, storageNotes: plan.trustStorageNotes,
+        atty: { name: plan.trustAttorneyName, firm: plan.trustAttorneyFirm, email: plan.trustAttorneyEmail, phone: plan.trustAttorneyPhone, address: plan.trustAttorneyAddress },
+      },
+      {
+        key: 'hasIrrevocableTrust', label: 'Irrevocable Trust',
+        date: plan.irrevocableTrustDateSigned, state: plan.irrevocableTrustStateResided,
+        storage: plan.irrevocableTrustStorageLocation, storageOther: plan.irrevocableTrustStorageLocationOther, storageNotes: plan.irrevocableTrustStorageNotes,
+        atty: { name: plan.irrevocableTrustAttorneyName, firm: plan.irrevocableTrustAttorneyFirm, email: plan.irrevocableTrustAttorneyEmail, phone: plan.irrevocableTrustAttorneyPhone, address: plan.irrevocableTrustAttorneyAddress },
+      },
+      {
+        key: 'hasFinancialPOA', label: 'Financial Power of Attorney',
+        date: plan.financialPOADateSigned, state: plan.financialPOAStateSigned,
+        storage: plan.financialPOAStorageLocation, storageOther: plan.financialPOAStorageLocationOther, storageNotes: plan.financialPOAStorageNotes,
+        atty: { name: plan.financialPOAAttorneyName, firm: plan.financialPOAAttorneyFirm, email: plan.financialPOAAttorneyEmail, phone: plan.financialPOAAttorneyPhone, address: plan.financialPOAAttorneyAddress },
+      },
+      {
+        key: 'hasHealthCarePOA', label: 'Health Care Power of Attorney',
+        date: plan.healthCarePOADateSigned, state: plan.healthCarePOAStateSigned,
+        storage: plan.healthCarePOAStorageLocation, storageOther: plan.healthCarePOAStorageLocationOther, storageNotes: plan.healthCarePOAStorageNotes,
+        atty: { name: plan.healthCarePOAAttorneyName, firm: plan.healthCarePOAAttorneyFirm, email: plan.healthCarePOAAttorneyEmail, phone: plan.healthCarePOAAttorneyPhone, address: plan.healthCarePOAAttorneyAddress },
+      },
+      {
+        key: 'hasLivingWill', label: 'Living Will / Advance Directive',
+        date: plan.livingWillDateSigned, state: plan.livingWillStateSigned,
+        storage: plan.livingWillStorageLocation, storageOther: plan.livingWillStorageLocationOther, storageNotes: plan.livingWillStorageNotes,
+        atty: { name: plan.livingWillAttorneyName, firm: plan.livingWillAttorneyFirm, email: plan.livingWillAttorneyEmail, phone: plan.livingWillAttorneyPhone, address: plan.livingWillAttorneyAddress },
+      },
     ];
+
+    const fmtStorage = (doc: DocRow): string => {
+      const loc = str(doc.storage);
+      if (!loc) return '';
+      if (loc === 'Other') return str(doc.storageOther) || 'Other';
+      const notes = str(doc.storageNotes);
+      return notes ? `${loc} — ${notes}` : loc;
+    };
+
+    const renderAttorney = (doc: DocRow) => {
+      const { name, firm, email, phone, address } = doc.atty;
+      const has = !!(str(name) || str(firm) || str(email) || str(phone) || str(address));
+      if (!has) return null;
+      const headline = [str(name), str(firm)].filter(Boolean).join(' — ');
+      const contact = [str(email), str(phone)].filter(Boolean).join(' • ');
+      return (
+        <Box sx={{ pl: 4, mt: 0.5 }}>
+          {headline && <Typography sx={{ ...body }}><strong>Drafting Attorney:</strong> {headline}</Typography>}
+          {contact && <Typography sx={{ ...body, color: 'text.secondary' }}>{contact}</Typography>}
+          {!!str(address) && <Typography sx={{ ...body, color: 'text.secondary' }}>{str(address)}</Typography>}
+        </Box>
+      );
+    };
 
     return (
       <Box sx={{ mb: 3 }}>
         <ReportSectionTitle>{label}</ReportSectionTitle>
-        {docs.map((doc) => (
-          <Box key={doc.key} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <Chip
-              label={plan[doc.key] ? 'Yes' : 'No'}
-              size="small"
-              color={plan[doc.key] ? 'success' : 'default'}
-              sx={{ minWidth: 48 }}
-            />
-            <Typography sx={body}>{doc.label}</Typography>
-            {!!plan[doc.key] && !!doc.date && (
-              <Typography sx={{ ...body, color: 'text.secondary' }}>
-                (Signed: {str(doc.date)}{doc.state ? `, ${str(doc.state)}` : ''})
-              </Typography>
-            )}
-          </Box>
-        ))}
+        {docs.map((doc) => {
+          const has = !!plan[doc.key];
+          const storage = has ? fmtStorage(doc) : '';
+          return (
+            <Box key={doc.key} sx={{ mb: 1.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Chip
+                  label={has ? 'Yes' : 'No'}
+                  size="small"
+                  color={has ? 'success' : 'default'}
+                  sx={{ minWidth: 48 }}
+                />
+                <Typography sx={body}>{doc.label}</Typography>
+                {has && !!doc.date && (
+                  <Typography sx={{ ...body, color: 'text.secondary' }}>
+                    (Signed: {str(doc.date)}{doc.state ? `, ${str(doc.state)}` : ''})
+                  </Typography>
+                )}
+              </Box>
+              {has && !!storage && (
+                <Typography sx={{ ...body, pl: 4, mt: 0.5 }}>
+                  <strong>Stored:</strong> {storage}
+                </Typography>
+              )}
+              {has && renderAttorney(doc)}
+            </Box>
+          );
+        })}
         {!!plan.trustName && (
           <Typography sx={{ ...body, mt: 1 }}>
             <strong>Trust Name:</strong> {str(plan.trustName)}

@@ -58,6 +58,7 @@ export function LoginForm() {
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/dashboard`,
+        shouldCreateUser: false,
       },
     })
 

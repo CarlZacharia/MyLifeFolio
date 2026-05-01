@@ -52,6 +52,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
     password: '',
     confirmPassword: '',
     agreedToTerms: false,
+    agreedToDeletion: false,
     signatureName: '',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -112,6 +113,10 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
     }
     if (!formData.agreedToTerms) {
       setError('You must agree to the terms and disclaimer to create an account');
+      return false;
+    }
+    if (!formData.agreedToDeletion) {
+      setError('You must acknowledge the data deletion policy to create an account');
       return false;
     }
     if (!formData.signatureName.trim()) {
@@ -193,6 +198,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onSuccess }
             agreed_to_terms: true,
             agreed_to_terms_at: new Date().toISOString(),
             agreed_to_terms_signature: formData.signatureName.trim(),
+            deletion_consent_at: new Date().toISOString(),
           },
         },
       });
@@ -471,7 +477,37 @@ consultation.
             }}
           />
 
-          {formData.agreedToTerms && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formData.agreedToDeletion}
+                onChange={(e) => {
+                  setFormData((prev) => ({ ...prev, agreedToDeletion: e.target.checked }));
+                  setError(null);
+                }}
+                sx={{ alignSelf: 'flex-start', mt: -0.5 }}
+              />
+            }
+            label={
+              <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.5 }}>
+                <strong>Data deletion policy.</strong> MyLifeFolio is free for the first
+                six months. After that, the subscription is $149/year. If I choose
+                not to renew (or cancel an active subscription), I understand that
+                <strong> my folio and all uploaded files will be permanently deleted</strong> —
+                MyLifeFolio does not retain data for cancelled or expired accounts.
+                I will receive email reminders 30 days before, 7 days before, on the
+                day of, and 7 days after my trial ends so I have time to renew or
+                export anything I want to keep.
+              </Typography>
+            }
+            sx={{
+              mt: 2,
+              alignItems: 'flex-start',
+              '& .MuiFormControlLabel-label': { ml: 0.5 }
+            }}
+          />
+
+          {formData.agreedToTerms && formData.agreedToDeletion && (
             <TextField
               fullWidth
               label="Type your full name to acknowledge"
@@ -502,7 +538,7 @@ consultation.
             type="submit"
             fullWidth
             variant="contained"
-            disabled={loading || !formData.agreedToTerms || !formData.signatureName.trim() || passwordMismatch || !formData.password || formData.password !== formData.confirmPassword}
+            disabled={loading || !formData.agreedToTerms || !formData.agreedToDeletion || !formData.signatureName.trim() || passwordMismatch || !formData.password || formData.password !== formData.confirmPassword}
             sx={{ mt: 3, mb: 2 }}
           >
             {loading ? <CircularProgress size={24} /> : 'Create Account'}

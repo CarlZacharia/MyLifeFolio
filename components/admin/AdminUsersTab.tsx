@@ -19,20 +19,18 @@ import {
 import { SubscriptionTier, TIER_INFO } from '../../lib/subscriptionConfig';
 import AdminChangeTierModal from './AdminChangeTierModal';
 
-type FilterKey = 'all' | 'trial' | 'standard' | 'enhanced' | 'expired' | 'disabled';
+type FilterKey = 'all' | 'trial' | 'paid' | 'expired' | 'disabled';
 
 const FILTER_CHIPS: { key: FilterKey; label: string }[] = [
   { key: 'all', label: 'All Users' },
   { key: 'trial', label: 'Trial' },
-  { key: 'standard', label: 'Standard' },
-  { key: 'enhanced', label: 'Enhanced' },
+  { key: 'paid', label: 'Paid' },
   { key: 'expired', label: 'Expired' },
   { key: 'disabled', label: 'Disabled' },
 ];
 
 const tierColor = (tier: SubscriptionTier | null): 'default' | 'info' | 'primary' | 'secondary' => {
-  if (tier === 'standard') return 'primary';
-  if (tier === 'enhanced') return 'secondary';
+  if (tier === 'paid') return 'primary';
   return 'default';
 };
 
@@ -90,11 +88,8 @@ export default function AdminUsersTab() {
       case 'trial':
         list = list.filter((u) => u.tier === 'trial');
         break;
-      case 'standard':
-        list = list.filter((u) => u.tier === 'standard');
-        break;
-      case 'enhanced':
-        list = list.filter((u) => u.tier === 'enhanced');
+      case 'paid':
+        list = list.filter((u) => u.tier === 'paid');
         break;
       case 'expired':
         list = list.filter(

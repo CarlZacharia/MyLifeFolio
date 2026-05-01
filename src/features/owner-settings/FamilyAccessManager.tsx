@@ -36,6 +36,8 @@ import { useAuth } from '../../../lib/AuthContext';
 import { useFormContext } from '../../../lib/FormContext';
 import { REPORTS } from '../../../components/ReportsSection';
 import { SavedReportConfig } from '../../../lib/savedReportService';
+import { useEnabledCategories } from '../../../lib/EnabledCategoriesContext';
+import { accessSectionIsAvailable, reportIsAvailable } from '../../../lib/folioCategoryConfig';
 
 // Helper to delete storage files via edge function (bypasses storage.objects RLS)
 async function deleteStorageFile(filePath: string, bucket: string): Promise<void> {
@@ -152,6 +154,16 @@ function formatFileSize(bytes: number | null): string {
 const FamilyAccessManager: React.FC = () => {
   const { user } = useAuth();
   const { formData } = useFormContext();
+  const { enabled: enabledCategories } = useEnabledCategories();
+  // Hide sections + reports tied to a module the owner has disabled.
+  const availableSections = useMemo(
+    () => ALL_SECTIONS.filter((s) => accessSectionIsAvailable(s.key, enabledCategories)),
+    [enabledCategories],
+  );
+  const availableReports = useMemo(
+    () => REPORTS.filter((r) => reportIsAvailable(r.id, enabledCategories)),
+    [enabledCategories],
+  );
   const [tab, setTab] = useState(0);
   const [helpOpen, setHelpOpen] = useState(false);
   const [users, setUsers] = useState<AuthorizedUser[]>([]);
@@ -357,9 +369,18 @@ const FamilyAccessManager: React.FC = () => {
   };
 
   const handleToggleActive = async (u: AuthorizedUser) => {
+    // Stamp revoked_at when the owner manually deactivates a grant; clear it
+    // when reactivating. The daily cron uses revoked_at to distinguish
+    // "system-locked due to expired trial" (revoked_at IS NULL) from
+    // "owner intentionally revoked" (revoked_at IS NOT NULL) and only
+    // re-activates the former on renewal.
+    const nextActive = !u.is_active;
     await supabase
       .from('folio_authorized_users')
-      .update({ is_active: !u.is_active })
+      .update({
+        is_active: nextActive,
+        revoked_at: nextActive ? null : new Date().toISOString(),
+      })
       .eq('id', u.id);
     fetchData();
   };
@@ -1064,14 +1085,14 @@ const FamilyAccessManager: React.FC = () => {
               </Typography>
               <Button
                 size="small"
-                onClick={() => setFormSections(ALL_SECTIONS.map((s) => s.key))}
+                onClick={() => setFormSections(availableSections.map((s) => s.key))}
                 sx={{ textTransform: 'none', fontWeight: 500, color: '#8b6914' }}
               >
                 Select All
               </Button>
             </Box>
             <FormGroup>
-              {ALL_SECTIONS.map((section) => (
+              {availableSections.map((section) => (
                 <FormControlLabel
                   key={section.key}
                   control={
@@ -1084,6 +1105,12 @@ const FamilyAccessManager: React.FC = () => {
                   label={section.label}
                 />
               ))}
+              {availableSections.length < ALL_SECTIONS.length && (
+                <Typography variant="caption" sx={{ color: 'text.secondary', mt: 1, fontStyle: 'italic' }}>
+                  Some sections aren&rsquo;t shown because the matching module is hidden on your dashboard.
+                  Enable the module from the dashboard to share it.
+                </Typography>
+              )}
             </FormGroup>
             <Button
               size="small"
@@ -1101,7 +1128,7 @@ const FamilyAccessManager: React.FC = () => {
               </Typography>
               <Button
                 size="small"
-                onClick={() => setFormReports(REPORTS.map((r) => r.id))}
+                onClick={() => setFormReports(availableReports.map((r) => r.id))}
                 sx={{ textTransform: 'none', fontWeight: 500, color: '#8b6914' }}
               >
                 Select All
@@ -1111,7 +1138,7 @@ const FamilyAccessManager: React.FC = () => {
               Choose which reports this family member can view in the Family Portal.
             </Typography>
             <FormGroup>
-              {REPORTS.map((report) => (
+              {availableReports.map((report) => (
                 <FormControlLabel
                   key={report.id}
                   control={
@@ -1124,6 +1151,13 @@ const FamilyAccessManager: React.FC = () => {
                   label={report.label}
                 />
               ))}
+              {availableReports.length < REPORTS.length && (
+                <Typography variant="caption" sx={{ color: 'text.secondary', mt: 1, fontStyle: 'italic' }}>
+                  Some reports aren&rsquo;t shown because they depend on modules
+                  hidden from your dashboard. Enable the module to make the
+                  report shareable.
+                </Typography>
+              )}
             </FormGroup>
             <Button
               size="small"

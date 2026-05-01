@@ -97,7 +97,7 @@ const ReportViewer: React.FC<ReportViewerProps> = ({
         {reportIdsToRender.map((reportId, idx) => (
           <React.Fragment key={reportId}>
             {idx > 0 && <Divider sx={{ my: 3 }} />}
-            {renderReportById(reportId, reportData)}
+            {renderReportById(reportId, reportData, data)}
           </React.Fragment>
         ))}
       </ReportLayout>
@@ -106,7 +106,7 @@ const ReportViewer: React.FC<ReportViewerProps> = ({
 
   // Active report view (standard or custom)
   if (activeReport) {
-    const rendered = renderReportById(activeReport, reportData);
+    const rendered = renderReportById(activeReport, reportData, data);
     return (
       <Box>
         <Box sx={{ mb: 2 }} className="no-print">

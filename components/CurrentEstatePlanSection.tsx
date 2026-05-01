@@ -90,7 +90,18 @@ interface DocumentTypeConfig {
   dateField: keyof CurrentEstatePlanData;
   stateField: keyof CurrentEstatePlanData;
   hasField: keyof CurrentEstatePlanData;
-  fiduciary: FiduciaryConfig;
+  // Storage + drafting-attorney fields (per-document)
+  storageLocationField: keyof CurrentEstatePlanData;
+  storageLocationOtherField: keyof CurrentEstatePlanData;
+  storageNotesField: keyof CurrentEstatePlanData;
+  attorneyNameField: keyof CurrentEstatePlanData;
+  attorneyFirmField: keyof CurrentEstatePlanData;
+  attorneyEmailField: keyof CurrentEstatePlanData;
+  attorneyPhoneField: keyof CurrentEstatePlanData;
+  attorneyAddressField: keyof CurrentEstatePlanData;
+  // A Living Will (advance directive) typically has no agent of its own —
+  // omit the fiduciary block when this is undefined.
+  fiduciary?: FiduciaryConfig;
 }
 
 const DOCUMENT_TYPES: DocumentTypeConfig[] = [
@@ -101,6 +112,14 @@ const DOCUMENT_TYPES: DocumentTypeConfig[] = [
     dateField: 'willDateSigned',
     stateField: 'willStateSigned',
     hasField: 'hasWill',
+    storageLocationField: 'willStorageLocation',
+    storageLocationOtherField: 'willStorageLocationOther',
+    storageNotesField: 'willStorageNotes',
+    attorneyNameField: 'willAttorneyName',
+    attorneyFirmField: 'willAttorneyFirm',
+    attorneyEmailField: 'willAttorneyEmail',
+    attorneyPhoneField: 'willAttorneyPhone',
+    attorneyAddressField: 'willAttorneyAddress',
     fiduciary: {
       label: 'Personal Representative (Executor)',
       clientFields: { primary: 'executorFirst', primaryOther: 'executorFirstOther', alternate: 'executorAlternate', alternateOther: 'executorAlternateOther', second: 'executorSecondAlternate', secondOther: 'executorSecondAlternateOther' },
@@ -114,6 +133,14 @@ const DOCUMENT_TYPES: DocumentTypeConfig[] = [
     dateField: 'trustDateSigned',
     stateField: 'trustStateSigned',
     hasField: 'hasTrust',
+    storageLocationField: 'trustStorageLocation',
+    storageLocationOtherField: 'trustStorageLocationOther',
+    storageNotesField: 'trustStorageNotes',
+    attorneyNameField: 'trustAttorneyName',
+    attorneyFirmField: 'trustAttorneyFirm',
+    attorneyEmailField: 'trustAttorneyEmail',
+    attorneyPhoneField: 'trustAttorneyPhone',
+    attorneyAddressField: 'trustAttorneyAddress',
     fiduciary: {
       label: 'Trustee',
       clientFields: { primary: 'trusteeFirst', primaryOther: 'trusteeFirstOther', alternate: 'trusteeAlternate', alternateOther: 'trusteeAlternateOther', second: 'trusteeSecondAlternate', secondOther: 'trusteeSecondAlternateOther' },
@@ -127,6 +154,14 @@ const DOCUMENT_TYPES: DocumentTypeConfig[] = [
     dateField: 'irrevocableTrustDateSigned',
     stateField: 'trustStateSigned',
     hasField: 'hasIrrevocableTrust',
+    storageLocationField: 'irrevocableTrustStorageLocation',
+    storageLocationOtherField: 'irrevocableTrustStorageLocationOther',
+    storageNotesField: 'irrevocableTrustStorageNotes',
+    attorneyNameField: 'irrevocableTrustAttorneyName',
+    attorneyFirmField: 'irrevocableTrustAttorneyFirm',
+    attorneyEmailField: 'irrevocableTrustAttorneyEmail',
+    attorneyPhoneField: 'irrevocableTrustAttorneyPhone',
+    attorneyAddressField: 'irrevocableTrustAttorneyAddress',
     fiduciary: {
       label: 'Trustee',
       clientFields: { primary: 'irrevocableTrusteeFirst', primaryOther: 'irrevocableTrusteeFirstOther', alternate: 'irrevocableTrusteeAlternate', alternateOther: 'irrevocableTrusteeAlternateOther', second: 'irrevocableTrusteeSecondAlternate', secondOther: 'irrevocableTrusteeSecondAlternateOther' },
@@ -140,6 +175,14 @@ const DOCUMENT_TYPES: DocumentTypeConfig[] = [
     dateField: 'financialPOADateSigned',
     stateField: 'financialPOAStateSigned',
     hasField: 'hasFinancialPOA',
+    storageLocationField: 'financialPOAStorageLocation',
+    storageLocationOtherField: 'financialPOAStorageLocationOther',
+    storageNotesField: 'financialPOAStorageNotes',
+    attorneyNameField: 'financialPOAAttorneyName',
+    attorneyFirmField: 'financialPOAAttorneyFirm',
+    attorneyEmailField: 'financialPOAAttorneyEmail',
+    attorneyPhoneField: 'financialPOAAttorneyPhone',
+    attorneyAddressField: 'financialPOAAttorneyAddress',
     fiduciary: {
       label: 'Agent',
       clientFields: { primary: 'financialAgentName', primaryOther: 'financialAgentNameOther', alternate: 'financialAlternateName', alternateOther: 'financialAlternateNameOther', second: 'financialSecondAlternateName', secondOther: 'financialSecondAlternateNameOther' },
@@ -153,11 +196,36 @@ const DOCUMENT_TYPES: DocumentTypeConfig[] = [
     dateField: 'healthCarePOADateSigned',
     stateField: 'healthCarePOAStateSigned',
     hasField: 'hasHealthCarePOA',
+    storageLocationField: 'healthCarePOAStorageLocation',
+    storageLocationOtherField: 'healthCarePOAStorageLocationOther',
+    storageNotesField: 'healthCarePOAStorageNotes',
+    attorneyNameField: 'healthCarePOAAttorneyName',
+    attorneyFirmField: 'healthCarePOAAttorneyFirm',
+    attorneyEmailField: 'healthCarePOAAttorneyEmail',
+    attorneyPhoneField: 'healthCarePOAAttorneyPhone',
+    attorneyAddressField: 'healthCarePOAAttorneyAddress',
     fiduciary: {
       label: 'Health Care Agent',
       clientFields: { primary: 'healthCareAgentName', primaryOther: 'healthCareAgentNameOther', alternate: 'healthCareAlternateName', alternateOther: 'healthCareAlternateNameOther', second: 'healthCareSecondAlternateName', secondOther: 'healthCareSecondAlternateNameOther' },
       spouseFields: { primary: 'spouseHealthCareAgentName', primaryOther: 'spouseHealthCareAgentNameOther', alternate: 'spouseHealthCareAlternateName', alternateOther: 'spouseHealthCareAlternateNameOther', second: 'spouseHealthCareSecondAlternateName', secondOther: 'spouseHealthCareSecondAlternateNameOther' },
     },
+  },
+  {
+    key: 'livingWill',
+    label: 'Living Will / Advance Directive',
+    uploadField: 'livingWillUploadedFiles',
+    dateField: 'livingWillDateSigned',
+    stateField: 'livingWillStateSigned',
+    hasField: 'hasLivingWill',
+    storageLocationField: 'livingWillStorageLocation',
+    storageLocationOtherField: 'livingWillStorageLocationOther',
+    storageNotesField: 'livingWillStorageNotes',
+    attorneyNameField: 'livingWillAttorneyName',
+    attorneyFirmField: 'livingWillAttorneyFirm',
+    attorneyEmailField: 'livingWillAttorneyEmail',
+    attorneyPhoneField: 'livingWillAttorneyPhone',
+    attorneyAddressField: 'livingWillAttorneyAddress',
+    // No fiduciary — a Living Will is a self-executing advance directive.
   },
 ];
 
@@ -674,6 +742,7 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
   };
 
   const renderFiduciarySection = (docType: DocumentTypeConfig) => {
+    if (!docType.fiduciary) return null;
     const fields = personType === 'client' ? docType.fiduciary.clientFields : docType.fiduciary.spouseFields;
 
     return (
@@ -886,6 +955,145 @@ const PersonCurrentEstatePlan: React.FC<PersonCurrentEstatePlanProps> = ({
                   />
                 </Grid>
               )}
+              {/* Storage location + drafting attorney (every document) */}
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" sx={{ mt: 1, color: headerColor, fontWeight: 600 }}>
+                  Where is the original kept?
+                </Typography>
+                {(() => {
+                  const currentLocEmpty = !(((data[docType.storageLocationField] as string) || '').trim());
+                  const otherDocsWithLoc = DOCUMENT_TYPES.filter((d) => {
+                    if (d.key === docType.key) return false;
+                    const loc = (data[d.storageLocationField] as string) || '';
+                    return !!loc.trim();
+                  });
+                  if (!currentLocEmpty || otherDocsWithLoc.length === 0) return null;
+                  return (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.75, mt: 0.5 }}>
+                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                        Same location as:
+                      </Typography>
+                      {otherDocsWithLoc.map((d) => (
+                        <Chip
+                          key={d.key}
+                          label={d.label}
+                          size="small"
+                          clickable
+                          variant="outlined"
+                          onClick={() =>
+                            onChangeMultiple({
+                              [docType.storageLocationField]: data[d.storageLocationField],
+                              [docType.storageLocationOtherField]: data[d.storageLocationOtherField],
+                              [docType.storageNotesField]: data[d.storageNotesField],
+                            } as Partial<CurrentEstatePlanData>)
+                          }
+                          sx={{ borderColor: headerColor, color: headerColor }}
+                        />
+                      ))}
+                    </Box>
+                  );
+                })()}
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  multiline
+                  minRows={2}
+                  label="Storage Location"
+                  value={(data[docType.storageLocationField] as string) || ''}
+                  onChange={(e) => onChange(docType.storageLocationField, e.target.value)}
+                  size="small"
+                  placeholder="e.g., On the bookshelf in the living room, top shelf — left binder. Or: Safe deposit box at First National, Box 1234."
+                  helperText="Describe in your own words where someone would find the original."
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" sx={{ mt: 1, color: headerColor, fontWeight: 600 }}>
+                  Drafting Attorney
+                </Typography>
+                {(() => {
+                  const currentAttorneyEmpty = !(((data[docType.attorneyNameField] as string) || '').trim());
+                  const otherDocsWithAttorney = DOCUMENT_TYPES.filter((d) => {
+                    if (d.key === docType.key) return false;
+                    const name = (data[d.attorneyNameField] as string) || '';
+                    return !!name.trim();
+                  });
+                  if (!currentAttorneyEmpty || otherDocsWithAttorney.length === 0) return null;
+                  return (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.75, mt: 0.5 }}>
+                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                        Use same attorney as:
+                      </Typography>
+                      {otherDocsWithAttorney.map((d) => (
+                        <Chip
+                          key={d.key}
+                          label={d.label}
+                          size="small"
+                          clickable
+                          variant="outlined"
+                          onClick={() =>
+                            onChangeMultiple({
+                              [docType.attorneyNameField]: data[d.attorneyNameField],
+                              [docType.attorneyFirmField]: data[d.attorneyFirmField],
+                              [docType.attorneyEmailField]: data[d.attorneyEmailField],
+                              [docType.attorneyPhoneField]: data[d.attorneyPhoneField],
+                              [docType.attorneyAddressField]: data[d.attorneyAddressField],
+                            } as Partial<CurrentEstatePlanData>)
+                          }
+                          sx={{ borderColor: headerColor, color: headerColor }}
+                        />
+                      ))}
+                    </Box>
+                  );
+                })()}
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Attorney Name"
+                  value={(data[docType.attorneyNameField] as string) || ''}
+                  onChange={(e) => onChange(docType.attorneyNameField, e.target.value)}
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Law Firm"
+                  value={(data[docType.attorneyFirmField] as string) || ''}
+                  onChange={(e) => onChange(docType.attorneyFirmField, e.target.value)}
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  type="email"
+                  value={(data[docType.attorneyEmailField] as string) || ''}
+                  onChange={(e) => onChange(docType.attorneyEmailField, e.target.value)}
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Phone"
+                  value={(data[docType.attorneyPhoneField] as string) || ''}
+                  onChange={(e) => onChange(docType.attorneyPhoneField, e.target.value)}
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Address"
+                  value={(data[docType.attorneyAddressField] as string) || ''}
+                  onChange={(e) => onChange(docType.attorneyAddressField, e.target.value)}
+                  size="small"
+                  placeholder="Street, City, State, ZIP"
+                />
+              </Grid>
             </Grid>
 
             {/* Inline uploaded files display */}
@@ -1078,20 +1286,68 @@ const getDefaultEstatePlanData = (): CurrentEstatePlanData => ({
   hasNone: false,
   willDateSigned: '',
   willStateSigned: '',
+  willStorageLocation: '',
+  willStorageLocationOther: '',
+  willStorageNotes: '',
+  willAttorneyName: '',
+  willAttorneyFirm: '',
+  willAttorneyEmail: '',
+  willAttorneyPhone: '',
+  willAttorneyAddress: '',
   trustDateSigned: '',
   trustStateSigned: '',
   trustName: '',
   trustStateResided: '',
+  trustStorageLocation: '',
+  trustStorageLocationOther: '',
+  trustStorageNotes: '',
+  trustAttorneyName: '',
+  trustAttorneyFirm: '',
+  trustAttorneyEmail: '',
+  trustAttorneyPhone: '',
+  trustAttorneyAddress: '',
   irrevocableTrustName: '',
   irrevocableTrustDateSigned: '',
   irrevocableTrustStateResided: '',
   irrevocableTrustReason: '',
+  irrevocableTrustStorageLocation: '',
+  irrevocableTrustStorageLocationOther: '',
+  irrevocableTrustStorageNotes: '',
+  irrevocableTrustAttorneyName: '',
+  irrevocableTrustAttorneyFirm: '',
+  irrevocableTrustAttorneyEmail: '',
+  irrevocableTrustAttorneyPhone: '',
+  irrevocableTrustAttorneyAddress: '',
   financialPOADateSigned: '',
   financialPOAStateSigned: '',
+  financialPOAStorageLocation: '',
+  financialPOAStorageLocationOther: '',
+  financialPOAStorageNotes: '',
+  financialPOAAttorneyName: '',
+  financialPOAAttorneyFirm: '',
+  financialPOAAttorneyEmail: '',
+  financialPOAAttorneyPhone: '',
+  financialPOAAttorneyAddress: '',
   healthCarePOADateSigned: '',
   healthCarePOAStateSigned: '',
+  healthCarePOAStorageLocation: '',
+  healthCarePOAStorageLocationOther: '',
+  healthCarePOAStorageNotes: '',
+  healthCarePOAAttorneyName: '',
+  healthCarePOAAttorneyFirm: '',
+  healthCarePOAAttorneyEmail: '',
+  healthCarePOAAttorneyPhone: '',
+  healthCarePOAAttorneyAddress: '',
   livingWillDateSigned: '',
   livingWillStateSigned: '',
+  livingWillStorageLocation: '',
+  livingWillStorageLocationOther: '',
+  livingWillStorageNotes: '',
+  livingWillAttorneyName: '',
+  livingWillAttorneyFirm: '',
+  livingWillAttorneyEmail: '',
+  livingWillAttorneyPhone: '',
+  livingWillAttorneyAddress: '',
   documentState: '',
   documentDate: '',
   reviewOption: '',

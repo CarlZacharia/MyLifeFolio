@@ -33,8 +33,7 @@ export interface SubscriptionStats {
   total: number;
   trial: number;
   trialExpired: number;
-  standard: number;
-  enhanced: number;
+  paid: number;
   cancelled: number;
   pastDue: number;
   mrr: number;
@@ -192,8 +191,7 @@ export async function fetchSubscriptionStats(): Promise<SubscriptionStats> {
     total: subs?.length || 0,
     trial: 0,
     trialExpired: 0,
-    standard: 0,
-    enhanced: 0,
+    paid: 0,
     cancelled: 0,
     pastDue: 0,
     mrr: 0,
@@ -207,15 +205,13 @@ export async function fetchSubscriptionStats(): Promise<SubscriptionStats> {
       const expired = s.trial_ends_at && new Date(s.trial_ends_at) < now;
       if (expired) stats.trialExpired++;
       else stats.trial++;
-    } else if (s.tier === 'standard') {
-      stats.standard++;
-    } else if (s.tier === 'enhanced') {
-      stats.enhanced++;
+    } else if (s.tier === 'paid') {
+      stats.paid++;
     }
   }
 
   // MRR: annual price / 12
-  stats.mrr = (stats.standard * 139 + stats.enhanced * 159) / 12;
+  stats.mrr = (stats.paid * 149) / 12;
 
   return stats;
 }

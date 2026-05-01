@@ -42,6 +42,9 @@ import WhatToDoIfIDie from '../src/features/family-access/reports/WhatToDoIfIDie
 import FamilyBriefingReport from '../src/features/family-access/reports/Familybriefingreport';
 import DigitalLifeSummary from '../src/features/family-access/reports/DigitalLifeSummary';
 import PersonalPropertyMemorandum from '../src/features/family-access/reports/PersonalPropertyMemorandum';
+import LegalDocumentsSummary from '../src/features/family-access/reports/LegalDocumentsSummary';
+import { useEnabledCategories } from '../lib/EnabledCategoriesContext';
+import { reportIsAvailable } from '../lib/folioCategoryConfig';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import FolioHelpModal, { FolioHelpButton, useFolioHelp } from './FolioHelpModal';
 import { reportsHelp } from './folioHelpContent';
@@ -63,6 +66,7 @@ export const REPORTS: ReportDef[] = [
   { id: 'insurance-summary', label: 'Insurance Summary', icon: <SecurityIcon /> },
   { id: 'advisor-directory', label: 'Advisor Directory', icon: <PeopleIcon /> },
   { id: 'estate-planning', label: 'Estate Planning Overview', icon: <GavelIcon /> },
+  { id: 'legal-documents', label: 'Legal Documents Summary', icon: <GavelIcon /> },
   { id: 'need-care', label: 'What To Do If I Need Care', icon: <HealingIcon /> },
   { id: 'funeral-instructions', label: 'Funeral Instructions', icon: <VolunteerActivismIcon /> },
   { id: 'what-to-do', label: 'What To Do If I Die', icon: <AssignmentIcon /> },
@@ -82,7 +86,14 @@ const useReportData = () => {
 
 // ─── Report renderer (shared between client & family views) ─────────────────
 
-export const renderReportById = (reportId: string, data: ReturnType<typeof buildReportData>) => {
+// LegalDocumentsSummary uses the raw form-data shape (camelCase, top-level
+// fiduciary fields) rather than the buildReportData output. Pass rawData so
+// it can be rendered alongside the others. All other reports ignore rawData.
+export const renderReportById = (
+  reportId: string,
+  data: ReturnType<typeof buildReportData>,
+  rawData?: Record<string, unknown>,
+) => {
   switch (reportId) {
     case 'emergency-medical':
       return (
@@ -159,6 +170,17 @@ export const renderReportById = (reportId: string, data: ReturnType<typeof build
           charities={data.estateCharities}
         />
       );
+    case 'legal-documents': {
+      if (!rawData) return null;
+      const ownerName =
+        ((rawData.name as string) || (rawData.client_name as string) || 'Client').toString();
+      return (
+        <LegalDocumentsSummary
+          data={rawData}
+          ownerName={ownerName}
+        />
+      );
+    }
     case 'need-care':
       return (
         <WhatToDoIfINeedCare
@@ -255,11 +277,17 @@ export const renderReportById = (reportId: string, data: ReturnType<typeof build
 const ReportsSection = () => {
   const [activeReport, setActiveReport] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<0 | 1>(0);
+  const { formData } = useFormContext();
   const data = useReportData();
   const { showHelp, openHelp, closeHelp } = useFolioHelp();
   const [customReportsHelpOpen, setCustomReportsHelpOpen] = useState(false);
+  const { enabled: enabledCategories } = useEnabledCategories();
+  // Hide reports whose required modules are turned off on the dashboard.
+  const visibleReports = REPORTS.filter((r) => reportIsAvailable(r.id, enabledCategories));
 
-  const rendered = activeReport ? renderReportById(activeReport, data) : null;
+  const rendered = activeReport
+    ? renderReportById(activeReport, data, formData as unknown as Record<string, unknown>)
+    : null;
 
   return (
     <Box sx={{ minHeight: 600 }}>
@@ -357,7 +385,7 @@ const ReportsSection = () => {
             </Box>
 
             <List disablePadding>
-              {REPORTS.map((report) => (
+              {visibleReports.map((report) => (
                 <ListItemButton
                   key={report.id}
                   selected={activeReport === report.id}
