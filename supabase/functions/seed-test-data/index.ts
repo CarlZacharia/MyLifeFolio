@@ -768,14 +768,14 @@ serve(async (req: Request) => {
     results.push('Emily Blank (Minimal)');
 
     // ================================================================
-    // PERSONA 6: Bill & Betty Thompson — Demo persona (remove later)
+    // PERSONA 6: Bill & Betty Thompson — Canonical demo persona
     // ================================================================
-    // Spec from Carl, 2026-05-01: Bonita Springs FL retirees, originally
-    // from Pittsburgh PA, estate plan signed in PA in 2012. Two adult
-    // children: Michael Thompson (son, single) and Jennifer Johnson (married
-    // daughter). Built for sales/feature demos so Carl doesn't have to
-    // hand-type a full intake. Removal checklist:
-    // memory/demo_seed_thompson_bill_betty.md.
+    // Bonita Springs FL retirees, originally from Pittsburgh PA, estate plan
+    // signed in PA in 2012. Two adult children: Michael Thompson (son, single)
+    // and Jennifer Johnson (married daughter). This is the persona Carl uses
+    // when showing the app to prospects — kept fully populated end-to-end so
+    // every dashboard tab renders meaningful content. Maintain like any other
+    // production seed; do not remove.
 
     const uid6 = await ensureUser(`bill.thompson${TEST_DOMAIN}`, 'Bill Thompson');
 
