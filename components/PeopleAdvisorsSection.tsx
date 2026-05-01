@@ -196,7 +196,7 @@ const PeopleAdvisorsSection = () => {
                 const advisors = getAdvisorsByType(type);
                 return (
                   <React.Fragment key={type}>
-                    <TableRow>
+                    <TableRow key={`header-${type}`}>
                       <TableCell
                         colSpan={4}
                         sx={{
@@ -212,7 +212,7 @@ const PeopleAdvisorsSection = () => {
                     </TableRow>
                     {advisors.map((advisor) => (
                       <TableRow
-                        key={advisor.originalIndex}
+                        key={`advisor-${advisor.originalIndex}`}
                         hover
                         onClick={() => openEditAdvisor(advisor.originalIndex)}
                         sx={{ cursor: 'pointer' }}
