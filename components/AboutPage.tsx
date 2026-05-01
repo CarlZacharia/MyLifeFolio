@@ -231,21 +231,41 @@ const AboutPage: React.FC<AboutPageProps> = ({ onNavigateBack }) => (
               >
                 Elder Law Attorney — 30+ Years
               </Typography>
-              <Typography
-                sx={{
-                  fontSize: '1.05rem',
-                  lineHeight: 1.9,
-                  color: 'text.secondary',
-                  fontFamily: '"Source Sans 3", sans-serif',
-                }}
-              >
-                Carl Zacharia has spent more than three decades practicing estate planning, estate administration and elder law in both
-                Pennsylvania and Florida. Over those years, he has helped countless families
-                navigate estate planning, Medicaid planning, long-term care decisions, asset
-                protection, and guardianship matters. His deep experience with the real-world
-                challenges families face when a loved one becomes ill, incapacitated, or passes
-                away is the foundation upon which MyLifeFolio was built.
-              </Typography>
+   <Typography
+  sx={{
+    fontSize: '1.05rem',
+    lineHeight: 1.9,
+    color: 'text.secondary',
+    fontFamily: '"Source Sans 3", sans-serif',
+  }}
+>
+  Carl Zacharia is the original founder of{' '}
+  <Link
+    href="https://zacbrownlaw.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    underline="hover"
+  >
+    Zacharia Brown & Bratkovich
+  </Link>{' '}
+  in Pennsylvania and the founding principal of{' '}
+  <Link
+    href="https://zacfreylaw.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    underline="hover"
+  >
+    Zacharia Frey PLLC
+  </Link>{' '}
+  in Florida. For more than three decades he has practiced estate planning,
+  estate administration, and elder law in both states, helping families
+  navigate Medicaid planning, long-term care decisions, asset protection,
+  and guardianship matters. He brings an unusual combination to MyLifeFolio:
+  a working elder law and estate planning attorney who also writes the code.
+  That dual perspective — what families actually need when a loved one
+  becomes ill, incapacitated, or passes away, paired with the ability to
+  build it directly — is the foundation MyLifeFolio is built on.
+</Typography>
             </Box>
           </Box>
 
