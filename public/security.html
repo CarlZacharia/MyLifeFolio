@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyLifeFolio Security — AES-256 Encryption, RLS &amp; Family Access Model</title>
+<meta name="description" content="How MyLifeFolio secures your digital life plan: client-side AES-256 encryption for credentials, row-level security on every record, encryption at rest, granular family-access controls, and a deletion-by-default policy on non-renewal.">
+<meta name="author" content="MyLifeFolio">
+<meta name="theme-color" content="#1a2e4a">
+<link rel="canonical" href="https://mylifefolio.com/security.html">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="MyLifeFolio">
+<meta property="og:title" content="MyLifeFolio Security — AES-256, RLS, and Granular Family Access">
+<meta property="og:description" content="The full security model: client-side AES-256 credential vault, row-level security on every record, encryption at rest, and granular family access controls.">
+<meta property="og:url" content="https://mylifefolio.com/security.html">
+<meta property="og:image" content="https://mylifefolio.com/mylifefolio.png">
+<meta property="og:image:secure_url" content="https://mylifefolio.com/mylifefolio.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:alt" content="MyLifeFolio — your digital life plan, organized and protected">
+<meta property="og:locale" content="en_US">
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MyLifeFolio Security — AES-256, RLS, and Granular Family Access">
+<meta name="twitter:description" content="The full security model: client-side AES-256 credential vault, row-level security on every record, encryption at rest, and granular family access controls.">
+<meta name="twitter:image" content="https://mylifefolio.com/mylifefolio.png">
+
+<!-- JSON-LD: TechArticle -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "MyLifeFolio Security — Encryption, Access Control, and Data Lifecycle",
+  "description": "A comprehensive overview of MyLifeFolio's security model: client-side AES-256 encryption, row-level security, encryption at rest, family access controls, and deletion-by-default on non-renewal.",
+  "image": "https://mylifefolio.com/mylifefolio.png",
+  "author": { "@type": "Organization", "name": "MyLifeFolio" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "MyLifeFolio",
+    "logo": { "@type": "ImageObject", "url": "https://mylifefolio.com/MLFLogo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://mylifefolio.com/security.html" },
+  "about": [
+    { "@type": "Thing", "name": "AES-256 encryption" },
+    { "@type": "Thing", "name": "Row-level security" },
+    { "@type": "Thing", "name": "Client-side encryption" },
+    { "@type": "Thing", "name": "Data deletion policy" }
+  ]
+}
+</script>
+
+<style>
+  :root {
+    --navy: #1a2e4a;
+    --gold: #b8975a;
+    --gold-lt: #d4b07a;
+    --gold-pale: #f5efe3;
+    --cream: #faf8f5;
+    --warm-gray: #6b6560;
+    --text: #2c2825;
+    --rule: #d8cfc4;
+    --green: #2e6e4e;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Jost', system-ui, sans-serif;
+    --max: 820px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--cream); color: var(--text); font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+
+  .topnav { padding: 22px 40px; border-bottom: 1px solid var(--rule); background: white; }
+  .topnav-inner { max-width: var(--max); margin: 0 auto; display: flex; gap: 28px; align-items: center; font-family: var(--sans); font-size: 0.85rem; }
+  .topnav a { color: var(--navy); text-decoration: none; font-weight: 500; }
+  .topnav a:hover { color: var(--gold); }
+  .topnav .home { font-family: var(--serif); font-size: 1.15rem; font-weight: 600; }
+
+  .hero { background: var(--navy); color: white; padding: 80px 40px 64px; }
+  .hero-inner { max-width: var(--max); margin: 0 auto; }
+  .hero-eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+  .hero h1 { font-family: var(--serif); font-size: clamp(2.4rem, 5vw, 3.4rem); font-weight: 400; line-height: 1.15; margin-bottom: 20px; }
+  .hero h1 em { font-style: italic; color: var(--gold-lt); }
+  .hero p { font-size: 1.05rem; color: rgba(255,255,255,0.78); max-width: 620px; line-height: 1.75; }
+
+  .pillars { max-width: var(--max); margin: 56px auto 0; padding: 0 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .pillar { background: white; padding: 24px 22px; }
+  .pillar-label { font-family: var(--serif); font-size: 0.75rem; font-style: italic; color: var(--gold); letter-spacing: 0.06em; margin-bottom: 8px; }
+  .pillar-name { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; color: var(--navy); margin-bottom: 6px; line-height: 1.3; }
+  .pillar-desc { font-size: 0.85rem; color: var(--warm-gray); line-height: 1.6; }
+
+  .section { max-width: var(--max); margin: 0 auto; padding: 56px 40px; border-bottom: 1px solid var(--rule); }
+  .section:last-of-type { border-bottom: none; }
+  .section-num { font-family: var(--serif); font-size: 0.78rem; font-style: italic; color: var(--gold); letter-spacing: 0.08em; margin-bottom: 8px; display: block; }
+  .section h2 { font-family: var(--serif); font-size: clamp(1.6rem, 3.5vw, 2rem); font-weight: 500; color: var(--navy); line-height: 1.25; margin-bottom: 20px; }
+  .section h3 { font-family: var(--serif); font-size: 1.15rem; font-weight: 600; color: var(--navy); margin-top: 24px; margin-bottom: 8px; }
+  .section p { font-size: 0.97rem; color: #3a3530; margin-bottom: 14px; line-height: 1.78; }
+  .section ul { margin: 12px 0 14px 0; padding-left: 20px; }
+  .section li { font-size: 0.95rem; color: #3a3530; margin-bottom: 6px; line-height: 1.7; }
+
+  .callout { background: var(--gold-pale); border-left: 3px solid var(--gold); padding: 18px 22px; margin: 22px 0; }
+  .callout p { font-family: var(--serif); font-style: italic; color: var(--navy); font-size: 1.05rem; margin: 0; line-height: 1.6; }
+
+  .footer { background: var(--navy); color: rgba(255,255,255,0.7); padding: 40px; text-align: center; font-size: 0.85rem; }
+  .footer a { color: var(--gold-lt); text-decoration: none; margin: 0 12px; }
+  .footer a:hover { color: white; }
+  .footer .links { margin-bottom: 18px; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a class="home" href="/">MyLifeFolio</a>
+    <a href="/mylifefolio-overview.html">Overview</a>
+    <a href="/security.html">Security</a>
+    <a href="/for-attorneys.html">For Attorneys</a>
+    <a href="/faq.html">FAQ</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">— Security &amp; Trust</div>
+    <h1>The most sensitive information of your life — <em>protected accordingly.</em></h1>
+    <p>MyLifeFolio holds the things you would never write on a sticky note: account numbers, healthcare wishes, legal documents, family passwords. The security model is designed for that level of trust.</p>
+  </div>
+</header>
+
+<div class="pillars">
+  <div class="pillar">
+    <div class="pillar-label">— Encryption</div>
+    <div class="pillar-name">AES-256 client-side</div>
+    <div class="pillar-desc">Credentials are encrypted on your device before they ever reach our servers.</div>
+  </div>
+  <div class="pillar">
+    <div class="pillar-label">— Authorization</div>
+    <div class="pillar-name">Row-level security</div>
+    <div class="pillar-desc">Every database row is scoped to its owner. There is no global "admin" view.</div>
+  </div>
+  <div class="pillar">
+    <div class="pillar-label">— Sharing</div>
+    <div class="pillar-name">Granular &amp; revocable</div>
+    <div class="pillar-desc">You decide who sees what — and can change those grants at any time.</div>
+  </div>
+  <div class="pillar">
+    <div class="pillar-label">— Lifecycle</div>
+    <div class="pillar-name">Delete by default</div>
+    <div class="pillar-desc">Inactive accounts are permanently deleted — we do not warehouse data.</div>
+  </div>
+</div>
+
+<section class="section">
+  <span class="section-num">— I.</span>
+  <h2>The credential vault: client-side AES-256</h2>
+  <p>Your passwords, account numbers, and other high-sensitivity credentials live in a separate vault inside MyLifeFolio. That vault uses <strong>client-side AES-256 encryption</strong>: the data is encrypted in your browser, with a key derived from your passphrase, before any of it leaves your device.</p>
+  <p>This means MyLifeFolio servers only ever see encrypted bytes. There is no decryption key on our side. There is no "support override." There is no employee, administrator, or attacker who can read your credentials by gaining access to our database, because the database does not contain anything readable.</p>
+  <div class="callout">
+    <p>"If the vault is the bank, we are the safety-deposit-box wall — we hold the box, but we do not have the key."</p>
+  </div>
+</section>
+
+<section class="section">
+  <span class="section-num">— II.</span>
+  <h2>Row-level security on every record</h2>
+  <p>Every piece of data in MyLifeFolio — every personal record, every financial account, every uploaded document — is governed by Postgres row-level security policies that scope it to its owner. When you log in, the database itself enforces that you can only see your own rows. There is no application-level "if user.id == row.owner" check that can be bypassed; the rule lives at the database level.</p>
+  <p>Family members you have granted access to operate under their own scoped policies that surface only the records you have explicitly shared with them — and nothing else.</p>
+</section>
+
+<section class="section">
+  <span class="section-num">— III.</span>
+  <h2>Encryption at rest and in transit</h2>
+  <ul>
+    <li><strong>In transit:</strong> all connections use TLS. Browser to server, server to database, server to storage — every hop is encrypted.</li>
+    <li><strong>At rest:</strong> the underlying Supabase infrastructure encrypts all stored data with AES-256.</li>
+    <li><strong>Documents:</strong> files in the Document Vault inherit both layers — encrypted in transit during upload and download, and encrypted at rest in storage.</li>
+  </ul>
+</section>
+
+<section class="section">
+  <span class="section-num">— IV.</span>
+  <h2>Family access — granular, intentional, revocable</h2>
+  <p>Family access is the part of MyLifeFolio that gets used most often. The model is built around three principles:</p>
+  <h3>You decide what each person sees</h3>
+  <p>Access is granted per category — health, financial, legal documents, end-of-life, etc. — and per person. Your spouse may see everything. Your adult child may see only the medical and contact information. Your attorney may see only the legal documents.</p>
+  <h3>You can revoke at any time</h3>
+  <p>Family grants are not permanent. Circumstances change; relationships change. You can adjust who sees what whenever you need to.</p>
+  <h3>Family members log in through a separate portal</h3>
+  <p>Granted family members do not log in to your account — they log in to their own Family Access portal, which surfaces only the categories you have shared with them. They cannot see categories you have not shared. They cannot edit your folio. The experience is intentionally read-focused, designed for the moment they actually need it.</p>
+</section>
+
+<section class="section">
+  <span class="section-num">— V.</span>
+  <h2>Authentication</h2>
+  <p>MyLifeFolio uses Supabase Auth with email + password. Sensitive operations require re-authentication. Sessions are issued as short-lived JWTs and refreshed automatically. We support strong password requirements and rate-limit login attempts to prevent brute-force attacks.</p>
+  <p>Multi-factor authentication is on the roadmap. We will notify users when it is available.</p>
+</section>
+
+<section class="section">
+  <span class="section-num">— VI.</span>
+  <h2>Data lifecycle: deletion by default</h2>
+  <p>We do not believe in warehousing inactive accounts. If your subscription ends — whether at the end of a free trial or after a cancellation — your data is <strong>permanently deleted</strong>.</p>
+  <p>You receive four reminder emails before deletion happens:</p>
+  <ul>
+    <li>30 days before the trial or subscription ends</li>
+    <li>7 days before</li>
+    <li>The day of</li>
+    <li>7 days after (final warning before deletion)</li>
+  </ul>
+  <p>You can export a complete copy of your folio at any time, including documents from the vault, and the export reminder is included in each warning email.</p>
+</section>
+
+<section class="section">
+  <span class="section-num">— VII.</span>
+  <h2>What we do not do</h2>
+  <ul>
+    <li>We do not sell or share your data with advertisers, brokers, or third parties.</li>
+    <li>We do not use your folio content to train external AI models. AI features that personalize content for you (like the AI obituary draft) operate on your data for your output only.</li>
+    <li>We do not retain accounts past the deletion policy described above.</li>
+    <li>We do not have a "back door" into the credential vault — the encryption is one-way from our perspective.</li>
+  </ul>
+</section>
+
+<section class="section">
+  <span class="section-num">— VIII.</span>
+  <h2>Reporting a security concern</h2>
+  <p>If you believe you have found a security vulnerability in MyLifeFolio, please contact us at <a href="mailto:info@mylifefolio.com" style="color: var(--gold); text-decoration: underline;">info@mylifefolio.com</a>. We take all reports seriously and will respond promptly.</p>
+</section>
+
+<footer class="footer">
+  <div class="links">
+    <a href="/">Home</a>
+    <a href="/mylifefolio-overview.html">Overview</a>
+    <a href="/faq.html">FAQ</a>
+    <a href="/for-attorneys.html">For Attorneys</a>
+  </div>
+  <div>© <script>document.write(new Date().getFullYear())</script> MyLifeFolio &nbsp;|&nbsp; mylifefolio.com</div>
+</footer>
+
+</body>
+</html>

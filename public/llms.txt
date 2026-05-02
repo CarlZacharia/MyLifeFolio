@@ -13,6 +13,9 @@ Pricing: $149 per year, with a 6-month free trial. No credit card required to st
 - [Landing page](https://mylifefolio.com/): Product overview, key benefits, what is inside the folio, how it works, security model.
 - [Platform overview (long-form)](https://mylifefolio.com/mylifefolio-overview.html): Detailed walkthrough of every category in MyLifeFolio — personal information, health and medical, financial life, estate documents, family access, legacy and life story, end-of-life preferences.
 - [Brochure / one-pager](https://mylifefolio.com/mylifefolio-brochure.html): Single-page narrative intended for sharing with prospective users.
+- [FAQ](https://mylifefolio.com/faq.html): Comprehensive answers organized into Getting Started, Pricing & Plans, Security & Data, Family Access, What It Organizes, Features & AI, and Fit With Your Existing Plan.
+- [Security model](https://mylifefolio.com/security.html): The full encryption, authorization, and data-lifecycle model — client-side AES-256 credential vault, row-level security, encryption at rest, granular family access, deletion-by-default on non-renewal.
+- [For attorneys & estate planners](https://mylifefolio.com/for-attorneys.html): How MyLifeFolio fits alongside the work elder-law attorneys, estate planners, and financial advisors do for their clients.
 - [Family Access portal](https://mylifefolio.com/family-access): Login page for family members who have been granted access by the folio owner.
 
 ## What MyLifeFolio organizes
