@@ -24,8 +24,8 @@ describe('AdminTestPanel', () => {
       ok: true,
       json: vi.fn().mockResolvedValue({
         success: true,
-        personas: ['Margaret Thornton', 'James Wilson', 'David Chen', 'Rosa Martinez', 'Emily Blank'],
-        message: 'Deleted 5 test users',
+        personas: ['Bill Thompson', 'Margaret Thornton', 'James Wilson', 'David Chen', 'Rosa Martinez', 'Emily Blank'],
+        message: 'Deleted 6 test users',
         deleted: ['margaret.thornton@mylifefolio.test'],
       }),
     });
@@ -64,9 +64,10 @@ describe('AdminTestPanel', () => {
   });
 
   describe('Persona Status', () => {
-    test('shows 5 persona rows in the table', async () => {
+    test('shows 6 persona rows in the table', async () => {
       render(React.createElement(AdminTestPanel));
       await waitFor(() => {
+        expect(screen.getByText('Bill Thompson')).toBeInTheDocument();
         expect(screen.getByText('Margaret Thornton')).toBeInTheDocument();
         expect(screen.getByText('James Wilson')).toBeInTheDocument();
         expect(screen.getByText('David Chen')).toBeInTheDocument();

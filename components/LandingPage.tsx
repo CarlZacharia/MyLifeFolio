@@ -33,6 +33,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import HomeIcon from '@mui/icons-material/Home';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useAuth } from '../lib/AuthContext';
 import SecurityInfoModal from './SecurityInfoModal';
@@ -274,6 +275,10 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                     sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
                     About
                   </Button>
+                  <Button variant="outlined" onClick={() => onNavigate('pricing')} startIcon={<LocalOfferOutlinedIcon />}
+                    sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+                    Pricing
+                  </Button>
                   {isAdminUser(user.email) && onAdmin && (
                     <Button variant="outlined" onClick={onAdmin} startIcon={<AdminPanelSettingsIcon />}
                       sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
@@ -320,6 +325,10 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
                   <Button variant="outlined" onClick={() => onNavigate('about')} startIcon={<InfoOutlinedIcon />}
                     sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
                     About
+                  </Button>
+                  <Button variant="outlined" onClick={() => onNavigate('pricing')} startIcon={<LocalOfferOutlinedIcon />}
+                    sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+                    Pricing
                   </Button>
                   <Button color="inherit" onClick={onLogin} sx={{ opacity: 0.9, '&:hover': { opacity: 1, bgcolor: 'rgba(255,255,255,0.08)' } }}>
                     Sign In

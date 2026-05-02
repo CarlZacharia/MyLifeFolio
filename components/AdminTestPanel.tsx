@@ -21,6 +21,7 @@ import { supabase } from '../lib/supabase';
 const TEST_PASSWORD = 'TestPass123!';
 
 const TEST_PERSONAS = [
+  { name: 'Bill Thompson', email: 'bill.thompson@mylifefolio.test', desc: 'Canonical demo — Bonita Springs FL retirees, PA estate plan 2012, Michael & Jennifer (Johnson)' },
   { name: 'Margaret Thornton', email: 'margaret.thornton@mylifefolio.test', desc: 'Full data — married, 3 children, assets, legacy, LTC' },
   { name: 'James Wilson', email: 'james.wilson@mylifefolio.test', desc: 'Moderate — single widower, 2 children, basic assets' },
   { name: 'David Chen', email: 'chen.family@mylifefolio.test', desc: 'Heavy assets — business, crypto, investments' },

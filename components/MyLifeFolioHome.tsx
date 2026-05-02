@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import {
   Box,
   Container,
   Typography,
   Card,
   CardContent,
+  Collapse,
   Grid,
   AppBar,
   Toolbar,
@@ -178,7 +181,7 @@ const AnimatedSection: React.FC<{ children: React.ReactNode; delay?: number }> =
 const folioCategories = [
   {
     id: 'personal-information', title: 'Personal Information', icon: <PeopleIcon sx={{ fontSize: 26 }} />, accentColor: '#1e3a5f',
-    items: ['Client & spouse details', 'Contact info & identification', 'Domicile & marital status', 'Military service', 'Safe deposit box', 'Medicare & medical insurance'],
+    items: ['Client & spouse details', 'Contact info & identification', 'Domicile & marital status', 'Military service', 'Safe deposit box'],
   },
   {
     id: 'family-dependents', title: 'Family & Dependents', icon: <FamilyRestroomIcon sx={{ fontSize: 26 }} />, accentColor: '#d4497a',
@@ -238,8 +241,9 @@ const FolioCard: React.FC<{
   locked?: boolean;
   requiredTierName?: string;
   itemCount?: number;
-}> = ({ icon, title, accentColor, items, delay = 0, onClick, locked = false, requiredTierName, itemCount = 0 }) => {
-  const [hovered, setHovered] = useState(false);
+  expanded?: boolean;
+  onHoverChange?: (hovered: boolean) => void;
+}> = ({ icon, title, accentColor, items, delay = 0, onClick, locked = false, requiredTierName, itemCount = 0, expanded = false, onHoverChange }) => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -255,12 +259,11 @@ const FolioCard: React.FC<{
   return (
     <Fade in={visible} timeout={600}>
       <Card
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseEnter={() => onHoverChange?.(true)}
+        onMouseLeave={() => onHoverChange?.(false)}
         onClick={onClick}
         elevation={0}
         sx={{
-          height: '100%',
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
@@ -268,16 +271,16 @@ const FolioCard: React.FC<{
           cursor: 'pointer',
           border: '1px solid',
           borderColor: empty
-            ? hovered
+            ? expanded
               ? alpha(effectiveAccent, 0.35)
               : alpha(effectiveAccent, 0.12)
             : '#000000',
           bgcolor: empty ? '#f5f5f3' : 'background.paper',
-          transform: hovered ? 'translateY(-6px)' : 'translateY(0)',
-          boxShadow: hovered
+          transform: expanded ? 'translateY(-6px)' : 'translateY(0)',
+          boxShadow: expanded
             ? `0 20px 48px ${alpha(effectiveAccent, 0.13)}`
             : '0 4px 24px rgba(0,0,0,0.06)',
-          transition: 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)',
+          transition: 'transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)',
           '&::after': {
             content: '""',
             position: 'absolute',
@@ -286,14 +289,14 @@ const FolioCard: React.FC<{
             right: 0,
             height: '3px',
             background: `linear-gradient(90deg, ${effectiveAccent}, ${alpha(effectiveAccent, 0.4)})`,
-            transform: hovered ? 'scaleX(1)' : 'scaleX(0)',
+            transform: expanded ? 'scaleX(1)' : 'scaleX(0)',
             transformOrigin: 'left',
-            transition: 'transform 0.4s ease',
+            transition: 'transform 0.5s ease',
           },
         }}
       >
-        <CardContent sx={{ p: 3.5, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: items ? 2.5 : 0 }}>
+        <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Box
               sx={{
                 width: 48,
@@ -321,45 +324,49 @@ const FolioCard: React.FC<{
               {title}
             </Typography>
           </Box>
-          {items && items.length > 0 && (
-            <Box component="ul" sx={{ pl: 2, m: 0, flexGrow: 1 }}>
-              {items.map((item, idx) => (
-                <Typography key={idx} component="li" variant="body2" sx={{ color: 'text.secondary', mb: 0.6, fontSize: '0.88rem' }}>
-                  {item}
-                </Typography>
-              ))}
+          <Collapse in={expanded} timeout={500}>
+            <Box sx={{ pt: 2.5 }}>
+              {items && items.length > 0 && (
+                <Box component="ul" sx={{ pl: 2, m: 0 }}>
+                  {items.map((item, idx) => (
+                    <Typography key={idx} component="li" variant="body2" sx={{ color: 'text.secondary', mb: 0.6, fontSize: '0.88rem' }}>
+                      {item}
+                    </Typography>
+                  ))}
+                </Box>
+              )}
+              {/* Status chip */}
+              <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                {meaningful && (
+                  <Box
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      bgcolor: '#2e7d32',
+                      flexShrink: 0,
+                    }}
+                  />
+                )}
+                <Box
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    px: 1.25,
+                    py: 0.4,
+                    borderRadius: 1,
+                    bgcolor: empty ? alpha('#9a9a9a', 0.12) : alpha('#2e7d32', 0.1),
+                    color: empty ? '#6a6a6a' : '#1b5e20',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  {empty ? 'Not started' : `${itemCount} ${itemCount === 1 ? 'item' : 'items'}`}
+                </Box>
+              </Box>
             </Box>
-          )}
-          {/* Status chip */}
-          <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 0.75 }}>
-            {meaningful && (
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  bgcolor: '#2e7d32',
-                  flexShrink: 0,
-                }}
-              />
-            )}
-            <Box
-              sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                px: 1.25,
-                py: 0.4,
-                borderRadius: 1,
-                bgcolor: empty ? alpha('#9a9a9a', 0.12) : alpha('#2e7d32', 0.1),
-                color: empty ? '#6a6a6a' : '#1b5e20',
-                fontSize: '0.78rem',
-                fontWeight: 600,
-                letterSpacing: '0.02em',
-              }}
-            >
-              {empty ? 'Not started' : `${itemCount} ${itemCount === 1 ? 'item' : 'items'}`}
-            </Box>
-          </Box>
+          </Collapse>
         </CardContent>
 
         {/* Lock overlay for gated features */}
@@ -432,6 +439,27 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
   const [manageOpen, setManageOpen] = useState(false);
   const [draftEnabled, setDraftEnabled] = useState<FolioCategoryId[]>(enabledCategories);
   const [savingCategories, setSavingCategories] = useState(false);
+
+  // Track which card is currently hovered so the entire row can expand together.
+  // A small leave-debounce prevents flicker when the cursor crosses between two
+  // cards in the same row.
+  const muiTheme = useTheme();
+  const isMd = useMediaQuery(muiTheme.breakpoints.up('md'));
+  const isSm = useMediaQuery(muiTheme.breakpoints.up('sm'));
+  const cardsPerRow = isMd ? 4 : isSm ? 2 : 1;
+  const [hoveredCardIdx, setHoveredCardIdx] = useState<number | null>(null);
+  const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleCardHover = (i: number, hovered: boolean) => {
+    if (hovered) {
+      if (leaveTimerRef.current) {
+        clearTimeout(leaveTimerRef.current);
+        leaveTimerRef.current = null;
+      }
+      setHoveredCardIdx(i);
+    } else {
+      leaveTimerRef.current = setTimeout(() => setHoveredCardIdx(null), 80);
+    }
+  };
 
   // Reset draft to current state every time the dialog opens
   useEffect(() => {
@@ -837,6 +865,9 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
                 cat.id === 'document-uploads'
                   ? vaultDocCount
                   : (cardCounts[cat.id as Exclude<FolioCardId, 'document-uploads'>] ?? 0);
+              const expanded =
+                hoveredCardIdx !== null &&
+                Math.floor(hoveredCardIdx / cardsPerRow) === Math.floor(i / cardsPerRow);
               return (
                 <Grid item xs={12} sm={6} md={3} key={cat.id}>
                   <FolioCard
@@ -848,6 +879,8 @@ const MyLifeFolioHome: React.FC<MyLifeFolioHomeProps> = ({
                     locked={locked}
                     requiredTierName={locked ? TIER_INFO[reqTier].name : undefined}
                     itemCount={itemCount}
+                    expanded={expanded}
+                    onHoverChange={(h) => handleCardHover(i, h)}
                     onClick={() =>
                       locked
                         ? onNavigate?.('pricing')

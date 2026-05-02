@@ -101,12 +101,12 @@ const ObituaryHelpModal: React.FC<ObituaryHelpModalProps> = ({ open, onClose }) 
             sx={{ bgcolor: '#e8f5e9', color: '#2e7d32', fontWeight: 600, mt: 0.25 }}
           />
           <Typography sx={body}>
-            <strong>Generate with AI</strong>{' '}
-            <em>(Enhanced plan)</em> takes everything you have entered and
-            composes a polished, publication-ready obituary in your chosen tone.
-            The AI only uses information you provide — it never fabricates
-            details. You can generate up to <strong>5 drafts</strong> per
-            person, each downloadable as Text, Word, or PDF.
+            <strong>Generate with AI</strong> takes everything you have
+            entered and composes a polished, publication-ready obituary in
+            your chosen tone. The AI only uses information you provide — it
+            never fabricates details. You can generate up to{' '}
+            <strong>5 drafts</strong> per person, each downloadable as Text,
+            Word, or PDF.
           </Typography>
         </Box>
       </Box>

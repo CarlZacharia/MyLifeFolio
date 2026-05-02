@@ -147,3 +147,13 @@ WHERE us.tier = 'trial'
     SELECT 1 FROM public.scheduled_emails se
     WHERE se.user_id = us.user_id AND se.email_type = 'grace_7day_after'
   );
+
+-- 4. Drop the legacy schedule_trial_emails trigger + function. handle_new_user
+--    (above) now schedules the new 4-email cadence directly when a row is
+--    inserted into auth.users. The legacy function fired on user_subscriptions
+--    INSERT and used an unqualified `scheduled_emails` reference, which fails
+--    when invoked from GoTrue's restricted search_path — every
+--    auth.admin.createUser() call would surface as "Database error creating
+--    new user" until this drop is applied. CASCADE removes the trigger that
+--    pointed at it.
+DROP FUNCTION IF EXISTS public.schedule_trial_emails() CASCADE;
