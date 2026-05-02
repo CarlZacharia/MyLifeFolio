@@ -176,7 +176,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
       icon: <AccountBalanceIcon sx={{ fontSize: 26 }} />,
       title: 'Financial Life',
       accentColor: '#0a5c36',
-      items: ['Assets: financial, real property, vehicles, business, digital, personal property', 'Income sources', 'Expenses', 'Debts'],
+      items: ['Assets: financial, real property, vehicles, business, personal property', 'Income sources', 'Expenses', 'Debts'],
     },
     {
       icon: <ContactsIcon sx={{ fontSize: 26 }} />,
@@ -206,7 +206,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
       icon: <FavoriteBorderIcon sx={{ fontSize: 26 }} />,
       title: 'Care Decisions',
       accentColor: '#00838f',
-      items: ['Care setting & medical preferences', 'Diet, hygiene & daily routine', 'Activities, family & social', 'Cognitive, communication & spiritual', 'Financial & end-of-life preferences'],
+      items: ['Care setting & medical preferences', 'Diet, hygiene & daily routine', 'Activities, family & social', 'Cognitive & spiritual', 'Financial & end-of-life preferences'],
     },
     {
       icon: <VolunteerActivismIcon sx={{ fontSize: 26 }} />,
