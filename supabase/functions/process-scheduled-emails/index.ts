@@ -248,7 +248,7 @@ function getEmailTemplate(emailType: string, userName: string): EmailTemplate {
                 </p>
                 <p style="font-size: 16px; margin: 0 0 16px 0;">
                   Renew now for <strong style="color: #c9a227; font-size: 20px;">$99/year</strong>
-                  <span style="text-decoration: line-through; color: #888;">$140/year</span>
+                  <span style="text-decoration: line-through; color: #888;">9/year</span>
                 </p>
                 <a href="${renewUrl}" style="background: #c9a227; color: #0f2744; padding: 12px 32px; text-decoration: none; border-radius: 4px; font-weight: 600; display: inline-block;">
                   Renew Now — Save $41

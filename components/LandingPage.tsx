@@ -837,8 +837,8 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
           </DialogTitle>
           <DialogContent sx={{ px: 3, pt: 3, pb: 1 }}>
             <Typography sx={{ fontSize: '1rem', lineHeight: 1.8, color: '#1a1a1a', fontFamily: '"Source Sans 3", sans-serif' }}>
-              MyLifeFolio is free for your first year — no credit card required. When you sign up,
-              you get twelve months of full access to every feature on the platform, including
+              MyLifeFolio is free for your six (6) months — no credit card required. When you sign up,
+              you get six months of full access to every feature on the platform, including
               document storage, asset tracking, legacy planning, and the Digital Credentials Vault.
             </Typography>
             <Typography sx={{ fontSize: '1rem', lineHeight: 1.8, color: '#1a1a1a', fontFamily: '"Source Sans 3", sans-serif', mt: 2 }}>
@@ -848,7 +848,7 @@ const LandingPage = ({ onNavigate, onLogin, onRegister, onAdmin, onProfile }: { 
             <Typography sx={{ fontSize: '1rem', lineHeight: 1.8, color: '#1a1a1a', fontFamily: '"Source Sans 3", sans-serif', mt: 2 }}>
               As your trial period approaches its end, we'll send you a series of friendly reminders
               so you're never caught off guard. If you'd like to keep your MyLifeFolio after the free
-              period, you can renew for <strong>$140 per year</strong> — everything you've built stays
+              period, you can renew for <strong>$149 per year</strong> — everything you've built stays
               exactly as you left it.
             </Typography>
             <Typography sx={{ fontSize: '1rem', lineHeight: 1.8, color: '#1a1a1a', fontFamily: '"Source Sans 3", sans-serif', mt: 2 }}>
