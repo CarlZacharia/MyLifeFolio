@@ -1,0 +1,48 @@
+# MyLifeFolio
+
+> A secure digital life plan that organizes your estate, financial accounts, healthcare wishes, documents, and legacy — so the right people have the right information at exactly the right moment.
+
+MyLifeFolio is the practical companion to a traditional estate plan. While a will or trust handles the legal framework, MyLifeFolio captures the operational guide your family will actually need during a medical emergency, after a loss, or when a loved one needs to step in and help: account inventories, medical directives, family contacts, digital assets, end-of-life preferences, and personal wishes — alongside the legal documents themselves.
+
+The platform is built around controlled family access: you decide who can see what, and when. Sensitive credentials are protected with client-side AES-256 encryption — even MyLifeFolio cannot read them. All data is row-level secured.
+
+Pricing: $149 per year, with a 6-month free trial. No credit card required to start.
+
+## Core pages
+
+- [Landing page](https://mylifefolio.com/): Product overview, key benefits, what is inside the folio, how it works, security model.
+- [Platform overview (long-form)](https://mylifefolio.com/mylifefolio-overview.html): Detailed walkthrough of every category in MyLifeFolio — personal information, health and medical, financial life, estate documents, family access, legacy and life story, end-of-life preferences.
+- [Brochure / one-pager](https://mylifefolio.com/mylifefolio-brochure.html): Single-page narrative intended for sharing with prospective users.
+- [Family Access portal](https://mylifefolio.com/family-access): Login page for family members who have been granted access by the folio owner.
+
+## What MyLifeFolio organizes
+
+- **Personal & family information** — vital records, identity documents, family relationships, dependents
+- **Health & medical** — providers, medications, allergies, advance directives, healthcare preferences
+- **Financial life** — accounts, institutions, investment positions, insurance policies, recurring obligations
+- **Estate plan & legal documents** — wills, trusts, powers of attorney, beneficiary designations
+- **Document vault** — encrypted storage with controlled family access
+- **End-of-life & care preferences** — care decisions, funeral preferences, organ donation wishes
+- **Legacy & life story** — personal letters, video legacy, charitable wishes, memory vault, AI-assisted obituary
+- **Digital life** — online accounts, digital assets, social media, password vault (AES-256)
+
+## Who it is for
+
+Adults who want their family to know what to do in an emergency or after a loss — particularly parents, caregivers, retirees, and anyone with an estate plan who recognizes that the legal documents alone do not tell their family where to look or what was wanted. Often introduced by elder-law attorneys and estate planners.
+
+## Differentiators
+
+- **Controlled, granular family access** — the folio owner decides who sees what, and when
+- **Real encryption** — credential vault is client-side AES-256; the company cannot read it
+- **Permanent deletion on non-renewal** — accounts are not retained after the subscription ends, with multiple email warnings before deletion
+- **AI obituary** — included for all users, even trial
+- **Built by an elder-law practice** — origin in Pittsburgh elder-law work; designed around what families actually need under stress
+
+## Contact
+
+- Website: https://mylifefolio.com
+- Email: info@mylifefolio.com
+
+## Sitemap
+
+https://mylifefolio.com/sitemap.xml
