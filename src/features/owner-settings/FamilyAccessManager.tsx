@@ -22,6 +22,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import LinkIcon from '@mui/icons-material/Link';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import FamilyAccessHelpModal from '../../../components/FamilyAccessHelpModal';
 import FolioModal, {
   folioTextFieldSx,
@@ -37,7 +38,12 @@ import { useFormContext } from '../../../lib/FormContext';
 import { REPORTS } from '../../../components/ReportsSection';
 import { SavedReportConfig } from '../../../lib/savedReportService';
 import { useEnabledCategories } from '../../../lib/EnabledCategoriesContext';
-import { accessSectionIsAvailable, reportIsAvailable } from '../../../lib/folioCategoryConfig';
+import {
+  accessSectionIsAvailable,
+  reportIsAvailable,
+  reportRequiresSections,
+  reportSectionsGranted,
+} from '../../../lib/folioCategoryConfig';
 
 // Helper to delete storage files via edge function (bypasses storage.objects RLS)
 async function deleteStorageFile(filePath: string, bucket: string): Promise<void> {
@@ -391,16 +397,35 @@ const FamilyAccessManager: React.FC = () => {
     fetchData();
   };
 
+  // When a section is unchecked, also drop any reports that require it — a
+  // report shouldn't outlive the section access it depends on. Keep the
+  // invariant: every report in formReports has all its required sections.
   const toggleSection = (section: string) => {
-    setFormSections((prev) =>
-      prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]
-    );
+    setFormSections((prev) => {
+      if (!prev.includes(section)) return [...prev, section];
+      const nextSections = prev.filter((s) => s !== section);
+      setFormReports((prevReports) =>
+        prevReports.filter((rId) => reportSectionsGranted(rId, nextSections)),
+      );
+      return nextSections;
+    });
   };
 
+  // When a report is checked, also add any required sections it depends on so
+  // the family member can actually see the underlying data. Same invariant as
+  // toggleSection — sections always cover the reports.
   const toggleReport = (reportId: string) => {
-    setFormReports((prev) =>
-      prev.includes(reportId) ? prev.filter((r) => r !== reportId) : [...prev, reportId]
-    );
+    setFormReports((prev) => {
+      if (prev.includes(reportId)) return prev.filter((r) => r !== reportId);
+      const required = reportRequiresSections(reportId);
+      if (required.length > 0) {
+        setFormSections((prevSections) => {
+          const missing = required.filter((s) => !prevSections.includes(s));
+          return missing.length === 0 ? prevSections : [...prevSections, ...missing];
+        });
+      }
+      return [...prev, reportId];
+    });
   };
 
   const toggleCustomReport = (configId: string) => {
@@ -862,19 +887,60 @@ const FamilyAccessManager: React.FC = () => {
                   </Box>
                 </TableCell>
                 <TableCell>
-                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', alignItems: 'center' }}>
                     {(u.allowed_reports || []).length === 0 && (u.allowed_custom_reports || []).length === 0 ? (
                       <Typography variant="caption" color="text.secondary">None</Typography>
                     ) : (
                       <>
                         {(u.allowed_reports || []).map((rId) => {
                           const rDef = REPORTS.find((r) => r.id === rId);
-                          return <Chip key={rId} label={rDef?.label || rId} size="small" variant="outlined" />;
+                          const stale = !reportSectionsGranted(rId, u.access_sections);
+                          return (
+                            <Chip
+                              key={rId}
+                              label={rDef?.label || rId}
+                              size="small"
+                              variant="outlined"
+                              color={stale ? 'warning' : undefined}
+                              icon={stale ? <WarningAmberIcon /> : undefined}
+                            />
+                          );
                         })}
                         {(u.allowed_custom_reports || []).map((cId) => {
                           const cDef = savedCustomReports.find((r) => r.id === cId);
                           return <Chip key={cId} label={cDef?.name || 'Custom Report'} size="small" variant="outlined" color="info" />;
                         })}
+                        {(() => {
+                          const stale = (u.allowed_reports || []).filter(
+                            (rId) => !reportSectionsGranted(rId, u.access_sections),
+                          );
+                          if (stale.length === 0) return null;
+                          const missingByReport = stale.map((rId) => {
+                            const rDef = REPORTS.find((r) => r.id === rId);
+                            const missing = reportRequiresSections(rId).filter(
+                              (s) => !u.access_sections.includes(s),
+                            );
+                            return `${rDef?.label || rId} (needs: ${missing.join(', ')})`;
+                          });
+                          return (
+                            <Tooltip
+                              title={
+                                <Box>
+                                  <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+                                    Hidden from this family member until you grant the required sections:
+                                  </Typography>
+                                  {missingByReport.map((m) => (
+                                    <Typography key={m} variant="caption" sx={{ display: 'block' }}>
+                                      • {m}
+                                    </Typography>
+                                  ))}
+                                </Box>
+                              }
+                            >
+                              <WarningAmberIcon sx={{ fontSize: 16, color: '#ed6c02' }} />
+                            </Tooltip>
+                          );
+                        })()}
                       </>
                     )}
                   </Box>
@@ -1136,6 +1202,8 @@ const FamilyAccessManager: React.FC = () => {
             </Box>
             <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 1 }}>
               Choose which reports this family member can view in the Family Portal.
+              Selecting a report automatically grants access to the underlying
+              section it draws from.
             </Typography>
             <FormGroup>
               {availableReports.map((report) => (

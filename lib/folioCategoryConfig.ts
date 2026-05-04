@@ -109,3 +109,46 @@ export function accessSectionIsAvailable(
   if (!req) return true; // unmapped sections (e.g. full_sensitive) always available
   return enabled.includes(req);
 }
+
+/**
+ * Reverse of ACCESS_SECTION_REQUIRES: category id → access section key.
+ * Some categories (care-decisions, digital-life, legacy-life-story,
+ * document-uploads) don't have a corresponding family-access section, so the
+ * lookup may return undefined.
+ */
+const CATEGORY_TO_ACCESS_SECTION: Partial<Record<FolioCategoryId, string>> =
+  Object.entries(ACCESS_SECTION_REQUIRES).reduce<Partial<Record<FolioCategoryId, string>>>(
+    (acc, [section, category]) => {
+      acc[category as FolioCategoryId] = section;
+      return acc;
+    },
+    {},
+  );
+
+/**
+ * Returns the family-access section keys a report depends on. Used to keep
+ * report grants and section grants consistent: a family member can only see a
+ * report if they also have access to the underlying data sections that feed
+ * it. Reports whose categories don't map to any access section (e.g. digital
+ * life) return [] — no section gate applies.
+ */
+export function reportRequiresSections(reportId: string): string[] {
+  const cats = REPORT_REQUIRES[reportId];
+  if (!cats || cats.length === 0) return [];
+  const sections: string[] = [];
+  for (const cat of cats) {
+    const sec = CATEGORY_TO_ACCESS_SECTION[cat];
+    if (sec && !sections.includes(sec)) sections.push(sec);
+  }
+  return sections;
+}
+
+export function reportSectionsGranted(
+  reportId: string,
+  accessSections: string[],
+): boolean {
+  const required = reportRequiresSections(reportId);
+  if (required.length === 0) return true;
+  const set = new Set(accessSections);
+  return required.every((s) => set.has(s));
+}

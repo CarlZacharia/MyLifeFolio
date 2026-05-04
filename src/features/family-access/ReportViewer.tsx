@@ -8,6 +8,7 @@ import { supabase } from '../../../lib/supabase';
 import { buildReportData } from '../../../lib/buildReportData';
 import { REPORTS, renderReportById } from '../../../components/ReportsSection';
 import { CATEGORY_TO_REPORT_IDS } from '../../../lib/reportBuilderConfig';
+import { reportSectionsGranted } from '../../../lib/folioCategoryConfig';
 import ReportLayout from './reports/ReportLayout';
 import { SavedReportConfig } from '../../../lib/savedReportService';
 
@@ -36,11 +37,17 @@ const ReportViewer: React.FC<ReportViewerProps> = ({
     [data]
   );
 
-  // Filter reports to only those the client has explicitly allowed
+  // Filter reports to those the owner has explicitly allowed AND whose
+  // underlying sections the family member also has access to. This second gate
+  // catches stale grants made before report/section consistency was enforced —
+  // e.g. an "Asset Inventory" report granted without "Financial" section access
+  // is hidden silently rather than leaking financial data.
   const availableReports = useMemo(() => {
     if (!allowedReports || allowedReports.length === 0) return [];
-    return REPORTS.filter((r) => allowedReports.includes(r.id));
-  }, [allowedReports]);
+    return REPORTS.filter(
+      (r) => allowedReports.includes(r.id) && reportSectionsGranted(r.id, accessSections),
+    );
+  }, [allowedReports, accessSections]);
 
   const logAccess = async (reportName: string) => {
     await supabase.from('folio_access_log').insert({
@@ -84,7 +91,13 @@ const ReportViewer: React.FC<ReportViewerProps> = ({
       }
     }
 
-    if (reportIdsToRender.length === 0) {
+    // Drop sub-reports whose underlying access sections aren't granted, so a
+    // custom report can't smuggle past category-level restrictions.
+    const gatedReportIds = reportIdsToRender.filter((rid) =>
+      reportSectionsGranted(rid, accessSections),
+    );
+
+    if (gatedReportIds.length === 0) {
       return (
         <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
           This custom report has no renderable sections.
@@ -94,7 +107,7 @@ const ReportViewer: React.FC<ReportViewerProps> = ({
 
     return (
       <ReportLayout title={config.name} ownerName={ownerName}>
-        {reportIdsToRender.map((reportId, idx) => (
+        {gatedReportIds.map((reportId, idx) => (
           <React.Fragment key={reportId}>
             {idx > 0 && <Divider sx={{ my: 3 }} />}
             {renderReportById(reportId, reportData, data)}
